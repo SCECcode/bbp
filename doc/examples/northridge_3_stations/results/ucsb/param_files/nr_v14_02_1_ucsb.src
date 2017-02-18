@@ -1,0 +1,25 @@
+#
+# Northridge source file for the UCSB method
+#
+MAGNITUDE = 6.73
+FAULT_LENGTH = 20.00
+FAULT_WIDTH = 27.00
+DEPTH_TO_TOP = 5.00
+STRIKE = 122
+RAKE = 105.00
+DIP = 40
+LAT_TOP_CENTER = 34.344
+LON_TOP_CENTER = -118.515
+HYPO_ALONG_STK = 6.00
+HYPO_DOWN_DIP =  19.40
+#MOMENT = 1.40E+19
+#
+# Model specific parameters
+#
+DWID = 0.5
+DLEN = 0.5
+CORNER_FREQ = 0.23
+#
+# Alternative SEEDS create alternative .srf
+#
+SEED = 2379646

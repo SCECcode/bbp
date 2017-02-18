@@ -1,0 +1,30 @@
+
+================================================================================
+Fri 13 Mar 2015 10:17:27 PDT
+================================================================================
+
+Broadband version: 15.3.0
+Python version: 2.7.5 (default, Mar  9 2014, 22:15:05) 
+[GCC 4.2.1 Compatible Apple LLVM 5.0 (clang-500.0.68)]
+
+GCC Version: gcc (MacPorts gcc48 4.8.4_0) 4.8.4
+Copyright (C) 2013 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+GFORTRAN Version: GNU Fortran (MacPorts gcc48 4.8.4_0) 4.8.4
+Copyright (C) 2013 Free Software Foundation, Inc.
+
+GNU Fortran comes with NO WARRANTY, to the extent permitted by law.
+You may redistribute copies of GNU Fortran
+under the terms of the GNU General Public License.
+For more information about these matters, see the file named COPYING
+
+
+NumPy Version: 1.6.2
+
+SciPy Version: 0.11.0
+
+Matplotlib Version: 1.1.1
+

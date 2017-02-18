@@ -1,0 +1,3 @@
+#Required:  lon, lat, station name, Vs30
+#Optional: low freq corner, high freq corner
+-118.6417       34.5640 s01    450     0.120   111.11
