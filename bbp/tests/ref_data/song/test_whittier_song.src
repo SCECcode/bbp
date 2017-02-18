@@ -1,0 +1,23 @@
+#
+# Whittier Narrows source file
+#
+MAGNITUDE = 5.89
+FAULT_LENGTH = 10.00
+FAULT_WIDTH = 10.00
+DEPTH_TO_TOP = 12.00
+STRIKE = 280
+RAKE = 90.00
+DIP = 30
+LAT_TOP_CENTER = 34.012
+LON_TOP_CENTER = -118.0885
+HYPO_ALONG_STK = 0.0
+HYPO_DOWN_DIP =  5.20
+#
+# Model specific parameters
+#
+DWID = 0.1
+DLEN = 0.1
+#
+# Alternative SEEDS create alternative .srf
+#
+SEED = 2379646

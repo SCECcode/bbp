@@ -1,0 +1,22 @@
+CONCAT_1
+CONCAT_2
+0                  number of headers preceeding each seismogram
+10                 number of stations
+2001              nt number of timesteps in set 1
+2001              nt number of timesteps in set 2
+V                  Input format(A,V,D), (meter, sec)
+200                length of seismograms (seconds)
+2.0                Low cut (period)
+10.0               High Cut (period)
+1.0                Weighting on PGA
+1.0                Weighting on PGV
+1.0                Weighting on PGD
+1.0                Weighting on PSA
+1.0                Weighting on Spectral Fit
+1.0                Weighting on Cumulative Energy Fit
+1.0                Weighting on Inelastic/Elastic Fit (16)
+1.0                Weighting on Spec Acc (16)
+1.0                Weighting on Spec Dur (16)
+1.0                Weighting on Data Energy Release Duration (5%-75%)
+1.0                Weighting on Cross-Correlation
+1.0                Weighting on Fourier Spectrum

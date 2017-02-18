@@ -1,0 +1,7 @@
+#BBP Station List for Loma Prieta
+#SLong    SLat     RSN   Vs30(m/s) HiPass_Freq(Hz) LoPass_Freq(Hz)  Obs_File
+-121.803 37.050  80001   462 0.150  40.0    LOMAP/80001_N.acc
+-122.010 37.172  80002   515 0.100  50.0    LOMAP/80002_N.acc
+-121.991 37.202  80003  1070 0.080  30.0    LOMAP/80003_N.acc
+-122.031 37.255  80004   387 0.100  38.0    LOMAP/80004_N.acc
+-122.009 37.262  80005   387 0.100  38.0    LOMAP/80005_N.acc

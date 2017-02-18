@@ -1,0 +1,25 @@
+# Script to run NOAH
+cp inputBC.iwan input.iwan
+cp QBC.par Q.par
+./noah_w tremorka.rock ../../syn1d/1D/er1.190.gm1D.001.dcv  er1.190.nl1D.001
+./noah_w tremorka.rock ../../syn1d/1D/er1.280.gm1D.001.dcv  er1.280.nl1D.001
+./noah_w tremorka.rock ../../syn1d/1D/pdm.175.gm1D.001.dcv  pdm.175.nl1D.001
+./noah_w tremorka.rock ../../syn1d/1D/pdm.265.gm1D.001.dcv  pdm.265.nl1D.001
+./noah_w tremorka.rock ../../syn1d/1D/ssp.000.gm1D.001.dcv  ssp.000.nl1D.001
+./noah_w tremorka.rock ../../syn1d/1D/ssp.090.gm1D.001.dcv  ssp.090.nl1D.001
+./noah_w tremorka.rock ../../syn1d/1D/law.095.gm1D.001.dcv  law.095.nl1D.001
+./noah_w tremorka.rock ../../syn1d/1D/law.185.gm1D.001.dcv  law.185.nl1D.001
+mv *.nl1D.001.sac ../.
+
+
+
+
+
+
+
+
+
+
+
+
+

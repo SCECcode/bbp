@@ -1,0 +1,37 @@
+Metadata-Version: 1.1
+Name: simplekml
+Version: 1.1.2
+Summary: A Simple KML creator
+Home-page: http://code.google.com/p/simplekml/
+Author: Kyle Lancaster
+Author-email: kyle.lan@gmail.com
+License: GNU General Public License
+Description: 
+        simplekml is a python package which enables you to generate KML with as little effort as possible.
+        
+        At the time of making this package nothing was available (at least I could not find anything) that could create KML files easily. You needed a lot of bloated code to even create a simple point. This is understandable because the KML standard is quite extensive, but what if you just work with the simple elements of KML like Document, Folder, Point, LineString and Polygon? This package supports those elements and everything documented in the KML Reference. With simplekml creating a KML file containing a point as simple as::
+        
+            import simplekml
+            kml = simplekml.Kml()
+            kml.newpoint(name="Kirstenbosch", coords=[(18.432314,-33.988862)])
+            kml.save("botanicalgarden.kml")
+        
+        See the Documentation_ for usage and reference or visit the Homepage_ for more information.
+        
+        .. _Documentation: http://simplekml.readthedocs.org
+        .. _Homepage: http://code.google.com/p/simplekml/
+        
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.0
+Classifier: Programming Language :: Python :: 3.1
+Classifier: Programming Language :: Python :: 3.2
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering :: GIS
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

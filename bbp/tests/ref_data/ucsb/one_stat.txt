@@ -1,0 +1,1 @@
+-118.6417       34.5640 s01    20.47   450     0.120   23.0    CSMIP   peer.berkeley.edu/nga

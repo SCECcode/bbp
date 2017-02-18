@@ -1,0 +1,10 @@
+compile using 
+icc -o getfaultGlobal getfaultGlobal.c
+
+reads names of velocitym odel file and srf file. srf file has to have ending .srf and needs to be in lonlat format
+usage
+echo velocityFileName >! tmp
+echo srfFileName.srf >> tmp
+getfaultGLobal < tmp
+
+this creates faultGlobal.in which can be used by the conversion programs in the module for linear synthetic seismograms. Note, that a lot of entries are set at -1 because they are not used. So the created file can not be used to create source models.

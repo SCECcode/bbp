@@ -1,0 +1,115 @@
+PYTHON PACKAGE: pynga
+AUTHOR: Feng Wang (originally, Jan 2012)
+
+DESCRIPTION 
+    The Next Generation Attenuation (NGA) 2008 Ground Motion Prediction Equations
+    This package could be extended to include more ground motion predition models and 
+    include updated NGA models 
+
+COMPONENTS
+    0. combination of all NGA models 
+       __init__.py 
+	   It can deal with periods that are not in the existing period list (interpolation)
+	   default period list (Different models have different list): 
+	    'BA': [0.01, 0.02, 0.03, 0.05, 0.075, 0.10, 0.15, 0.20, 0.25,
+		  0.30, 0.40, 0.50, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0,-1,-2],   # last two: PGA, PGV, 
+	    'CB': [0.01, 0.02, 0.03, 0.05, 0.075, 0.10, 0.15, 0.20, 0.25,
+		  0.30, 0.40, 0.50, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0,-1,-2],    
+	    'CY': [0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.10, 0.15, 0.20, 0.25,
+		  0.30, 0.40, 0.50, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0,-1,-2],    
+	    'AS': [0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.10, 0.15, 0.20, 0.25,
+		  0.30, 0.40, 0.50, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0,-1,-2], 
+
+    1. Four NGA models (details)
+       AS08.py, BA08.py, CB08.py, CY08.py 
+	   Basic required inputs: 
+	       T    : Period  
+	       Mw   : Magnitude 
+	       Rjb  : Joyer-Boore distance Rjb 
+	       rake : This could be None, but then you have specify the fault type (Ftype) as following: 
+		      'U': Unknown (just for BA08 model)
+		      'SS': Strike-slip
+		      'RV': Reverse 
+		      'NM': Normal 
+		      the relationship between rake and fault type could be found in ./utils.py 
+	       Vs30 : average S wave velocity of upper 30m 
+	       Fhw  : This could be None, but then you have to specify Rx or azimuth (Source to Site azimuth) 
+		      the definition of azimuth can be found in James et al. (2011) BSSA paper 
+          Optional inputs: 
+               # Check __init__.py
+               
+
+    2. Spudich and Chiou 2008 directivity model (under-construction)
+       SC08.py 
+	   right now, it requires inputs generated from Matlab package (Spudich and Chiou 2008)
+           The self-generated inputs would be available soon...
+    
+    3. NGA dataset (xls format) manipulation 
+       NGAdataset.py 
+    
+    4. NGA dataset (original datafiles used for regression to obtain the NGA models)
+       ./NGAdata/NGA_Flatfile.xls 
+    
+    5. Validation of pynga
+       ./Validation, the pynga is validated with OpenSHA (discussion with Christine), and the distance calculation
+       utilities are validated with OpenSHA
+       ./Validation/plots/ValidationNGAs/ show the NGA calculation comparison results (within 0.02% for PGA and SA at various periods)
+       ./Validation/plots/ValidationDistances/ show the distance calculation comparison (within 1km)
+  
+    6. Applications of pynga in Fling Study (basis for broadband application of pynga)
+       ./FlingStudy (similar to BBP, src read, distance calculation and GMPEs results)
+       ./BBP ( simple workflow for BBP Part B GMPE comparisons with simulation results ) 
+
+
+DOWNLOAD 
+    Since the package is version-controlled on GitHub, so you can clone the package using "git clone" 
+	git clone git@github.com:fengw/pynga.git 
+    or go to "https://github.com/fengw/pynga" to download a tar version of the package
+
+
+INSTALLATION
+    1. Pre-Install (dependences):
+	Basis python (2.5 or higher version) + numpy  (required by compute NGA results)
+          Optional: matplotlib (Debug to visually check validation and calculated results)
+                    pyproj     ( used to compute unknown distance parameters for inputs in NGA models)
+                    xlrd, xlwt ( used in NGA flatfile manipulation tools )
+
+    2. ADD to PYTHONPATH (on MacOS and Linux)
+        Method1: Assuming you download the package in ${PathToSaveThePackage}
+	vi .bashrc (assuming you use bash, similar to other shells) in the home directory
+	   first, set up your PYTHONHOME (where you installed your python)
+	   second, set up the PYTHONPATH, usually, it equals to 
+	       export PYTHONPATH=${PYTHONHOME}/lib/python{version}/site_packages
+	   third, add the package downloaded into the PYTHONPATH by 
+	      export PYTHONPATH=$HOME/local/pynga:$PYTHONPATH
+
+UPDATES
+    I might change the code very often for my research purposes, but you can keep updating your version of pynga with mine
+    by using: 
+       git pull 
+    in the pynga directory 
+   
+    If you find any bugs in the code, let me know, and my email address is: fengo.win@gmail.com
+
+USAGE
+    Launch python or ipython, type: import pynga
+    In you script: 
+	from pynga import *      # import all NGA models
+	from pynga.utils import *    # import utils that will be used in the process
+        
+        # set inputs parameters: 
+        model_name = 'BA'; period = 3.0; Mw = 7.0; Rjb = 10.; Vs30 = 760.; Ftype='SS', \
+        
+        # The settings from those keywords, please refer to __init__.py 
+        median, sigmaT, tau, sigma = NGA08( model_name, Mw, Rjb, Vs30, period, epislon=0, Ftype=Ftype)
+        The unit of median, sigmaT, tau and sigma are all in (g)
+
+
+REFERENCES 
+    Abrahamson, N.A., and Silva, W.J., 2008, Summary of the Abrahamson & Silva NGA ground-motion relations: Earthquake Spectra, vol. 24, no. 1, p. 67–97. 
+    Atkinson, G.M., and Boore, D.M., 2011, Modifications to existing ground-motion prediction equations in light of new data: Bulletin of the Seismological Society of America, in press. 
+    Boore, D.M., and Atkinson, G.M., 2008, Ground-motion prediction equations for the average horizontal component of PGA, PGV, and 5%-damped PSA at spectral periods between 0.01 s and 10.0 s: Earthquake Spectra, vol. 24, no. 1, p. 99–138. 
+    Campbell, K.W., and Bozorgnia, Y., 2008, NGA ground motion model for the geometric mean horizontal component of PGA, PGV, PGD and 5% damped linear elastic response spectra for periods ranging from 0.01 to 10 s: Earthquake Spectra, vol. 24, no. 1, p. 139–171. 
+    Chiou, B.S.-J., and Youngs, R.R., 2008a, An NGA model for the average horizontal component of peak ground motion and response spectra: Earthquake Spectra, vol. 24, no. 1, p. 173–215. 
+    Kaklamanos, James, David M. Boore, Eric M. Thompson, and Kenneth W. Campbell (2011), Implementation of the Next Generation Attenuation (NGA) Ground-Motion Prediction Equations in Fortran and R, U.S. Geol. Surv. Open-File Rept. 2010-1296, 47pp.
+    Spudich, P. and B.S.-J., Chiou, 2008, Directivity in NGA Earthquake Ground motions: Analysis Using Isochrone Theory, 24, 1, 279-298.

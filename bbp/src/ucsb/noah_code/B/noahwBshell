@@ -1,0 +1,6 @@
+# Script to run NOAH
+cp inputB.iwan input.iwan
+cp QB.par Q.par
+./noah_w tremorka.rock ../../syn1d/1D/gri.000.gm1D.001.dcv gri.000.nl1D.001
+./noah_w tremorka.rock ../../syn1d/1D/gri.270.gm1D.001.dcv gri.270.nl1D.001
+mv *.nl1D.001.sac ../.

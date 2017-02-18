@@ -1,0 +1,66 @@
+	<BBP_Run_Specification>
+		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.2.0"/>
+		<BBP_Modules>
+			<BBP_Module>
+				<name>ExSim</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
+					<file>$BBP_INSTALL_GF/LABasin/uwo/labasin_exsim.par</file>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_eq_gp.src</argument>
+					<argument type="str">labasin_exsim.par</argument>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">LABasin</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>Plot_Map</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_eq_gp.src</argument>
+					<argument type="str">northridge_3_sta.stl</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>PlotSeis</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">northridge_eq_gp.src</argument>
+					<argument type="bool">False</argument>
+					<argument type="bool">False</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>RotD50</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>GenHTML</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">northridge_eq_gp.src</argument>
+					<argument type="str">LABasin</argument>
+					<argument type="NoneType">None</argument>
+					<argument type="str">EXSIM</argument>
+				</arguments>
+			</BBP_Module>
+		</BBP_Modules>
+	</BBP_Run_Specification>

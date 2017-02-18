@@ -1,0 +1,133 @@
+----------------------------------------------------------------------------------------------
+20131008 RWG:
+
+New/modified parameters for genslip-v3.2.1:
+
+1) Modify output format by setting:
+
+   write_srf=1
+   write_gsf=0
+
+so that the code will directly produce the SRF file without having to make subsequent call
+to 'generic_slip2srf'
+
+2) Additional parameters needed for SRF output are:
+
+   stype=$STYPE
+   dt=$DT
+   risetime=$RISETIME
+   plane_header=1
+   risetimefac=$RTFAC
+   risetimedep=$RTDEP
+   risetimedep_range=$RTDEP_RANGE
+   rt_scalefac=$RT_SCALEFAC
+
+These should already be defined in the script.
+
+3) The default setting with "write_srf=1" will write to stdout.  So the call to the code
+should be something like:
+
+genslip-v3.2.1 read_erf=0 write_srf=1 ... rt_scalefac=$RT_SCALEFAC > $SRFDIR/$SRFFILE
+
+And then remove the subsequent call to 'generic_slip2srf'.
+
+4) Change tapering parameters to:
+
+   side_taper=0.02
+   bot_taper=0.0
+   top_taper=0.0
+
+These are now the new default settings. At some point, these might need to be made
+variables that could be user-specified.
+
+5) Additional new parameters for modifying character of slip along deep bottom portion of
+fault:
+
+   slip_water_level=-1
+   deep_risetimedep=16.5
+   deep_risetimedep_range=1.5
+   deep_risetimefac=1.5
+
+These are the default settings. Testing is currently underway to make sure these are
+appropriate.  At some point, these might need to be made
+variables that could be user-specified.
+
+
+Also, genslip-v3.2.1 has the capability to generate SRF files for multi-segment faults.
+Documentation for multi-segment case is pending.
+----------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
+20131119 RWG:
+
+1) Changes to coding->
+
+   * Changed default/recommended slip rate function to 'Mliu' which is modified version
+     of UCSB function.  See gen_Mliu_stf() in srf_subs.c for details.
+
+   * Added parameter 'risetime_coef' which is used to calculate average risetime
+     from moment using:
+
+         stfparams.trise = risetime_coef*1.0e-09*exp(log(mom)/3.0);
+
+     This option only works if risetime=-1 which is now the default.
+
+   * Changed default/recommended coefficient for average rise time relation from '1.6'
+     to '1.45' =>
+
+         risetime_coef = 1.45
+
+     This can be overridden by specifying as a getper parameter, e.g., for use in
+     CEUS, use risetime_coef=3.75
+
+   * Added 'alphaT' parameter for scaling of rise time for dip & rake.  Update of alphaT
+     parameter defined by Graves and Pitarka (2010) =>
+
+          alphaT = 1.0/(1.0 + fD*fR*Calpha)
+
+          where Calpha = 0.1   (max value when fD=fR=1.0)
+
+                fD = 1.0 - (dip - 45.0)/45.0      for 45.0 < dip <= 90.0
+                fD = 1.0                          for dip <= 45.0
+                fD = 0.0                          otherwise
+
+                fR = 1.0 - (|rake - 90.0|)/90.0   for 0.0 <= rake <= 180.0
+                fR = 0.0                          otherwise
+
+          Note: should have 0 <= dip <= 90 and -180 <= rake <= 180
+
+     Default for Calpha is 0.1, but can be passed to code as getpar() variable.
+
+   * Added 'alphaT' parameter for scaling of rise time for dip & rake.  Update of alphaT
+
+   * Added random perturbations to tsfac so that it is not 1:1 correlated with slip.
+     Perturbations are log normal with ln(sigma)=tsfac_rand*tsfac.  Default for
+     tsfac_rand=0.2.
+
+   * Added random perturbations to risetime so that it is not 1:1 correlated with
+     sqrt(slip).  Perturbations are log normal with ln(sigma)=rt_rand*trise.  Default
+     for rt_rand=0.5.
+
+2) Using default settings, and given an input GSF file, execution of the code
+requires only the following parameters:
+
+genslip-v3.3 read_erf=0 \
+             write_srf=1 \
+             read_gsf=1 \
+             write_gsf=0 \
+             infile=$GSFDIR/$GSFTEMP \
+             mag=$MAG \
+             nx=$NX \
+             ny=$NY \
+             ns=1 \
+             nh=1 \
+             seed=$SEED \
+             velfile=$VELFILE \
+             shypo=$SHYPO \
+             dhypo=$DHYPO \
+             dt=$DT \
+             plane_header=1 \
+             > $SRFDIR/$SRFFILE
+
+Note that many additional parameters can be optionally specified to alter their default
+settings.
+----------------------------------------------------------------------------------------------

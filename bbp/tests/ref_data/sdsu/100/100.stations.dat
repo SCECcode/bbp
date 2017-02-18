@@ -1,0 +1,22 @@
+% station coordinates in x,y system, origin at fault center
+%    X (north)     Y (east)
+        34           1
+        14           1
+         0           1
+       -14           1
+       -34           1
+        20           5
+         0           5
+       -20           5
+        30          10
+        10          10
+         0          10
+       -10          10
+       -30          10
+         0          15
+        20          20
+         0          20
+       -20          20
+         0          25
+         0          32
+         0          40

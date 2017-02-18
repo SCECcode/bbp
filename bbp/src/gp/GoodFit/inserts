@@ -1,0 +1,6 @@
+      integer      nSim(80),nEvent,icomp,icompck
+      common /spec_com/specflag
+      logical      specflag
+      character*10 srcfunc,sfck,pgmid,pgmidck
+      character*20 evName(80)
+      common /header/ srcfunc,pgmid,evName,sfck,pgmidck,nSim,nEvent,icomp,icompck

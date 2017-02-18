@@ -1,0 +1,27 @@
+#
+# Whittier source file for PEER Validation Study
+# Currently, DLEN and DWID are temp values until correct are selected
+# CornerFreq is under review
+#
+MAGNITUDE = 5.89
+FAULT_LENGTH = 10.00
+FAULT_WIDTH = 10.00
+DEPTH_TO_TOP = 12.00
+STRIKE = 280
+RAKE = 90.00
+DIP = 30
+LAT_TOP_CENTER = 34.012
+LON_TOP_CENTER = -118.0885
+HYPO_ALONG_STK = 0.0
+HYPO_DOWN_DIP =  5.20
+# MOMENT = 7.72E+17
+#
+# Model specific parameters
+#
+DWID = 0.2
+DLEN = 0.2
+CORNER_FREQ = 0.15
+#
+# Alternative SEEDS create alternative .srf
+#
+SEED = 2379646

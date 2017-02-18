@@ -1,0 +1,29 @@
+\* Parameters file for scattering code
+\* -----------------------------------The following parameters can be changed--------------------------------------------- *\
+
+3000    \* iseed - seed number for scattering wavelets -> [-1]:random value, [0]:default value, [int]:user-defined
+0       \* s_seed - seed number for medium properties -> [-1]:random value, [0]:default value, [int]:user-defined
+150.0   \* Q - Q for the coda waves -> [0.0]:default value,[1.0]:drawn from normal distribution, [real]:user-defined 
+0.01    \* scatcoeff - scattering coefficient -> [0.0]:default value, [1.0]:drawn from uniform distribution, [real]:user-defined          
+0.01    \* kappa - kappa at the site -> [0.0]:default value, [1.0]:drawn from uniform distribution, [real]:user-defined
+0.8	\* fdec - see equation Q=Qf*f**fdec -> [0.0]:default value,[real]:user-defined
+0.2	\* hpass - highpass corner of the cosine filter -> [0.0]:default value,[real]:user-defined
+
+\* -----------------------------Additional parameters can be changed----------------------------------------------------- *\
+
+100.0   \* fmax - previously set in module_bbtoolbox.f90 -> [0.0]:default value (100.0Hz), [real]:user-defined
+2       \* imerg - flag to determine style of combining LF and HF -> [0]:old merging, [1]:1 fault, [2]:many subfaults
+50.e6   \* str_fac - Brune stress parameter (50 bars) G&P (2010) eqn (12) -> [0.0]:default value (50.e6), [real]:user-defined
+1.4     \* fac - scaling parameter for revers fault mechanism -> [0.0]:default value (1.0), [real]:user-defined
+41.0    \* afac - qk factor 'a' from G&P (2010) eqn (15) -> [0.0]:default value (41.0), [real]:user-defined
+34.0    \* bfac - qk factor 'b' from G&P (2010) eqn (15) -> [0.0]:default value (34.0), [real]:user-defined
+0.075   \* Tr_sca - scaling factor for Tr for a new stf  -> [0.0]:default value (0.1), [real]:user-defined
+
+\* -----------------------------WARNING :The following parameters should not be changed----------------------------------- *\
+
+500     \* ncoda - number of points computed for the coda envelope -> [0]:default value,[int]:user-defined
+512	\* nfcoda - the corrsponding fft points -> [0]:default value,[int]:user-defined
+1500	\* nscat - number of scattering wavelets -> [0]:default value,[int]:user-defined
+0.001	\* merr - tolerance of the coda envelope -> [0.0]:default value,[real]:user-defined
+0.01    \* abscoeff - absorption coefficient -> [0.0]:default value, [1.0]:drawn from uniform distribution, [real]:user-defined
+0.1     \* trans - trans. bandw. of the filter (begins at hpass-trans, ends at hpass) -> [0.0]:default value,[real]:user-defined  

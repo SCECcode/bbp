@@ -1,0 +1,639 @@
+for V1.5.5.3 (02/05/2015)
+
+This version is sent to Fabio on 02/16/2015.
+
+Updated
+<composition.f90>
+bug fixed for sdec computation (01/14/2015).
+from
+   sdec=1.10 for R_cell(k) > 200km.
+to
+   sdec=1.10 for R_cell(k) > 160km.
+This does not affect on Mineral, but affect on Saguenay?
+
+<source.f90>
+New rc for CENA (02/06/2015).
+Compute a new str_fac in srf_read with dtop (Ztor) (02/11/2015).
+
+bug fixed bc for CENA (02/14/2015).
+bc=( 0.141-0.090*atan(Mw*1.60-9.55) )*alt, added "*alt".
+
+Add tapering for stf using Tr (02/16/2015).
+
+<scattering.dat file>
+New scatterin.dat file -> scattering.dat.v1553.
+Recommended decimation factor is 4 rather than 3.
+
+<scattering.f90>
+In a new scattering.dat (scattering.dat.v1553 file),
+If str_fac=0.0 then
+   if gs_flag = 1, str_fac=50e6
+   if gs_flag = 2, str_fac=(225+16*Ztor)e6. ... computed in srf_read in source.f90
+
+If str_fac is real number, user-defined (02/10/2015). 
+
+<io.f90>
+In read_seis,
+change from:
+! Initial condition test to check wheter LF or optional HF are going to be opened
+to:
+! Make clear which parameters are used for the file format
+
+This was changed in v156_f95, but was not changed in v156 nor v1552.
+This should be in v156 and v1552.
+This is changed in v1553 (02/19/2015).
+
+
+
+!----------------------
+
+for V1.5.5.2,
+Combine v1.5.5.1 to V1.5.6 (12/15/2014)
+
+V1.5.6 is a version debugging V155 using
+/opt/intel/Compiler/11.1/046/bin/intel64/ifort -check -traceback  $MODULE $CODE -o BBtoolboxV155-ifort.exe
+done by April 2014.
+
+V1.5.6 does not contain the change in v1551 (mostly for CENA).
+The codes in this directory (V1.5.5.2) contain both v1551 and v156 (debugging then minor change).
+
+<io.f90>
+Add dpt=0 for "!compute average Vs, rho over fault" routine.
+Make clear about ierr for opening file1d in vel1d subroutine.
+Add using adgustment tmp_lf_len for BIN in read_seis, and
+change using d_npts and tmp_dt for output bin files in write_disk.
+
+
+<coda.f90>
+Check i in t(i) must be ncoda or less than ncoda in coda subroutine.
+Add "if (n1 .gt. ncoda) n1=ncoda" to check if n1 becomes greater than ncoda for p(n1).
+
+<< TEST HISTORY for V1552 >>
+
+<source.f90>
+test rc for CENA with
+rc=(0.185-0.120*atan(i*1.85-9.000))*alt (12/16/2014).
+ 
+<coda.f90>
+kappa_local=kappa(station)*0.5
+to
+kappa_local=kappa(station)*1.0
+to see what effect it has on HFs (12/19/2014).
+--->>> keep kappa_local=kappa(station)*0.5/
+
+<coda.f90>
+kappa1=0.005, 0.007
+fc=30hz
+if f > fc, exp(-(f-fc)*kappa1*log(Mw)) (12/22/2014).
+--->>> all HFs (not only f>30hz) over-predicted ... wrong...
+
+<composition.f90>
+the same test above, but the exp is on Am_hf? (12/23/2014)
+--->>> do not use kappa1
+
+<composition.f90>
+bug fixed for sdec computation (01/14/2015).
+sdec=1.10 for R_cell(k) > 160km, but
+sdec=1.10 for R_cell(k) > 200km.
+This does not affect on Mineral, but affect on Saguenay?
+
+!------------------------------
+
+for v1.5.5.1 (09/26/2014)
+
+This version was copied from v1.5.5.
+Mainly changed for CENA events and CENA scenarios.
+There is no change for western NA.
+
+For CENA
+<scattering.dat.v1551>
+kappa = 0.017
+str_fac = 6.25*(depth_to_top_of_fault)+265, rather than 350e06.
+   RDL: 341e06
+   Mineral: 301e06
+   Saguenay: 399e06
+
+<main_bbtoolbox.f90>
+give station parameter for call sta_stf,
+changing from 'call sta_stf' to 'call sta_stf(station)'.
+
+<module_bbtoolbox.f90>
+add sr_rrup computed in geometry.f90 and used in source.f90.
+
+<geometry.f90>
+add sr_rrup(n_stat) computation as Rrup between station to
+extended fault.
+
+<source.f90>
+add Tr_fac computation for eastern North America.
+There are two Tr_fac computations, for western CA and eastern North America.
+
+<composition.f90>
+change sdec factor for CENA,
+changing R^1.1 for R > 200km to R > 160km.
+
+<< source.f90 >>
+small change Tr_fac computation.
+original source.f90 is in source.old.v1551.
+transit from rc to bc is changed from 70km < Rrup < 110km
+to 100km < Rrup < 120km.
+Also Tr_fac=bc for Rrup>120km (10/14/2014).
+
+!<io.f90>
+!for Jeff's NGAE-OCT14 exercise.
+!changing targ_fr (merging frequency) to be 1Hz for all Mw (10/31/2014). <--- just for test (12/04/2014)
+
+!------------------
+TEST in v1.5.5
+<source.f90>
+test for a new Tr_fac
+if distance > distmin (100km?)
+the Tr_fac is Mw & distance dependent (mainly for eastern events)
+(Sep 19 2014).
+
+
+
+!!!!!!!! MEMO !!!!!!!!!!!!
+
+in read_seis in io.f90,
+   ! reading file... compute also time-step 
+   do j=1,wts_npts
+      read(1,*) dummy,tmp_timeseries(j,1),tmp_timeseries(j,2),tmp_timeseries(j,3)
+      if (j == 2) ts_dt=dummy
+   enddo
+
+The code assumes that LFs must start from 0.0 sec, dt*1 sec, dt*2 sec .... .
+If LFs start from dt*1 sec, the ts_dt should be dt*2 sec.
+The ts_dt must be computed from dummy(2) - dummy(1) or so.
+(July 8 2014)
+
+
+
+
+
+
+
+
+for v1.5.5
+This version is copied from srcV1.5.4.1_march2014 (04/15/2014).
+Sent to Fabio on 04/16/2014, for SSA April 2014.
+Change scattergram size setting in coda.f90.
+(Actually change lf-length and the timeseries if needed.)
+In the v1.5.4.1, 
+in scoda, calling four1d caused Segmentation fault in the cruster server.
+When "reshape" scattgram, the size of scattgram is too large to compute.
+If lf-length > 102.375 sec, compute scattgram in size of 102.375 sec, and
+add zero-pad to fill the rest of the lf-length.   
+this only works when the LFs length is 102.3750 sec x n, an integer factor of 102.375 sec.
+Tottori (new srf) and Niigata, their LF-lengths are 199.975 sec which the LF-length
+add some anomaly at the end of the BBsynthetics.
+When LF-length > 102.375 sec, add zero-pad to be that the LF-length = 102.375 x n.
+For example, for the Tottori and Niigata, add zero-pad from 200.00sec to 204.750 sec,
+102.375 sec x 2.
+!!! THIS CHANGE IS ONLY FOR CASE'3SF' IN V1.5.5 !!!
+
+<io.f90>
+add lf-length adjustment for CASE ('3SF') (04/15/2014).
+
+<coda1.f90>
+<composition1.f90>
+<convolution1.f90>
+<io.f90>
+<source1.f90>
+<module_bbtoolbox1.f90>
+tmp_npts amd tmp_lf_len are in tmp_para in module_bbtoolbox1.f90 (04/16/2014).
+
+<composition1.f90>
+change c0 for f0 computation (G&P-2010, eqn 13) for CEUS, c0=1.1 (when gs_flag=2).
+change sdec computation when gs_flag=2 (CEUS events) (04/16/2014).
+
+These *1.f90 files become *.f90 for v155, and old ones are in *.v1541.
+
+Add recommendation in scattering.dat.v155.
+str_fac = 50e6 for western CA, 350e6 for eastern north america (depth_independent),
+and str_fac = 6.25*(depth_to_top_of_fault)+265 for eastern north america (depth_dependent).
+From the depth_dependent str_fac, Saguenay-str_fac=399bar=6.25*21.5+265 -> 399e6,
+Mineral-str_fac=302e6, and RDL-str_fac=342e6.
+
+
+Modify filter the low frequency routine in coda.f90 (June 2014).
+
+
+
+!--------------------------
+
+for v1.5.4.1 tests
+testing:
+<composition1.f90> ... tested wrong way
+to test,
+change 
+! find time-index corresponding to P-wave arrival 
+   ind=nint(time_p(station)/dt)
+to
+   ind=nint(time_s(station)/dt)
+for Mineral R>200km (03/10/2014).
+
+<composition2.f90> ... corrected test
+to test,
+change 
+! find time-index corresponding to P-wave arrival 
+   ind=nint(time_p(station)/dt)
+to
+   ind=nint(time_s(station)/dt)
+for Mineral R>200km (03/10/2014).
+
+<composition3.f90>
+to test using 1.1 for f0 computation for CENA.
+(Rob Graves uses 1.1 for CENA events, rather than the 2.1 for the west) (04/14/2014).
+And in addition to doing this 
+this test with the sdec values that we have defined for the eastern events, 
+also estimate optimal str_fac values using sdec=1. for R<200 km, 
+and sdec=1.1 for R>200 km. (04/15/2014, from Dr. Olsen)
+
+
+
+!<coda1.f90>
+!write scattrogram in a file (03/10/2014).
+
+
+
+
+
+!--------------------
+
+for v1.5.4.1
+This version is copied from srcV1.5.4, and added gs_flag in scattering.dat
+to determine whether western CA events or eastern North America (ENA*1)  events,
+and sdec parameter to adjust distance dependent"G" for ENA events (03/05/2014).
+   *1: ENA: eastern North America (the southeastern Canada/northeastern U.S. region
+      by G. M. Atkinson, Evaluation of Attenuation Models for the Northeastern United States/
+      Southeastern Canada, Seismological Research Letters Vol83 No1 2012.
+
+To send Fabio for BBPlatform, module_bbtoolbox.f90, scattering.f90 and composition.f90
+become *.v154, and module_bbtoolbox1.f90, scattering1.f90 and composition1.f90
+showing below become module_bbtoolbox.f90, scattering.f90 and composition.f90
+respectively.
+An example of a new scattering.dat is in scattering-v1541.dat (03/06/2014).
+
+
+
+<module_bbtoolbox1.f90>
+add gs_flag to determine type of tectonic region whether tectonically active (e.g. Western CA)
+or stable region (e.g. ENA) (03/04/2014).
+
+<scattering1.f90>
+add gs_flag, read from scattering.dat file (03/04/2014). 
+
+<composition1.f90>
+change calculation of G
+from
+   G=imp*attn/(R_cell(k)) !path term, G&P (2010) eqn 14
+to
+   G=imp*attn/(R_cell(k))**sdec    !path term, G&P (2010) eqn 14
+   (03/03/2014).
+
+The sdec is computed depending on gs_flag and R_cell (03/04/2014).
+
+!-----------------------------------------------------------------------------------------------
+for V1.5.4_March2014
+
+This version is copied from srcV1.5.3_new_npts_idec2 (02/21/2014).
+(1) source6.f90 in V1.5.3 becomes soource.f90, changing Tr_factor calculation.
+(2) Target frequency is computed as a function of Mw, and the bandwidth becomes fixed parameter. 
+    They are removed from SOcomp.par.
+(3) fac, ncoda, nfcoda, nscat, merr, abscoeff and trans become fixed parameters. 
+    They are removed from scattering.dat.
+(4) time_step (output decimation factor) is set in scattering.dat.
+(5) str_fac=50e6 for western events, 100e6 for eastern events (02/26/2014).
+
+
+<source.f90>
+copied from source6.f90 from V1.5.3.
+new Tr_fac:
+Tr_fac=0.141-0.090*atan(Mw*1.60-9.55) ! change (02/11/2014)
+
+<module_bbtoolbox.f90>
+scattering:
+   time_step is input parameter from scattering.dat.
+   fac, ncoda, nfcoda, nscat, merr, abscoeff and trans are fixed parameters.
+   fac=1.4, ncoda=500, nfcoda=512, nscat=1500, merr=0.001, abscoeff=0.01, trans=0.1.
+matching:
+   targ_fr is computed as a function of Mw in io.f90.
+   band_wid is fixed parameter. band_wid=0.05.
+
+<io.f90>
+time_step is a global parameter, in scattering module.
+
+in read_inputfile subroutine,
+targ_fr and band_wid are removed from main input file, and targ_fr is computed as a function of Mw.
+
+<scattering.f90>
+time_step is an input parameter from scattering.dat.
+fac, ncoda, nfcoda, nscat, merr, abscoeff and trans are removed as fixed parameters in
+module_bbtoolbox.f90.
+
+<composition.f90>
+time_step is an input parameter from scattering.dat.
+
+<New SOcomp.par>
+delete Target Matching Frequency & Bandwidth for Search.
+An example file is SOcomp-v154.par.
+
+<New scattering.dat>
+delete fac, ncoda, nfcoda, nscat, merr, abscoeff, and trans.
+An example file is scattering-v154.dat.Mineral.
+
+
+!-------------- from srcV1.5.3_new_npts_idec2 ----------------
+This version is copied from srcV1.5.2_new_npts_idec (11/19/2013),
+and sent to Fabio on 11/20/2013.
+
+The changes are based on trfac_calc_bb2.f.
+  Change new alt calculation in composition.f90 and add the alt in source.f90 as well.
+  Change new Tr_fac calculation in source.f90.
+
+<composition1.f90>
+just for a test for Target frequency (02/20/2014).
+
+<source1.f90>
+change P coefficients P(1)~P(6) for new_stf (12/16/2013).
+
+<source2.f90>
+copy source1.f90 to use Tr_sca to test Tr_factor (01/09/2014).
+
+<source3.f90>
+switch P(1)~P(6) to a new Tr_fac;
+Tr_fac=0.062-0.042*atan(Mw*1.65-11.2) (01/07/2014).
+
+<source4.f90>
+copy source3.f90 to use Tr_sca to test the new Tr_fac (01/16/2014).
+
+<source5.f90>
+copy source3.f90 and change Tr_fac, such as
+Tr_fac=0.162-0.110*atan(Mw*1.45-8.53)
+along with the current modification of the alt factor based on fault dip (02/10/2014).
+
+<source6.f90>
+copy source5.f90 and change Tr_Fac, such as
+Tr_fac=0.141-0.090*atan(Mw*1.60-9.55) (02/11/2014).
+
+<source7.f90>
+copy source6.f90 for manually input Tr_sac from scattering.dat and multiply by alt
+(02/11/2014).
+
+
+< main_bbtoolbox1.f90>
+add station for calling set_stf(station)
+   -> no need main_bbtoolbox1.f90 (11/19/2013).
+
+<source1.f90>
+add new Tr_fac calculation from trfac_calc_bb.f (11/13/2013)
+   -> trfac_calc_bb2.f (11/19/2013) -> change to source.f90.
+distfac is from scattering.dat. rakefac is 0.0 for test. 
+   -> no rake, rakefac, distfac for trfac_calc_bb2.f (11/19/2013).
+
+< module_bbtoolbox1.f90>
+add rake and distfac in scattering for the new Tr_fac calculation (11/13/2013).
+   -> no need rake nor distfac, not use module_bbtoolbox1.f90 (11/19/2013).
+
+<scattering1.f90>
+add rake and distfac (11/13/2013).
+   -> no need distfac, rake ... no need scattering1.f90 by trfac_calc_bb2.f (11/19/2013).
+
+<composition1.f90>
+change alt calculation (11/14/2013).
+   -> change alt calculation from trfac_calc_bb2.f (11/19/2013)
+   -> change to composition.f90.
+
+<io.f90>
+just add Updated comments for decimation factor, time_step.
+this is not for this new version, but for srcV1.5.2_new_npts_idec (11/20/2013).
+
+!-------------- from srcV1.5.2_new_npts_idec ----------------
+
+This version is copied from srcV1.5.2_new_npts (10/10/2013).
+
+this code was sent to Fabio on 10/11/2013.
+
+Previously tested in V1.5.3, composition6.f90 and io6.f90 (9/13/2013).
+
+in the future...?
+Making the decimation factor as input parameter, e.g., idec=3 will decimate by
+a factor of three.
+Need to modify scattering.dat that idec is a new input parameter.
+
+
+!--------------- from srcV1.5.2_new_npts -----------------------------------------
+
+This tells version information for srcV1.5.2 but including some update (8/27/2013). 
+Fix (10/04/2013).
+
+This version is modefied srcV1.5.2 for SWUS forward simulation California events.
+In the BBPlatform validation runs, the data are set by npts=4096 and dt=0.025sec
+for Plan A (LOMAP, Landers, North Palm Springs, Northridge, Whittier Narrows and
+Tottori) and for Plan B (GMPEs).
+For the next step, SWUS forward simulation uses LFs with npts=4096 but dt=0.1sec
+that the longer lf_length caused "Segmentation fault (core dumped)" on the cluster
+server.
+We suggeted to Fabio to reduce the lf_length from 409.5 sec to 324.9 sec,
+but the computed BBsynthetics were different because of different dt,
+### 0.00312 sec for lf_length=409.5 sec and 0.005 sec for lf_length=324.9 sec. <- NG
+0.00312 sec for lf_length=324.9 sec and 0.005 sec for lf_length=409.5 sec.     <- OK
+Since the Plan A (exception of Niigata scenario) and Plan B use LFs, 
+lf_length=102.4 sec and dt=0.00312 sec, this version sets dt=0.00312 sec 
+when npts computed by sampling_check subroutine in interpolation.f90 is larger than
+32768.
+This version only works for California events, but does not work for Niigata event.
+We will fix the problem in the next version.
+
+<coda.f90>
+This code computes scatterograms.
+First, the scatterograms are computed with npts=32768 and lf_len=102.3750 sec.
+If actual npts > 32768, add '0' in 32769 to the actual npts.
+
+<composition1.f90>
+"df" is always calculated by df = 1/(32768*0.00312sec).
+
+<interpolation.f90>
+Interpolation of LFs in sampling_check subroutine.
+"dt_interp" = 102.3750 sec / (32768 - 1).
+Note: The sampling_check is also used for user-defined stf in source1.f90, but
+this version ignores usage of the user-defined stf.
+
+<source1.f90>
+dt = 102.375 sec / (32768 - 1).
+"call MomRateFunct(dt)" is comment-outed.
+
+
+
+
+
+!--------- from srcV1.5.2 ----------------------------------------------------
+This tells version information for srcV1.5.2.
+Copied from srcV1.5.1 on 5/7/2013 right after sending srcV1.5.1 to Fabio.
+
+We send composition1.f90 and source1.f90 as srcV1.5.2 to Fabio as the final change 
+for June meeting (5/10/2013).
+
+<composition1.f90>
+add header memo about tapering, back to the old version tapering (5/7/2013)
+
+<source1.f90>
+for new stf, go back to use input Tr_sca to test. (5/7/2013)
+
+change to new Tr_factor calculation depending on Mw, do not use Tr_sca from scattering.dat.
+we tested for better n for stf=(t**0.5) / (1 + (t/(t1))**n), but we chose n=2.0
+as final change to send Fabio (5/10/2013).
+
+!--------- from srcV1.5.1 -------------------------------------------
+This tells version information for srcV1.5.1.
+Copied from srcV1.5 on 4/18/2013 right after sending srcV1.5 to Fabio.
+
+<main_bbtoolbox1.f90> ... not use
+test aveVs = calculated or aveVs = 1.0 (4/29/2013)
+
+<coda1.f90> .. not use
+test for c0;
+(1) set c0=1, instead of c0=0.85/(pi*4.*dist*aveVs)*sqrt(srcVs*srcR/(siteVs(station)*siteR(station))),
+(2) set c0=0.85/(pi*4.*dist*aveVs)
+and check c1 for each case. (4/29/2013)
+(3) use vs_avef instead of aveVs at
+c0=0.85/(pi*4.*dist*vs_avef)*sqrt(srcVs*srcR/(siteVs(station)*siteR(station)))
+(4/30/2013)
+
+<geometry1.f90> ... not use
+check sr_hypo(k) as dist (4/29/2013)
+sr_hypo=50km for M6.2ss50km, 20km for M6.2ss20km and M6.6rv20km for 'fac' test (4/30/2013)
+
+<composition1.f90> ... not use
+back to use Av_hf1=acc_spec(f(index_min),station) with fscale_1, fscale_2, Av_hf and Av_lf
+(4/30/2013).
+
+<composition2.f90> ... sent to Fabio
+bug fix for ratio calculation
+303 ! imerg flag
+304 if (imerg.eq.0) then
+305    !old merging
+306    !ratio = Av_lf/Av_hf   !averages ratio
+307    ratio = Av_lf11/Av_hf11   !averages ratio
+(5/1/2013)
+tapering calculation and taper_len back to the old setting to fix a bug that low frequencies 
+change in the synthetics.
+NEED TO CHANGE HEADER MEMO AFTER FABIO SHOWS CORRECT LOW FREQUENCIES IN SYNTHETICS.
+(5/1/2013)
+
+<source2.f90> ... sent to Fabio
+add Tr_sca calculation for smaller (less than M6.6) events
+rather than input the Tr_sca in scattering.dat
+
+
+
+
+!---------- Memo from srcV1.5 ---------
+Copied from srcV1.4.2.3_OLSEN_apr12 on 4/16/2013.
+This srcV1.5 must be the same as the srcV1.4.2.3_OLSEN_apr12.
+
+This version is sent to Fabio to use on the cluster.
+
+Main change;
+   clean up commented lines, unused parameters mostly in acc_spec in composition.f90
+
+<main_bbtoolbox.f90>
+   change version from v1.3 to v1.5 in the title line for the output-log.
+
+<composition.f90>
+   clean unused parameters in acc_spec function.
+
+<io.f90>
+   if the BBtoolbox code is used for BBPlatform, 1D velocity model file from G&P model
+   need to be re-calculated by red.f to be a discrete velocity model file. 
+
+!---------- Memo from srcV1.4.2.3_OLSEN_apr12 ---------
+Main change;
+   final change before sending to Fabio
+   getting the best fac for all scearios (PlanA:LOMPAP, NR, Whittier. PlanB)
+   
+<composition4.f90>
+   forget fac*1.1 (1.4) for reverse faults
+   attn must be close to 1 ... afac=10,000., bfac=1.
+   subf_sca=sqrt(nsub)/nsub
+   then acc_spec=acc_spec*subf_sca*fac for imerg=2
+
+   Av_hf1=acc_spec(50.,station), using 50Hz for fmax=100Hz
+
+<scattering2.f90>
+   add a parameter for a new stf, Tr_sca, for 't1 = Tr_sca * Tr'
+   as an input parameter in scattering.dat 
+   
+!---------- Memo from srcV1.4.2.3_OLSEN -----------------
+Main change will be;
+   clearning acc_spec (units, hard-coded values needed to be read in scattering.dat)
+   cleaning module_bbtoolbox.f90 (fmax is read in scattering.dat etc)
+
+
+<coda2.f90>
+   add 'nwm=npts'
+   when using inputs from BBPlatform, and using fmax=20Hz
+   NaNs are generated in horizontal components (but not in z-component)
+
+<composition4.f90>
+   add imerg flag (0,1 or 2) to determine style of combining LF and HF
+   0=old merging
+   1=new, 1 subfault
+   2=new, many subfault from srf 
+
+   in acc_spec after test;
+   attn=1 for imerg=1 and 2
+   acc_spec=acc_spec*subf_sca*fac <- 
+   
+
+<convolution2.f90> ... no change from srcV1.4.2.2_OLSEN
+   change taper_len from nint(npts*0.5) to nint(10.0/dt),
+   the same change as source2.f90
+   
+<io.f90>
+   add reading Qp and Qs from a new formatting 1D velocity model file.
+   the depth, vp, vs, rh, Qp and Qs are read by source.f90 and/or composition.f90. 
+   also added routines, compute layer thickness,compute average Vs & rho over fault,
+   and compute quarter-wavelength impedance effects (Boore and Joyner, BSSA 1997).
+
+<module_bbtoolbox2.f90>
+   in scattering, new parameters of imerg, fmax, str_fac, fac, afac and bfac are added
+   to be read in a new form of scattering.dat.
+   Fmax is set in a scattering.dat as well.
+
+<scattering2.f90>
+   adding scattering.dat parameters reading routines 
+   for fmax,imerg, str_fac,fac,afac and bfac
+
+<source3.f90>
+   add srf_read subroutine to read srf to obtain subfault informations
+   used in acc_spec in composition.f90
+
+
+!------- from old versions -------
+<source2.f90>
+   change taper_len from nint(npts*0.5) to nint(10.0/dt)
+
+<convolution2.f90>
+   change taper_len from nint(npts*0.5) to nint(10.0/dt),
+   the same change as source2.f90
+
+<composition2.f90>
+   tested for tapering
+<composition3.f90>
+   set tapering with longer length from (P-arrival - 5pts) to (S-arrival - 5pts).
+   add FUNCTION acc_spec.
+
+<source3.f90>
+   modify MomRateFunct routine, to use srf file in MomRateFunct,
+   lon/lat are converted in xy coordinates
+
+<io.f90>
+   keep io.f90.oritinal.
+   add and remove lines for use vel_model.
+   read Qp and Qs from velocity model file.  
+
+<module_bbtoolbox2.f90>
+   make larger for stf_name from leng=5 to 25.
+   add MODULE vel_model.

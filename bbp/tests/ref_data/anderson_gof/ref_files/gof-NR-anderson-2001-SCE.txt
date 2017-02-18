@@ -1,0 +1,11 @@
+#band   C1  C2  C3  C4  C5  C6  C7  C8  C9 C10
+B1 nan nan nan nan nan nan nan nan nan nan
+B2 nan nan nan nan nan nan nan nan nan nan
+B3 6.8 7.4 0.0 0.9 1.9 4.4 5.0 6.0 2.0 0.7
+B4 6.8 6.5 0.0 0.0 0.7 1.7 1.0 8.5 2.7 0.2
+B5 6.1 6.8 0.0 0.0 4.4 4.8 5.0 7.7 4.0 0.0
+B6 7.1 6.9 10.0 8.9 9.2 7.4 6.2 9.0 4.7 1.0
+B7 nan nan nan nan nan nan nan nan nan nan
+B8 nan nan nan nan nan nan nan nan nan nan
+B9 nan nan nan nan nan nan nan nan nan nan
+B10 nan nan nan nan nan nan nan nan nan nan

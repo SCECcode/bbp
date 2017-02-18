@@ -1,0 +1,2 @@
+getarg	routines (3)	-\ get arguments from a string .br
+setpar, getpar, mstpar, endpar (3)  - retrieve command-line arguments

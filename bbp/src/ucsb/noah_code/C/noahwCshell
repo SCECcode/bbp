@@ -1,0 +1,41 @@
+# Script to run NOAH
+cp inputC.iwan input.iwan
+cp QC.par Q.par
+./noah_w tremorka.sand ../../syn1d/1D/jem.022.gm1D.001.dcv  jem.022.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/jem.292.gm1D.001.dcv  jem.292.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/wvn.235.gm1D.001.dcv  wvn.235.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/wvn.325.gm1D.001.dcv  wvn.325.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/jfp.022.gm1D.001.dcv  jfp.022.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/jfp.292.gm1D.001.dcv  jfp.292.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/mpp.090.gm1D.001.dcv  mpp.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/mpp.180.gm1D.001.dcv  mpp.180.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/smp.000.gm1D.001.dcv  smp.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/smp.090.gm1D.001.dcv  smp.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/ecc.080.gm1D.001.dcv  ecc.080.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/ecc.350.gm1D.001.dcv  ecc.350.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/wvu.235.gm1D.001.dcv  wvu.235.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/wvu.325.gm1D.001.dcv  wvu.325.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/kag.000.gm1D.001.dcv  kag.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/kag.090.gm1D.001.dcv  kag.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/nhc.180.gm1D.001.dcv  nhc.180.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/nhc.270.gm1D.001.dcv  nhc.270.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/la4.000.gm1D.001.dcv  la4.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/la4.090.gm1D.001.dcv  la4.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/woo.245.gm1D.001.dcv  woo.245.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/woo.335.gm1D.001.dcv  woo.335.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/hws.000.gm1D.001.dcv  hws.000.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/hws.090.gm1D.001.dcv  hws.090.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/la0.180.gm1D.001.dcv  la0.180.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/la0.270.gm1D.001.dcv  la0.270.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/la1.009.gm1D.001.dcv  la1.009.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/la1.279.gm1D.001.dcv  la1.279.nl1D.001
+mv *.nl1D.001.sac  ../.
+
+
+  
+  
+  
+  
+  
+  
+

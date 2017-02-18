@@ -1,0 +1,11 @@
+n
+LABasin
+ucsb
+y
+1
+northridge_eq_ucsb.src
+1
+1
+n
+n
+n

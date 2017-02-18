@@ -1,0 +1,5 @@
+-118.6417       34.5640 s01    20.47   450     0.120   23.0    CSMIP   peer.berkeley.edu/nga
+-118.4180       34.0628 s02    22.82   278     0.140   23.0    CSMIP   peer.berkeley.edu/nga
+-118.8811       34.2886 s03    24.16   405     0.160   23.0    CSMIP   peer.berkeley.edu/nga
+-118.7120       34.2308 s04    16.86   715     0.083   50.0    USGS    peer.berkeley.edu/nga
+-118.4393       34.0684 s05    21.90   398     0.080   25.0    CSMIP   peer.berkeley.edu/nga

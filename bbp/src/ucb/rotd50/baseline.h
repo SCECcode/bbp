@@ -1,0 +1,2 @@
+      integer MAXPTS, MAXPARAM
+      parameter ( MAXPTS=2000000, MAXPARAM=10, MAX_MATCH=250)

@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+"""
+Southern California Earthquake Center Broadband Platform
+Copyright 2010-2016 Southern California Earthquake Center
+
+Created on Aug 8, 2012
+
+author: maechlin
+
+test methods for arias duration
+
+$Id: test_arias.py 1797 2017-02-09 16:56:01Z fsilva $
+"""
+from __future__ import division, print_function
+
+# Import Python modules
+import os
+import unittest
+
+# Import Broadband modules
+import seqnum
+import bband_utils
+import arias_duration
+from install_cfg import InstallCfg
+
+class TestArias(unittest.TestCase):
+    """
+    Unit test for the arias duration module
+    """
+
+    def setUp(self):
+        self.install = InstallCfg()
+        self.sim_id = int(seqnum.get_seq_num())
+        self.a_outdir = os.path.join(self.install.A_OUT_DATA_DIR,
+                                     str(self.sim_id))
+
+        # Create directories
+        bband_utils.mkdirs([self.a_outdir])
+
+    def test_arias_duration(self):
+        """
+        Run the arias intensity unit test
+        """
+        in_file = os.path.join(self.install.A_TEST_REF_DIR, "arias",
+                               "inputs", "NGA_no_1063_RRS228.AT2")
+        out_file = os.path.join(self.a_outdir, "NGA_no_1063_RRS228.AT2.AD.bbp")
+        ref_file = os.path.join(self.install.A_TEST_REF_DIR, "arias",
+                                "reference",
+                                "NGA_no_1063_RRS228.AT2.AD.bbp.ref")
+
+        if arias_duration.ad_from_acc(in_file, out_file) != 0:
+            print("Error converting ACC to Arias Duration")
+            self.assertTrue(False)
+        else:
+            res_file = open(out_file, 'r')
+            lines = res_file.readlines()
+            res_file.close()
+
+            ref_file = open(ref_file, 'r')
+            rlines = ref_file.readlines()
+            ref_file.close()
+
+            # Only check if we have the same number of lines
+            self.assertTrue(len(lines) == len(rlines))
+
+if __name__ == "__main__":
+    SUITE = unittest.TestLoader().loadTestsFromTestCase(TestArias)
+    unittest.TextTestRunner(verbosity=2).run(SUITE)

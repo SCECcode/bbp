@@ -1,0 +1,23 @@
+# Script to run NOAH
+cp inputCD.iwan input.iwan
+cp QCD.par Q.par
+./noah_w tremorka.sand ../../syn1d/1D/wil.208.gm1D.001.dcv  wil.208.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/wil.298.gm1D.001.dcv  wil.298.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/smc.000.gm1D.001.dcv  smc.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/smc.090.gm1D.001.dcv  smc.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/syf.000.gm1D.001.dcv  syf.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/syf.090.gm1D.001.dcv  syf.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/tag.000.gm1D.001.dcv  tag.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/tag.090.gm1D.001.dcv  tag.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/la2.000.gm1D.001.dcv  la2.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/la2.090.gm1D.001.dcv  la2.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/tmp.090.gm1D.001.dcv  tmp.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/tmp.180.gm1D.001.dcv  tmp.180.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/ucl.000.gm1D.001.dcv  ucl.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/ucl.090.gm1D.001.dcv  ucl.090.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/tpc.000.gm1D.001.dcv  tpc.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/tpc.270.gm1D.001.dcv  tpc.270.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/bhg.000.gm1D.001.dcv  bhg.000.nl1D.001 
+./noah_w tremorka.sand ../../syn1d/1D/bhg.090.gm1D.001.dcv  bhg.090.nl1D.001 
+mv *.nl1D.001.sac ../.
+

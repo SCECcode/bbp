@@ -1,0 +1,15 @@
+y
+Northridge
+gp seis
+n
+2
+1
+1
+y
+n
+n
+n
+n
+y
+1
+n

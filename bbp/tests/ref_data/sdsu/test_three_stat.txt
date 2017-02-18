@@ -1,0 +1,6 @@
+#Required:  lon, lat, station name, distance to fault trace, Vs30
+#Optional: low freq corner, high freq corner
+#Unused: station information
+-118.4808	34.3124	test01	5.21	370	0.410	23.0	test	test.site
+-118.6221	34.3907	test02	5.35	286	0.071	30.0	test	test.site
+-118.4901	34.3106	test03	5.39	251	0.410	23.0	test	test.site

@@ -1,0 +1,3 @@
+#BBP Station List for EQID=127 (Northridge)
+#SLong    SLat     RSN   Vs30(m/s) LoPass_Freq(Hz) HiPass_Freq(Hz)  Obs_File
+-118.481 34.312  s01   371 0.3067  111.1111    NORTHR/s01.acc

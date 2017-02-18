@@ -1,0 +1,32 @@
+<bbp_db>
+<version>12.8.3</version>
+<study>
+<study_name>Broadband Validation Study 1</study_name>
+<study_descript>Twenty Three event validation study with UCB</study_descript>
+<study_contact>Paul Somerville</study_contact>
+</study>
+<module>
+<module_name>GP_Low_Freq</module_name>
+<module_descript>Graves and Pitarka Low Frequency Module</module_descript>
+</module>
+<module>
+<module_name>UCSB_Low_Freq</module_name>
+<module_descript>UCSB Low Frequency Module</module_descript>
+</module>
+<velocity_model>
+<vmod_name>Loma Prieta</vmod_name>
+<vmod_descript>Default Loma Prieta Velocity Model for PEER Validation Study</vmod_descript>
+</velocity_model>
+<event>
+<eqid>118</eqid>
+<eventname>Loma Prieta</eventname>
+</event>
+<event>
+<eqid>120</eqid>
+<eventname>Northridge</eventname>
+</event>
+<event>
+<eqid>121</eqid>
+<eventname>Whittier</eventname>
+</event>
+</bbp_db>

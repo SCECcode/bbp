@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# Instructions to configure Broadband for validations runs on USC's HPCC cluster
+#
+# 1. Edit the following paths so they point to the proper locations
+#    Replace everything including the leading and ending brackets,
+#    "<" and ">", with each required path.
+#    For example the BBP_DIR line below:
+#
+#    BBP_DIR=</path/to/bbp/root/dir>;export BBP_DIR
+#
+#    should be changed to something like:
+#
+#    BBP_DIR=/home/rcf-104/mike/bbp;export BBP_DIR
+#
+# 2. Rename this file to setup_bbp_env.sh
+#
+
+# BBP_DIR should point to the top-level Broadband distribution directory
+BBP_DIR=</path/to/bbp/top-dir>;export BBP_DIR
+# BBP_GF_DIR should point to the Green's Functions top-level directory
+BBP_GF_DIR=</path/to/GF/top-dir>;export BBP_GF_DIR
+# BBP_VAL_DIR should point to the Validation packages' top-level directory
+BBP_VAL_DIR=</path/to/validation/top-dir>;export BBP_VAL_DIR
+
+# Do not change anything below this line
+PYTHONPATH=$BBP_DIR/comps;export PYTHONPATH
+BBP_DATA_DIR=$TMPDIR/bbpruns;export BBP_DATA_DIR
+prefix=/home/scec-00/opt/python/default
+
+# Create BBP_DATA_DIR
+mkdir -p $BBP_DATA_DIR
+
+# Use right Python
+_bindir=$prefix/bin
+
+if [ -n "$PATH" ]; then
+   PATH=$_bindir:$PATH;export PATH
+else
+   PATH=$_bindir;export PATH
+fi
+
+if [ -n "$LD_LIBRARY_PATH" ]; then
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/usc/intel/12.0/composerxe-2011.2.137/compiler/lib/intel64; export LD_LIBRARY_PATH
+else
+    LD_LIBRARY_PATH=/usr/usc/intel/12.0/composerxe-2011.2.137/compiler/lib/intel64; export LD_LIBRARY_PATH
+fi

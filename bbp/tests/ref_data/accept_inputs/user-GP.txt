@@ -1,0 +1,11 @@
+n
+LABasin
+gp
+y
+1
+northridge_eq_gp.src
+1
+1
+n
+n
+n

@@ -1,0 +1,16 @@
+# script to run noahw
+\cp QE.par Q.par
+\cp inputE.iwan input.iwan
+./noah_w tremorka.sand ../../syn1d/1D/AAR.043.gm1D.001.dcv   AAR.043.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/AAR.133.gm1D.001.dcv   AAR.133.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/FCM.270.gm1D.001.dcv   FCM.270.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/FCM.360.gm1D.001.dcv   FCM.360.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/FCR.000.gm1D.001.dcv   FCR.000.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/FCR.090.gm1D.001.dcv   FCR.090.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/TRI.000.gm1D.001.dcv   TRI.000.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/TRI.090.gm1D.001.dcv   TRI.090.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/SFB.000.gm1D.001.dcv   SFB.000.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/SFB.090.gm1D.001.dcv   SFB.090.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/SMB.045.gm1D.001.dcv   SMB.045.nl1D.001
+./noah_w tremorka.sand ../../syn1d/1D/SMB.135.gm1D.001.dcv   SMB.135.nl1D.001
+\mv *.nl1D.001.sac ../.

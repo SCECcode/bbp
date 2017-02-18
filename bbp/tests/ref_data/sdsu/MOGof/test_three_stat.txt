@@ -1,0 +1,6 @@
+#Required:  lon, lat, station name, distance to fault trace, Vs30
+#Optional: low freq corner, high freq corner
+#Unused: station information
+-118.0000	34.0000	sample_1-0	5.21	370	0.410	23.0	USC	scec.org
+-118.0001	34.0001	sample_1-1	5.35	286	0.071	30.0	USC	scec.org
+-118.0002	34.0002	sample_1-2	5.39	251	0.410	23.0	USC	scec.org
