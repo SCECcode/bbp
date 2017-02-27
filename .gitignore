@@ -89,5 +89,8 @@ ENV/
 .ropeproject
 
 # C and Fortran intermediate files
-.o
-.mod
+*.o
+*.mod
+bin/
+*.version
+*.a
