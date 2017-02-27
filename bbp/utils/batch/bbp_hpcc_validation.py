@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """
+Southern California Earthquake Center Broadband Platform
+Copyright 2010-2016 Southern California Earthquake Center
+
 Program to set up a full validation run on HPCC
 $Id: bbp_hpcc_validation.py 1790 2017-02-06 22:25:40Z fsilva $
 """
@@ -307,7 +310,7 @@ def main():
             walltime = 24
         else:
             walltime = 300
-            
+
     # Check if we need to calculate extra metrics
     if options.allmetrics:
         allmetrics = True

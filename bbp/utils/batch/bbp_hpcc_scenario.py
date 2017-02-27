@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """
+Southern California Earthquake Center Broadband Platform
+Copyright 2010-2016 Southern California Earthquake Center
+
 Program to set up a full BBP scenario simulation run on HPCC
 $Id: bbp_hpcc_scenario.py 1644 2016-04-19 18:54:19Z fsilva $
 """
@@ -23,7 +26,7 @@ BATCH_SIM_FILE = "batch_run_bbp_sims.log"
 CORES_PER_NODE = 8
 CORES_PER_NODE_NEW = 16
 MAX_SIMULATIONS = 200
-CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm"]
+CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura"]
 
 def generate_src_files(numsim, source_file, srcdir,
                        prefix, hypo_rand, hypo_area):
@@ -53,7 +56,7 @@ def generate_src_files(numsim, source_file, srcdir,
     if hypo_area["has_max"] is None:
         hypo_area["has_max"] = (0.5 - 0.2) * flen
     if hypo_rand:
-        # Delete HYPO_ALONG_STK and HYPO_DOWN_DIP    
+        # Delete HYPO_ALONG_STK and HYPO_DOWN_DIP
         if "hypo_along_stk" in src_props:
             src_props.pop("hypo_along_stk")
         if "hypo_down_dip" in src_props:
@@ -160,7 +163,7 @@ def generate_xml(install, numsim, srcdir, xmldir,
     shutil.rmtree(tmpdir)
 
 def write_pbs(install, numsim, simdir, xmldir, email,
-              prefix, newnodes, savetemp):
+              prefix, newnodes, walltime, savetemp):
     """
     Write the pbs script
     """
@@ -179,12 +182,12 @@ def write_pbs(install, numsim, simdir, xmldir, email,
     pbsfile.write("#!/bin/bash\n")
     pbsfile.write("\n")
     if not newnodes:
-        pbsfile.write("#PBS -q nbns\n")
-        pbsfile.write("#PBS -l arch=x86_64,pmem=1000mb,pvmem=2000mb,walltime=300:00:00,nodes=%d:ppn=%d\n" %
-                      (nodes, CORES_PER_NODE))
+        pbsfile.write("#PBS -q scec\n")
+        pbsfile.write("#PBS -l arch=x86_64,pmem=1000mb,pvmem=2000mb,walltime=%d:00:00,nodes=%d:ppn=%d\n" %
+                      (walltime, nodes, CORES_PER_NODE))
     else:
-        pbsfile.write("#PBS -l arch=x86_64,pmem=1000mb,pvmem=2000mb,walltime=24:00:00,nodes=%d:ppn=%d:gpu\n" %
-                      (nodes, CORES_PER_NODE_NEW))
+        pbsfile.write("#PBS -l arch=x86_64,pmem=1000mb,pvmem=2000mb,walltime=%d:00:00,nodes=%d:ppn=%d:gpu\n" %
+                      (walltime, nodes, CORES_PER_NODE_NEW))
     pbsfile.write("#PBS -V\n")
     pbsfile.write("#PBS -m abe -M %s\n" % (email))
     pbsfile.write("#PBS -e %s\n" % (errfile))
@@ -236,8 +239,8 @@ def write_pbs(install, numsim, simdir, xmldir, email,
     print "$ qsub %s" % (pbsfn)
     print
     if newnodes:
-        print "Please note that the maximum walltime has been set to 24 hours!"
-        print "Jobs running longer than that will be terminated at 24 hours!"
+        print "Please note that the maximum walltime has been set to %d hours!" % (walltime)
+        print "Jobs running longer than that will be terminated at %d hours!" % (walltime)
         print
 
 def main():
@@ -279,6 +282,8 @@ def main():
                       dest="numsim", help="Number of simulations to run")
     parser.add_option("--email", type="string", action="store",
                       dest="email", help="Email for job notifications")
+    parser.add_option("-w", "--walltime", type="int", action="store",
+                      dest="walltime", help="Number of hours for walltime")
     parser.add_option("--new-nodes", action="store_true", dest="newnodes",
                       help="Schedule the job in the new HPCC nodes")
     parser.add_option("--save-tmpdata", action="store_true", dest="savetemp",
@@ -305,6 +310,18 @@ def main():
         newnodes = True
     else:
         newnodes = False
+
+    # Check if user specified custom walltime
+    if options.walltime:
+        if options.walltime < 1:
+            print("Walltime must be at least 1 hour!")
+            sys.exit(1)
+        walltime = options.walltime
+    else:
+        if newnodes:
+            walltime = 24
+        else:
+            walltime = 300
 
     # Check if user wants to save the contents of tmpdata
     if options.savetemp:
@@ -480,7 +497,7 @@ def main():
                  station_list, only_rup, srf_prefix)
     # Write pbs file
     write_pbs(bbp_install, numsim, simdir, xmldir,
-              email, prefix, newnodes, savetemp)
+              email, prefix, newnodes, walltime, savetemp)
 
 if __name__ == "__main__":
     main()
