@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2017 Southern California Earthquake Center
 
 Program to set up a full BBP scenario simulation run on HPCC
 $Id: bbp_hpcc_scenario.py 1644 2016-04-19 18:54:19Z fsilva $
@@ -27,9 +27,11 @@ CORES_PER_NODE = 8
 CORES_PER_NODE_NEW = 16
 MAX_SIMULATIONS = 200
 CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura"]
+CODEBASES_SITE = ["gp", "sdsu", "song", "irikura", "exsim", "ucsb"]
 
 def generate_src_files(numsim, source_file, srcdir,
-                       prefix, hypo_rand, hypo_area):
+                       prefix, hypo_rand, hypo_area,
+                       variation, multiseg, first_seg_dir):
     """
     Generates num_sim source files in the srcdir using different
     random seeds
@@ -65,9 +67,24 @@ def generate_src_files(numsim, source_file, srcdir,
     output = ""
     for key in src_props:
         output = output + "%s = %s\n" % (key.upper(), src_props[key])
+    common_seeds = []
+    # Check if we are doing a multi-segment run
+    if multiseg and first_seg_dir is not None:
+        # Read common seeds from seed file
+        seed_file = open(os.path.join(first_seg_dir, "Src", "seeds.txt"), 'r')
+        first_seg_sims = int(seed_file.readline().strip())
+        if first_seg_sims != numsim:
+            print("ERROR: Number of simulations must match across segments!")
+            sys.exit(1)
+        for line in seed_file:
+            common_seeds.append(int(line.strip()))
+        seed_file.close()
+    # Generate the numsim SRC files
+    all_seeds = []
     for sim in range(0, numsim):
-        random.seed(sim + 1)
+        random.seed((sim + 1) + (variation - 1) * 500)
         seed = int(math.exp(7 * math.log(10.0)) * random.random())
+        all_seeds.append(seed)
         hypo_along_stk = ((hypo_area["has_max"] - hypo_area["has_min"]) *
                           random.random()) + hypo_area["has_min"]
         hypo_down_dip = ((hypo_area["hdd_max"] - hypo_area["hdd_min"]) *
@@ -79,11 +96,22 @@ def generate_src_files(numsim, source_file, srcdir,
             outfile.write("HYPO_ALONG_STK = %.2f\n" % (hypo_along_stk))
             outfile.write("HYPO_DOWN_DIP = %.2f\n" % (hypo_down_dip))
         outfile.write("SEED = %d\n" % (seed))
+        if multiseg and first_seg_dir is not None:
+            outfile.write("COMMON_SEED = %d\n" % (common_seeds[sim]))
         outfile.close()
+    # Check if we need to write file with all seeds
+    if multiseg and first_seg_dir is None:
+        # This is the first segment, write seeds file
+        seed_file = open(os.path.join(srcdir, "seeds.txt"), 'w')
+        seed_file.write("%d\n" % (numsim))
+        for seed in all_seeds:
+            seed_file.write("%d\n" % (seed))
+        seed_file.close()
 
 def generate_xml(install, numsim, srcdir, xmldir,
                  logdir, vmodel, codebase, prefix,
-                 station_list, only_rup, srf_prefix):
+                 station_list, only_rup, srf_prefix,
+                 site_response):
     """
     Generates xml files in the xmldir for numsim simulations whose
     source files are in the srcdir using the validation event and
@@ -123,10 +151,13 @@ def generate_xml(install, numsim, srcdir, xmldir,
         if codebase == "exsim":
             # Don't specify custom ExSIM template file
             optfile.write('n\n')
-        if (codebase != "exsim" and
-            codebase != "csm"):
-            # Skip site response
-            optfile.write('n\n')
+        if codebase != "csm":
+            if site_response:
+                # Use site response
+                optfile.write('y\n')
+            else:
+                # Skip site response
+                optfile.write('n\n')
         optfile.write('y\n') # Plot velocity seismograms
         optfile.write('y\n') # Plot acceleration seismograms
         optfile.flush()
@@ -302,6 +333,15 @@ def main():
                       help="Max value for hypo along strike in randomization")
     parser.add_option("--only-rup", action="store_true", dest="only_rup",
                       help="Only runs the rupture generator")
+    parser.add_option("--var", "--variation", type="int", action="store",
+                      dest="variation", help="seed variation (default 1)")
+    parser.add_option("--multiseg", action="store_true", dest="multiseg",
+                      help="Indicates simulation part of multiseg run")
+    parser.add_option("--first-seg-dir", type="string", action="store",
+                      dest="first_seg_dir",
+                      help="required for multi-segment segments 2..n")
+    parser.add_option("-s", "--site", action="store_true",
+                      dest="site_response", help="Use site response module")
 
     (options, _) = parser.parse_args()
 
@@ -311,6 +351,22 @@ def main():
     else:
         newnodes = False
 
+    # Check if multi-segment simulation
+    if options.multiseg:
+        multiseg = True
+    else:
+        multiseg = False
+
+    # Check for first segment directory
+    if options.first_seg_dir is not None:
+        first_seg_dir = os.path.abspath(options.first_seg_dir)
+        if not os.path.exists(first_seg_dir):
+            print("First segment directory for exists: %s" %
+                  (first_seg_dir))
+            sys.exit(1)
+    else:
+        first_seg_dir = None
+        
     # Check if user specified custom walltime
     if options.walltime:
         if options.walltime < 1:
@@ -323,6 +379,12 @@ def main():
         else:
             walltime = 300
 
+    # Check for variation sequence
+    if options.variation:
+        variation = options.variation
+    else:
+        variation = 1
+            
     # Check if user wants to save the contents of tmpdata
     if options.savetemp:
         savetemp = True
@@ -361,6 +423,15 @@ def main():
     # Now get the name with the correct case
     vmodel = vmodel_names[vmodels.index(vmodel.lower())]
 
+    # Check if users wants to run site response module
+    if options.site_response:
+        site_response = True
+        if codebase not in CODEBASES_SITE:
+            print "Cannot use site response with method: %s" % (codebase)
+            sys.exit(1)
+    else:
+        site_response = False
+    
     # Check for hypocenter randomization
     if options.hyporand is None:
         print "Please specify --hypo-rand or --no-hypo-rand!"
@@ -490,14 +561,21 @@ def main():
     if srf_prefix is None:
         # Generate source files
         generate_src_files(numsim, source_file, srcdir,
-                           prefix, hypo_rand, hypo_area)
+                           prefix, hypo_rand, hypo_area,
+                           variation, multiseg, first_seg_dir)
     # Generate xml files
     generate_xml(bbp_install, numsim, srcdir, xmldir,
                  logsdir, vmodel, codebase, prefix,
-                 station_list, only_rup, srf_prefix)
+                 station_list, only_rup, srf_prefix,
+                 site_response)
     # Write pbs file
     write_pbs(bbp_install, numsim, simdir, xmldir,
               email, prefix, newnodes, walltime, savetemp)
+
+    # Write .info file
+    info_file = open(os.path.join(simdir, "%s.info" % (prefix)), 'w')
+    info_file.write("# %s\n" % (" ".join(sys.argv)))
+    info_file.close()
 
 if __name__ == "__main__":
     main()
