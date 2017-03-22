@@ -59,7 +59,7 @@ c  09/01/2016 replace Miyatake's source time function
 
 c	data rperd/0.017453292/
 
-	read(5,'(a100)')slipfile
+	read(5,'(a256)')slipfile
 c        read(5,*)emag
         read(5,*)xlen,ylen,stra,dipa,rakea
         read(5,*)alon,alat,zz
@@ -68,7 +68,7 @@ c  hypo coordinates along strike
         read(5,*)x0,y0,dens,vs
         read(5,*)dt
         read(5,*)iseed
-        read(5,'(a100)')velmodel
+        read(5,'(a256)')velmodel
       
         fc = 6.0
         if(xlen.le.25.and.ylen.lt.15.) then
