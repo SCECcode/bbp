@@ -28,7 +28,7 @@ CORES_PER_NODE = 16
 CORES_PER_NODE_NEW = 16
 MAX_SIMULATIONS = 200
 CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura"]
-CODEBASES_SITE = ["gp", "sdsu", "song", "irikura", "exsim"]
+CODEBASES_SITE = ["gp", "sdsu", "song", "irikura", "exsim", "ucsb"]
 
 def generate_src_files(numsim, source_file, srcdir, prefix, hypo_rand):
     """
@@ -478,5 +478,10 @@ def main():
     write_pbs(bbp_install, numsim, simdir, xmldir,
               email, prefix, newnodes, walltime, savetemp)
 
+    # Write .info file
+    info_file = open(os.path.join(simdir, "%s.info" % (prefix)), 'w')
+    info_file.write("# %s\n" % (" ".join(sys.argv)))
+    info_file.close()
+    
 if __name__ == "__main__":
     main()
