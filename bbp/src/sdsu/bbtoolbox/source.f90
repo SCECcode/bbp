@@ -3,25 +3,25 @@ SUBROUTINE set_stf(station)
 !
 ! Description:
 !
-!   Prepares the source-time-function (or more precisely, the moment-rate 
-!   function) to be used during convolution. The following functions are 
+!   Prepares the source-time-function (or more precisely, the moment-rate
+!   function) to be used during convolution. The following functions are
 !   available: box-car, triangular, Yoffe, Liu, Dreger and user-defined.
-!   The code calculates amplitude and rise time of the source-time-function 
+!   The code calculates amplitude and rise time of the source-time-function
 !   as follows:
 !   a) Computation of rupture area (Ar) from the relation of moment magnitude
 !      (Mw) vs rupture area --> internal subroutine CalcAfrM
-!   b) Computation of seismic moment (Mo) from the relation of Mo vs Mw --> 
+!   b) Computation of seismic moment (Mo) from the relation of Mo vs Mw -->
 !      internal subroutine fMw2MoN
 !   c) Once Mo and Ar are estimated, it calculates slip (D) from the relation
 !      Mo=mu*D*Ar
-!   d) Computation of Rise-Time (Tr) from the relation of Tr vs Mo --> 
-!      internal subroutine CalcTrfromM 
-!   e) Computation of source-time-function amplitude (Amp), once rise-time 
+!   d) Computation of Rise-Time (Tr) from the relation of Tr vs Mo -->
+!      internal subroutine CalcTrfromM
+!   e) Computation of source-time-function amplitude (Amp), once rise-time
 !      and slip have been estimated
 !
 ! Dependencies:
 !
-!   Subroutines CalcAfrM, fMw2MoN, CalcTrfromM, stf_box, stf_tri, stf_yof, 
+!   Subroutines CalcAfrM, fMw2MoN, CalcTrfromM, stf_box, stf_tri, stf_yof,
 !   stf_dreg, stf_liu.
 !
 ! References:
@@ -43,7 +43,7 @@ SUBROUTINE set_stf(station)
 !   Add srf_read subroutine to read srf to obtain subfault informations
 !   used in acc_spec in composition.f90.
 !
-!   Add a new source time function in stf_new subroutine. 
+!   Add a new source time function in stf_new subroutine.
 !
 ! Updated: October 2013 (v1.5.2)
 !   Add tmp_lf_len and tmp_npts for STF, for output decimation.
@@ -54,6 +54,9 @@ SUBROUTINE set_stf(station)
 ! Updated: September 2014 (v1.5.5.1)
 !   Change SUBROUTINE set_stf to SUBROUTINE set_stf(station)
 !
+! Updated: December 2016 (v1.6.2)
+!   Change call srf_read for only station = 1.
+!
 use constants; use def_kind; use earthquake; use flags
 use stf_data; use scattering, only: npts,fmax
 use waveform; use fault_area; use tmp_para
@@ -62,35 +65,38 @@ implicit none
 
 integer(kind=i_single),intent(in)           :: station
 
-! rigidity, average slip, stf's amplitude, time-step   
+! rigidity, average slip, stf's amplitude, time-step
 real(kind=r_single)                         :: mu,D,Amp,dt
-! indexes, taper length 
+! indexes, taper length
 integer(kind=i_single)                      :: i,j,taper_len
 ! dummy array
-real(kind=r_single),allocatable,dimension(:):: h 
+real(kind=r_single),allocatable,dimension(:):: h
 ! test dummy array
-real(kind=r_single),allocatable,dimension(:):: stf_dreg_t,stf_liu_t 
+real(kind=r_single),allocatable,dimension(:):: stf_dreg_t,stf_liu_t
 ! rupture area, seismic moment and rise-time (for internal subroutines)
 real(kind=r_single)                         :: Mo,Tr
 
 !----------------------------------------------------------------------------
 
+! read srf file
+if (station == 1) call srf_read ! v1.6.2
+
 ! returns Ar (rupture Area [km^2]) from Mw and mechanism
 call CalcAfrM
 
-! returns Mo [Nm] (Seismic Moment) from Mw (moment magnitude)	
+! returns Mo [Nm] (Seismic Moment) from Mw (moment magnitude)
 call fMw2MoN
 
 ! Tr: rise time [sec] from Mo
 call CalcTrfromM
 
 ! mu: rigidity. Split in two, otherwise can cause run-time error with some compilers
-mu=3.3*(10**5); mu=mu*(10**5)   
+mu=3.3*(10**5); mu=mu*(10**5)
 
-! average D: slip [m]  
+! average D: slip [m]
 D=Mo/(mu*Ar*(10**6))
 
-! calculating amplitude of velocity source-time-function (moment rate function) of 
+! calculating amplitude of velocity source-time-function (moment rate function) of
 ! box-car type.
 ! If triangular source-time-function is chosen, amplitude correction is made inside
 ! the triangular-function subroutine, so take the same amplitude as for box-car type.
@@ -107,19 +113,19 @@ ton = 0.0
 
 ! time-step for STF, assuming maximum frequency for coda waves as Nyquist frequency
 if (npts == tmp_npts) dt = lf_len/(npts-1)
-if (npts .gt. tmp_npts) dt = tmp_lf_len/(tmp_npts-1)   
+if (npts .gt. tmp_npts) dt = tmp_lf_len/(tmp_npts-1)
 !dt = 1 / (2 * fmax)   !it's the same as for coda waves time-series
 
-! number of points of the stf. 
+! number of points of the stf.
 ! NOTE: it can be changed if user-defined stf is selected
 npts_stf = nint(total/dt) + 1     ! +1 is due to include 0
 
 ! read srf file
-call srf_read
+!call srf_read ! move to the top, v162
 
-! allocate arrays for stf amplitudes and its time vector 
+! allocate arrays for stf amplitudes and its time vector
 if(.not.allocated(t_stf)) allocate(t_stf(npts_stf))
-if(.not.allocated(stf)) allocate(stf(npts_stf)) 
+if(.not.allocated(stf)) allocate(stf(npts_stf))
 
 ! compute selected source-time-function
 select case (trim(stf_name))
@@ -140,11 +146,11 @@ case('new')
 end select
 
 ! scale obtained source-time-function by rupture area (only for point-source case)
-if(ext_flag == 0) stf=stf*Ar  
+if(ext_flag == 0) stf=stf*Ar
 
 ! create stf's time-vector
 
-t_stf(1)=0.            
+t_stf(1)=0.
 do i=1,(npts_stf-1)
    t_stf(i+1)=t_stf(i)+dt
 enddo
@@ -161,7 +167,7 @@ taper_len=nint(10.0/dt)
 if(.not.allocated(han_win)) allocate(han_win(taper_len))
 
 ! equation of Hanning window: h(i)=0.5*(1-cos(2*pi*i)/N) ---> see Numerical Recipes, page: 547
-! taking only the second (decaying) half 
+! taking only the second (decaying) half
 do i=taper_len,1,-1
    han_win(taper_len-i+1) = 0.5 * (1 - cos(2 * pi * (i-1) / (2*taper_len)) )
 enddo
@@ -180,13 +186,13 @@ CONTAINS
    !-----------------------------------------------------------------
    !
    ! Description:
-   ! 
-   !   Calculates Rupture Area Ar given the moment magnitude Mw 
+   !
+   !   Calculates Rupture Area Ar given the moment magnitude Mw
    !   from empirical relations of Wells & Coppersmith, 1994.
    !   Resultant Rupture Area (Ar) is [km^2]
-   !   
+   !
    ! Dependencies:
-   ! 
+   !
    !   None
    !
    ! Notes:
@@ -197,14 +203,14 @@ CONTAINS
    ! References:
    !
    !
-   ! 
+   !
    ! Authors: W. Imperatori, B. Mena
    !
    ! Modified: January 2009 (v1.3)
    !
 
 use fault_area
-   
+
    implicit none
 
    ! local variables
@@ -217,10 +223,10 @@ use fault_area
    case('ss')
       a=-3.42
       b=0.90
-   case('rs') 
+   case('rs')
       a=-3.99
       b=0.98
-   case('ns') 
+   case('ns')
       a=-2.87
       b=0.82
    case('al')
@@ -255,29 +261,29 @@ use fault_area
    implicit none
 
    !----------------------------------------------------------------------------
-   
+
    Mo=10**(1.5*Mw+9.05)
 
    END SUBROUTINE fMw2MoN
 
 !<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>-
 
-   SUBROUTINE CalcTrfromM 
+   SUBROUTINE CalcTrfromM
    !-----------------------------------------------------------------------
-   ! 
+   !
    ! Description:
    !
    !   Calculates Rise-Time [second] given the seismic moment (in [N*m], will
    !   be converted into [dyn*cm]).
    !
-   ! Dependencies: 
+   ! Dependencies:
    !
    !   None
    !
    ! References:
    !
    ! Somerville et al., 1999
-   ! 
+   !
    ! Authors: W. Imperatori, B. Mena
    !
    ! Modified: January 2009 (v1.3)
@@ -292,11 +298,11 @@ use fault_area
 
    ! converting Mo [Nm] to [dyne-cm]; 1Nm = 10^7 dyne-cm
    Mo2=Mo*(10**7)
-   
+
    ! estimate rise-time
    Tr=2.03*(Mo2**(1.0/3.0))/(10**9)
 
-   END SUBROUTINE CalcTrfromM 
+   END SUBROUTINE CalcTrfromM
 
 !<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>-
 
@@ -316,15 +322,15 @@ use fault_area
    !
    ! Modified: January 2009 (v1.3)
    !
-   
+
    implicit none
 
    ! index, dummy (locals)
    real(kind=r_single)   :: tof
    integer(kind=i_single):: i
-      
-   !-----------------------------------------------------------------   
-      
+
+   !-----------------------------------------------------------------
+
    tof=ton+Tr
 
    do i=1,nint(ton/dt)+1
@@ -338,8 +344,8 @@ use fault_area
    do i=nint(tof/dt)+2,npts_stf
       stf(i)=0
    enddo
-   
-   END SUBROUTINE stf_box 
+
+   END SUBROUTINE stf_box
 
 !<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>-
 
@@ -352,21 +358,21 @@ use fault_area
    !   amplitude Amp and rise-time Tr.
    !
    ! Dependencies:
-   ! 
+   !
    !   None
    !
    ! Authors: W. Imperatori, B. Mena
    !
    ! Modified: January 2009 (v1.3)
    !
- 
+
    implicit none
 
    ! indexes, dummies (locals)
    integer(kind=i_single):: i
    real(kind=r_single)   :: damp,tmid,tof
 
-   !-------------------------------------------------------------------------	
+   !-------------------------------------------------------------------------
 
    tof=ton+Tr
    tmid=ton+(Tr/2)
@@ -394,7 +400,7 @@ use fault_area
 
 !<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>-
 
-   SUBROUTINE stf_yof 
+   SUBROUTINE stf_yof
    !--------------------------------------------------------------
    !
    ! Description:
@@ -406,7 +412,7 @@ use fault_area
    !   None
    !
    ! References:
-   ! 
+   !
    !   Adapted from Tinti et al., 2005
    !
    ! Authors: W. Imperatori, B. Mena
@@ -415,7 +421,7 @@ use fault_area
    !
 
    implicit none
- 
+
    ! indexes, dummies, coefficients (locals)
    integer(kind=i_single)                 :: i,j
    real(kind=r_single)                    :: c2,k,ts
@@ -439,11 +445,11 @@ use fault_area
 
    c3=((ts-t-0.5*Tr)*sqrt((t-ts)*(Tr-t+ts))+Tr*(2.0*Tr-2.0*t+2.0*ts)        &
       *(asin(sqrt((t-ts)/Tr)))+(3.0/2.0)*Tr**2.0*(atan(sqrt((Tr-t+ts)       &
-      /(t-ts))))) 
+      /(t-ts)))))
 
    c4=((-1.0*ts+0.5*t+0.25*Tr)*sqrt((t-2.0*ts)*(Tr-t+2.0*ts))+Tr*((-1.0*Tr) &
       +t-2.0*ts)*asin(sqrt((t-2.0*ts)/Tr))-0.75*Tr**2.0*atan(sqrt((Tr-t     &
-      +2.0*ts)/(t-2.0*ts)))) 
+      +2.0*ts)/(t-2.0*ts))))
 
    c5=((pi/2.0)*Tr*(t-Tr))
 
@@ -491,16 +497,16 @@ use fault_area
       enddo
    endif
 
-   END SUBROUTINE stf_yof 
-   
-!<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>-   
+   END SUBROUTINE stf_yof
+
+!<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>-
 
    SUBROUTINE stf_dreg
    !-------------------------------------------------------------------------
-   ! 
+   !
    ! Description:
    !
-   !   Computes Dreger et al., 2007 (SSA poster) type source-time-function. 
+   !   Computes Dreger et al., 2007 (SSA poster) type source-time-function.
    !   Banu Mena, APRIL 2008, SDSU. Healing front + white noise -> Sept.08.
    !
    ! Dependencies:
@@ -508,7 +514,7 @@ use fault_area
    !   None
    !
    ! Authors: W. Imperatori, B. Mena
-   ! 
+   !
    ! Modified: January 2009 (v1.3)
    !
 
@@ -536,8 +542,8 @@ use fault_area
 
    !linear healing front between t1_heal and t2_heal
    t1_heal=3.0; t2_heal=3.2;
-  
-   n_t1=nint(t1_heal/dt)+1; n_t2=nint(t2_heal/dt)+1 
+
+   n_t1=nint(t1_heal/dt)+1; n_t2=nint(t2_heal/dt)+1
 
    dss=(s(n_t1))/(n_t2-n_t1)
 
@@ -545,7 +551,7 @@ use fault_area
 
    !linear healing function
    do i=1,(n_t2-n_t1)
-      heal(i)=s(n_t1)-(dss*i)  
+      heal(i)=s(n_t1)-(dss*i)
    enddo
 
    !function until healing
@@ -565,29 +571,29 @@ use fault_area
 
    !adding white noise
    seed=321
-   
+
    ! initialize the generator with a specified seed number
    call random_seed(size=seed_size)
    if (.not.allocated(tmp_seed)) allocate(tmp_seed(seed_size))
    tmp_seed=seed
    call random_seed(put=tmp_seed)
-  
+
    ! generate random numbers
-   call random_number(randm)    
-  
+   call random_number(randm)
+
    max_ran=maxval(randm,dim=1)
 
    stf=stf+(randm/max_ran)*0.05
 
    ds(1)=stf(1)*dt
-   do i=2,npts_stf 
+   do i=2,npts_stf
       ds(i)=ds(i-1)+(stf(i-1)+stf(i))/2.*dt
    enddo
 
    max_ss=maxval(ds,dim=1)
 
    stf=(D/max_ss)*stf
-   
+
    ! deallocate memory
    if(allocated(heal)) deallocate(heal)
 
@@ -606,7 +612,7 @@ use fault_area
    !
    !   None
    !
-   ! Notes: 
+   ! Notes:
    !
    !   this STF hasn't been widely tested!
    !
@@ -647,16 +653,16 @@ use fault_area
    enddo
 
    seed=123
-   
+
    ! initialize the generator with a specified seed number
    call random_seed(size=seed_size)
    if (.not.allocated(tmp_seed)) allocate(tmp_seed(seed_size))
    tmp_seed=seed
    call random_seed(put=tmp_seed)
-   
+
    ! generate random numbers
    call random_number(randm)
-   
+
 
    max_ran=maxval(randm,dim=1)
 
@@ -665,7 +671,7 @@ use fault_area
 
    ds(1)=s(1)*dt
 
-   do i=2,npts_stf 
+   do i=2,npts_stf
       ds(i)=ds(i-1)+(stf(i-1)+stf(i))/2.*dt
    enddo
 
@@ -688,11 +694,11 @@ use fault_area
    !
    !   None
    !
-   ! Notes: 
+   ! Notes:
    !
-   !   
    !
-   ! Authors: K. Olsen 
+   !
+   ! Authors: K. Olsen
    !
    ! Modified: March 2013 (v1.4.2)
    !
@@ -726,7 +732,7 @@ use fault_area
    ! Updated: June 2015 (v1.6)
    !   Merge NGA-west1 and NGA-west2 (v1.5.5.3 and v1.5.5.4).
    !   Move alt computation into srf_read subroutine.
-   !  
+   !
    use vel_model, only: dip, alt
    use source_receiver, only: sr_rrup
    use flags, only: gs_flag, ngaw_flag
@@ -742,7 +748,7 @@ use fault_area
    real(kind=r_single)                            :: n, n1
    real(kind=r_single)                            :: distfac
    real(kind=r_single)                            :: mindist
- 
+
    integer(kind=i_single)                         :: taper_sec
    integer(kind=i_single)                         :: taper_len
    real(kind=r_single),allocatable,dimension(:)   :: taper
@@ -863,11 +869,11 @@ use fault_area
 
 END SUBROUTINE set_stf
 
-!===================================================================================================   
+!===================================================================================================
 
 SUBROUTINE MomRateFunct(dtr)
 !--------------------------------------------------------------------------------
-! 
+!
 ! Description:
 !
 !   Reads a user-defines moment-rate function in the format of Rob Graves.
@@ -878,7 +884,7 @@ SUBROUTINE MomRateFunct(dtr)
 !
 !   Subroutines inac, spline_interp
 !
-! WARNING: 
+! WARNING:
 !
 !   This subroutine has to be still verified!
 !
@@ -897,7 +903,7 @@ real(kind=r_single)                            :: r_dum,dtt,max_ton,t1,t2,sum_sd
 integer(kind=i_single)                         :: i_dum,Npts,nt_loc,NT,Tmax,Ntm,ind,i
 integer(kind=i_single)                         :: pp,nn,npo,j,indic
 character(len=80)                              :: s_dum
-real(kind=r_single),allocatable,dimension(:)   :: dt,sv,sd,max_sd,tony,svp,ar 
+real(kind=r_single),allocatable,dimension(:)   :: dt,sv,sd,max_sd,tony,svp,ar
 real(kind=r_single),allocatable,dimension(:)   :: mtime,sdd,mom,svf,svf_new,z
 integer(kind=i_single),allocatable,dimension(:):: b,Np
 !-------------------------------------------------------------------------------
@@ -960,25 +966,25 @@ do pp=2,Ntm
          b(ind)=i
       endif
    enddo
-   
+
    Np(pp)=ind
 
    if (Np(pp) .eq. 0) then
-      
+
       svf(pp)=0.0
       mom(pp)=0.0
-   
-   else 
+
+   else
       do j=1,ind
          indic=b(j)
          sdd(j)=max_sd(indic)
       enddo
-       
+
       sum_sdd=sum(sdd)
       svf(1)=0.0
       mom(1)=0.0
       svf(pp)=sum_sdd/Np(pp)
-      
+
 !!	mom(pp)=3.3*1e10*sum_sdd*(1/dtt)*1e-2*ar(1)*1e-4
 !! ----------------------------------------------------------
 !!  the scaling below, w/o rigidity and with 1e-12 simply
@@ -993,8 +999,8 @@ do pp=2,Ntm
    endif
 
 enddo
- 
-! Add 1 sec zeros to the beginning of the source time function 
+
+! Add 1 sec zeros to the beginning of the source time function
 !nn=NINT(1/dtt)
 
 !npo=pp+nn-1    !npts with initial zero padding
@@ -1003,11 +1009,11 @@ if(.not.allocated(svf_new)) allocate(svf_new(Ntm))
 
 !do i=1,nn
 !   z(i)=0.0
-!enddo   
-      
+!enddo
+
 !do i=1,nn
 !   svf_new(i)=z(i)
-!enddo  
+!enddo
 
 !do i=nn+1,npo
 do i=1,Ntm
@@ -1044,12 +1050,12 @@ call spline_interp(svf_new,total,npts_stf,Ntm,stf)
 CONTAINS
 
 
-   SUBROUTINE inac              
+   SUBROUTINE inac
    !------------------------------------------------------------
-   ! 
+   !
    ! Description:
    !
-   !   Inac means 'integration of acceleration', but here is 
+   !   Inac means 'integration of acceleration', but here is
    !   used with velocity to obtain displacement
    !
    ! Dependencies:
@@ -1060,7 +1066,7 @@ CONTAINS
    !
    ! Modified: January 2009 (v1.3)
    !
-   
+
    implicit none
 
    ! counter (local)
@@ -1070,7 +1076,7 @@ CONTAINS
 
    sd(1)=sv(1)*dt(i)
 
-   do j=2,nt_loc 
+   do j=2,nt_loc
       sd(j)=sd(j-1)+(sv(j-1)+sv(j))/2.*dt(i)
    enddo
 
@@ -1079,11 +1085,11 @@ CONTAINS
 
 END SUBROUTINE MomRateFunct
 
-!===================================================================================================   
+!===================================================================================================
 
 SUBROUTINE srf_read
 !--------------------------------------------------------------------------------
-! 
+!
 ! Description:
 !
 !   Reads a srf file
@@ -1093,9 +1099,9 @@ SUBROUTINE srf_read
 !   none
 !
 !
-! Author: R. Takedatsu 
+! Author: R. Takedatsu
 !
-! Modified: March 2013 (v1.4.2) 
+! Modified: March 2013 (v1.4.2)
 !
 ! Updated: February 2015 (v1.5.5.3)
 !    Add str_fac computation for eastern CA events.
@@ -1104,10 +1110,16 @@ SUBROUTINE srf_read
 !    Move alt computation from source.f90 and composition.f90
 !    into this subroutine.
 !
+! Updated: December 2016 (v1.6.2)
+!    Add to obtain minimum initiation time in srf file.
+!    Set Mw from srf file.
+!
 use stf_data
 use geometry, only: n_lay; use vel_model
 use scattering, only: str_fac
 use flags, only: gs_flag, ngaw_flag
+use earthquake
+use matching, only: targ_fr
 
 implicit none
 
@@ -1164,6 +1176,7 @@ elseif (ngaw_flag == 2) then
       endif
    endif
 endif
+print*,'alt in srf_read = ',alt
 
 if(.not.allocated(dt)) then
    allocate(dt(nsub),tony(nsub),slip1(nsub))
@@ -1187,6 +1200,8 @@ enddo
 
 sum_area=sum(areas)
 ave_slip=sum(slip1)/nsub
+tinit=minval(tony) ! add v162
+print*,'minimum initiation time = ',tinit
 
 close(1)
 
@@ -1220,6 +1235,17 @@ enddo
 ! calculation of Mw from equation of Mo[Nm]=10**(1.5*Mw+9.05)
 total_Mo=sum(mo_tmp)
 mw_test=(log10(total_Mo) - 9.05)/1.5
+
+! Mw is from srf file, v162
+Mw=mw_test
+if (Mw > 5.25) then
+   targ_fr = 1.
+elseif (4.75 < Mw .and. Mw <= 5.25) then
+   targ_fr = 11.5-2*Mw
+else
+   targ_fr = 2.
+endif
+print*,'Mw, target frequency',Mw,targ_fr
 
 ! for acc_spec
 sum_area=sum_area/10000  ! cm2 -> m2

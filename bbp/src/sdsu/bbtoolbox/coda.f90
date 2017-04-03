@@ -3,7 +3,7 @@ SUBROUTINE simcoda(station)
 !
 ! Description:
 !
-!   Simulate S-wave coda for synthetic Green's function using Zeng's 
+!   Simulate S-wave coda for synthetic Green's function using Zeng's
 !   multiple S-to-S scattering theory
 !
 ! Dependencies:
@@ -16,16 +16,16 @@ SUBROUTINE simcoda(station)
 !   merr      - tolerance of the coda envelope              err=errx
 !   abscoeff  - absorption coefficient                      gi=gix
 !   scatcoeff - scattering coefficient  	                gs=gsx
-!   fmax      - maximum frequency for coda waves   
+!   fmax      - maximum frequency for coda waves
 !   Q         - Q0 attenuation factor {Q(f)=Q0*f**fdec}
 !   fdec      - frequency decay of Q(f) factor	            cn=cnx
-!   iseed     - seed number                                
-!   nscat     - number of scattering wavelets	
+!   iseed     - seed number
+!   nscat     - number of scattering wavelets
 !   hpass	  - highpass corner of the cosine filter        fl=flx
 !   trans     - transition bandwidth of the filter          flb=flbx
 !   t_len	  - length of time series                       twin=twinx
 !   npts	  - number of points computed for coda envelope nt=ntx
-!   t0	      - time of first arrival 
+!   t0	      - time of first arrival
 !   kappa     - kappa factor akp=akpx
 !   sr_hypo   - station-hypocenter distance          	    dist=distx
 !   aveVs	  - average S-speed between S-R                 vs=vsx
@@ -36,15 +36,15 @@ SUBROUTINE simcoda(station)
 !
 ! References:
 !
-!   Zeng, Anderson and Su (1995).  Subevent rake and random 
-!   scattering effects in realistic strong ground motion 
+!   Zeng, Anderson and Su (1995).  Subevent rake and random
+!   scattering effects in realistic strong ground motion
 !   simulation, Geophy. Res. Lett., 22 17-20
 !
 ! Note:
 !
 !   Allmost all needed parameters are passed by modules
 !
-! Authors: W. Imperatori, M. Mai, Y. Zeng 
+! Authors: W. Imperatori, M. Mai, Y. Zeng
 !
 ! Modified: July 2009 (v1.4)
 !
@@ -63,7 +63,7 @@ SUBROUTINE simcoda(station)
 !    tmp_npts and tmp_lf_len are in the module tmp_para.
 !
 ! Updated: December 2014 (v1.5.5.2)
-!    The dimension of p and t must be dimenstion(ncod)
+!    The dimension of p and t must be dimenstion(ncoda)
 !    in coda and scoda
 
 use constants; use def_kind; use scattering; use source_receiver
@@ -74,7 +74,7 @@ use tmp_para
 implicit none
 
 ! local variables
-integer(kind=i_single),intent(in)       :: station 
+integer(kind=i_single),intent(in)       :: station
 !complex(kind=r_single),dimension(npts)  :: u2
 !complex(kind=r_single),dimension(npts,3):: u1
 !complex(kind=r_single),dimension(2*npts):: u
@@ -97,17 +97,17 @@ kappa_local=kappa(station)*0.5
 dt = lf_len/(npts-1)
 
 ! df is set to avoid time aliasing
-df = 1 / (2 * npts * dt)                                        
+df = 1 / (2 * npts * dt)
 dw=pi_double*df
 
 !!! set npts=32768 and dt=0.00312sec for all scenarios
 if (npts .gt. tmp_npts) then
    tmp_dt = tmp_lf_len / (tmp_npts - 1)
-   df = 1 / (2 * tmp_npts * tmp_dt)                                        
+   df = 1 / (2 * tmp_npts * tmp_dt)
    dw=pi_double*df
 endif
 
-! index of Fnyq 
+! index of Fnyq
 nw = (npts) + 1
 if (npts .gt. tmp_npts) nw = (tmp_npts) + 1
 ! index of Fmax   (Fmax < Fnyq, guaranteed by subroutine sampling_check)
@@ -146,11 +146,11 @@ do l=1,nscat
       u1(j,3)=u1(j,3)+c3*tmp
    enddo
 
-enddo  
-      
+enddo
+
 !  filter the low frequency
-ml = nint(hpass/df) + 1          
-mlb = nint((hpass-trans)/df) + 1 
+ml = nint(hpass/df) + 1
+mlb = nint((hpass-trans)/df) + 1
 
 do i=1,3
 
@@ -160,19 +160,19 @@ do i=1,3
 
    do j=mlb,ml-1
       w=(j-1)*dw
-      c1 = cos(pi_half * ( (ml-j) / (ml-(mlb-1)) )) *df   
+      c1 = cos(pi_half * ( (ml-j) / (ml-(mlb-1)) )) *df
       u(j)=u1(j,i)*exp(cmplx(-w*kappa_local,w*t0))*c1
    enddo
- 
+
    do j=ml,nwm
       w=(j-1)*dw
       u(j)=u1(j,i)*exp(cmplx(-w*kappa_local,w*t0)) *df
    enddo
 
-   do j=2,nw-1                        
+   do j=2,nw-1
       !!!u(2*npts+2 - j) = conjg(u(j))
       u(2*tmp_npts+2 - j) = conjg(u(j))
-   enddo  
+   enddo
 
    call four1d(u,-1)
 
@@ -187,7 +187,7 @@ do i=1,3
       enddo
    endif
 
-enddo  
+enddo
 
 dw=dw*0.5
 
@@ -222,16 +222,16 @@ do i=1,lx
       cx(i)=ctemp
    end if
 
-   m=lx/2 
+   m=lx/2
 20 if(j.le.m) goto 30
    j=j-m
-   m=m/2 
+   m=m/2
    if(m.ge.1) goto 20
 30 j=j+m
 
 enddo
 
-l=1 
+l=1
 40 istep=2*l
 
 do m=1,l
@@ -239,9 +239,9 @@ do m=1,l
    cw=cexp(carg)
 
    do i=m,lx,istep
-      ctemp=cw*cx(i+l) 
+      ctemp=cw*cx(i+l)
       cx(i+l)=cx(i)-ctemp
-      cx(i)=cx(i)+ctemp 
+      cx(i)=cx(i)+ctemp
    enddo
 
 enddo
@@ -263,9 +263,15 @@ SUBROUTINE scoda(dist,dt,station)
 !    Add if (n1 .gt. ncoda) n1=ncoda
 !    to check if n1 becomes greater than ncoda for p(n1)
 !
+! Updated: December 2016 (v1.6.2)
+!    Change dt1 computation.
+!    Add shifting scattgram by minimum initiation time,
+!    (tinit, tmp_scatt, sft).
+!
 use constants; use def_kind; use scattering
 use waveform, only: lf_len, scattgram
 use tmp_para
+use vel_model, only: tinit
 
 implicit none
 
@@ -274,8 +280,10 @@ integer(kind=i_single),intent(in):: station
 
 !local
 real(kind=r_single),dimension(ncoda):: p,t
+real(kind=r_single),dimension(npts) :: tmp_scatt ! for scattgram shifting, v162
 real(kind=r_single):: c0,c1,dt1,t1,pp
 integer(kind=i_single):: i1,i2,ii,i,i0,n1
+integer(kind=i_single):: sft ! number of scattgram shifting, v162
 ! adjusted dt
 real(kind=r_single)              :: tmp_dt
 
@@ -284,7 +292,7 @@ real(kind=r_single)              :: tmp_dt
 !	common/codaw/n,m,err,gi,gs,fl,flb,rh0,rh1,vs0,vs1,vs,twin,dt
 !	pi=3.1415926
 
-!  generate the coda waves (1.05 is to avoid noise at time-series end) 
+!  generate the coda waves (1.05 is to avoid noise at time-series end)
 
 if (npts == tmp_npts) then
    call coda(1.05*lf_len,dist,t,p,dt)
@@ -299,7 +307,7 @@ c0=0.85/(pi*4.*dist*aveVs)*sqrt(srcVs*srcR/(siteVs(station)*siteR(station)))
 if (npts == tmp_npts) c1=sqrt(3.0*lf_len/float(nscat))*c0
 if (npts .gt. tmp_npts) c1=sqrt(3.0*tmp_lf_len/float(nscat))*c0
 
-dt1=t(2)-t(1)
+! dt1=t(2)-t(1) ! change v162
 
 if (npts == tmp_npts) then
    i1=ifix(t0/dt+0.000001)
@@ -314,12 +322,12 @@ do ii=1,3
    do i=1,ncoda
       if(t0.le.t(i))goto 65
    enddo
- 
+
 65 n1=i
    i0=0
    if (npts == tmp_npts) t1=float(i1-1)*dt
    if (npts .gt. tmp_npts) t1=float(i1-1)*tmp_dt
- 
+
    do i=1,i2-i1+1
       i0=i0+1
       if (npts == tmp_npts) t1=t1+dt
@@ -342,6 +350,7 @@ do ii=1,3
           endif
        endif
        if(n1>1) then
+          dt1=t(n1)-t(n1-1) ! add v162
           pp=p(n1-1)+(p(n1)-p(n1-1))*(t1-t(n1-1))/dt1
        else
           pp=p(n1)
@@ -358,7 +367,15 @@ do ii=1,3
 
 ! ----- end of change ----------------------------------------------------------
 
-enddo   
+! scattgram shift by minimum initiation time (for multiple-segment-rupture)
+   if(tinit > 0) then
+      sft = nint(tinit/dt)
+      tmp_scatt(1:npts)=0.
+      tmp_scatt(sft+1:npts)=scattgram(1:npts-sft,ii)
+      scattgram(:,ii)=tmp_scatt
+   endif
+
+enddo
 
 END SUBROUTINE scoda
 
@@ -382,6 +399,9 @@ real(kind=r_single),intent(in)                 :: ddt
 !    change t(i) computation that "i" in t(i) must be ncoda
 !    or less than ncoda.
 !
+! Updated: December 2016 (v1.6.2)
+!    Use aveVp for dt and t(1) computations, instead of using aveVs.
+!    Add c4 and ratio for a new coda energy computation.
 !------------------------------------------------
 
 ! local variables
@@ -391,6 +411,7 @@ complex(kind=r_single),dimension(1024):: au
 
 real(kind=r_single):: ep,g,dw,dk,dt,w,ak,sinkr,wi
 real(kind=r_single):: c0,c1,c2,c3,gamma,r2,vt,tau
+real(kind=r_single):: c4,ratio ! add v162
 real(kind=r_single):: pd,di,coef
 
 integer(kind=i_single):: nd,ni,m2,i,nk,ik,j,n1
@@ -413,8 +434,10 @@ nd=2*ifix(0.25*(r+aveVs*tw)/r+1)
 dk=pi/(r*float(nd))
 ni=ifix(20.0/nd+1)*nd+nd/2
 m2=nfcoda/2
-dt=(tw-r/(aveVs*sqrt(3.0)))/float(ncoda)
-t(1)=r/(aveVs*sqrt(3.0))
+dt=(tw-r/aveVp)/float(ncoda)
+t(1)=r/aveVp
+!dt=(tw-r/(aveVs*sqrt(3.0)))/float(ncoda) ! change v162
+!t(1)=r/(aveVs*sqrt(3.0)) ! change v162
 
 do i=2,ncoda
    t(i)=t(i-1)+dt
@@ -504,16 +527,23 @@ dt=tw/float(nfcoda)
  c3=0.5/(aveVs*r*pi*pi*tw*c0)
 gamma=2.0/(9.0*sqrt(3.0))
 r2=r*r
+! add c4 as (Vs/Vp)**4, eta_sp = 0.11*eta_s by Zeng et al., 1995, v162
+c4=(aveVs/aveVp)
+c4=c4**4
+! 19.88 km is a reference distance for a new tau, v162
+ratio=7.5*r/19.88
 
 do i=1,ncoda
    vt=aveVs*t(i)
    if(vt.lt.r)then
-      tau=exp(-g*vt)
-      p(i)=gamma*c1*alog((vt+r)/(r-vt))/t(i)*tau
+      !tau=exp(-g*vt) ! original
+      !p(i)=gamma*c1*alog((vt+r)/(r-vt))/t(i)*tau ! original
+      tau=exp(g*vt)/ratio ! v162
+      p(i)=c4*gamma*c1*alog((vt+r)/(r-vt))/t(i)*tau ! v162
       goto 55
    endif
    tau=r/vt
- 
+
    call ener2(0.01)
 
    n1=ifix(t(i)/dt)+1
@@ -566,7 +596,7 @@ CONTAINS
 
    real(kind=r_single)   :: dd,vt,ud,du,coef,u
    real(kind=r_single)   :: aux,di,dimax
-   integer(kind=i_single):: i,m,j 
+   integer(kind=i_single):: i,m,j
 
 
    dd=0.01
@@ -590,7 +620,7 @@ CONTAINS
       u=0.75*scatcoeff/vt
       aux=(1.-exp(-scatcoeff*vt)*(1.+scatcoeff*vt))/coef
       di=aux*exp(1.5*alog(u/real(pi))-u*r*r-abscoeff*vt)
- 
+
       if(i.eq.1)then
          dimax=di
       end if
@@ -599,6 +629,6 @@ CONTAINS
 
    wi=alog(500*di/dimax)/tw
 
-   END SUBROUTINE evwi 
+   END SUBROUTINE evwi
 
 END SUBROUTINE coda

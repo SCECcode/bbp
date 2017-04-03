@@ -7,14 +7,14 @@ SUBROUTINE broadband_comp(station)
 !
 ! Description:
 !
-!   External subroutine, calculates the composite broad-band seismograms, given the 
+!   External subroutine, calculates the composite broad-band seismograms, given the
 !   low and high frequency time-series. The waveform data are assumed to be velocity
 !   seismograms [m/sec] for the three components of motion x, y, and z. It operates
 !   in the frequency domain using the approach of Mai and Beroza.
 !
 ! Dependencies:
 !
-!   Subroutine bb_calc  
+!   Subroutine bb_calc
 !
 ! References:
 !
@@ -29,7 +29,7 @@ SUBROUTINE broadband_comp(station)
 !
 ! Updated: May 2013 (v1.5.1)
 !   Back to the tapering to the old version.
-!   Fix the error,  ratio calculation for imerg=0. 
+!   Fix the error,  ratio calculation for imerg=0.
 !
 ! Updated: October 2013 (v1.5.2)
 !   Add output decimation factor, time_step.
@@ -40,8 +40,12 @@ SUBROUTINE broadband_comp(station)
 ! Updated: July 2015 (v1.6.1)
 !   Add tmp_para and change dt computation at the first step.
 !
+! Updated: December 2016 (v1.6.2)
+!   Add minimum initiation time on time_p for zero padding.
+!
 use constants; use def_kind; use flags; use scattering, only: npts,time_step
 use source_receiver; use waveform; use fault_area; use tmp_para
+use vel_model, only: tinit ! add v162
 
 implicit none
 
@@ -61,21 +65,22 @@ real(kind=r_single)                            :: w_t
 
 !------------------------------------------------------------------------------------
 
-! delta-t of both high and low-frequency (already interpolated) time-series   
+! delta-t of both high and low-frequency (already interpolated) time-series
 ! dt = lf_len/(npts-1)
 if (npts == tmp_npts) dt = lf_len/(npts-1)
 if (npts .gt. tmp_npts) dt = tmp_lf_len/(tmp_npts-1)
 
 ! calculate broadband seismograms for each component
-do i=1,3   
+do i=1,3
    call bb_calc(i,dt,station)
 enddo
-   
-if (modality_flag /= 0) then   
-   ! find time-index corresponding to P-wave arrival 
-   ind=nint(time_p(station)/dt)                        
 
-   ! setting up the taper (rising half of Hanning window) to avoid spikes in acceleration 
+if (modality_flag /= 0) then
+   ! find time-index corresponding to P-wave arrival
+   !ind=nint(time_p(station)/dt)
+   ind=nint((time_p(station)+tinit)/dt) ! change v162
+
+   ! setting up the taper (rising half of Hanning window) to avoid spikes in acceleration
    ! at P-wave onset
    ! taper length in points (this is the effective length)
    taper_len=10
@@ -83,7 +88,7 @@ if (modality_flag /= 0) then
    ! reduce taper if too long
    if (floor(taper_len/2.) >= ind) then
       taper_len = 2 * ind - 2
-      call warning_handling(1,'null','BROADBAND_COMP (composition.f90)') 
+      call warning_handling(1,'null','BROADBAND_COMP (composition.f90)')
    endif
 
    ! allocate local array for taper
@@ -98,7 +103,7 @@ if (modality_flag /= 0) then
    enddo
 
    ! set to zero all amplitudes values about before the P-wave arrival and apply taper
-   !bb_seis(1:ind-floor(taper_len/2.),:)=0.0 
+   !bb_seis(1:ind-floor(taper_len/2.),:)=0.0
    !bb_seis(ind-floor(taper_len/2.)+1:ind+ceiling(taper_len/2.),:) =     &
    !bb_seis(ind-floor(taper_len/2.)+1:ind+ceiling(taper_len/2.),:)*taper
 
@@ -122,7 +127,7 @@ if (modality_flag /= 0) then
 
    ! deallocate memory
    if (allocated(taper)) then
-      deallocate(taper)   
+      deallocate(taper)
    endif
 endif
 
@@ -145,7 +150,7 @@ SUBROUTINE bb_calc(comp,dt,station)
 ! Notes:
 !
 !   Input time-series MUST have the same number of points and time-step. The FFT/IFFT
-!   subruotine implemented works only with 2**n time-series. 
+!   subruotine implemented works only with 2**n time-series.
 !   Frequency vector goes from 0 to f_nyq and back to 0+df (npts points)
 !
 ! References:
@@ -169,7 +174,7 @@ SUBROUTINE bb_calc(comp,dt,station)
 !
 ! Updated: july 2015 (v1.6.1)
 !    Do not need tmp_para, tmp_dt for df computation.
-!  
+!
 use interfaces, only: four1d
 use constants; use def_kind; use matching
 use scattering; use waveform; use earthquake
@@ -181,28 +186,28 @@ implicit none
 ! current component and station number
 integer(kind=i_single),intent(in)           :: comp,station
 ! FOR ACC_SPEC TEST
-integer(kind=i_single)                      :: sca_index, fscale_11, fscale_22, acc_size1 
+integer(kind=i_single)                      :: sca_index, fscale_11, fscale_22, acc_size1
 ! time-step
 real(kind=r_single),intent(in)              :: dt
-! indexes, counters, dummies 
+! indexes, counters, dummies
 integer(kind=i_single)                      :: index_diff,index_min,fscale_1,fscale_2,acc_size
-! flag and counters 
+! flag and counters
 integer(kind=i_single)                      :: trasf_sign,i
-! index of real target frequency and Nyquist frequency 
+! index of real target frequency and Nyquist frequency
 integer(kind=i_single)                      :: targ_index,f_nyq_index
-! window for search: half extension, lower and upper bounds, total extension 
+! window for search: half extension, lower and upper bounds, total extension
 integer(kind=i_single)                      :: win_fr,win_low,win_up,win_npts
 ! array for complex time-series
 complex(kind=r_single),dimension(npts)      :: hf_four,lf_four,broad_complex
-! arrays for high and low frequency spectra (amplitude and phase) 
+! arrays for high and low frequency spectra (amplitude and phase)
 real(kind=r_single),dimension(npts)         :: Am_hf,Ph_hf,Am_lf,Ph_lf
-! arrays for scaling 
+! arrays for scaling
 real(kind=r_single),dimension(npts/2 +1)    :: Acc_hf,Acc_lf
 ! frequency vectors, windowing functions, arrays for phase and amplitude of merged time-series
 real(kind=r_single),dimension(npts)         :: f,fn_lf,fn_hf,phase,amp
-! arrays for windowed spectra (amplitude and phase) 
+! arrays for windowed spectra (amplitude and phase)
 real(kind=r_single),dimension(npts)         :: hf_am_win,lf_am_win,hf_ph_win,lf_ph_win
-! array for amplitude differences 
+! array for amplitude differences
 real(kind=r_single),allocatable,dimension(:):: diff_amp
 ! actual target frequency, averaged spectra and their ratio, Nyquist frequency
 real(kind=r_single)                         :: f_targ,Av_hf,Av_lf,ratio,f_nyq,Av_hf1
@@ -214,7 +219,7 @@ real(kind=r_single)                         :: df,A,acc_spec
 ! adjusted dt
 !real(kind=r_single)                         :: tmp_dt
 
-!----------------------------------------------------------------------------------- 
+!-----------------------------------------------------------------------------------
 
 ! computing frequency-delta
 df = 1 / (npts * dt)    !according to NR
@@ -223,26 +228,26 @@ df = 1 / (npts * dt)    !according to NR
 !   df = 1 / (tmp_npts * tmp_dt) / (npts/tmp_npts) ! test always the same dt &  df
 !endif
 
-! compute nyquist frequency (its index is npts/2 +1) 
+! compute nyquist frequency (its index is npts/2 +1)
 ! (since npts is multiple of 2, f_nyq = {(npts+2)/2 -1)*df}
-f_nyq = 0.5 * (1 / dt)         
+f_nyq = 0.5 * (1 / dt)
 f_nyq_index = npts/2 + 1
-!if (npts .gt. tmp_npts) then 
-!   f_nyq = 0.5 * (1 / tmp_dt)         
+!if (npts .gt. tmp_npts) then
+!   f_nyq = 0.5 * (1 / tmp_dt)
 !   f_nyq_index = tmp_npts/2 + 1
 !endif
 
 ! create frequency vector
 f(1)=0.
 do i=1,f_nyq_index-1
-   f(i+1)=f(i)+df   
+   f(i+1)=f(i)+df
 enddo
 do i=f_nyq_index,npts-1
    f(i+1)=f(i)-df
-enddo   
-   
+enddo
+
 ! flag for FFT (i.e. from time to frequency)
-trasf_sign=1    
+trasf_sign=1
 
 hf_four=cmplx(conv_seis(:,comp),0.0)   !prepare complex array for HF
 
@@ -253,7 +258,7 @@ call four1d(hf_four,trasf_sign)
 Am_hf=cabs(hf_four)
 Ph_hf=atan2(aimag(hf_four),real(hf_four))
 
-lf_four=cmplx(lf_int(:,comp),0.0)   !prepare complex array for LF	
+lf_four=cmplx(lf_int(:,comp),0.0)   !prepare complex array for LF
 
 ! calling function for FFT
 call four1d(lf_four,trasf_sign)
@@ -262,15 +267,15 @@ call four1d(lf_four,trasf_sign)
 Am_lf=cabs(lf_four)
 Ph_lf=atan2(aimag(lf_four),real(lf_four))
 
-! index of target frequency in frequency vector 
+! index of target frequency in frequency vector
 do i=1,f_nyq_index
    if (f(i) >= targ_fr-df .and. f(i) <= targ_fr+df) then
       targ_index=i
       exit
-   endif   
+   endif
 enddo
 
-! index of target frequency for scaling in frequency vector 
+! index of target frequency for scaling in frequency vector
 do i=1,f_nyq_index
    if (f(i) >= 50.-df .and. f(i) <= 50.+df) then
       sca_index=i
@@ -279,9 +284,9 @@ do i=1,f_nyq_index
 enddo
 
 ! actual target frequency (user target-fr. "projected" onto frequency vector)
-f_targ=f(targ_index)   
+f_targ=f(targ_index)
 
-! search window half-length (number of points in frequency)	
+! search window half-length (number of points in frequency)
 win_fr = nint(band_wid/df)
 
 ! define search region on frequency vector (in points)
@@ -289,8 +294,8 @@ win_low = targ_index - win_fr
 win_up = targ_index + win_fr
 win_npts = (win_up-win_low) + 1      !total window-length for search (i.e. search area)
 
-! check for search window 
-if ((win_low < 1) .or. (win_up > f_nyq_index)) then 
+! check for search window
+if ((win_low < 1) .or. (win_up > f_nyq_index)) then
    call error_handling(6,'0','BB_CALC (composition.f90)')
 endif
 
@@ -300,14 +305,14 @@ if (.not.allocated(diff_amp)) allocate(diff_amp(win_npts))
 ! computes spectral amplitude differences inside the search area
 diff_amp(1:win_npts)=abs(Am_hf(win_low:win_up)-Am_lf(win_low:win_up))
 
-! find index of minimum inside amplitude-difference vector	
-index_diff=minloc(diff_amp,dim=1) 
+! find index of minimum inside amplitude-difference vector
+index_diff=minloc(diff_amp,dim=1)
 
-! deallocate memory 
+! deallocate memory
 if (allocated(diff_amp)) deallocate(diff_amp)
 
-! find index of minimum inside positive frequency vector  
-index_min=index_diff-1+win_low    
+! find index of minimum inside positive frequency vector
+index_min=index_diff-1+win_low
 
 ! determine matching frequency, which corresponds to the minimum amplitude difference
 match_fr(comp,station)=f(index_min)
@@ -315,13 +320,13 @@ match_fr(comp,station)=f(index_min)
 
 ! ----> section for AMPLITUDE SCALING (to avoid spectral jumps at the matching frequency) <----
 
-! scaling is based on computing the ratio of LF/HF acceleration amplitude spectra 
+! scaling is based on computing the ratio of LF/HF acceleration amplitude spectra
 ! averaged over a wide window
 
-! derive acceleration amplitude spectra from velocity amplitude spectra 
-Acc_hf=Am_hf(1:f_nyq_index)*2.*pi*f(1:f_nyq_index) 
+! derive acceleration amplitude spectra from velocity amplitude spectra
+Acc_hf=Am_hf(1:f_nyq_index)*2.*pi*f(1:f_nyq_index)
 Acc_lf=Am_lf(1:f_nyq_index)*2.*pi*f(1:f_nyq_index)
-! note: here above the problem WAS that f went from -f_nyq to f_nyq, while Am from 0 to 2*fnyq-1 
+! note: here above the problem WAS that f went from -f_nyq to f_nyq, while Am from 0 to 2*fnyq-1
 
 ! compute spectral averages over a large window (3 times search window)
 !!! fscale_1=index_min-3*win_fr; if (fscale_1 <= 0) fscale_1=1
@@ -339,29 +344,29 @@ acc_size1=(fscale_22-fscale_11)+1
 !!endif
 
 ! compute averages
-!!! Av_hf = sum(Acc_hf(fscale_1:fscale_2))/(acc_size-1)   
+!!! Av_hf = sum(Acc_hf(fscale_1:fscale_2))/(acc_size-1)
 !!! Av_lf = sum(Acc_lf(fscale_1:fscale_2))/(acc_size-1)
-!Av_hf = sum(Acc_hf(fscale_1:fscale_2))/(acc_size)   
-!Av_lf = sum(Acc_lf(fscale_1:fscale_2))/(acc_size) 
-Av_hf11 = sum(Acc_hf(fscale_11:fscale_22))/(acc_size1)   
-Av_lf11 = sum(Acc_lf(fscale_11:fscale_22))/(acc_size1)   
+!Av_hf = sum(Acc_hf(fscale_1:fscale_2))/(acc_size)
+!Av_lf = sum(Acc_lf(fscale_1:fscale_2))/(acc_size)
+Av_hf11 = sum(Acc_hf(fscale_11:fscale_22))/(acc_size1)
+Av_lf11 = sum(Acc_lf(fscale_11:fscale_22))/(acc_size1)
 
 ! imerg flag
 if (imerg.eq.0) then
    !old merging
    !ratio = Av_lf/Av_hf   !averages ratio
    ratio = Av_lf11/Av_hf11   !averages ratio
-else 
+else
    !new merging, imerg=1: one big subfault, =2: more subfaults
    !Av_hf1=acc_spec(f(index_min),station)
    !ratio = Av_hf1/Av_hf
-   Av_hf1=acc_spec(50.,station) ! use 50Hz for fmax=100Hz 
+   Av_hf1=acc_spec(50.,station) ! use 50Hz for fmax=100Hz
    ratio = Av_hf1/Av_hf11
 endif
 
 Am_hf = Am_hf*ratio
 
-! ----------------------> end section for amplitude scaling <---------------------- 
+! ----------------------> end section for amplitude scaling <----------------------
 
 ! windowing function for low frequency
 where ( f <= match_fr(comp,station) )
@@ -370,7 +375,7 @@ elsewhere
    fn_lf=0.
 end where
 
-! windowing function for high frequency 
+! windowing function for high frequency
 where ( f > match_fr(comp,station) )
    fn_hf=1.0
 elsewhere
@@ -379,15 +384,15 @@ end where
 
 ! multiply phase and amplitude spectra with the windowing function
 hf_ph_win=Ph_hf*fn_hf; lf_ph_win=Ph_lf*fn_lf
-hf_am_win=Am_hf*fn_hf; lf_am_win=Am_lf*fn_lf      
+hf_am_win=Am_hf*fn_hf; lf_am_win=Am_lf*fn_lf
 
-! compose low and high frequency phase spectra	
+! compose low and high frequency phase spectra
 phase=hf_ph_win+lf_ph_win
 
 ! compose low and high frequency amplitude spectra
 amp=hf_am_win+lf_am_win
 
-! combine amplitude and phase spectra (whole broadband spectrum) 
+! combine amplitude and phase spectra (whole broadband spectrum)
 broad_complex=amp*exp(zeta*phase)
 
 ! perform IFFT to find time history from broadband spectrum
@@ -410,7 +415,7 @@ FUNCTION acc_spec(f,station)
 !
 ! Dependencies:
 !
-!   Subroutine bb_calc  
+!   Subroutine bb_calc
 !
 ! References:
 !
@@ -446,7 +451,7 @@ FUNCTION acc_spec(f,station)
 !
 ! Updated: June 2015 (V1.6)
 !   Move alt computation into srf_read subroutine in source.f90.
-!  
+!
 use constants; use def_kind; use flags; use scattering
 use source_receiver; use waveform; use earthquake
 use fault_area
@@ -454,7 +459,7 @@ use vel_model; use geometry
 
 implicit none
 
-! function                                                                                                                   
+! function
 real(kind=r_single)                             :: acc_spec
 ! number of station
 integer(kind=i_single)                          :: station
@@ -487,11 +492,11 @@ real(kind=r_single)                             :: P
 real(kind=r_single)                             :: rayin,tin
 ! angle between the surface and raypath for each subfault in degree
 real(kind=r_single)                             :: theta
-! impedance effects, path term, t* effects 
+! impedance effects, path term, t* effects
 real(kind=r_single)                             :: imp,G,attn
 ! travel time from hypo to a station [sec]
 real(kind=r_single)                             :: t_star1
-! source radiation spectrum, rupture velocity, 
+! source radiation spectrum, rupture velocity,
 real(kind=r_single)                             :: Sref,vr_sub1,Si_sum
 ! scaling factor
 real(kind=r_single)                             :: sca
@@ -509,11 +514,11 @@ real(kind=r_single)                             :: subf_sca
 real(kind=r_single)                             :: sdec
 ! qk factor from G&P (2010) eq 15
 real(kind=r_single),allocatable,dimension(:)    :: qk
-! each subfault dimention, sqrt(area of each subfault) [cm] 
+! each subfault dimention, sqrt(area of each subfault) [cm]
 real(kind=r_single),allocatable,dimension(:)    :: wsub
 ! distance between each subfault to a station [cm]
 real(kind=r_single),allocatable,dimension(:)    :: R_cell
-! t* is sum(travel time in a layer/Qs in a layer) [sec] 
+! t* is sum(travel time in a layer/Qs in a layer) [sec]
 real(kind=r_single),allocatable,dimension(:)    :: t_star
 ! rupture speed at each subfault
 real(kind=r_single),allocatable,dimension(:)    :: vr_sub
@@ -564,7 +569,7 @@ endif
 
 ! start computing t_star1
 t_star1=0
-   
+
 ! angle between the surface and raypath from each subfault
 theta=asin(hyp_z/sr_hypo(station))
 
@@ -592,8 +597,8 @@ rad=0.
 do i=1,1000
    call random_number(rdm) !should be 0-1
    toa=rdm*90.*DtoR
-   lam=360.*rdm*DtoR 
-   dp=90.*rdm*DtoR 
+   lam=360.*rdm*DtoR
+   dp=90.*rdm*DtoR
    str=(rdm-0.5)*90.*DtoR
    sh1=cos(lam)*cos(dp)*cos(toa)*sin(str)+cos(lam)*sin(dp)*sin(toa)*cos(2.*str)
    sh2=sin(lam)*cos(2.*dp)*cos(toa)*cos(str)-0.5*sin(lam)*sin(2.*dp)*sin(toa)*sin(2.*str)
@@ -643,7 +648,7 @@ do i=1,nsub
 
    ! start computing t_star
    t_star(i)=0
-   
+
    ! angle between the surface and raypath from each subfault
    theta=asin(fz(i)/R_cell(i)*100000.)
 
@@ -663,7 +668,7 @@ do i=1,nsub
       endif
    enddo
    ! end computing t_star
- 
+
 enddo
 
 !Si_sum=0.
@@ -758,6 +763,6 @@ subf_sca=sqrt(rnsub)/nsub
 acc_spec=acc_spec*subf_sca*fac
 
 ! deallocation
-if(allocated(wsub)) deallocate(wsub,R_cell) 
+if(allocated(wsub)) deallocate(wsub,R_cell)
 
 END FUNCTION acc_spec
