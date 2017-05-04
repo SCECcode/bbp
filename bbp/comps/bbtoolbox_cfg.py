@@ -110,6 +110,7 @@ class BBToolboxCfg(object):
         self.grid_x = None
         self.grid_y = None
         self.grid_z = 125.0
+        self.copy_lf_seismograms = True
 
         # Parse src file, if given
         if a_srcfile:

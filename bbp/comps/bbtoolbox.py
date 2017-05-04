@@ -468,6 +468,13 @@ class BBToolbox(object):
             shutil.copy2("%s/BB.%s.hyb" % (a_tmpdir_mod, stat_names[i]),
                          "%s/%d.%s.bbp" % (a_tmpdir, sim_id, stat_names[i]))
 
+        if config.copy_lf_seismograms:
+            a_param_outdir = os.path.join(a_outdir, "param_files")
+            for i in range(0, len(stat_names)):
+                # Keep copy of lf seismogram files in outdata
+                shutil.copy2("%s/%s.%s-lf.bbp" % (a_tmpdir, sim_id, stat_names[i]),
+                             "%s/%s.%s-lf.bbp" % (a_param_outdir, sim_id, stat_names[i]))
+
         # Change to tmpdir so run.log file is put in tmpdir
         os.chdir(a_tmpdir)
 
