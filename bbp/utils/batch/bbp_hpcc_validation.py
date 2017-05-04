@@ -30,15 +30,20 @@ MAX_SIMULATIONS = 200
 CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura"]
 CODEBASES_SITE = ["gp", "sdsu", "song", "irikura", "exsim", "ucsb"]
 
-def generate_src_files(numsim, source_file, srcdir, prefix, hypo_rand):
+def generate_src_files(numsim, source_file, srcdir,
+                       prefix, hypo_rand,
+                       variation, multiseg,
+                       segment, first_seg_dir):
     """
     Generates num_sim source files in the srcdir using different
     random seeds
     """
     src_props = bband_utils.parse_properties(source_file)
-    # Delete "seed" from the property set
+    # Delete "seed" and "common_seed" from the property set
     if "seed" in src_props:
         src_props.pop("seed")
+    if "common_seed" in src_props:
+        src_props.pop("common_seed")
     # Get FAULT_LENGTH and FAULT_WIDTH from the SRC file
     try:
         flen = float(src_props["fault_length"])
@@ -56,19 +61,49 @@ def generate_src_files(numsim, source_file, srcdir, prefix, hypo_rand):
     output = ""
     for key in src_props:
         output = output + "%s = %s\n" % (key.upper(), src_props[key])
+    common_seeds = []
+    # Check if we are doing a multi-segment run
+    if multiseg and first_seg_dir is not None:
+        # Read common seeds from seed file
+        seed_file = open(os.path.join(first_seg_dir, "Src", "seeds.txt"), 'r')
+        first_seg_sims = int(seed_file.readline().strip())
+        if first_seg_sims != numsim:
+            print("ERROR: Number of simulations must match across segments!")
+            sys.exit(1)
+        for line in seed_file:
+            common_seeds.append(int(line.strip()))
+        seed_file.close()
+    # Generate the numsim SRC files
+    all_seeds = []
     for sim in range(0, numsim):
-        random.seed(sim + 1)
+        random.seed((sim + 1) + (variation - 1) * 500)
         seed = int(math.exp(7 * math.log(10.0)) * random.random())
+        all_seeds.append(seed)
         hypo_along_stk = flen * (0.2 + 0.6 * random.random() - 0.5)
         hypo_down_dip = fwid * (0.2 + 0.6 * random.random())
-        srcfile = os.path.join(srcdir, "%s-%04d.src" % (prefix, sim))
+        if multiseg:
+            srcfile = os.path.join(srcdir,
+                                   "%s-%04d_seg%02d.src" %
+                                   (prefix, sim, segment))
+        else:
+            srcfile = os.path.join(srcdir, "%s-%04d.src" % (prefix, sim))
         outfile = open(srcfile, 'w')
         outfile.write(output)
         if hypo_rand:
             outfile.write("HYPO_ALONG_STK = %.2f\n" % (hypo_along_stk))
             outfile.write("HYPO_DOWN_DIP = %.2f\n" % (hypo_down_dip))
         outfile.write("SEED = %d\n" % (seed))
+        if multiseg and first_seg_dir is not None:
+            outfile.write("COMMON_SEED = %d\n" % (common_seeds[sim]))
         outfile.close()
+    # Check if we need to write file with all seeds
+    if multiseg and first_seg_dir is None:
+        # This is the first segment, write seeds file
+        seed_file = open(os.path.join(srcdir, "seeds.txt"), 'w')
+        seed_file.write("%d\n" % (numsim))
+        for seed in all_seeds:
+            seed_file.write("%d\n" % (seed))
+        seed_file.close()
 
 def generate_xml(install, numsim, srcdir, xmldir,
                  logdir, event, codebase, prefix,
@@ -288,6 +323,14 @@ def main():
                       help="GMPE group: %s" % (gmpe_groups_available_lc))
     parser.add_option("-a", "--all-metrics", action="store_true",
                       dest="allmetrics", help="Calculate all metrics")
+    parser.add_option("--var", "--variation", type="int", action="store",
+                      dest="variation", help="seed variation (default 1)")
+    parser.add_option("--seg", "--segment", type="int",
+                      action="store", dest="segment",
+                      help="Indicates simulation part of multiseg run")
+    parser.add_option("--first-seg-dir", type="string", action="store",
+                      dest="first_seg_dir",
+                      help="required for multi-segment segments 2..n")
     parser.add_option("-s", "--site", action="store_true",
                       dest="site_response", help="Use site response module")
 
@@ -298,6 +341,37 @@ def main():
         newnodes = True
     else:
         newnodes = False
+
+    # Check if multi-segment simulation
+    if options.segment:
+        multiseg = True
+        segment = options.segment
+    else:
+        multiseg = False
+
+    # Check for first segment directory
+    if options.first_seg_dir is not None:
+        first_seg_dir = os.path.abspath(options.first_seg_dir)
+        if not os.path.exists(first_seg_dir):
+            print("First segment directory does not exist: %s" %
+                  (first_seg_dir))
+            sys.exit(1)
+    else:
+        first_seg_dir = None
+        if multiseg and segment > 1:
+            print("Must specify first segment directory!")
+            sys.exit(1)
+
+    # Check for variation sequence
+    if options.variation:
+        variation = options.variation
+    else:
+        if multiseg:
+            # If a multisegment run, variation defaults to the segment number
+            variation = segment
+        else:
+            # Otherwise, we use 1
+            variation = 1
 
     # Check if user specified custom walltime
     if options.walltime:
@@ -356,10 +430,10 @@ def main():
     event_names = validation_cfg.VE_EVENTS.get_all_names()
     events = [v_event.lower() for v_event in event_names]
     if event.lower() not in events:
-        print ("Event %s does not appear to be properly configured on BBP" %
-               (event))
-        print ("Available options are: %s" % (event_names))
-        print "Please provide another event or check your BBP installation."
+        print("Event %s does not appear to be properly configured on BBP" %
+              (event))
+        print("Available options are: %s" % (event_names))
+        print("Please provide another event or check your BBP installation.")
         sys.exit(1)
     val_obj = validation_cfg.VE_EVENTS.get_event_by_print_name(event)
 
@@ -368,7 +442,7 @@ def main():
 
     # Check for hypocenter randomization
     if options.hyporand is None:
-        print "Please specify --hypo-rand or --no-hypo-rand!"
+        print("Please specify --hypo-rand or --no-hypo-rand!")
         sys.exit(1)
 
     if options.hyporand:
@@ -379,15 +453,27 @@ def main():
     if not skip_rupgen:
         # Get source file
         try:
-            source_file = val_obj.get_input(codebase, "source").strip()
+            source_file = val_obj.get_input(codebase, "source")
         except KeyError:
-            print ("Unable to get source file for event %s, codebase %s!" %
-                   (event, codebase))
+            print("Unable to get source file for event %s, codebase %s!" %
+                  (event, codebase))
             sys.exit(1)
         if not source_file:
-            print ("Source file for event %s, codebase %s not specified!" %
-                   (event, codebase))
+            print("Source file for event %s, codebase %s not specified!" %
+                  (event, codebase))
             sys.exit(1)
+        # Check for multisegment events
+        if isinstance(source_file, str):
+            source_file = source_file.strip()
+            if multiseg:
+                print("This event doesn't look like a multisegment event!")
+                sys.exit(1)
+        else:
+            # Multisegment event
+            if not multiseg:
+                print("This is a multisegment event! Please specify segment!")
+                sys.exit(1)
+            source_file = source_file[segment - 1]
     else:
         # No need to get the source file, we start from the srf
         source_file = None
@@ -468,7 +554,10 @@ def main():
         os.makedirs(mdir)
     # Generate source files if needed
     if source_file is not None:
-        generate_src_files(numsim, source_file, srcdir, prefix, hypo_rand)
+        generate_src_files(numsim, source_file, srcdir,
+                           prefix, hypo_rand,
+                           variation, multiseg,
+                           segment, first_seg_dir)
     # Generate xml files
     generate_xml(bbp_install, numsim, srcdir, xmldir,
                  logsdir, event, codebase, prefix,
