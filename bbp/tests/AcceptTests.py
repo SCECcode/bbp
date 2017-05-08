@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2017 Southern California Earthquake Center
 
 These are acceptance tests for the broadband platforms
 $Id: AcceptTests.py 1795 2017-02-09 16:23:34Z fsilva $
@@ -98,7 +98,7 @@ def find_tests(test, rerun):
         tolerance = 0.03
 
         #This defines a method that we're going to add to the
-        #BBP2G_Acceptance_Tests class. The keyword binding has to
+        #BBPAcceptanceTests class. The keyword binding has to
         #be done b/c Python is storing pointers to 'file' and 'file_base'
         #so w/o the keywords, 'file' and 'file_base' in the function will
         #point to the final values
@@ -145,15 +145,15 @@ def find_tests(test, rerun):
             sys.stderr.flush()
 
         # We create a method object which is an instance method for
-        # BBP2G_Acceptance_Tests which executes the code in
+        # BBPAcceptanceTests which executes the code in
         # testPermutation
         method = new.instancemethod(permutation_test,
-                                    None, BBP2G_Acceptance_Tests)
-        # We give the method a new name in BBP2G_Acceptance_Tests
+                                    None, BBPAcceptanceTests)
+        # We give the method a new name in BBPAcceptanceTests
         # which contains the xml file being run
-        setattr(BBP2G_Acceptance_Tests, "test_%s" % file_base, method)
+        setattr(BBPAcceptanceTests, "test_%s" % file_base, method)
 
-class BBP2G_Acceptance_Tests(unittest.TestCase):
+class BBPAcceptanceTests(unittest.TestCase):
 
     def setUp(self):
         self.install = InstallCfg()
@@ -218,6 +218,6 @@ if __name__ == '__main__':
         rerun = False
 
     find_tests(test, rerun)
-    suite = unittest.TestLoader().loadTestsFromTestCase(BBP2G_Acceptance_Tests)
+    suite = unittest.TestLoader().loadTestsFromTestCase(BBPAcceptanceTests)
     print("==> Number of tests to run: %d" % suite.countTestCases())
     unittest.TextTestRunner(verbosity=2).run(suite)
