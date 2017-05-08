@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2017 Southern California Earthquake Center
 
 Program to set up a full validation run on HPCC
 $Id: bbp_hpcc_validation.py 1790 2017-02-06 22:25:40Z fsilva $
@@ -109,7 +109,7 @@ def generate_xml(install, numsim, srcdir, xmldir,
                  logdir, event, codebase, prefix,
                  skip_rupgen, only_rup,
                  gmpe_group_name, allmetrics,
-                 site_response):
+                 site_response, multiseg, segment):
     """
     Generates xml files in the xmldir for numsim simulations whose
     source files are in the srcdir using the validation event and
@@ -120,7 +120,12 @@ def generate_xml(install, numsim, srcdir, xmldir,
     bfn = os.path.join(xmldir, BATCH_SIM_FILE)
     batchfile = open(bfn, 'w')
     for sim in range(0, numsim):
-        srcfile = os.path.join(srcdir, "%s-%04d.src" % (prefix, sim))
+        if multiseg:
+            srcfile = os.path.join(srcdir,
+                                   "%s-%04d_seg%02d.src" %
+                                   (prefix, sim, segment))
+        else:
+            srcfile = os.path.join(srcdir, "%s-%04d.src" % (prefix, sim))
         ofn = os.path.join(tmpdir, "bbp.optfile")
         optfile = open(ofn, 'w')
         optfile.write('y\n') # Validation
@@ -562,7 +567,7 @@ def main():
     generate_xml(bbp_install, numsim, srcdir, xmldir,
                  logsdir, event, codebase, prefix,
                  skip_rupgen, only_rup, gmpe_group_name,
-                 allmetrics, site_response)
+                 allmetrics, site_response, multiseg, segment)
     # Write pbs file
     write_pbs(bbp_install, numsim, simdir, xmldir,
               email, prefix, newnodes, walltime, savetemp)
