@@ -179,49 +179,49 @@ echo "=> Installing Broadband Platform Velocity Model Packages"
 if [ "$NOCAL" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Northern California"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nocal-velocity-model-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nocal-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$LABASIN" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> LA Basin"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/labasin-velocity-model-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/labasin-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$MOJAVE" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Mojave"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/mojave-velocity-model-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/mojave-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$CJAPAN" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Central Japan"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centraljapan-velocity-model-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centraljapan-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$WJAPAN" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Western Japan"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/westernjapan-velocity-model-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/westernjapan-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$CANADA" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Canada"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/canada1000-velocity-model-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/canada1000-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$CEUS" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Central Eastern United States"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/ceus1000-velocity-model-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/ceus1000-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$CENTRALUS" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Central United States"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centralus-velocity-model-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centralus-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 echo "==> Completed!"
@@ -237,13 +237,13 @@ fi
 if [ "$LABASIN" == "y" ]; then
     cd $BASEDIR/bbp_val
     echo "==> Northridge"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/northridge-validation-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/northridge-validation-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$LABASIN" == "y" ] || [ "$NOCAL" == "y" ]; then
     cd $BASEDIR/bbp_val
     echo "==> GMPEs"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/gmpe-verification-$VERSION.tar.gz
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/gmpe-verification-$VERSION.tar.gz $MD5FILE
 fi
 
 echo "==> Completed!"
