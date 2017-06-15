@@ -44,5 +44,6 @@ use.
 
 Please refer to the 'doc' directory for further information on this
 release of the Platform. Please see the file called LICENSE for
-licensing information. For installation instructions see the
-INSTALL_NOTES.TXT file, or refer to the USER_GUIDE document.
+licensing information. For installation information, including
+installation instructions, please look in the 'doc' directory or
+refer to the Wiki.
