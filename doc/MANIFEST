@@ -1,9 +1,9 @@
 total 40
 -rw-r--r--   1 fsilva    11K May  8 14:20 LICENSE
--rw-r--r--   1 fsilva   2.7K Jun 24  2016 README.md
+-rw-r--r--   1 fsilva   2.7K Jun 15 11:40 README.md
 drwxr-xr-x   9 fsilva   306B Feb 17 16:18 bbp
-drwxr-xr-x   9 fsilva   306B Jun 13 09:16 doc
-drwxr-xr-x   4 fsilva   136B Jun 13 07:42 setup
+drwxr-xr-x  15 fsilva   510B Jun 16 13:02 doc
+drwxr-xr-x   4 fsilva   136B Jun 16 13:04 setup
 
 ./bbp:
 total 8
@@ -1686,13 +1686,19 @@ total 136
 -rwxr-xr-x  1 fsilva    10K Feb 17 16:18 plot_seismogram_comparison.py
 
 ./doc:
-total 1144
--rwxr-xr-x  1 fsilva    10K Feb 17 16:24 INSTALL_NOTES.TXT
--rw-r--r--  1 fsilva   3.6K May  8 15:08 LICENSE
--rw-r--r--  1 fsilva   110K Feb 17 16:24 MANIFEST
--rw-r--r--  1 fsilva   220K Jun 13 09:16 MANIFEST2
--rw-r--r--  1 fsilva    12K Feb 17 16:24 RELEASE_NOTES
--rw-r--r--  1 fsilva   205K Feb 17 16:24 USER_GUIDE_16.5.0.pdf
+total 704
+-rw-r--r--  1 fsilva   3.7K Jun 16 13:02 Acknowledging.md
+-rw-r--r--  1 fsilva   4.4K Jun 16 13:02 Data-Products.md
+-rw-r--r--  1 fsilva   8.2K Jun 16 13:02 FAQ.md
+-rw-r--r--  1 fsilva    29K Jun 16 13:02 File-Format-Guide.md
+-rw-r--r--  1 fsilva   2.6K Jun 16 13:02 Home.md
+-rw-r--r--  1 fsilva   3.5K Jun 16 13:02 Installation.md
+-rw-r--r--  1 fsilva   220K Jun 16 13:07 MANIFEST
+-rw-r--r--  1 fsilva   2.2K Jun 16 13:02 Methods-and-Modules.md
+-rw-r--r--  1 fsilva    16K Jun 16 13:02 Release-Notes.md
+-rw-r--r--  1 fsilva    24K Jun 16 13:02 Running-Simulations.md
+-rw-r--r--  1 fsilva   7.8K Jun 16 13:02 Running-Tests.md
+-rw-r--r--  1 fsilva   7.6K Jun 16 13:02 Troubleshooting.md
 drwxr-xr-x  5 fsilva   170B Feb 17 16:24 examples
 
 ./doc/examples:
@@ -1931,4 +1937,4 @@ total 16
 ./setup:
 total 24
 -rw-r--r--  1 fsilva   1.6K Jun 12 15:29 bbp-17.3.0-md5.txt
--rwxr-xr-x  1 fsilva   6.9K Jun 13 08:44 easy_install_bbp.sh
+-rwxr-xr-x  1 fsilva   7.1K Jun 16 12:59 easy_install_bbp.sh
