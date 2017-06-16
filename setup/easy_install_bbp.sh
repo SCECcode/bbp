@@ -25,7 +25,7 @@ download_untar () {
     # Check MD5SUM
     PREV_SUM=`cat $MD5 | grep $FILE | cut -d\  -f1`
     SYSTEM="linux"
-    md5sum 2> /dev/null || SYSTEM="mac"
+    md5sum --help 2> /dev/null || SYSTEM="mac"
     if [ $SYSTEM == "linux" ]; then
 	CUR_SUM=`md5sum $FILE | cut -d\  -f1`
     else
