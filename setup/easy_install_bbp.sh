@@ -267,4 +267,6 @@ echo "export BBP_VAL_DIR=$BASEDIR/bbp_val"
 echo "export PYTHONPATH=$BBPDIR/comps"
 echo "export BBP_DATA_DIR=$BASEDIR/bbp_data"
 echo "export PATH=$BBPDIR/comps:$BBPDIR/utils/batch:\$PATH"
-echo "ulimit -s unlimited"
+if [ "$(uname)" != "Darwin" ]; then
+    echo "ulimit -s unlimited"
+fi
