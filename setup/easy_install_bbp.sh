@@ -24,7 +24,13 @@ download_untar () {
 
     # Check MD5SUM
     PREV_SUM=`cat $MD5 | grep $FILE | cut -d\  -f1`
-    CUR_SUM=`md5sum $FILE | cut -d\  -f1 2>/dev/null` || CUR_SUM=`md5 $FILE | cut -d\  -f4`
+    SYSTEM="linux"
+    md5sum 2> /dev/null || SYSTEM="mac"
+    if [ $SYSTEM == "linux" ]; then
+	CUR_SUM=`md5sum $FILE | cut -d\  -f1`
+    else
+	CUR_SUM=`md5 $FILE | cut -d\  -f4`
+    fi
 
     if [ "$CUR_SUM" != "$PREV_SUM" ]; then
 	echo
@@ -158,7 +164,7 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "==> Would you like to install the Central Eastern United States region (3.8GB)?"
+echo "==> Would you like to install the Eastern United States excluding Mississippi embayment and gulf coast region (3.8GB)?"
 select yn in "Yes" "No"; do
     case $yn in
 	Yes ) CEUS=y; break;;
@@ -166,7 +172,7 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "==> Would you like to install the Central United States region (1.8GB)?"
+echo "==> Would you like to install the Central United States including Mississippi embayment region (1.8GB)?"
 select yn in "Yes" "No"; do
     case $yn in
 	Yes ) CENTRALUS=y; break;;
