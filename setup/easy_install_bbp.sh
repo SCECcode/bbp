@@ -14,7 +14,7 @@ download_untar () {
 
     # Download
     wget $URL 2>/dev/null || curl -O $URL 2>/dev/null
-    
+
     URL_NO_PROTO=${URL:7}
     URL_REL=${URL_NO_PROTO#*/}
     FILE=`basename "/${URL_REL%%\?*}"`
@@ -24,7 +24,7 @@ download_untar () {
 
     # Check MD5SUM
     PREV_SUM=`cat $MD5 | grep $FILE | cut -d\  -f1`
-    CUR_SUM=`md5sum $FILE | cut -d\  -f1` || CUR_SUM=`md5 $FILE | cut -d\  -f4`
+    CUR_SUM=`md5sum $FILE | cut -d\  -f1 2>/dev/null` || CUR_SUM=`md5 $FILE | cut -d\  -f4`
 
     if [ "$CUR_SUM" != "$PREV_SUM" ]; then
 	echo
@@ -32,7 +32,7 @@ download_untar () {
 	echo
 	exit 1
     fi
-    
+
     # Clean up as we go
     rm $FILE
 }
@@ -252,7 +252,7 @@ echo "==> Completed!"
 
 echo
 echo "=> All Done!"
-echo 
+echo
 echo "Please add the following lines to your bash_profile:"
 echo
 echo "export BBP_DIR=$BBPDIR"
@@ -261,3 +261,4 @@ echo "export BBP_VAL_DIR=$BASEDIR/bbp_val"
 echo "export PYTHONPATH=$BBPDIR/comps"
 echo "export BBP_DATA_DIR=$BASEDIR/bbp_data"
 echo "export PATH=$BBPDIR/comps:$BBPDIR/utils/batch:\$PATH"
+echo "ulimit -s unlimited"
