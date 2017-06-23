@@ -480,8 +480,8 @@ class RMG(object):
         """
         Tapering slip values near the boundary
         """
-        nz_bt = np.round(nz / 5)
-        nx_bt = np.round(nx / 5)
+        nz_bt = int(np.round(nz / 5))
+        nx_bt = int(np.round(nx / 5))
 
         sfac = np.ones((nz, nx))
         x = np.linspace(0, 1, nx_bt)
@@ -569,10 +569,10 @@ class RMG(object):
         config = self.config
         rup = self.rup
 
-        rup["nx"] = math.ceil(config.CFGDICT["fault_length"] /
-                              config.CFGDICT["dlen"])
-        rup["nz"] = math.ceil(config.CFGDICT["fault_width"] /
-                              config.CFGDICT["dwid"])
+        rup["nx"] = int(math.ceil(config.CFGDICT["fault_length"] /
+                                  config.CFGDICT["dlen"]))
+        rup["nz"] = int(math.ceil(config.CFGDICT["fault_width"] /
+                                  config.CFGDICT["dwid"]))
 
         rup["lx"] = np.linspace(config.CFGDICT["dlen"] / 2,
                                 ((config.CFGDICT["dlen"] * rup["nx"]) -
@@ -604,8 +604,8 @@ class RMG(object):
         rup["dx1"] = config.CFGDICT["dlen"] * 4.0
         rup["dz1"] = config.CFGDICT["dwid"] * 4.0
 
-        rup["nx1"] = math.ceil(config.CFGDICT["fault_length"] / rup["dx1"])
-        rup["nz1"] = math.ceil(config.CFGDICT["fault_width"] / rup["dz1"])
+        rup["nx1"] = int(math.ceil(config.CFGDICT["fault_length"] / rup["dx1"]))
+        rup["nz1"] = int(math.ceil(config.CFGDICT["fault_width"] / rup["dz1"]))
 
         rup["lx1"] = np.linspace(rup["dx1"] / 2,
                                  ((rup["dx1"] * rup["nx1"]) -
