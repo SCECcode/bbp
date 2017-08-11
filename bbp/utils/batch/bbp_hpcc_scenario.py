@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2017 Southern California Earthquake Center
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Program to set up a full BBP scenario simulation run on HPCC
-$Id: bbp_hpcc_scenario.py 1644 2016-04-19 18:54:19Z fsilva $
 """
 
 # Import Python modules
@@ -366,7 +376,7 @@ def main():
             sys.exit(1)
     else:
         first_seg_dir = None
-        
+
     # Check if user specified custom walltime
     if options.walltime:
         if options.walltime < 1:
@@ -384,7 +394,7 @@ def main():
         variation = options.variation
     else:
         variation = 1
-            
+
     # Check if user wants to save the contents of tmpdata
     if options.savetemp:
         savetemp = True
@@ -431,7 +441,7 @@ def main():
             sys.exit(1)
     else:
         site_response = False
-    
+
     # Check for hypocenter randomization
     if options.hyporand is None:
         print "Please specify --hypo-rand or --no-hypo-rand!"

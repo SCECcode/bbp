@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2017 Southern California Earthquake Center
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Program to set up a full validation run on HPCC
-$Id: bbp_hpcc_validation.py 1790 2017-02-06 22:25:40Z fsilva $
 """
 
 # Import Python modules
@@ -29,6 +39,7 @@ CORES_PER_NODE_NEW = 16
 MAX_SIMULATIONS = 200
 CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura"]
 CODEBASES_SITE = ["gp", "sdsu", "song", "irikura", "exsim", "ucsb"]
+CODEBASES_SRF = ["gp", "sdsu", "song", "ucsb"]
 
 def generate_src_files(numsim, source_file, srcdir,
                        prefix, hypo_rand,
@@ -107,7 +118,7 @@ def generate_src_files(numsim, source_file, srcdir,
 
 def generate_xml(install, numsim, srcdir, xmldir,
                  logdir, event, codebase, prefix,
-                 skip_rupgen, only_rup,
+                 skip_rupgen, srf_prefix, only_rup,
                  gmpe_group_name, allmetrics,
                  site_response, multiseg, segment):
     """
@@ -126,21 +137,33 @@ def generate_xml(install, numsim, srcdir, xmldir,
                                    (prefix, sim, segment))
         else:
             srcfile = os.path.join(srcdir, "%s-%04d.src" % (prefix, sim))
+        if srf_prefix is not None:
+            srffile = "%s-%04d.srf" % (srf_prefix, sim)
+            # Make sure srf file exists and is readable
+            if (not os.path.isfile(srffile) or
+                not os.access(srffile, os.R_OK)):
+                print("SRF file %s does not seem to be accessible!" % (srffile))
+                sys.exit(1)
         ofn = os.path.join(tmpdir, "bbp.optfile")
         optfile = open(ofn, 'w')
         optfile.write('y\n') # Validation
         optfile.write('%s\n' % (event)) # Validation event
         optfile.write('%s\n' % (codebase)) # Codebase to use
+        # Source file, all codes need it!
+        optfile.write('y\n') # Provide custom source file
+        optfile.write('2\n') # Enter path to source file
+        optfile.write('%s\n' % (srcfile)) # Source file
         if codebase != "exsim" and codebase != "csm":
+            # Run rupture generator?
             if skip_rupgen:
                 optfile.write('n\n') # Skip rupture generator
             else:
                 optfile.write('y\n') # Run rupture generator
-        if not skip_rupgen:
-            optfile.write('y\n') # Provide custom source file
-            optfile.write('2\n') # Enter path to source file
-            optfile.write('%s\n' % (srcfile)) # Source file
         optfile.write('1\n') # All validation stations
+        if skip_rupgen:
+            # We should provide SRF file
+            optfile.write('2\n') # Enter path to src/srf file
+            optfile.write('%s\n' % (srffile)) # SRF file
         if codebase == "exsim":
             # Don't specify custom ExSIM template file
             optfile.write('n\n')
@@ -306,7 +329,13 @@ def main():
                       dest="simdir",
                       help="Simulation directory")
     parser.add_option("--skip-rupgen", action="store_true", dest="skiprupgen",
-                      help="Skip the rupture generator, run only 1 simulation")
+                      help="Skip the rupture generator, run only 1 simulation,"
+                      " unless the --srf option below is provided.")
+    parser.add_option("--srf", "--srf-prefix", type="string", action="store",
+                      dest="srf_prefix",
+                      help="Prefix of SRF files to use, "
+                      "only for GP, SDSU and UCSB methods. "
+                      "Simulations begin after the rupture generator.")
     parser.add_option("--hypo-rand", action="store_true", dest="hyporand",
                       help="Enables hypocenter randomization")
     parser.add_option("--no-hypo-rand", action="store_false", dest="hyporand",
@@ -353,6 +382,7 @@ def main():
         segment = options.segment
     else:
         multiseg = False
+        segment = None
 
     # Check for first segment directory
     if options.first_seg_dir is not None:
@@ -411,18 +441,18 @@ def main():
     # Validate codebase to use
     codebase = options.codebase
     if codebase is None:
-        print "Please specify a codebase!"
+        print("Please specify a codebase!")
         sys.exit(1)
     codebase = codebase.lower()
     if codebase not in CODEBASES:
-        print "Codebase needs to be one of: %s" % (CODEBASES)
+        print("Codebase needs to be one of: %s" % (CODEBASES))
         sys.exit(1)
 
     # Check if users wants to run site response module
     if options.site_response:
         site_response = True
         if codebase not in CODEBASES_SITE:
-            print "Cannot use site response with method: %s" % (codebase)
+            print("Cannot use site response with method: %s" % (codebase))
             sys.exit(1)
     else:
         site_response = False
@@ -430,7 +460,7 @@ def main():
     # Check for event
     event = options.event
     if event is None:
-        print "Please provide a validation event!"
+        print("Please provide a validation event!")
         sys.exit(1)
     event_names = validation_cfg.VE_EVENTS.get_all_names()
     events = [v_event.lower() for v_event in event_names]
@@ -444,6 +474,11 @@ def main():
 
     # Check if we want to run the rupture generator
     skip_rupgen = options.skiprupgen
+    srf_prefix = options.srf_prefix
+    if skip_rupgen is not None:
+        if codebase not in CODEBASES_SRF:
+            print("Cannot use SRF files with method: %s" % (codebase))
+            sys.exit(1)
 
     # Check for hypocenter randomization
     if options.hyporand is None:
@@ -455,45 +490,56 @@ def main():
     else:
         hypo_rand = False
 
-    if not skip_rupgen:
-        # Get source file
-        try:
-            source_file = val_obj.get_input(codebase, "source")
-        except KeyError:
-            print("Unable to get source file for event %s, codebase %s!" %
-                  (event, codebase))
+    try:
+        source_file = val_obj.get_input(codebase, "source")
+    except KeyError:
+        print("Unable to get source file for event %s, codebase %s!" %
+              (event, codebase))
+        sys.exit(1)
+    if not source_file:
+        print("Source file for event %s, codebase %s not specified!" %
+              (event, codebase))
+        sys.exit(1)
+    # Check for multisegment events
+    if isinstance(source_file, str):
+        source_file = source_file.strip()
+        if multiseg:
+            print("This event doesn't look like a multisegment event!")
             sys.exit(1)
-        if not source_file:
-            print("Source file for event %s, codebase %s not specified!" %
-                  (event, codebase))
-            sys.exit(1)
-        # Check for multisegment events
-        if isinstance(source_file, str):
-            source_file = source_file.strip()
-            if multiseg:
-                print("This event doesn't look like a multisegment event!")
-                sys.exit(1)
-        else:
-            # Multisegment event
-            if not multiseg:
-                print("This is a multisegment event! Please specify segment!")
-                sys.exit(1)
-            source_file = source_file[segment - 1]
     else:
-        # No need to get the source file, we start from the srf
-        source_file = None
-        try:
-            srf_file = val_obj.get_input(codebase, "srf").strip()
-        except KeyError:
-            print ("Event %s does not have a srf file for codebase %s!" %
-                   (event, codebase))
+        # Multisegment event
+        if not multiseg:
+            print("This is a multisegment event! Please specify segment!")
             sys.exit(1)
-        if not srf_file:
-            print ("Event %s does not have a srf file for codebase %s!" %
-                   (event, codebase))
-            sys.exit(1)
-        # Force number of simulations to 1
-        options.numsim = 1
+        source_file = source_file[segment - 1]
+
+    if skip_rupgen:
+        if not srf_prefix:
+            try:
+                srf_file = val_obj.get_input(codebase, "srf").strip()
+            except KeyError:
+                print ("Event %s does not have a srf file for codebase %s!" %
+                       (event, codebase))
+                sys.exit(1)
+            except AttributeError:
+                print ("Event %s does not have a srf file for codebase %s!" %
+                       (event, codebase))
+                sys.exit(1)
+            if not srf_file:
+                print ("Event %s does not have a srf file for codebase %s!" %
+                       (event, codebase))
+                sys.exit(1)
+            # Force number of simulations to 1
+            options.numsim = 1
+        else:
+            # Use the SRF prefix to find the SRF files we need
+            # Make it a full path
+            srf_prefix = os.path.realpath(srf_prefix)
+            # Make sure source file is in the rcf-104 or scec-00 filesystems
+            if not "rcf-104" in srf_prefix and not "scec-00" in srf_prefix:
+                print "SRF files should be in the rcf-104 / scec-00 filesystems!"
+                sys.exit(1)
+
 
     # Check for the simulation directory
     simdir = options.simdir
@@ -566,7 +612,7 @@ def main():
     # Generate xml files
     generate_xml(bbp_install, numsim, srcdir, xmldir,
                  logsdir, event, codebase, prefix,
-                 skip_rupgen, only_rup, gmpe_group_name,
+                 skip_rupgen, srf_prefix, only_rup, gmpe_group_name,
                  allmetrics, site_response, multiseg, segment)
     # Write pbs file
     write_pbs(bbp_install, numsim, simdir, xmldir,
@@ -576,6 +622,6 @@ def main():
     info_file = open(os.path.join(simdir, "%s.info" % (prefix)), 'w')
     info_file.write("# %s\n" % (" ".join(sys.argv)))
     info_file.close()
-    
+
 if __name__ == "__main__":
     main()

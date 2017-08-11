@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 This Broadband module is used to create the station map file
-$Id: plot_map.py 1719 2016-08-18 21:44:13Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -44,11 +54,26 @@ def write_fault_trace(srf_file, out_file):
     points = []
     shallowest = 100.0
 
-    # Read srf_file
+    # Figure out SRF file version
     srf_data = open(srf_file, 'r')
     for line in srf_data:
+        line = line.strip()
+        # Skip blank lines
+        if not line:
+            continue
+        line = int(float(line))
+        break
+
+    if line == 1:
+        tokens = 8
+    elif line == 2:
+        tokens = 10
+    else:
+        bband_utils.ParameterError("Cannot determine SRF file version!")
+
+    for line in srf_data:
         pieces = line.split()
-        if len(pieces) == 8:
+        if len(pieces) == tokens:
             depth = float(pieces[2])
             if depth == shallowest:
                 points.append([float(pieces[0]), float(pieces[1])])

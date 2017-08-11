@@ -1,7 +1,18 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2017 Southern California Earthquake Center
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Program to merge a validation simulation with multiple segments with
 several realizations
@@ -71,8 +82,8 @@ def post_process(station_list, src_files,
 
 def plot_srf_file(merged_indir, merged_tmpdir, merged_outdir,
                   bbp_install, srf_files, val_event):
-    """                                                                     
-    Creates the multi-segment SRF plot                                      
+    """
+    Creates the multi-segment SRF plot
     """
     # Save current directory
     old_cwd = os.getcwd()
@@ -106,8 +117,8 @@ def plot_srf_file(merged_indir, merged_tmpdir, merged_outdir,
     os.chdir(old_cwd)
 
 def add_bbp_seismograms(input_files, output_file):
-    """                                                                     
-    Add all input files and write output_file with the combined data        
+    """
+    Add all input files and write output_file with the combined data
     """
     # Start empty
     headers = []
@@ -171,7 +182,7 @@ def add_bbp_seismograms(input_files, output_file):
 def merge_seismograms(input_sims, station_list,
                       merged_outdir, realization):
     """
-    Adds seismograms from multiple simulations, creating a set              
+    Adds seismograms from multiple simulations, creating a set
     of merged seismograms
     """
     # Load station list
@@ -243,7 +254,7 @@ def copy_indata_files(input_sims, merged_indir,
         shutil.copy2(correction_file, merged_indir)
 
     return src_files, srf_files, station_list
-        
+
 def main():
     """
     Parse command line options and create the needed files/directories
@@ -273,7 +284,7 @@ def main():
         print("[ERROR]: Please provide an event name!")
         sys.exit(-1)
     event = args.event
-    
+
     # Check for the simulation directory
     merged_simdir = args.merged_simdir
     if merged_simdir is None:
@@ -329,7 +340,7 @@ def main():
             print("Simulation directory %s does not exist!" % (simdir))
             sys.exit(1)
         input_sims.append(simdir)
-        
+
     # Figure out the realizations
     input_sim = os.path.join(input_sims[0], "Sims", "outdata")
     realizations = glob.glob("%s%s*" % (input_sim, os.path.sep))
@@ -356,7 +367,7 @@ def main():
                      merged_realization_tmpdir,
                      merged_realization_logdir]:
             os.makedirs(mdir)
-        
+
         # Copy indata files
         (src_files,
          srf_files,
@@ -383,6 +394,6 @@ def main():
                      val_obj)
         print("==> Realization %s Completed" % (realization))
         print("%s" % ("*" * 80))
-    
+
 if __name__ == "__main__":
     main()
