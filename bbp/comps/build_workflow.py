@@ -1980,7 +1980,6 @@ class WorkflowBuilder(object):
                 if not self.validation:
                     # Then we need a srf file
                     self.srf_file = self.get_input_file("SRF", ".srf")
-                    self.src_file = ""
                 return False
             else:
                 print(" Invalid answer: %s" % (rup_gen))
@@ -2016,8 +2015,8 @@ class WorkflowBuilder(object):
 
         # Build the workflow
         self.make_choices(gen_srf)
-        # Don't do GOF for forward simulations FS: 5-Mar-2013
-        # self.do_gof()
+
+        # Generate html index file
         self.do_html_generation()
 
     def do_validation(self):
