@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Set version number
 VERSION=17.3.0
