@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-opyright 2010-2017 University Of Southern California
+Copyright 2010-2017 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Keeps track of the velocity models available for use in the platform
-$Id: velocity_models.py 1730 2016-09-06 20:26:43Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -51,6 +61,8 @@ class VelocityModel(object):
         """
         Sets the velocity model file for code codebase
         """
+        codebase = codebase.upper()
+
         if codebase in self.velmodels:
             print("velocity model for codebase %s already set, ignoring %s" %
                   (codebase, vel_file))
@@ -61,7 +73,7 @@ class VelocityModel(object):
         """
         Return the velocity model file for a certain codebase
         """
-        return os.path.join(self.base_dir, self.velmodels[codebase])
+        return os.path.join(self.base_dir, self.velmodels[codebase.upper()])
 
     def get_name(self):
         """
@@ -79,6 +91,8 @@ class VelocityModel(object):
         """
         Adds a codebase to this velocity model
         """
+        codebase = codebase.upper()
+
         if codebase in self.codes:
             print("codebase %s already defined, ignoring duplicate" %
                   (codebase))
@@ -103,7 +117,7 @@ class VelocityModel(object):
         """
         Adds a param=value to a certain codebase
         """
-        self.params[codebase][param] = value
+        self.params[codebase.upper()][param] = value
 
 def init_velocity_models(install_obj):
     """
