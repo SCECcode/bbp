@@ -1,8 +1,21 @@
 #!/usr/bin/env python
 """
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
 Tool to compare bias plots from Broadband simulations done with the
 bbp parallel scripts on a cluster
-$Id: compare_bbp_runs.py 1024 2012-11-07 19:34:50Z fsilva $
 """
 
 # Import Python modules
@@ -48,7 +61,7 @@ def compare_runs(top_dir, output_file=None):
     """
     # Start with an empty list
     results = {}
-    
+
     for item in os.listdir(top_dir):
         sim_dir = os.path.join(top_dir, item)
 

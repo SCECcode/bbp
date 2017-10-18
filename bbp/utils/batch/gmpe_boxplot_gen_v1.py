@@ -1,10 +1,23 @@
 #!/usr/bin/env python
 """
-Python version of Ronnie Kamai's Matlab scripts to generate box plots
-of the GMPE comparisons. Still uses one of Ronnie's Matlab scripts to
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Python version of Ronnie Kamai Matlab scripts to generate box plots
+of the GMPE comparisons. Still uses one of Ronnies Matlab scripts to
 actually generate the plots, but Python code is used to create
 intermediate data files containing data from the GMPE runs.
-$Id: gmpe_boxplot_gen_v1.py 1587 2016-02-04 19:13:19Z fsilva $
 """
 
 # Import Python modules
@@ -236,7 +249,7 @@ create_sim_data_file(input_outdir, tmp_sim_file)
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 bband_utils.runprog('export MATLABPATH=%s; ' % (SCRIPT_PATH) +
                     'matlab -nodisplay -r ' +
-                    '"SimsFile=\'%s\';' % (tmp_sim_file) + 
+                    '"SimsFile=\'%s\';' % (tmp_sim_file) +
                     'GMPEFile=\'%s\';' % (tmp_gmpe_file) +
                     'OUTFile=\'%s\';' % (output_file) +
                     'Method=\'%s\';Mag=%f;' % (codebase, MAGNITUDE) +

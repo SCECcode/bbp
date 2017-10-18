@@ -1,14 +1,26 @@
 #!/usr/bin/env python
 """
-Python version of Ronnie Kamai's Matlab scripts to generate a combined
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Python version of Ronnie Kamai Matlab scripts to generate a combined
 bias plot. It collects information from the rd50 files for each
 realization, groups the results by station (averaging) and then
 generates a residuals file using the rd50 files from the recorded
 data. This single residuals file uses the same resid2uncer_varN
 program used in single bias plots to generate data for the combined
 plot.
-
-$Id: combine_gof_gen.py 1437 2015-02-20 17:18:04Z fsilva $
 """
 
 # Import Python modules
@@ -58,7 +70,7 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
         bband_utils.check_path_lengths([combined_resid_file, fileroot],
                                        bband_utils.GP_MAX_FILENAME)
 
-        cmd = ("%s/resid2uncer_varN " % (gp_bin_dir) + 
+        cmd = ("%s/resid2uncer_varN " % (gp_bin_dir) +
                "residfile=%s fileroot=%s " % (combined_resid_file, fileroot) +
                "comp=%s nstat=%d nper=63 " % (comp, num_stations) +
                " >> %s 2>&1" % (logfile))
@@ -119,7 +131,7 @@ def combine_station_data(station, input_dir, temp_dir):
         for comp in data[key]:
             out_file.write(" %10.5e" % (numpy.mean(comp)))
         out_file.write("\n")
-        
+
 def combine_realizations_data(input_dir, temp_dir):
     """
     This function creates a single file averaging the rd50 files for
@@ -227,7 +239,7 @@ def create_resid_data_file(comp_label, input_indir, input_obsdir,
         datafile1 = os.path.join(obs_dir, "%s.rd50" % (stat))
 
         cmd = ("%s/gen_resid_tbl_3comp bbp_format=1 " % (gp_bin_dir) +
-               "datafile1=%s simfile1=%s " % (datafile1, simfile1) + 
+               "datafile1=%s simfile1=%s " % (datafile1, simfile1) +
                "comp1=psa5n comp2=psa5e comp3=rotd50 " +
                "eqname=%s mag=0.0 stat=%s lon=%.4f lat=%.4f " %
                (comp_label, stat, slon, slat) +

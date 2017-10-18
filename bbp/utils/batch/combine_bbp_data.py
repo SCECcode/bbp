@@ -1,9 +1,18 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2013 Southern California Earthquake Center
+Copyright 2010-2017 University Of Southern California
 
-$Id: combine_bbp_data.py 1676 2016-05-11 17:18:16Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 
 # Import Python modules
@@ -72,7 +81,7 @@ def combine_station_data(station, input_dir, temp_dir):
         for comp in data[key]:
             out_file.write(" %10.5e" % (numpy.mean(comp)))
         out_file.write("\n")
-        
+
 def combine_realizations_data(input_dir, temp_dir):
     """
     This function creates a single file averaging the rd50 files for
@@ -185,7 +194,7 @@ def create_resid_data_file(comp_label, input_indir, input_obsdir,
         datafile1 = os.path.join(obs_dir, "%s.rd50" % (stat))
 
         cmd = ("%s/gen_resid_tbl_3comp bbp_format=1 " % (gp_bin_dir) +
-               "datafile1=%s simfile1=%s " % (datafile1, simfile1) + 
+               "datafile1=%s simfile1=%s " % (datafile1, simfile1) +
                "comp1=psa5n comp2=psa5e comp3=rotd50 " +
                "eqname=%s mag=0.0 stat=%s lon=%.4f lat=%.4f " %
                (comp_label, stat, slon, slat) +

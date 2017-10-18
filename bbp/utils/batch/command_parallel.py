@@ -1,5 +1,19 @@
 #!/usr/bin/env python
+"""
+Copyright 2010-2017 University Of Southern California
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 import sys
 import os
 import time
@@ -12,7 +26,7 @@ class CommandParallel:
         self.envscript = envscript
         return
 
-        
+
     def runMultiSSH(self, remotecmd, nodefile):
         hostname = socket.gethostname()
 
@@ -57,18 +71,18 @@ class CommandParallel:
                         self.envscript, remotecmd))
             else:
                 cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;PBS_JOBID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["PBS_JOBID"], self.envscript, remotecmd)
-            
-            print "Running on %s: %s" % (node, cmd)   
+
+            print "Running on %s: %s" % (node, cmd)
             proclist.append([subprocess.Popen(cmd,shell=True), node])
-            
+
             # Sleep a bit
             time.sleep(5)
-            
+
         # Wait for all child processes to finish
         if (len(proclist) > 0):
             for proc in proclist:
                 proc[0].wait()
-            
+
         return(0)
 
 
@@ -81,5 +95,5 @@ if __name__ == '__main__':
     # Run the commands
     runobj = CommandParallel(envscript)
     runobj.runMultiSSH(remotecmd, nodefile)
-    
+
     sys.exit(0)
