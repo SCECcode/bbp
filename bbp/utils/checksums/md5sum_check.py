@@ -1,11 +1,23 @@
 #!/usr/bin/env python
 """
-This script calculates md5sums for all the Green's functions and
-compares against the expected values.  The path to the green's
-functions is set up by install_cfg.py.
-$Id: md5sum_check.py 1644 2016-04-19 18:54:19Z fsilva $
-"""
+Copyright 2010-2017 University Of Southern California
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+This script calculates md5sums for all the Greens functions and
+compares against the expected values.  The path to the greens
+functions is set up by install_cfg.py.
+"""
 # Import Python modules
 import os
 import sys
@@ -113,7 +125,7 @@ if len(sys.argv) == 2:
                 MD5_DIR = os.path.join(CHECK_DIR, DIRECTORY, "checksums")
                 # First, remove checksums directory if it already exists
                 if os.path.exists(MD5_DIR):
-                    os.system("rm -rf %s" % (MD5_DIR))                    
+                    os.system("rm -rf %s" % (MD5_DIR))
                 generate_md5s(BASE_DIR, MD5_DIR, True)
         # All done!
         sys.exit(0)
@@ -127,7 +139,7 @@ if len(sys.argv) == 2:
                 MD5_DIR = os.path.join(CHECK_DIR, DIRECTORY, "checksums")
                 # First, remove checksums directory if it already exists
                 if os.path.exists(MD5_DIR):
-                    os.system("rm -rf %s" % (MD5_DIR))                    
+                    os.system("rm -rf %s" % (MD5_DIR))
         # All done!
         sys.exit(0)
 
