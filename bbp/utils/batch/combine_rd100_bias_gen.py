@@ -1,14 +1,26 @@
 #!/usr/bin/env python
 """
-Python version of Ronnie Kamai's Matlab scripts to generate a combined
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Python version of Ronnie Kamai Matlab scripts to generate a combined
 bias plot. It collects information from the rd100 files for each
 realization, groups the results by station (averaging) and then
 generates a residuals file using the rd100 files from the recorded
 data. This single residuals file uses the same resid2uncer_varN
 program used in single bias plots to generate data for the combined
 plot.
-
-$Id: combine_rd100_bias_gen.py 1790 2017-02-06 22:25:40Z fsilva $
 """
 
 # Import Python modules
@@ -56,7 +68,7 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
         bband_utils.check_path_lengths([combined_resid_file, fileroot],
                                        bband_utils.GP_MAX_FILENAME)
 
-        cmd = ("%s/resid2uncer_varN " % (gp_bin_dir) + 
+        cmd = ("%s/resid2uncer_varN " % (gp_bin_dir) +
                "residfile=%s fileroot=%s " % (combined_resid_file, fileroot) +
                "comp=%s nstat=%d nper=63 " % (comp, num_stations) +
                " >> %s 2>&1" % (logfile))
@@ -118,7 +130,7 @@ def combine_station_data(station, input_dir, temp_dir):
         for comp in data[key]:
             out_file.write(" %10.5e" % (numpy.mean(comp)))
         out_file.write("\n")
-        
+
 def combine_realizations_data(input_dir, temp_dir):
     """
     This function creates a single file averaging the rd100 files for
@@ -168,7 +180,7 @@ def trim_rd100_file(a_input_file, a_output_file):
         pieces = line.split()
         pieces = pieces[0:1] + pieces[3:]
         out_file.write("  %s\n" % (" ".join(pieces)))
-        
+
     # Close everything
     in_file.close()
     out_file.close()
@@ -253,7 +265,7 @@ def create_resid_data_file(comp_label, input_indir, input_obsdir,
 
         cmd = ("%s bbp_format=1 " %
                (os.path.join(gp_bin_dir, "gen_resid_tbl_3comp")) +
-               "datafile1=%s simfile1=%s " % (obsfile, simfile1) + 
+               "datafile1=%s simfile1=%s " % (obsfile, simfile1) +
                "comp1=rotd50 comp2=rotd100 comp3=ratio " +
                "eqname=%s mag=0.0 stat=%s lon=%.4f lat=%.4f " %
                (comp_label, stat, slon, slat) +

@@ -1,12 +1,23 @@
 #!/usr/bin/env python
 """
-Python version of Ronnie Kamai's Matlab scripts to generate box
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Python version of Ronnie Kamai Matlab scripts to generate box
 plots of the GMPE comparisons. Added pre-computed NGA-West 1 and 2
 data and pass ranges into this script. No longer uses Matlab and no
 longer needs to mine gmpe data files from the realizations.
-
-$Id: gmpe_boxplot_gen.py 1806 2017-02-17 17:05:17Z fsilva $
-
 """
 
 # Import Python modules
@@ -1190,7 +1201,7 @@ def run():
     else:
         model = "nga-west1"
         model_short = "w1"
-        
+
     # Output filename
     r_output_file = ("boxplot_%s-gmpe%d%s%d-%s-%s.png" % (codebase,
                                                           int(mag * 10),

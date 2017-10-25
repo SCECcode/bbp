@@ -1,10 +1,18 @@
 #!/usr/bin/env python
-
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2013 Southern California Earthquake Center
+Copyright 2010-2017 University Of Southern California
 
-$Id$
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 
 # Import Python modules
@@ -52,7 +60,7 @@ def write_combined_table(input_files):
         print "%-15s" % (head),
         # Figure out how many columns we have
         columns = len(tokens[0]) / 3
-        
+
         for idx in range(0, columns):
             for method in tokens:
                 token0 = method[idx * 3 + 0]
