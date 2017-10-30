@@ -550,6 +550,14 @@ class RotD100(object):
                      cutoff=self.max_cutoff, mode=plot_mode, colorset='single')
 
     def run(self):
+        if self.obs_format is None:
+            # simulation mode
+            self.run_simulation()
+        else:
+            # validation mode
+            self.run_validation()
+
+    def run_simulation(self):
         print("RotD100".center(80, '-'))
         #
         # convert input bbp acc files to peer format acc files
@@ -576,7 +584,7 @@ class RotD100(object):
         # All done!
         print("RotD100 Completed".center(80, '-'))
 
-    def runValidation(self):
+    def run_validation(self):
         """
         Do all steps needed for creating the ratio of maximum to median
         response across orientations (RotD100/RotD50)
@@ -637,11 +645,10 @@ if __name__ == '__main__':
     if len(sys.argv) == 3:
         # simulation mode
         ME = RotD100(sys.argv[1], sim_id=int(sys.argv[2]))
-        ME.run()
     else:
         # validation mode
         ME = RotD100(sys.argv[2], sys.argv[1],
                      sys.argv[3], sys.argv[4],
                      sys.argv[5], sys.argv[6],
                      sys.argv[7], sim_id=int(sys.argv[8]))
-        ME.run()
+    ME.run()
