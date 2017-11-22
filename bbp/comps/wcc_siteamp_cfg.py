@@ -24,12 +24,15 @@ from __future__ import division, print_function
 import os
 import sys
 
+# Import Broadband modules
+import velocity_models
+
 class WccSiteampCfg(object):
     """
     Define the configuration parameters for the Jbrun program
     """
-    def __init__(self):
-        self.SITEAMP_MODEL3D = "cb2014"
+    def __init__(self, vmodel_name):
+        # self.SITEAMP_MODEL3D = "cb2014"
         self.SITEAMP_MODEL = "bssa2014"
         self.FILTLIST = "filtmatchlist1"
         self.GEN_ROCK_VS = 865
@@ -38,6 +41,24 @@ class WccSiteampCfg(object):
         self.FMIDBOT = 0.2
         self.FLOWCAP = 0.0
         self.COMPS = ["000", "090", "ver"]
+
+        vmodel_obj = velocity_models.get_velocity_model_by_name(vmodel_name)
+        if vmodel_obj is None:
+            raise IndexError("Cannot find velocity model: %s" %
+                             (vmodel_name))
+
+        vmodel_params = vmodel_obj.get_codebase_params('gp')
+
+        # Read reference velocities for LF and HF components, use defaults
+        # values if not found so that the code will still work without GP GFs
+        if 'LF_VREF' in vmodel_params:
+            self.LF_VREF = int(vmodel_params['LF_VREF'])
+        else:
+            self.LF_VREF = self.GEN_ROCK_VS
+        if 'HF_VREF' in vmodel_params:
+            self.HF_VREF = int(vmodel_params['HF_VREF'])
+        else:
+            self.HF_VREF = self.GEN_ROCK_VS
 
 if __name__ == "__main__":
     print("Test Config Class: %s" % os.path.basename(sys.argv[0]))

@@ -81,6 +81,8 @@ class WorkflowBuilder(object):
         self.supplied_seis = False
         self.method = None
         self.added_obs_seis = False
+        self.gp_lf_vel_file = None
+        self.gp_hf_vel_file = None
 
     def select_simulation_method(self, sim_type):
         """
@@ -393,8 +395,24 @@ class WorkflowBuilder(object):
         This function creates a workflow for the Graves & Pitarka
         method
         """
-        # Select velocity model for GP method
+        # Select velocity models for GP method
         self.vel_file = self.vmodel_obj.get_velocity_model("GP")
+        vmodel_params = self.vmodel_obj.get_codebase_params('gp')
+        vmodel_base_dir = self.vmodel_obj.base_dir
+        if 'LF_VELMODEL' in vmodel_params:
+            self.gp_lf_vel_file = os.path.join(vmodel_base_dir,
+                                               vmodel_params['LF_VELMODEL'])
+        else:
+            print("Warning: Cannot find LF_VELMODEL parameter, "
+                  "using GP velmodel instead...")
+            self.gp_lf_vel_file = self.vel_file
+        if 'HF_VELMODEL' in vmodel_params:
+            self.gp_hf_vel_file = os.path.join(vmodel_base_dir,
+                                               vmodel_params['HF_VELMODEL'])
+        else:
+            print("Warning: Cannot find HF_VELMODEL parameter, "
+                  "using GP velmodel instead...")
+            self.gp_hf_vel_file = self.vel_file
 
         # Set the supplied_seis flag if needed
         if self.method == "GPSeis":
@@ -417,8 +435,8 @@ class WorkflowBuilder(object):
                                                            "srf")
                     if not self.srf_file:
                         self.srf_file = self.get_input_file("SRF", "srf")
-            lf_module.addStageFile(self.vel_file)
-            lf_module.addArg(os.path.basename(self.vel_file))
+            lf_module.addStageFile(self.gp_lf_vel_file)
+            lf_module.addArg(os.path.basename(self.gp_lf_vel_file))
             if self.src_file is not None and self.src_file != "":
                 # we supplied a source file, so stage it
                 lf_module.addStageFile(self.src_file)
@@ -435,8 +453,8 @@ class WorkflowBuilder(object):
         # High Frequency GP module
         hf_module = Module()
         hf_module.setName("Hfsims")
-        hf_module.addStageFile(self.vel_file)
-        hf_module.addArg(os.path.basename(self.vel_file))
+        hf_module.addStageFile(self.gp_hf_vel_file)
+        hf_module.addArg(os.path.basename(self.gp_hf_vel_file))
 
         if self.validation:
             if not gen_srf:
@@ -469,6 +487,7 @@ class WorkflowBuilder(object):
             site_module.addStageFile(self.stations)
             site_module.addArg(os.path.basename(self.stations))
             site_module.addArg("GP")
+            site_module.addArg(self.vmodel_name)
             self.workflow.append(site_module)
 
             # And then, add the Match module
@@ -529,6 +548,7 @@ class WorkflowBuilder(object):
                 site_module.addStageFile(self.stations)
                 site_module.addArg(os.path.basename(self.stations))
                 site_module.addArg("UCSB")
+                site_module.addArg(self.vmodel_name)
                 self.workflow.append(site_module)
                 return
 
@@ -649,6 +669,7 @@ class WorkflowBuilder(object):
                 site_module.addStageFile(self.stations)
                 site_module.addArg(os.path.basename(self.stations))
                 site_module.addArg("SDSU")
+                site_module.addArg(self.vmodel_name)
                 self.workflow.append(site_module)
                 return
 
@@ -734,6 +755,7 @@ class WorkflowBuilder(object):
                 site_module.addStageFile(self.stations)
                 site_module.addArg(os.path.basename(self.stations))
                 site_module.addArg("EXSIM")
+                site_module.addArg(self.vmodel_name)
                 self.workflow.append(site_module)
 
     def run_csm_method(self):
