@@ -52,6 +52,7 @@ def write_fault_trace(srf_file, out_file):
     This function reads the srf file and outputs a trace file
     """
     points = []
+    line = 0
     shallowest = 100.0
 
     # Figure out SRF file version
@@ -113,12 +114,10 @@ def calculate_fault_edge(lat1, lon1, dist, bearing):
                        math.sin(lat2*to_rad))) / to_rad
     return lat2, lon2
 
-def write_simple_trace(a_src_file, out_file):
+def calculate_fault_edges(a_src_file):
     """
-    This function reads the SRC file and calculates the fault trace
+    Calculates the edges of the fault plane
     """
-    points = []
-
     # Read data from SRC file
     cfg_dict = bband_utils.parse_properties(a_src_file)
     if not "fault_length" in cfg_dict:
@@ -145,6 +144,19 @@ def write_simple_trace(a_src_file, out_file):
     # Calculate 2nd edge
     lat2, lon2 = calculate_fault_edge(lat_top_center, lon_top_center,
                                       dist, strike)
+
+    return lat1, lon1, lat_top_center, lon_top_center, lat2, lon2
+
+
+def write_simple_trace(a_src_file, out_file):
+    """
+    This function reads the SRC file and calculates the fault trace
+    """
+    points = []
+
+    (lat1, lon1, lat_top_center,
+     lon_top_center, lat2, lon2) = calculate_fault_edges(a_src_file)
+
     points.append([lon1, lat1])
     points.append([lon_top_center, lat_top_center])
     points.append([lon2, lat2])
@@ -158,7 +170,7 @@ def write_simple_trace(a_src_file, out_file):
     # Save trace
     return points
 
-def set_boundaries_from_stations(station_file):
+def set_boundaries_from_stations(station_file, a_src_file):
     """
     This function sets the north, south, east, and west boundaries
     of the region we should plot, using the stations' locations in
@@ -169,6 +181,9 @@ def set_boundaries_from_stations(station_file):
     south = None
     east = None
     west = None
+
+    # Read fault information
+    lat1, lon1, _, _, lat2, lon2 = calculate_fault_edges(a_src_file)
 
     # First we read the stations
     stations = StationList(station_file).getStationList()
@@ -190,6 +205,16 @@ def set_boundaries_from_stations(station_file):
             east = station.lon
         elif station.lon < west:
             west = station.lon
+
+    # Make sure fault is there Too
+    if min(lat1, lat2) < south:
+        south = min(lat1, lat2)
+    if max(lat1, lat2) > north:
+        north = max(lat1, lat2)
+    if min(lon1, lon2) < west:
+        west = min(lon1, lon2)
+    if max(lon1, lon2) > east:
+        east = max(lon1, lon2)
 
     # Great, now we just add a buffer on each side
     if north < (90 - BUFFER_LATITUDE):
@@ -275,9 +300,11 @@ class Plot_Map(object):
         a_input_file = os.path.join(a_indir, self.input_file)
         a_station_file = os.path.join(a_indir, self.station_file)
 
-        # Define boundaries to plot using the stations in the station file
+        # Define boundaries to plot using the stations in the station file,
+        # and making sure we include the entire fault plane
         (self.north, self.south,
-         self.east, self.west) = set_boundaries_from_stations(a_station_file)
+         self.east, self.west) = set_boundaries_from_stations(a_station_file,
+                                                              a_input_file)
 
         self.log = os.path.join(install.A_OUT_LOG_DIR, str(self.sim_id),
                                 "%d.plot_map.log" % (self.sim_id))

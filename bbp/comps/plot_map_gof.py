@@ -136,7 +136,8 @@ def plot_map_gof(r_srcfile, r_stations, resid_file, comp_label, sim_id):
 
     # Define boundaries to plot using the stations in the station file
     (north, south,
-     east, west) = plot_map.set_boundaries_from_stations(a_station_file)
+     east, west) = plot_map.set_boundaries_from_stations(a_station_file,
+                                                         a_input_file)
     trace_file = "%s.trace" % (a_input_file)
     simple_station_file = "%s.simple" % (a_station_file)
 
