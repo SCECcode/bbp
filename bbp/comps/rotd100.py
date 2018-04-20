@@ -91,9 +91,9 @@ class RotD100(object):
         # Restore working directory
         os.chdir(old_cwd)
 
-    def __init__(self, i_r_srcfile, i_r_stations,
-                 i_a_obsdir, i_obs_format, i_obs_corr,
-                 i_mag, i_comparison_label, cutoff=None, sim_id=0):
+    def __init__(self, i_r_stations, i_r_srcfile=None,
+                 i_a_obsdir=None, i_obs_format=None, i_obs_corr=None,
+                 i_mag=None, i_comparison_label=None, cutoff=None, sim_id=0):
         """
         Initializes class variables
         """
@@ -109,7 +109,7 @@ class RotD100(object):
         self.src_keys = None
 
         # Make observed seismograms are in a format we can handle
-        if i_obs_format not in SUPPORTED_OBS_FORMATS:
+        if i_obs_format is not None and i_obs_format not in SUPPORTED_OBS_FORMATS:
             raise bband_utils.ParameterError("Format %s for " %
                                              (self.obs_format) +
                                              "observed seismograms "
@@ -550,6 +550,41 @@ class RotD100(object):
                      cutoff=self.max_cutoff, mode=plot_mode, colorset='single')
 
     def run(self):
+        if self.obs_format is None:
+            # simulation mode
+            self.run_simulation()
+        else:
+            # validation mode
+            self.run_validation()
+
+    def run_simulation(self):
+        print("RotD100".center(80, '-'))
+        #
+        # convert input bbp acc files to peer format acc files
+        #
+
+        install = install_cfg.InstallCfg.getInstance()
+        sim_id = self.sim_id
+        sta_base = os.path.basename(os.path.splitext(self.r_stations)[0])
+        self.log = os.path.join(install.A_OUT_LOG_DIR, str(sim_id),
+                                "%d.rotd100_%s.log" % (sim_id, sta_base))
+        a_statfile = os.path.join(install.A_IN_DATA_DIR,
+                                  str(sim_id),
+                                  self.r_stations)
+        a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
+        a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
+
+        #
+        # Make sure the tmp and out directories exist
+        #
+        bband_utils.mkdirs([a_tmpdir, a_outdir], print_cmd=False)
+
+        self.calculate_simulated(a_statfile, a_tmpdir, a_outdir, a_outdir)
+
+        # All done!
+        print("RotD100 Completed".center(80, '-'))
+
+    def run_validation(self):
         """
         Do all steps needed for creating the ratio of maximum to median
         response across orientations (RotD100/RotD50)
@@ -607,8 +642,13 @@ class RotD100(object):
 
 if __name__ == '__main__':
     print("Testing Module: %s" % (os.path.basename(sys.argv[0])))
-    ME = RotD100(sys.argv[1], sys.argv[2],
-                 sys.argv[3], sys.argv[4],
-                 sys.argv[5], sys.argv[6],
-                 sys.argv[7], sim_id=int(sys.argv[8]))
+    if len(sys.argv) == 3:
+        # simulation mode
+        ME = RotD100(sys.argv[1], sim_id=int(sys.argv[2]))
+    else:
+        # validation mode
+        ME = RotD100(sys.argv[2], sys.argv[1],
+                     sys.argv[3], sys.argv[4],
+                     sys.argv[5], sys.argv[6],
+                     sys.argv[7], sim_id=int(sys.argv[8]))
     ME.run()
