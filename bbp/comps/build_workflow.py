@@ -1158,8 +1158,8 @@ class WorkflowBuilder(object):
                 else:
                     raise bband_utils.ParameterError("SRC file needed for "
                                                      "RotD100 module!")
-                rd100_module.addArg(os.path.basename(self.src_file))
                 rd100_module.addArg(os.path.basename(self.stations))
+                rd100_module.addArg(os.path.basename(self.src_file))
                 rd100_module.addArg(self.val_obj.get_obs_path())
                 rd100_module.addArg(self.val_obj.get_obs_format())
                 rd100_module.addArg(os.path.basename(self.val_obj.get_obs_corrections()))
