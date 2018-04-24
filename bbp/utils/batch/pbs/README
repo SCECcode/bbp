@@ -1,0 +1,3 @@
+This directory contains the cluster scripts used by the BBP
+before the PBS->SLURM transition at HPCC. We keep these files
+here only for reference, they are not supported at this time.
