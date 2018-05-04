@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import glob
 import optparse
 import numpy as np
 import matplotlib as mpl
-if (mpl.get_backend() != 'agg'):
+if mpl.get_backend() != 'agg':
     mpl.use('Agg') # Disables use of Tk/X11
 import matplotlib.pyplot as plt
 import pylab
@@ -1111,9 +1111,6 @@ def load_sim_data(input_dir):
         basedir = os.path.join(input_dir, realization)
         stations = sorted(glob.glob("%s%s*.rd50" % (basedir, os.sep)))
         for station in stations:
-            st_id = os.path.basename(station)
-            # Find just the numeric part of the station id
-            st_id = st_id[st_id.find('-')+1:st_id.find(".rd50")]
             input_file = open(station, 'r')
             # Start with the first period
             cur_period_idx = 0
