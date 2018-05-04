@@ -244,6 +244,14 @@ class WccSiteamp(object):
         # 4) filter LF
         # 5) recombine HF and LF
 
+        # Figure out vref to use in hybrid scenarios
+        if self.method == "SDSU":
+            # For SDSU we use whatever was used to
+            # calculate the GP LF seismograms
+            vref = config.LF_VREF
+        else:
+            vref = config.GEN_ROCK_VS
+
         # Figure out where the input seismogram is located
         if self.method == "SDSU" or self.method == "UCSB":
             bbpfile = os.path.join(a_tmpdir,
@@ -325,7 +333,7 @@ class WccSiteamp(object):
             progstring = ("%s pga=%f vref=%d vsite=%d " %
                           (os.path.join(install.A_GP_BIN_DIR,
                                         "wcc_siteamp14"),
-                           pga, config.GEN_ROCK_VS, vs30) +
+                           pga, vref, vs30) +
                           'model="%s" vpga=%d flowcap=%f ' %
                           (site_amp_model,
                            config.GEN_ROCK_VS, config.FLOWCAP) +
