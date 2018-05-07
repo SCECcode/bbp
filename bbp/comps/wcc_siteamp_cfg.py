@@ -31,7 +31,7 @@ class WccSiteampCfg(object):
     """
     Define the configuration parameters for the Jbrun program
     """
-    def __init__(self, vmodel_name):
+    def __init__(self, vmodel_name, method):
         # self.SITEAMP_MODEL3D = "cb2014"
         self.SITEAMP_MODEL = "bssa2014"
         self.FILTLIST = "filtmatchlist1"
@@ -47,7 +47,10 @@ class WccSiteampCfg(object):
             raise IndexError("Cannot find velocity model: %s" %
                              (vmodel_name))
 
-        vmodel_params = vmodel_obj.get_codebase_params('gp')
+        if method.lower() == "ucsb":
+            vmodel_params = vmodel_obj.get_codebase_params('ucsb')
+        else:
+            vmodel_params = vmodel_obj.get_codebase_params('gp')
 
         # Read reference velocities for LF and HF components, use defaults
         # values if not found so that the code will still work without GP GFs

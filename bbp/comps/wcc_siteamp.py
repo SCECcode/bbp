@@ -245,9 +245,9 @@ class WccSiteamp(object):
         # 5) recombine HF and LF
 
         # Figure out vref to use in hybrid scenarios
-        if self.method == "SDSU":
-            # For SDSU we use whatever was used to
-            # calculate the GP LF seismograms
+        if self.method == "SDSU" or self.method == "UCSB":
+            # For SDSU and UCSB we use whatever VREF was
+            # used to calculate the LF seismograms
             vref = config.LF_VREF
         else:
             vref = config.GEN_ROCK_VS
@@ -413,7 +413,7 @@ class WccSiteamp(object):
 
         self.install = InstallCfg.getInstance()
         install = self.install
-        self.config = WccSiteampCfg(self.vmodel_name)
+        self.config = WccSiteampCfg(self.vmodel_name, self.method)
         config = self.config
 
         sim_id = self.sim_id
