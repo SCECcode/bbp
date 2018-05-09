@@ -146,16 +146,15 @@ def generate_xml(install, numsim, srcdir, xmldir,
         optfile.write('n\n') # Scenario
         optfile.write('%s\n' % (vmodel)) # Velocity model
         optfile.write('%s\n' % (codebase)) # Codebase to use
+        optfile.write('2\n') # Enter path to src file
+        optfile.write('%s\n' % (srcfile)) # Source file
         if codebase != "exsim" and codebase != "csm":
             if srf_prefix is None:
                 optfile.write('y\n') # Run rupture generator
             else:
                 optfile.write('n\n') # Skip rupture generator
-        optfile.write('2\n') # Enter path to src/srf file
-        if srf_prefix is None:
-            optfile.write('%s\n' % (srcfile)) # Source file
-        else:
-            optfile.write('%s\n' % (srffile)) # SRF file
+                optfile.write('2\n') # Enter path to srf file
+                optfile.write('%s\n' % (srffile)) # SRF file
         optfile.write('2\n') # Enter path to station list
         optfile.write('%s\n' % (station_list)) # Station list
         if codebase == "exsim":
@@ -267,11 +266,11 @@ def write_slurm(install, numsim, simdir, xmldir, email,
     slurmfile.write("\n")
     if savetemp:
         for dir_to_copy in ['outdata', 'indata', 'logs', 'tmpdata']:
-            slurmfile.write('python $BBP_DIR/utils/batch/command_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh "cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/." $PBS_NODEFILE\n' %
+            slurmfile.write('python $BBP_DIR/utils/batch/command_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh "cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/." $SLURM_NODES\n' %
                             (dir_to_copy, dir_to_copy))
     else:
         for dir_to_copy in ['outdata', 'indata', 'logs']:
-            slurmfile.write('python $BBP_DIR/utils/batch/command_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh "cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/." $PBS_NODEFILE\n' %
+            slurmfile.write('python $BBP_DIR/utils/batch/command_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh "cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/." $SLURM_NODES\n' %
                             (dir_to_copy, dir_to_copy))
     slurmfile.write("\n")
     slurmfile.write('echo "Jobs end"\n')
