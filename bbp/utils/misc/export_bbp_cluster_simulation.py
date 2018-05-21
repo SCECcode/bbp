@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ import sys
 import glob
 import shutil
 import argparse
+import datetime
+import numpy as np
+from scipy import integrate
 
 # Import Broadband modules
 from install_cfg import InstallCfg
@@ -42,6 +45,7 @@ import pynga.utils as putils
 
 # Initialize global variables
 INSTALL = InstallCfg.getInstance()
+CM2G = 980.664999
 
 def parse_arguments():
     """
@@ -107,18 +111,40 @@ def collect_simulation_params(args):
     else:
         args.bbp_software_info_site = "None"
         
-    if workflow_obj.val_obj is not None:
-        val_obj = workflow_obj.val_obj
-        args.general_eq_name = workflow_obj.val_obj.get_print_name()
-    else:
-        args.general_eq_name = "NA"
+    args.general_record_seq_no = "-999"
+    args.general_eqid = "-999"
 
-    args.general_earthquake_location = "TBD"
-    args.general_record_seq_no = "TBD"
-    args.general_eqid = "TBD"
-    args.general_fault_information_source = "TBD"
-    args.general_fault_id = "TBD"
-    args.general_fault_name = "TBD"
+def calculate_vs30(vmodel_file):
+    """
+    Calculates the Vs30 from the velocity model file
+    """
+    # Need to calculate Vs30 by adding each layer's up to 30m
+    total_time = 0.0
+    remaining_width = 30.0
+    
+    input_file = open(vmodel_file, 'r')
+    for line in input_file:
+        line = line.strip()
+        if not line:
+            continue
+        tokens = [float(item) for item in line.split()]
+        if len(tokens) != 6:
+            continue
+        layer_width = tokens[0] * 1000 # Convert to meters
+        layer_vs = tokens[2] * 1000
+        if layer_width <= remaining_width:
+            remaining_width = remaining_width - layer_width
+            total_time = total_time + (layer_width / layer_vs)
+        else:
+            total_time = total_time + (remaining_width / layer_vs)
+            remaining_width = 0.0
+        # Check if all done
+        if remaining_width == 0.0:
+            break
+    input_file.close()
+
+    # Calculate Vs30 based on total_time
+    return (30.0 / total_time)
 
 def calculate_mechanism(rake):
     """
@@ -143,6 +169,59 @@ def calculate_mechanism(rake):
     if rake >= -60 and rake < -30:
         return "Normal-Oblique"
     return "Unknown"
+
+def read_bbp(bbp_file):
+    """
+    This function reads the input bbp_file and returns 4 arrays
+    containing the timestamps and 3 time series. This function
+    converts all BBP files from cm/2^2 to g
+    """
+    times = []
+    comp1 = []
+    comp2 = []
+    comp3 = []
+
+    ifile = open(bbp_file, 'r')
+    for line in ifile:
+        line = line.strip()
+        # Skip comments
+        if line.startswith('%') or line.startswith('#'):
+            continue
+        pieces = [float(x) for x in line.split()]
+        times.append(pieces[0])
+        comp1.append(pieces[1] / CM2G)
+        comp2.append(pieces[2] / CM2G)
+        comp3.append(pieces[3] / CM2G)
+
+    # Close input file
+    ifile.close()
+
+    # All done, return arrays
+    return times, comp1, comp2, comp3
+
+def calculate_arias(F, dt, percent):
+    """
+    For a given motion, this function will tell you at what time a
+    given percentage of arias intensity is reached (if time starts
+    at 0 sec)
+    """
+    n = len(F)
+
+    a_i = [pow(value, 2) for value in F]
+    I = integrate.cumtrapz(a_i) * dt
+    # Arias Intensity
+    Ia = (F[0]**2) * dt / 2.0 + I[n-2] + (F[n-1]**2) * dt / 2.0
+    It = (percent / 100.0) * Ia
+
+    if I[0] < It:
+        index = len(I) - len(I[I >= It])
+        if index == len(I):
+            index = index - 1
+    else:
+        index = 0
+
+    t = index * dt
+    return t, index, It
 
 def get_vmodel_from_html(html_file):
     """
@@ -269,8 +348,30 @@ def calculate_timeseries_param(station, site, args, realization):
     lup = 1.0 / site.high_freq_corner
     hup = 1.0 / site.low_freq_corner
     upb = abs(lup-hup)
-    station["dt"] = dt
-    station["num_samples"] = num_samples
+    # Calculate arias duration values
+    bbp_data = read_bbp(acc_file)
+    t5_h1, _, _ = calculate_arias(bbp_data[1], dt, 5)
+    t5_h2, _, _ = calculate_arias(bbp_data[2], dt, 5)
+    t5_v, _, _ = calculate_arias(bbp_data[3], dt, 5)
+    t75_h1, _, _ = calculate_arias(bbp_data[1], dt, 75)
+    t75_h2, _, _ = calculate_arias(bbp_data[2], dt, 75)
+    t75_v, _, _ = calculate_arias(bbp_data[3], dt, 75)
+    t95_h1, _, _ = calculate_arias(bbp_data[1], dt, 95)
+    t95_h2, _, _ = calculate_arias(bbp_data[2], dt, 95)
+    t95_v, _, _ = calculate_arias(bbp_data[3], dt, 95)
+    # Calculate times
+    station["ai_h1"] = -999
+    station["ai_h2"] = -999
+    station["ai_v"] = -999
+    station["ad5_75_h1"] = t75_h1 - t5_h1
+    station["ad5_75_h2"] = t75_h2 - t5_h2
+    station["ad5_75_v"] = t75_v - t5_v
+    station["ad5_95_h1"] = t95_h1 - t5_h1
+    station["ad5_95_h2"] = t95_h2 - t5_h2
+    station["ad5_95_v"] = t95_v - t5_v
+    
+    station["time_series_dt"] = dt
+    station["time_series_num_samples"] = num_samples
     station["nyquist"] = nyquist
     station["luf"] = luf
     station["huf"] = huf
@@ -284,21 +385,28 @@ def calculate_timeseries_param(station, site, args, realization):
     station["pgv_h1"] = pgv1
     station["pgv_h2"] = pgv2
     station["pgv_v"] = pgv3
-    station["rotdnn_fractile"] = 50
-    station["damping"] = 5
-    station["arias_dur_5_75"] = "TBC"
-    station["arias_dur_5_95"] = "TBC"
-    station["arias_total"] = "TBC"
+    station["rotdnn_fractile"] = "PSA_RotD50"
+    station["damping"] = 0.05
+    station["arias_dur_5_75"] = "-999"
+    station["arias_dur_5_95"] = "-999"
+    station["arias_total"] = "-999"
     
 def collect_rd50_values(station, args):
     """
     Collect RotD50 values for all periods
     """
     rd50_file = os.path.join(args.top_level_outdir, station["rd50_file_name"])
+    rd50_vertical_file = os.path.join(args.top_level_outdir,
+                                      station["rd50_vertical_file_name"])
+
     # Start with an empty list
     rd50_periods = []
-    rd50_psa = []
-    # Read file
+    rd50_psa_h1 = []
+    rd50_psa_h2 = []
+    rd50_psa_v = []
+    rd50_psa_rd50 = []
+    
+    # Read horizontal psa file
     input_file = open(rd50_file, 'r')
     for line in input_file:
         line = line.strip()
@@ -308,41 +416,89 @@ def collect_rd50_values(station, args):
             continue
         tokens = [float(token) for token in line.split()]
         rd50_periods.append(tokens[0])
-        rd50_psa.append(tokens[3])
+        rd50_psa_h1.append(tokens[1])
+        rd50_psa_h2.append(tokens[2])
+        rd50_psa_rd50.append(tokens[3])
+    # Close file
+    input_file.close()
+
+    # Read vertical psa file
+    input_file = open(rd50_vertical_file, 'r')
+    for line in input_file:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("#") or line.startswith("%"):
+            continue
+        tokens = [float(token) for token in line.split()]
+        rd50_psa_v.append(tokens[1])
+    # Close file
+    input_file.close()
+    
+    # All done!
+    if "rd50_periods" not in args:
+        args.rd50_periods = rd50_periods
+    station["psa_h1"] = rd50_psa_h1
+    station["psa_h2"] = rd50_psa_h2
+    station["psa_v"] = rd50_psa_v
+    station["rd50"] = rd50_psa_rd50
+
+def collect_rd100_values(station, args):
+    """
+    Collect RotD100 values for all periods
+    """
+    rd100_file = os.path.join(args.top_level_outdir, station["rd100_file_name"])
+
+    # Skip if RD100 file doesn't exist
+    if not os.path.isfile(rd100_file):
+        # RotD100 file not available
+        station["rd100"] = None
+        return
+    
+    # Start with an empty list
+    rd100_psa_rd100 = []
+    # Read file
+    input_file = open(rd100_file, 'r')
+    for line in input_file:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("#") or line.startswith("%"):
+            continue
+        tokens = [float(token) for token in line.split()]
+        rd100_psa_rd100.append(tokens[4])
     # Close file
     input_file.close()
 
     # All done!
-    if "rd50_periods" not in args:
-        args.rd50_periods = rd50_periods
-    station["rd50"] = rd50_psa
-
+    station["rd100"] = rd100_psa_rd100
+    
 def collect_station_params(site, station, src_files,
-                           args, realization):
+                           args, realization, vs_30):
     """
     Collects parameters for one station
     """
-    station["station_name"] = site.scode
-    station["recording_station_name"] = "NA"
-    station["station_latitude"] = site.lat
-    station["station_longitude"] = site.lon
-    station["elevation"] = -999
-    if site.vs30 is None:
-        station["vs30"] = "NA"
-        site_class = "NA"
-    else:
-        station["vs30"] = site.vs30
-        if site.vs30 > 1500:
+    station["sim_station_name"] = site.scode
+    station["sim_station_latitude"] = site.lat
+    station["sim_station_longitude"] = site.lon
+    station["sim_station_elevation"] = -999.0
+    if isinstance(vs_30, float):
+        station["target_station_vs30"] = vs_30
+        if vs_30 > 1500:
             site_class = "A"
-        elif site.vs30 > 760:
+        elif vs_30 > 760:
             site_class = "B"
-        elif site.vs30 > 360:
+        elif vs_30 > 360:
             site_class = "C"
-        elif site.vs30 > 180:
+        elif vs_30 > 180:
             site_class = "D"
         else:
             site_class = "E"
-    station["site_class"] = site_class
+    else:
+        station["target_station_vs30"] = "-888"
+        site_class = "-888"
+
+    station["target_station_nehrp_class"] = site_class
     (station["rrup"],
      station["rjb"],
      station["rx"]) = calculate_distances(src_files, site)
@@ -359,6 +515,12 @@ def collect_station_params(site, station, src_files,
     station["rd50_file_name"] = os.path.join(realization,
                                              "%s.%s.rd50" %
                                              (realization, site.scode))
+    station["rd50_vertical_file_name"] = os.path.join(realization,
+                                                      "%s.%s.rd50.vertical" %
+                                                      (realization, site.scode))
+    station["rd100_file_name"] = os.path.join(realization,
+                                              "%s.%s.rd100" %
+                                              (realization, site.scode))
     station["h1_azimuth"] = 0
     station["h2_azimuth"] = 90
     station["v_orientation"] = "UP"
@@ -386,30 +548,73 @@ def collect_realization_params(args, realization):
     for i, src_file in zip(range(1, len(src_files) + 1), src_files):
         src_index = "bbp_src_%d" % (i)
         src_keys = bband_utils.parse_src_file(src_file)
-        src_keys["epicenter_latitude"] = "TBC"
-        src_keys["epicenter_longitude"] = "TBC"
-        src_keys["hypocenter_depth"] = "TBC"
-        # Add the GP keys if they are missing
-        if "moment_fraction" not in src_keys:
-            src_keys["moment_fraction"] = "NA"
-        if "max_fault_length" not in src_keys:
-            src_keys["max_fault_length"] = "NA"
-        if "rupture_delay" not in src_keys:
-            src_keys["rupture_delay"] = "NA"
         src_keys["mechanism"] = calculate_mechanism(src_keys["rake"])
         data[src_index] = src_keys
 
+    # Combine SRC information
+    data["segments_length"] = data["bbp_src_1"]["fault_length"]
+    data["segments_width"] = data["bbp_src_1"]["fault_width"]
+    data["segments_ztor"] = data["bbp_src_1"]["depth_to_top"]
+    data["segments_strike"] = data["bbp_src_1"]["strike"]
+    data["segments_rake"] = data["bbp_src_1"]["rake"]
+    data["segments_dip"] = data["bbp_src_1"]["dip"]
+    data["total_length"] = float(data["bbp_src_1"]["fault_length"])
+    data["average_strike"] = [float(data["bbp_src_1"]["strike"])]
+    data["average_rake"] = [float(data["bbp_src_1"]["rake"])]
+    data["average_dip"] = [float(data["bbp_src_1"]["dip"])]
+    data["average_width"] = [float(data["bbp_src_1"]["fault_width"])]
+    data["average_ztor"] = [float(data["bbp_src_1"]["depth_to_top"])]
+    for i in range(2, len(src_files) + 1):
+        src_index = "bbp_src_%d" % (i)
+        data["segments_length"] = "%s,%s" % (data["segments_length"],
+                                             data[src_index]["fault_length"])
+        data["segments_width"] = "%s,%s" % (data["segments_width"],
+                                            data[src_index]["fault_width"])
+        data["segments_ztor"] = "%s,%s" % (data["segments_ztor"],
+                                           data[src_index]["depth_to_top"])
+        data["segments_strike"] = "%s,%s" % (data["segments_strike"],
+                                             data[src_index]["strike"])
+        data["segments_rake"] = "%s,%s" % (data["segments_rake"],
+                                             data[src_index]["rake"])
+        data["segments_dip"] = "%s,%s" % (data["segments_dip"],
+                                          data[src_index]["dip"])
+        data["total_length"] = (data["total_length"] +
+                                float(data[src_index]["fault_length"]))
+        data["average_strike"].append(data[src_index]["strike"])
+        data["average_rake"].append(data[src_index]["rake"])
+        data["average_dip"].append(data[src_index]["dip"])
+        data["average_width"].append(data[src_index]["fault_width"])
+        data["average_ztor"].append(data[src_index]["depth_to_top"])
+    data["average_strike"] = np.average(data["average_strike"])
+    data["average_rake"] = np.average(data["average_rake"])
+    data["average_dip"] = np.average(data["average_dip"])
+    data["average_width"] = np.average(data["average_width"])
+    data["average_ztor"] = np.average(data["average_ztor"])
+    data["average_mechanism"] = calculate_mechanism(data["average_rake"])
+        
     # Get velocity model data
     html_file = glob.glob("%s/*.html" % (outdir))[0]
     data["vmodel_name"] = get_vmodel_from_html(html_file)
     vel_obj = velocity_models.get_velocity_model_by_name(data["vmodel_name"])
-    vmodel_params = vel_obj.get_codebase_params('gp')
+    if vel_obj is None:
+        print("ERROR: Cannot find velocity model %s!" % (data["vmodel_name"]))
+        sys.exit(-1)
     if args.general_method in ["gp", "sdsu", "song"]:
+        vmodel_params = vel_obj.get_codebase_params('gp')
+        vmodel_file = vel_obj.get_velocity_model('gp')
         data["gf_name"] = vmodel_params['GF_NAME']
-        data["vs_30"] = "TBC"
+        data["vs_30"] = calculate_vs30(vmodel_file)
+        data["gf_dt"] = float(vmodel_params['GF_DT'])
+    elif args.general_method in ["ucsb"]:
+        vmodel_params = vel_obj.get_codebase_params('ucsb')
+        vmodel_file = vel_obj.get_velocity_model('ucsb')
+        data["gf_name"] = vmodel_params['GREEN_SOIL']
+        data["vs_30"] = "-999"
+        data["gf_dt"] = float(vmodel_params['GF_DT'])
     else:
-        data["gf_name"] = "NA"
-        data["vs_30"] = "NA"
+        data["gf_name"] = "-888"
+        data["vs_30"] = "-888"
+        data["gf_dt"] = "-888"
 
     # Parse STL file
     slo = StationList(stl_file)
@@ -422,9 +627,16 @@ def collect_realization_params(args, realization):
     stations = {}
     for site in site_list:
         stations[site.scode] = {}
+        if args.bbp_software_info_site == "None":
+            vs_30 = data["vs_30"]
+        elif site.vs30 is None:
+            vs_30 = data["vs_30"]
+        else:
+            vs_30 = site.vs30
         collect_station_params(site, stations[site.scode], src_files,
-                               args, realization)
+                               args, realization, vs_30)
         collect_rd50_values(stations[site.scode], args)
+        collect_rd100_values(stations[site.scode], args)
     
     # Save data
     data["stations"] = stations
@@ -436,107 +648,131 @@ def write_output_data(args):
     """
     This function writes all output to the flat file
     """
-    # Output filename
-    output_filename = os.path.join(args.output_dir, "bbp-summary-file.csv")
+    # Output filenames
+    output_filename_prefix = "NEHRIBBPSimsData"
+    output_filename_date = datetime.date.today().strftime("%y%m%d")
+    output_filename_suffix = ".f01.csv"
+    output_main_filename = os.path.join(args.output_dir,
+                                        "%s%s_Main%s" %
+                                        (output_filename_prefix,
+                                         output_filename_date,
+                                         output_filename_suffix))
+    output_psa_h1_filename = os.path.join(args.output_dir,
+                                          "%s%s_PSA_H1_D0pt05%s" %
+                                          (output_filename_prefix,
+                                           output_filename_date,
+                                           output_filename_suffix))
+    output_psa_h2_filename = os.path.join(args.output_dir,
+                                          "%s%s_PSA_H2_D0pt05%s" %
+                                          (output_filename_prefix,
+                                           output_filename_date,
+                                           output_filename_suffix))
+    output_psa_v_filename = os.path.join(args.output_dir,
+                                         "%s%s_PSA_V_D0pt05%s" %
+                                         (output_filename_prefix,
+                                          output_filename_date,
+                                          output_filename_suffix))
+    output_psa_rd50_filename = os.path.join(args.output_dir,
+                                            "%s%s_PSA_RotD50_D0pt05%s" %
+                                            (output_filename_prefix,
+                                             output_filename_date,
+                                             output_filename_suffix))
+    output_psa_rd100_filename = os.path.join(args.output_dir,
+                                             "%s%s_PSA_RotD100_D0pt05%s" %
+                                             (output_filename_prefix,
+                                              output_filename_date,
+                                              output_filename_suffix))
+
     # Create header
-    header = ("bbp_software_version, bbp_simulation_workflow, bbp_site_effects, "
-              "record_sequence_number, eq_id, fault_information_source, fault_id, "
-              "fault_name, eq_name, eq_location, eq_magnitude, "
-              "realization, number_of_src_files")
-    for i in range(1, (args.num_src + 1)):
-        header = ("%s, src_%d_fault_length, src_%d_fault_width, src_%d_depth_to_top, "
-                  "src_%d_strike, src_%d_rake, src_%d_dip, src_%d_latitude, "
-                  "src_%d_longitude, src_%d_hypo_along_strike, src_%d_hypo_down_dip, "
-                  "src_%d_seed, src_%d_gp_total_fault_length, src_%d_gp_moment_fraction, "
-                  "src_%d_gp_timing_info, src_%d_epicenter_latitude, "
-                  "src_%d_epicenter_longitude, src_%d_hypocenter_depth, "
-                  "src_%d_mechanism" % (header, i, i, i, i,
-                                        i, i, i, i, i, i, i,
-                                        i, i, i, i, i, i, i))
-    header = ("%s, vmodel_name, gf_name, vs30" % (header))
-    header = ("%s, station_name, recording_station_name, station_latitude, "
-              "station_longitude, station_elevation, station_vs30, "
-              "station_class, station_rrup, station_rjb, station_rx, "
-              "num_components, acc_file_name, h1_azimuth, h2_azimuth, v_orientation, "
-              "dt, num_samples, nyquist, luf, huf, ufb, lup, hup, upb, "
-              "pga_h1, pgv_h1, pga_h2, pgv_h2, pga_v, pgv_v, rotdnn_fractile, "
-              "damping" % (header))
+    header = ("bbp_software_version,sim_simulation_workflow,"
+              "sim_method_short_name,sim_site_effects,"
+              "record_sequence_number,eq_id,eq_magnitude,"
+              "realization,number_of_segments")
+    header = ("%s,segment_lengths,segment_widths,segment_ztors,"
+              "segment_strikes,segment_rakes,segment_dips,"
+              "total_length,average_strike,average_rake,"
+              "average_dip,average_width,average_ztor,"
+              "mechanism_based_on_average_rake" % (header))
+    header = ("%s,vmodel_name,gf_name,gf_dt,vmodel_vs30" % (header))
+    header = ("%s,sim_station_name,sim_station_latitude,"
+              "sim_station_longitude,sim_station_elevation,"
+              "target_station_vs30,"
+              "target_station_nehrp_class,station_rrup,station_rjb,station_rx,"
+              "num_components,acc_file_name,"
+              "h1_azimuth,h2_azimuth,v_orientation,"
+              "dt,num_samples,nyquist,luf,huf,ufb,lup,hup,upb,"
+              "pga_h1,pga_h2,pga_v,pgv_h1,pgv_h2,pgv_v" % (header))
+    header = ("%s,ai_h1,ai_h2,ai_v,aid5_75_h1,aid5_75_h2,aid5_75_v,"
+              "aid5_95_h1,aid5_95_h2,aid5_95_v" % (header))
+
+    header_psa = "record_sequence_number,intensity_measure,damping"
     for period in args.rd50_periods:
-        header = ("%s, %.2f" % (header, period))
-    header = ("%s, arias_dur_5_75, arias_dur_5_95, arias_total" % (header))
+        header_psa = ("%s,T%dp%03d" % (header_psa,
+                                       int(period),
+                                       (period % 1 * 1000)))
 
     # Create first (common) part of the output
-    sim_params = ("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" %
+    sim_params = ('"%s","%s","%s","%s","%s","%s",%s' %
                   (args.bbp_software_info_version,
                    "/".join(args.bbp_software_info_modules),
+                   args.general_method,
                    args.bbp_software_info_site,
                    args.general_record_seq_no,
                    args.general_eqid,
-                   args.general_fault_information_source,
-                   args.general_fault_id,
-                   args.general_fault_name,
-                   args.general_eq_name,
-                   args.general_earthquake_location,
                    str(args.general_magnitude)))
 
-    # Output data
-    output_file = open(output_filename, 'w')
+    # Output main data file
+    output_file = open(output_main_filename, 'w')
     # Print header
-    output_file.write("#%s\n" % (header))
+    output_file.write('%s\n' % (header))
     for realization in args.realizations:
         realization_data = args.data[realization]
         station_names = realization_data["station_names"]
-        realization_params = ("%s, %d" % (realization, realization_data["num_src"]))
-        for i in range(1, (realization_data["num_src"] + 1)):
-            src_index = "bbp_src_%d" % (i)
-            src_params = realization_data[src_index]
-            realization_params = ("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                                  "%s, %s, %s, %s, %s, %s, %s, %s, %s" %
-                                  (realization_params, src_params["fault_length"],
-                                   src_params["fault_width"],
-                                   src_params["depth_to_top"],
-                                   src_params["strike"],
-                                   src_params["rake"],
-                                   src_params["dip"],
-                                   src_params["lat_top_center"],
-                                   src_params["lon_top_center"],
-                                   src_params["hypo_along_stk"],
-                                   src_params["hypo_down_dip"],
-                                   src_params["seed"],
-                                   src_params["max_fault_length"],
-                                   src_params["moment_fraction"],
-                                   src_params["rupture_delay"],
-                                   src_params["epicenter_latitude"],
-                                   src_params["epicenter_longitude"],
-                                   src_params["hypocenter_depth"],
-                                   src_params["mechanism"]))
-            realization_params = ("%s, %s, %s, %s" %
-                                  (realization_params,
-                                   realization_data["vmodel_name"],
-                                   realization_data["gf_name"],
-                                   realization_data["vs_30"]))
+        realization_params = ('%s,%d' % (realization,
+                                         realization_data["num_src"]))
+        realization_params = ('%s,"%s","%s","%s","%s","%s","%s",%s,%s,%s,'
+                              '%s,%s,%s,"%s"' %
+                              (realization_params,
+                               realization_data["segments_length"],
+                               realization_data["segments_width"],
+                               realization_data["segments_ztor"],
+                               realization_data["segments_strike"],
+                               realization_data["segments_rake"],
+                               realization_data["segments_dip"],
+                               realization_data["total_length"],
+                               realization_data["average_strike"],
+                               realization_data["average_rake"],
+                               realization_data["average_dip"],
+                               realization_data["average_width"],
+                               realization_data["average_ztor"],
+                               realization_data["average_mechanism"]))
+        realization_params = ('%s,"%s","%s",%.2f,%s' %
+                              (realization_params,
+                               realization_data["vmodel_name"],
+                               realization_data["gf_name"],
+                               realization_data["gf_dt"],
+                               realization_data["vs_30"]))
         for station in station_names:
             st_data = realization_data["stations"][station]
-            station_params = ("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                              "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                              "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                              "%s, %s" %
-                              (station, st_data["recording_station_name"],
-                               st_data["station_latitude"],
-                               st_data["station_longitude"],
-                               st_data["elevation"],
-                               st_data["vs30"],
-                               st_data["site_class"],
+            station_params = ('%s,%s,%s,%.1f,%s,"%s",%s,%s,%s,%s,'
+                              '"%s",%s,%s,"%s",%s,%s,%s,%s,%s,%s,'
+                              '%s,%s,%s,%s,%s,%s,%s,%s,%s' %
+                              (station,
+                               st_data["sim_station_latitude"],
+                               st_data["sim_station_longitude"],
+                               st_data["sim_station_elevation"],
+                               st_data["target_station_vs30"],
+                               st_data["target_station_nehrp_class"],
                                st_data["rrup"],
                                st_data["rjb"],
                                st_data["rx"],
                                st_data["components"],
-                               st_data["vel_file_name"],
+                               st_data["acc_file_name"],
                                st_data["h1_azimuth"],
                                st_data["h2_azimuth"],
                                st_data["v_orientation"],
-                               st_data["dt"],
-                               st_data["num_samples"],
+                               st_data["time_series_dt"],
+                               st_data["time_series_num_samples"],
                                st_data["nyquist"],
                                st_data["luf"],
                                st_data["huf"],
@@ -545,24 +781,65 @@ def write_output_data(args):
                                st_data["hup"],
                                st_data["upb"],
                                st_data["pga_h1"],
-                               st_data["pgv_h1"],
                                st_data["pga_h2"],
-                               st_data["pgv_h2"],
                                st_data["pga_v"],
-                               st_data["pgv_v"],
-                               st_data["rotdnn_fractile"],
-                               st_data["damping"]))
-            for period in st_data["rd50"]:
-                station_params = ("%s, %s" % (station_params, period))
-            station_params = ("%s, %s, %s, %s" % (station_params,
-                                                  st_data["arias_dur_5_75"],
-                                                  st_data["arias_dur_5_95"],
-                                                  st_data["arias_total"]))
-            output_file.write("%s, %s, %s\n" %
+                               st_data["pgv_h1"],
+                               st_data["pgv_h2"],
+                               st_data["pgv_v"]))
+            station_params = ('%s,%.2f,%.2f,%.2f,'
+                              '%.2f,%.2f,%.2f,'
+                              '%.2f,%.2f,%.2f' % (station_params,
+                                                  st_data["ai_h1"],
+                                                  st_data["ai_h2"],
+                                                  st_data["ai_v"],
+                                                  st_data["ad5_75_h1"],
+                                                  st_data["ad5_75_h2"],
+                                                  st_data["ad5_75_v"],
+                                                  st_data["ad5_95_h1"],
+                                                  st_data["ad5_95_h2"],
+                                                  st_data["ad5_95_v"]))
+            output_file.write('%s,%s,%s\n' %
                               (sim_params, realization_params, station_params))
+    
     # All done
     output_file.close()
     
+    # Write PSA files
+    psa_files = [output_psa_h1_filename, output_psa_h2_filename,
+                 output_psa_v_filename, output_psa_rd50_filename,
+                 output_psa_rd100_filename]
+    psa_measurements = ["psa_h1", "psa_h2", "psa_v",
+                        "rd50", "rd100"]
+    psa_meas_labels = ["PSA_H1", "PSA_H2", "PSA_V",
+                       "PSA_RotD50", "PSA_RotD100"]
+    
+    for output_filename, psa_data, psa_label in zip(psa_files,
+                                                    psa_measurements,
+                                                    psa_meas_labels):
+        # Output psa data file
+        output_file = open(output_filename, 'w')
+        # Print header
+        output_file.write("%s\n" % (header_psa))
+
+        for realization in args.realizations:
+            realization_data = args.data[realization]
+            station_names = realization_data["station_names"]
+            for station in station_names:
+                st_data = realization_data["stations"][station]
+                if st_data[psa_data] is None:
+                    continue
+                psa_params = '"%s","%s",%.2f' % (st_data["acc_file_name"],
+                                                 psa_label,
+                                                 st_data["damping"])
+                for period in st_data[psa_data]:
+                    psa_params = ('%s,%.7f' % (psa_params, period))
+
+                # Write output
+                output_file.write('%s\n' % (psa_params))
+
+        # All done
+        output_file.close()
+
 def create_flat_file_from_cluster():
     """
     Create a flat file from a cluster simulation
