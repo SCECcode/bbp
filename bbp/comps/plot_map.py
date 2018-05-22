@@ -323,6 +323,9 @@ class Plot_Map(object):
         # Write the kml file
         self.create_kml_output(a_station_file, kml_file,
                                hypo_lat=hypo_lat, hypo_lon=hypo_lon)
+        hypo_coord = {}
+        hypo_coord['lat'] = hypo_lat
+        hypo_coord['lon'] = hypo_lon
 
         # Matplotlib
         plottitle = 'Fault Trace with Stations'
@@ -334,7 +337,7 @@ class Plot_Map(object):
         PlotMap.plot_station_map(plottitle, plotregion, topo,
                                  coastal, border, trace_file,
                                  simple_station_file, map_prefix,
-                                 hypo_lat=hypo_lat, hypo_lon=hypo_lon)
+                                 [hypo_coord])
 
         print("Plot MAP Completed".center(80, '-'))
 

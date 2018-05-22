@@ -195,7 +195,7 @@ def read_topo(filename, plotregion):
     return masked
 
 def plot_station_map(plottitle, plotregion, topo, coastal, border,
-                     fault, sta, map_prefix, hypo_lat=None, hypo_lon=None):
+                     fault, sta, map_prefix, hypocenter_list=None):
     """
     Genereate the station map plot
     """
@@ -248,10 +248,13 @@ def plot_station_map(plottitle, plotregion, topo, coastal, border,
     # Plot stations
     pylab.plot(sta_x, sta_y, marker='o', color='r', linewidth=0)
 
-    # Plot hypocenter
-    if hypo_lat is not None and hypo_lon is not None:
-        hypo_lat = [hypo_lat]
-        hypo_lon = [hypo_lon]
+    # Plot hypocenter if provided
+    if hypocenter_list is not None:
+        hypo_lat = []
+        hypo_lon = []
+        for hypocenter in hypocenter_list:
+            hypo_lat.append(hypocenter['lat'])
+            hypo_lon.append(hypocenter['lon'])
         pylab.plot(hypo_lon, hypo_lat, marker='*',
                    markersize=12, color='y', linewidth=0)
 
