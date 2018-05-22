@@ -221,7 +221,7 @@ def plot_station_map(plottitle, plotregion, topo, coastal, border,
 
     # Adjust title y-position
     t = pylab.title(plottitle, size=12)
-    t.set_y(1.09)
+    t.set_y(1.06)
 
     # Setup color scale
     cmap = cm.gist_earth
