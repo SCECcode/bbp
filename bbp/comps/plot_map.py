@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -331,11 +331,10 @@ class Plot_Map(object):
         topo = os.path.join(install.A_PLOT_DATA_DIR, 'calTopo18.bf')
         coastal = os.path.join(install.A_PLOT_DATA_DIR, 'gshhs_h.txt')
         border = os.path.join(install.A_PLOT_DATA_DIR, 'wdb_borders_h.txt')
-        plotter = PlotMap.PlotMap()
-        plotter.plot(plottitle, plotregion, topo,
-                     coastal, border, trace_file,
-                     simple_station_file, map_prefix,
-                     hypo_lat=hypo_lat, hypo_lon=hypo_lon)
+        PlotMap.plot_station_map(plottitle, plotregion, topo,
+                                 coastal, border, trace_file,
+                                 simple_station_file, map_prefix,
+                                 hypo_lat=hypo_lat, hypo_lon=hypo_lon)
 
         print("Plot MAP Completed".center(80, '-'))
 
