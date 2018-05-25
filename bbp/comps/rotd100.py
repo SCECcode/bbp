@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,60 +36,80 @@ import pynga.utils as putils
 
 SUPPORTED_OBS_FORMATS = ["acc_bbp", "acc_peer"]
 
+def do_rotd100(workdir, peer_input_e_file, peer_input_n_file,
+               output_rotd100_file, logfile):
+    """
+    This function runs the rotd100 command inside workdir, using
+    the inputs and outputs specified
+    """
+    install = install_cfg.InstallCfg.getInstance()
+
+    # Make sure we don't have absolute path names
+    peer_input_e_file = os.path.basename(peer_input_e_file)
+    peer_input_n_file = os.path.basename(peer_input_n_file)
+    output_rotd100_file = os.path.basename(output_rotd100_file)
+
+    # Save cwd, change back to it at the end
+    old_cwd = os.getcwd()
+    os.chdir(workdir)
+
+    # Make sure we remove the output files first or Fortran will
+    # complain if they already exist
+    try:
+        os.unlink(output_rotd100_file)
+    except OSError:
+        pass
+
+    #
+    # write config file for rotd100 program
+    rd100_conf = open("rotd100_inp.cfg", 'w')
+    # This flag indicates inputs acceleration
+    rd100_conf.write("2 interp flag\n")
+    # This flag indicate we are processing two input files
+    rd100_conf.write("1 Npairs\n")
+    # Number of headers in the file
+    rd100_conf.write("6 Nhead\n")
+    rd100_conf.write("%s\n" % peer_input_e_file)
+    rd100_conf.write("%s\n" % peer_input_n_file)
+    rd100_conf.write("%s\n" % output_rotd100_file)
+    # Close file
+    rd100_conf.close()
+
+    progstring = ("%s >> %s 2>&1" %
+                  (os.path.join(install.A_UCB_BIN_DIR,
+                                "rotd100"), logfile))
+    bband_utils.runprog(progstring, abort_on_error=True, print_cmd=False)
+
+    # Restore working directory
+    os.chdir(old_cwd)
+
+def do_split_rotd50(a_tmpdir, in_rotd100_base, out_rotd50_base, logfile):
+    """
+    Create a RotD50 file out of the RotD100 file for modules expecting this
+    """
+    # Open input and output files
+    in_file = open(os.path.join(a_tmpdir, in_rotd100_base), 'r')
+    out_file = open(os.path.join(a_tmpdir, out_rotd50_base), 'w')
+
+    for line in in_file:
+        line = line.strip()
+        # Skip comments
+        if line.startswith('#'):
+            out_file.write("%s\n" % (line))
+            continue
+        pieces = line.split()
+        pieces = pieces[0:4]
+        out_file.write("  %s\n" % (" ".join(pieces)))
+
+    # Close everything
+    in_file.close()
+    out_file.close()
+
 class RotD100(object):
     """
     BBP module implementation of rotd100 provided by UCB.
     Rotd100 inputs seismograms and outputs response spectra
     """
-    @staticmethod
-    def do_rotd100(workdir, peer_input_e_file, peer_input_n_file,
-                  peer_input_z_file, output_rotd100_file,
-                  logfile):
-        """
-        This function runs the rotd100 command inside workdir, using
-        the inputs and outputs specified
-        """
-        install = install_cfg.InstallCfg.getInstance()
-
-        # Make sure we don't have absolute path names
-        peer_input_e_file = os.path.basename(peer_input_e_file)
-        peer_input_n_file = os.path.basename(peer_input_n_file)
-        peer_input_z_file = os.path.basename(peer_input_z_file)
-        output_rotd100_file = os.path.basename(output_rotd100_file)
-
-        # Save cwd, change back to it at the end
-        old_cwd = os.getcwd()
-        os.chdir(workdir)
-
-        # Make sure we remove the output files first or Fortran will
-        # complain if they already exist
-        try:
-            os.unlink(output_rotd100_file)
-        except OSError:
-            pass
-
-        #
-        # write config file for rotd100 program
-        rd100_conf = open("rotd100_inp.cfg", 'w')
-        # This flag indicates inputs acceleration
-        rd100_conf.write("2 interp flag\n")
-        # This flag indicate we are processing two input files (horizontals)
-        rd100_conf.write("1 Npairs\n")
-        # Number of headers in the file
-        rd100_conf.write("6 Nhead\n")
-        rd100_conf.write("%s\n" % peer_input_e_file)
-        rd100_conf.write("%s\n" % peer_input_n_file)
-        rd100_conf.write("%s\n" % output_rotd100_file)
-        # Close file
-        rd100_conf.close()
-
-        progstring = ("%s >> %s 2>&1" %
-                      (os.path.join(install.A_UCB_BIN_DIR,
-                                    "rotd100"), logfile))
-        bband_utils.runprog(progstring, abort_on_error=True, print_cmd=False)
-
-        # Restore working directory
-        os.chdir(old_cwd)
 
     def __init__(self, i_r_stations, i_r_srcfile=None,
                  i_a_obsdir=None, i_obs_format=None, i_obs_corr=None,
@@ -150,15 +170,15 @@ class RotD100(object):
                    (nsfile, ewfile, udfile, bbpfile, self.log))
             bband_utils.runprog(cmd, abort_on_error=True, print_cmd=False)
 
-            for c in ["090", "000", "ver"]:
+            for component in ["090", "000", "ver"]:
                 # Differentiate to get from velocity to accl needed by rotd100
                 # Create path names and check if their sizes are within bounds
                 filein = os.path.join(a_tmpdir,
                                       "%d.%s.%s" %
-                                      (sim_id, stat, c))
+                                      (sim_id, stat, component))
                 fileout = os.path.join(a_tmpdir,
                                        "%d.%s.acc.%s" %
-                                       (sim_id, stat, c))
+                                       (sim_id, stat, component))
 
                 bband_utils.check_path_lengths([filein, fileout],
                                                bband_utils.GP_MAX_FILENAME)
@@ -171,7 +191,8 @@ class RotD100(object):
 
                 # Check file length
                 bband_utils.check_path_lengths(["%s/%d.%s.acc.%s" %
-                                                (a_tmpdir, sim_id, stat, c)],
+                                                (a_tmpdir, sim_id,
+                                                 stat, component)],
                                                bband_utils.GP_MAX_FILENAME)
 
             # Now we need to convert them back to bbp
@@ -206,15 +227,36 @@ class RotD100(object):
             bbp_formatter.bbp2peer(bbpfile, out_n_acc, out_e_acc, out_z_acc)
 
             # Let's have rotD100 create these output files
+            out_rotd50_base = "%d.%s.rd50" % (sim_id, stat)
             out_rotd100_base = "%d.%s.rd100" % (sim_id, stat)
-            tmp_rotd100 = os.path.join(a_tmpdir, out_rotd100_base)
-            out_rotd100 = os.path.join(a_dstdir, out_rotd100_base)
+            out_rotd50v_base = "%d.%s.rd50.vertical" % (sim_id, stat)
+            out_rotd100v_base = "%d.%s.rd100.vertical" % (sim_id, stat)
 
-            # Run the rotD100 program
-            self.do_rotd100(a_tmpdir, out_e_acc, out_n_acc, out_z_acc,
-                            out_rotd100, self.log)
+            # Run the rotD100 program twice (horizontals and vertical)
+            do_rotd100(a_tmpdir, out_e_acc, out_n_acc,
+                       out_rotd100_base, self.log)
+            # Run the rotD100 program twice (horizontals and vertical)
+            do_rotd100(a_tmpdir, out_z_acc, out_z_acc,
+                       out_rotd100v_base, self.log)
+            # Create rotd50 files as well
+            do_split_rotd50(a_tmpdir, out_rotd100_base,
+                            out_rotd50_base, self.log)
+            do_split_rotd50(a_tmpdir, out_rotd100v_base,
+                            out_rotd50v_base, self.log)
 
-            cmd = "cp %s %s" % (tmp_rotd100, out_rotd100)
+            # Copy horizontals
+            cmd = "cp %s %s" % (os.path.join(a_tmpdir, out_rotd100_base),
+                                os.path.join(a_dstdir, out_rotd100_base))
+            bband_utils.runprog(cmd, abort_on_error=True, print_cmd=False)
+            cmd = "cp %s %s" % (os.path.join(a_tmpdir, out_rotd50_base),
+                                os.path.join(a_dstdir, out_rotd50_base))
+            bband_utils.runprog(cmd, abort_on_error=True, print_cmd=False)
+            # Now copy verticals
+            cmd = "cp %s %s" % (os.path.join(a_tmpdir, out_rotd100v_base),
+                                os.path.join(a_dstdir, out_rotd100v_base))
+            bband_utils.runprog(cmd, abort_on_error=True, print_cmd=False)
+            cmd = "cp %s %s" % (os.path.join(a_tmpdir, out_rotd50v_base),
+                                os.path.join(a_dstdir, out_rotd50v_base))
             bband_utils.runprog(cmd, abort_on_error=True, print_cmd=False)
 
     def calculate_observations(self, a_indir, a_statfile, a_tmpdir_seis, a_dstdir):
@@ -332,20 +374,16 @@ class RotD100(object):
             # Run RotD100 on this file
             if corr_psa is not None:
                 # First calculate rd100/50 and psa5 files
-                self.do_rotd100(a_tmpdir_seis, r_e_peer_file,
-                                 r_n_peer_file, r_z_peer_file,
-                                 "%s-orig.rd100" % (stat),
-                                 self.log)
+                do_rotd100(a_tmpdir_seis, r_e_peer_file, r_n_peer_file,
+                           "%s-orig.rd100" % (stat), self.log)
 
                 # Now we need to correct the RotD100/RotD50 output
                 # using the user-supplied correction factors
                 corr_psa.correct_station(stat, "rd100")
             else:
                 # Use final names for output files
-                self.do_rotd100(a_tmpdir_seis, r_e_peer_file,
-                                r_n_peer_file, r_z_peer_file,
-                                "%s.rd100" % (stat),
-                                self.log)
+                do_rotd100(a_tmpdir_seis, r_e_peer_file, r_n_peer_file,
+                           "%s.rd100" % (stat), self.log)
             shutil.copy2(os.path.join(a_tmpdir_seis, "%s.rd100" % (stat)),
                          os.path.join(a_dstdir, "%s.rd100" % (stat)))
 
@@ -558,7 +596,10 @@ class RotD100(object):
             self.run_validation()
 
     def run_simulation(self):
-        print("RotD100".center(80, '-'))
+        """
+        Generate RotD50/100 values for the calculated timeseries
+        """
+        print("RotDXX".center(80, '-'))
         #
         # convert input bbp acc files to peer format acc files
         #
@@ -582,14 +623,14 @@ class RotD100(object):
         self.calculate_simulated(a_statfile, a_tmpdir, a_outdir, a_outdir)
 
         # All done!
-        print("RotD100 Completed".center(80, '-'))
+        print("RotDXX Completed".center(80, '-'))
 
     def run_validation(self):
         """
         Do all steps needed for creating the ratio of maximum to median
         response across orientations (RotD100/RotD50)
         """
-        print("RotD100".center(80, '-'))
+        print("RotDXX".center(80, '-'))
 
         # Initialize
         install = install_cfg.InstallCfg.getInstance()
@@ -638,7 +679,7 @@ class RotD100(object):
         self.generate_plot(a_statfile, a_validation_outdir)
 
         # All done!
-        print("RotD100 Completed".center(80, '-'))
+        print("RotDXX Completed".center(80, '-'))
 
 if __name__ == '__main__':
     print("Testing Module: %s" % (os.path.basename(sys.argv[0])))

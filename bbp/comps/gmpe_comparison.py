@@ -266,7 +266,8 @@ class GMPEComparison(object):
             fileroot = os.path.join(a_outdir, "%s-GMPE-%d_r%d-all-rd50-%s" %
                                     (self.comp_label, sim_id,
                                      0, gmpe_model.lower()))
-            cmd = ("%s/resid2uncer_varN " % (install.A_GP_BIN_DIR) +
+            cmd = ("%s " % os.path.join(install.A_GP_BIN_DIR,
+                                        "resid2uncer_varN") +
                    "residfile=%s fileroot=%s " % (resid_file, fileroot) +
                    "comp=%s nstat=%d nper=%d " % (gmpe_model.lower(),
                                                   len(site_list),

@@ -28,12 +28,12 @@ class CalculateGMPE(object):
     for a list of stations.
     """
 
-    def __init__(self, i_r_stations, i_r_src_file, i_comp_label,
-                 i_data_corrected, i_gmpe_group_name, sim_id=0):
+    def __init__(self, i_r_stations, i_r_src_file,
+                 i_data_corrected, i_gmpe_group_name,
+                 sim_id=0):
         self.sim_id = sim_id
         self.r_stations = i_r_stations
         self.r_src_file = i_r_src_file
-        self.comp_label = i_comp_label
         self.data_corrected = i_data_corrected
         self.gmpe_group_name = i_gmpe_group_name
         self.src_keys = None
