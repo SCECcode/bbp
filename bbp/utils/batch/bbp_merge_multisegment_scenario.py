@@ -37,7 +37,7 @@ from station_list import StationList
 import plot_srf
 import plot_rotd50
 from plot_seis import PlotSeis
-from rotd50 import RotD50
+from rotd100 import RotD100
 
 def post_process(station_list, src_files,
                  merged_outdir,
@@ -51,8 +51,8 @@ def post_process(station_list, src_files,
                        True, True, int(realization))
     plotter.run()
     # RotD50
-    process = RotD50(os.path.basename(station_list),
-                     int(realization))
+    process = RotD100(os.path.basename(station_list),
+                      sim_id=int(realization))
     process.run()
 
     # Plot RotD50
