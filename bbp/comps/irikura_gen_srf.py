@@ -23,10 +23,10 @@ import sys
 # Import Broadband modules
 import plot_srf
 import bband_utils
-from irikura_cfg import IrikuraCfg
+from irikura_gen_srf_cfg import IrikuraGenSrfCfg
 from install_cfg import InstallCfg
 
-class Irikura(object):
+class IrikuraGenSrf(object):
     """
     Implements Arben's gen_srf.csh script in Python
     """
@@ -42,6 +42,9 @@ class Irikura(object):
         """
         This function prepares the parameters for Irikura's gen_srf then calls it
         """
+
+        print("IrikuraGenSrf".center(80, '-'))
+
         # Load configuration, set sim_id
         install = InstallCfg.getInstance()
         sim_id = self.sim_id
@@ -60,7 +63,7 @@ class Irikura(object):
         a_srcfile = os.path.join(a_indir, self.r_srcfile)
 
         # Read src file
-        cfg = IrikuraCfg(a_srcfile)
+        cfg = IrikuraGenSrfCfg(a_srcfile)
 
         # Define location of input velocity model and output srf file
         a_srffile = os.path.join(a_indir, self.r_srffile)
@@ -117,10 +120,10 @@ class Irikura(object):
         # Plot SRF
         plot_srf.run(self.r_srffile, sim_id=self.sim_id)
 
-        print("Completed Irikura gen_srf .....")
+        print("IrikuraGenSrf Completed".center(80, '-'))
 
 if __name__ == "__main__":
     print("Testing Module: %s" % os.path.basename((sys.argv[0])))
-    ME = Irikura(sys.argv[1], sys.argv[2], sys.argv[3],
-                 sys.argv[4], sim_id=int(sys.argv[5]))
+    ME = IrikuraGenSrf(sys.argv[1], sys.argv[2], sys.argv[3],
+                       sys.argv[4], sim_id=int(sys.argv[5]))
     ME.run()

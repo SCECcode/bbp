@@ -55,7 +55,7 @@ from rzz2015 import RZZ2015
 from rzz2015_gmpe import RZZ2015GMPE
 from rotd100 import RotD100
 from anderson_gof import AndersonGOF
-from irikura import Irikura
+from irikura_gen_srf import IrikuraGenSrf
 
 class Module(object):
     def __init__(self):

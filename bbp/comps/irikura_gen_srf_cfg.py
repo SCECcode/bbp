@@ -24,7 +24,7 @@ import sys
 # Import Broadband modules
 import bband_utils
 
-class IrikuraCfg(object):
+class IrikuraGenSrfCfg(object):
     """
     Define the configuration parameters for the Irikura rupture generator
     """
@@ -42,5 +42,5 @@ class IrikuraCfg(object):
             self.CFGDICT = bband_utils.parse_src_file(a_srcname)
 
 if __name__ == "__main__":
-    IRIKURA_CFG = IrikuraCfg()
+    IRIKURA_GEN_SRF_CFG = IrikuraGenSrfCfg()
     print("Created Test Config Class: %s" % os.path.basename((sys.argv[0])))

@@ -1808,7 +1808,7 @@ class WorkflowBuilder(object):
                     codebase = "GP"
                 elif self.method == "IRIKURA":
                     # add Irikura rupture generator
-                    rupture_module.setName("Irikura")
+                    rupture_module.setName("IrikuraGenSrf")
                     codebase = "GP"
                 elif self.method == "UCSB":
                     # add UCSB rupture generator
