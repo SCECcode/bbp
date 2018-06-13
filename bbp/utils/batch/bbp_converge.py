@@ -205,7 +205,7 @@ def plot_results(bias_data, codebase, colormap, output_file):
                      bias_data["periods"],
                      rotation='vertical', fontsize=6)
     #frame1 = pylab.gca()
-    #frame1.axes.xaxis.set_ticklabels(["0.01", "", "", "0.02", ""])
+    #frame1.axes.xaxis.set_ticklabels([])
     #frame1.axes.yaxis.set_ticklabels([])
     pylab.xlabel("Periods")
     pylab.ylabel("Number of Realizations")
