@@ -117,7 +117,6 @@ def collect_simulation_params(args):
     else:
         args.bbp_software_info_site = "None"
 
-    args.general_record_seq_no = "-999"
     args.general_eqid = "-999"
 
 def calculate_vs30(vmodel_file):
@@ -697,11 +696,17 @@ def write_output_data(args):
                                               output_filename_date,
                                               output_filename_suffix,
                                               output_filename_extension))
+    output_psa_period_table_filename = os.path.join(args.output_dir,
+                                                    "%s_%s%s_PSA_Period_Table%s" %
+                                                    (output_filename_prefix,
+                                                     output_filename_date,
+                                                     output_filename_suffix,
+                                                     output_filename_extension))
 
     # Create header
-    header = ("bbp_software_version,sim_simulation_workflow,"
+    header = ("acc_file_name,bbp_software_version,sim_simulation_workflow,"
               "sim_method_short_name,sim_site_effects,"
-              "record_sequence_number,eq_id,eq_magnitude,"
+              "eq_id,eq_magnitude,"
               "realization,number_of_segments")
     header = ("%s,segment_lengths,segment_widths,segment_ztors,"
               "segment_strikes,segment_rakes,segment_dips,"
@@ -713,28 +718,38 @@ def write_output_data(args):
               "sim_station_longitude,sim_station_elevation,"
               "target_station_vs30,"
               "target_station_nehrp_class,station_rrup,station_rjb,station_rx,"
-              "num_components,acc_file_name,"
-              "h1_azimuth,h2_azimuth,v_orientation,"
+              "num_components,h1_azimuth,h2_azimuth,v_orientation,"
               "dt,num_samples,nyquist,luf,huf,ufb,lup,hup,upb,"
               "pga_h1,pga_h2,pga_v,pgv_h1,pgv_h2,pgv_v" % (header))
     header = ("%s,ai_h1,ai_h2,ai_v,aid5_75_h1,aid5_75_h2,aid5_75_v,"
               "aid5_95_h1,aid5_95_h2,aid5_95_v" % (header))
 
-    header_psa = "record_sequence_number,intensity_measure,damping"
-    for period in args.rd50_periods:
-        header_psa = ("%s,T%dp%03d" % (header_psa,
-                                       int(period),
-                                       (period % 1 * 1000)))
+    header_psa = "acc_file_name,intensity_measure,damping"
+    header_periods = "T%dp%03d" % (int(args.rd50_periods[0]),
+                                   args.rd50_periods[0] % 1 * 1000)
+    for period in args.rd50_periods[1:]:
+        header_periods = ("%s,T%dp%03d" % (header_periods,
+                                           int(period),
+                                           (period % 1 * 1000)))
+    header_psa = "%s,%s" % (header_psa, header_periods)
 
     # Create first (common) part of the output
-    sim_params = ('"%s","%s","%s","%s","%s","%s",%s' %
+    sim_params = ('"%s","%s","%s","%s","%s",%s' %
                   (args.bbp_software_info_version,
                    "/".join(args.bbp_software_info_modules),
                    args.general_method,
                    args.bbp_software_info_site,
-                   args.general_record_seq_no,
                    args.general_eqid,
                    str(args.general_magnitude)))
+
+    # Output PSA period table
+    output_file = open(output_psa_period_table_filename, 'w')
+    output_file.write("%s\n" % (header_periods))
+    output_file.write("%.3f" % (args.rd50_periods[0]))
+    for period in args.rd50_periods[1:]:
+        output_file.write(",%.3f" % (period))
+    output_file.write("\n")
+    output_file.close()
 
     # Output main data file
     output_file = open(output_main_filename, 'w')
@@ -770,7 +785,7 @@ def write_output_data(args):
         for station in station_names:
             st_data = realization_data["stations"][station]
             station_params = ('%s,%s,%s,%.1f,%s,"%s",%s,%s,%s,%s,'
-                              '"%s",%s,%s,"%s",%s,%s,%s,%s,%s,%s,'
+                              '%s,%s,"%s",%s,%s,%s,%s,%s,%s,'
                               '%s,%s,%s,%s,%s,%s,%s,%s,%s' %
                               (station,
                                st_data["sim_station_latitude"],
@@ -782,7 +797,6 @@ def write_output_data(args):
                                st_data["rjb"],
                                st_data["rx"],
                                st_data["components"],
-                               st_data["acc_file_name"],
                                st_data["h1_azimuth"],
                                st_data["h2_azimuth"],
                                st_data["v_orientation"],
@@ -813,8 +827,9 @@ def write_output_data(args):
                                                   st_data["ad5_95_h1"],
                                                   st_data["ad5_95_h2"],
                                                   st_data["ad5_95_v"]))
-            output_file.write('%s,%s,%s\n' %
-                              (sim_params, realization_params, station_params))
+            output_file.write('"%s",%s,%s,%s\n' %
+                              (st_data["acc_file_name"], sim_params,
+                               realization_params, station_params))
 
     # All done
     output_file.close()
