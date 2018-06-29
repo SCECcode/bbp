@@ -245,15 +245,9 @@ class WccSiteamp(object):
         # 5) recombine HF and LF
 
         # Figure out vref to use in hybrid scenarios
-        if self.method == "SDSU" or self.method == "UCSB":
-            # For SDSU and UCSB we use whatever VREF was
-            # used to calculate the LF seismograms
-            vref = config.LF_VREF
-            vpga = config.HF_VREF
-        else:
-            vref = config.GEN_ROCK_VS
-            vpga = config.GEN_ROCK_VS
-
+        vref = config.LF_VREF
+        vpga = config.HF_VREF
+        
         # Figure out where the input seismogram is located
         if self.method == "SDSU" or self.method == "UCSB":
             bbpfile = os.path.join(a_tmpdir,

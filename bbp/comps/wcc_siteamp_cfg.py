@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -49,7 +49,10 @@ class WccSiteampCfg(object):
 
         if method.lower() == "ucsb":
             vmodel_params = vmodel_obj.get_codebase_params('ucsb')
+        elif method.lower() == "exsim":
+            vmodel_params = vmodel_obj.get_codebase_params('exsim')
         else:
+            # For now...
             vmodel_params = vmodel_obj.get_codebase_params('gp')
 
         # Read reference velocities for LF and HF components, use defaults
