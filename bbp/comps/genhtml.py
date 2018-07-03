@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Gen_HTML module for html and index generation
-$Id: genhtml.py 1719 2016-08-18 21:44:13Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -172,7 +182,6 @@ class GenHTML(object):
         # Get bias plots
         dist_lin_plot = glob.glob(os.path.join(a_outdir, "gof-dist-lin*.png"))
         dist_log_plot = glob.glob(os.path.join(a_outdir, "gof-dist-log*.png"))
-        plots = glob.glob(os.path.join(a_outdir, "gof*.png"))
         rd50plot = glob.glob(os.path.join(a_outdir, "gof*-rd50.png"))
         gmpegofplot = glob.glob(os.path.join(a_outdir, "gof*-GMPE-*.png"))
         mapgofplot = glob.glob(os.path.join(a_outdir, "gof-map-*.png"))
@@ -207,22 +216,9 @@ class GenHTML(object):
                 rd50plot = rd50plot[0]
             else:
                 rd50plot = ""
-        if len(plots) > 1:
-            rspplot = [plot for plot in plots if (plot != rd50plot and
-                                                  plot != gmpegofplot and
-                                                  plot != mapgofplot and
-                                                  plot != dist_lin_plot and
-                                                  plot != dist_log_plot)]
-            if len(rspplot) == 1:
-                rspplot = rspplot[0]
-            else:
-                rspplot = ""
-        else:
-            rspplot = ""
         gmpegofplot = os.path.basename(gmpegofplot)
         mapgofplot = os.path.basename(mapgofplot)
         rd50plot = os.path.basename(rd50plot)
-        rspplot = os.path.basename(rspplot)
         dist_lin_plot = os.path.basename(dist_lin_plot)
         dist_log_plot = os.path.basename(dist_log_plot)
 
@@ -234,19 +230,12 @@ class GenHTML(object):
                          (os.path.join(".", "%s" % (rd50plot)),
                           "PNG"))
             idxout.write("</tr>\n")
+        # Add RotD50 map plot
         if mapgofplot:
             idxout.write("<tr>\n")
             idxout.write("<td>RotD50 Map GOF Plot</td>\n")
             idxout.write('<td><a href="%s">%s</a></td>\n' %
                          (os.path.join(".", "%s" % (mapgofplot)),
-                          "PNG"))
-            idxout.write("</tr>\n")
-        # Add RSP bias plot
-        if rspplot:
-            idxout.write("<tr>\n")
-            idxout.write("<td>Respect Bias Plot</td>\n")
-            idxout.write('<td><a href="%s">%s</a></td>\n' %
-                         (os.path.join(".", "%s" % (rspplot)),
                           "PNG"))
             idxout.write("</tr>\n")
         # Add the GMPE bias plot
@@ -300,7 +289,7 @@ class GenHTML(object):
             idxout.write("<td>Rupture file</td>\n")
             idxout.write('<td><a href="%s">%s</a></td>\n' %
                          (os.path.join(".", srffile),
-                          "data"))
+                          "SRF"))
             if srfplot:
                 idxout.write('<td><a href="%s">%s</a></td>\n' %
                              (os.path.join(".", srfplot),
@@ -314,13 +303,18 @@ class GenHTML(object):
             idxout.write("<p>\n")
             idxout.write("<h2>%s</h2>\n" % (site))
             idxout.write("<table>\n")
+
             # Find all files
             velfile = "%d.%s.vel.bbp" % (sim_id, site)
             velplot = "%d.%s_velocity_seis.png" % (sim_id, site)
             accfile = "%d.%s.acc.bbp" % (sim_id, site)
             accplot = "%d.%s_acceleration_seis.png" % (sim_id, site)
             rd50file = "%d.%s.rd50" % (sim_id, site)
-            rspfile = "%d.%s.rsp" % (sim_id, site)
+            rd100file = "%d.%s.rd100" % (sim_id, site)
+            rd50file_vertical = "%d.%s.rd50.vertical" % (sim_id, site)
+            rd100file_vertical = "%d.%s.rd100.vertical" % (sim_id, site)
+
+            # RotD50 Plot
             rd50plot = glob.glob(os.path.join(a_outdir,
                                               "*_%d_%s_rotd50.png" %
                                               (sim_id, site)))
@@ -328,13 +322,8 @@ class GenHTML(object):
                 rd50plot = os.path.basename(rd50plot[0])
             else:
                 rd50plot = ""
-            rspplot = glob.glob(os.path.join(a_outdir,
-                                             "*_%d_%s_rsp.png" %
-                                             (sim_id, site)))
-            if len(rspplot) == 1:
-                rspplot = os.path.basename(rspplot[0])
-            else:
-                rspplot = ""
+
+            # Overlay Plot
             overlayfile = glob.glob(os.path.join(a_outdir,
                                                  "*_%d_%s_overlay.png" %
                                                  (sim_id, site)))
@@ -342,6 +331,8 @@ class GenHTML(object):
                 overlayfile = os.path.basename(overlayfile[0])
             else:
                 overlayfile = ""
+
+            # GMPE Plot
             gmpeplot = glob.glob(os.path.join(a_outdir,
                                               "*_%d_%s_gmpe.png" %
                                               (sim_id, site)))
@@ -377,22 +368,26 @@ class GenHTML(object):
                 idxout.write("<td>RotD50</td>\n")
                 idxout.write('<td><a href="%s">%s</a></td>\n' %
                              (os.path.join(".", rd50file),
-                              "data"))
+                              "HOR"))
+                if os.path.exists(os.path.join(a_outdir, rd50file_vertical)):
+                    idxout.write('<td><a href="%s">%s</a></td>\n' %
+                                 (os.path.join(".", rd50file_vertical),
+                                  "VER"))
                 if rd50plot:
                     idxout.write('<td><a href="%s">%s</a></td>\n' %
                                  (os.path.join(".", rd50plot),
                                   "PNG"))
                 idxout.write("</tr>\n")
-            if os.path.exists(os.path.join(a_outdir, rspfile)):
+            if os.path.exists(os.path.join(a_outdir, rd100file)):
                 idxout.write("<tr>\n")
-                idxout.write("<td>Respect</td>\n")
+                idxout.write("<td>RotD100</td>\n")
                 idxout.write('<td><a href="%s">%s</a></td>\n' %
-                             (os.path.join(".", rspfile),
-                              "data"))
-                if rspplot:
+                             (os.path.join(".", rd100file),
+                              "HOR"))
+                if os.path.exists(os.path.join(a_outdir, rd100file_vertical)):
                     idxout.write('<td><a href="%s">%s</a></td>\n' %
-                                 (os.path.join(".", rspplot),
-                                  "PNG"))
+                                 (os.path.join(".", rd100file_vertical),
+                                  "VER"))
                 idxout.write("</tr>\n")
             if overlayfile:
                 idxout.write("<tr>\n")
@@ -424,4 +419,3 @@ if __name__ == "__main__":
                  sys.argv[4], sys.argv[5],
                  sim_id=int(sys.argv[6]))
     ME.run()
-    sys.exit(0)
