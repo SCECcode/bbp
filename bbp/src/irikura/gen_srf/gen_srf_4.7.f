@@ -451,7 +451,7 @@ c        write(13,*)xx,yy,z,(i-1)*dx, -(j-1)*dy,slip1,stim
 
 200     format(1x,f11.6,1x,f11.6,1x,e12.5,2(1x,i3),1x,
      + e13.5,1x,f8.4,3(1x,e12.5))
-202     format(i3,3(1x,f10.4,i5))
+202     format(i4,3(1x,f10.4,i5))
 300     format(f8.2,3(e13.5,i8))
 400     format(6e13.5)
         end
