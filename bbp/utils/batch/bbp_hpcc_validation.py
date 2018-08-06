@@ -37,8 +37,8 @@ BATCH_SIM_FILE = "batch_run_bbp_sims.log"
 CORES_PER_NODE = 16
 CORES_PER_NODE_NEW = 16
 MAX_SIMULATIONS = 200
-CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura"]
-CODEBASES_SITE = ["gp", "sdsu", "song", "irikura", "exsim", "ucsb"]
+CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura1", "irikura2"]
+CODEBASES_SITE = ["gp", "sdsu", "song", "irikura1", "irikura2", "exsim", "ucsb"]
 CODEBASES_SRF = ["gp", "sdsu", "song", "ucsb"]
 
 def generate_src_files(numsim, source_file, srcdir,

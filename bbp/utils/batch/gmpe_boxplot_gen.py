@@ -38,7 +38,8 @@ import plot_config
 # --------------------------------------------------------------------------
 # Some constants
 # --------------------------------------------------------------------------
-CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "irikura_recipe_m1", "song"]
+CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm",
+             "irikura_recipe_m1", "irikura_recipe_m2", "song"]
 ALL_PERIODS = [0.010, 0.011, 0.012, 0.013, 0.015, 0.017, 0.020, 0.022, 0.025,
                0.029, 0.032, 0.035, 0.040, 0.045, 0.050, 0.055, 0.060, 0.065,
                0.075, 0.085, 0.100, 0.110, 0.120, 0.130, 0.150, 0.170, 0.200,
@@ -957,6 +958,8 @@ def create_plot(codebase, mag, vel, model, dist, mech, sim_data, output_file):
         method_name = "CSM"
     elif codebase == 'irikura_recipe_m1':
         method_name = "Irikura Recipe M1"
+    elif codebase == 'irikura_recipe_m2':
+        method_name = "Irikura Recipe M2"
     elif codebase == 'song':
         method_name = "Song"
     else:
