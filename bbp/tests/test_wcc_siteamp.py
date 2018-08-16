@@ -35,7 +35,7 @@ class TestWccSiteamp(unittest.TestCase):
 
     def setUp(self):
         self.install = InstallCfg()
-        self.wcc_siteamp_cfg = WccSiteampCfg()
+        self.wcc_siteamp_cfg = WccSiteampCfg("LABasin863", "GP")
         os.chdir(self.install.A_INSTALL_ROOT)
         self.stations = "test_stat.txt"
         self.sim_id = int(seqnum.get_seq_num())
@@ -65,7 +65,8 @@ class TestWccSiteamp(unittest.TestCase):
         """
         Test GP site response module
         """
-        wcc_obj = WccSiteamp(self.stations, "GP", sim_id=self.sim_id)
+        wcc_obj = WccSiteamp(self.stations, "GP",
+                             "LABasin863", sim_id=self.sim_id)
         wcc_obj.run()
         freqs = ['lf', 'hf']
 
