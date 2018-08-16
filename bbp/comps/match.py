@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,12 +37,11 @@ class Match(object):
     """
 
     def __init__(self, i_r_stations, i_vmodel_name, sim_id=0,
-                 acc=True, using_3d=False, pow2=False):
+                 acc=True, pow2=False):
         self.sim_id = sim_id
         self.r_stations = i_r_stations
         self.vmodel_name = i_vmodel_name
         self.acc = acc
-        self.using_3d = using_3d
         self.pow2 = pow2
         self.phase = None
         self.hf_fhi = None
@@ -116,9 +115,11 @@ class Match(object):
             seis_ext = '.acc.bbp'
         else:
             seis_ext = '.bbp'
-        lf_seis = None
 
-        # Find one LF seismogram
+        lf_seis = None
+        hf_seis = None
+
+        # Find one LF seismogram and one HF seismogram
         for sites in site_list:
             site = sites.scode
             if os.path.exists(os.path.join(a_tmpdir,
@@ -129,13 +130,23 @@ class Match(object):
                                        "%d.%s-lf%s" %
                                        (sim_id, site,
                                         seis_ext))
-                break
+                if os.path.exists(os.path.join(a_tmpdir,
+                                               "%d.%s-hf%s" %
+                                               (sim_id, site,
+                                                seis_ext))):
+                    hf_seis = os.path.join(a_tmpdir,
+                                           "%d.%s-hf%s" %
+                                           (sim_id, site,
+                                            seis_ext))
+                    break
 
-        # Need one file
+        # Need one of each
         if lf_seis is None:
             raise bband_utils.ParameterError("Cannot find a LF seismogram")
+        if hf_seis is None:
+            raise bband_utils.ParameterError("Cannot find a HF seismogram")
 
-        # Pick DT from this file
+        # Pick DT from these files
         lf_dt = None
         lf_file = open(lf_seis)
         for line in lf_file:
@@ -155,22 +166,31 @@ class Match(object):
         if lf_dt is None:
             raise bband_utils.ParameterError("Cannot find LF_DT!")
 
-        # lf_dt *should* match the gf_dt used by jbsim
-        #if not 'GF_DT' in vmodel_params:
-        #    raise bband_utils.ParameterError("Cannot find GF_DT parameter in "
-        #                                     "velocity model: %s" %
-        #                                     (self.vmodel_name))
+        hf_dt = None
+        hf_file = open(hf_seis)
+        for line in hf_file:
+            line = line.strip()
+            if line.startswith("#") or line.startswith("%"):
+                continue
+            # Got to first timestamp. Now, pick two consecutive
+            # timestamps values
+            hf_t1 = float(line.strip().split()[0])
+            hf_t2 = float(hf_file.next().strip().split()[0])
+            # Subtract the two times
+            hf_dt = hf_t2 - hf_t1
+            # All done!
+            break
+        hf_file.close()
+
+        if hf_dt is None:
+            raise bband_utils.ParameterError("Cannot find HF_DT!")
+
         # In the GP method, we can potentially have two independent DT
         # values, one used by the rupture generator and the
         # low-frequency jbsim seismogram simulator, and another value
         # used by the high-frequency hfsims program. We have to use
         # the smaller of these two values in order to properly combine
         # the low-, and high-frequency seismograms.
-        #gf_dt = float(vmodel_params['GF_DT'])
-        if 'HF_DT' in vmodel_params:
-            hf_dt = float(vmodel_params['HF_DT'])
-        else:
-            hf_dt = config.NEW_HFDT
 
         new_dt = min(lf_dt, hf_dt)
 
@@ -500,18 +520,17 @@ class Match(object):
                 # Pre-filter and resample LF file
                 #
                 shutil.copy2(infile, "%s.prefilter" % infile)
-                if not self.using_3d:
-                    progstring = ("%s " %
-                                  (os.path.join(install.A_GP_BIN_DIR,
-                                                "wcc_tfilter")) +
-                                  "filelist=%s order=%d fhi=%f flo=%s " %
-                                  (listfile, config.LF_ORD, config.LF_FHI,
-                                   self.lf_flo) +
-                                  "inbin=0 outbin=0 phase=%d " %
-                                  (self.phase) +
-                                  "outpath=%s >> %s 2>&1 " %
-                                  (a_tmpdir, self.log))
-                    bband_utils.runprog(progstring, print_cmd=False)
+                progstring = ("%s " %
+                              (os.path.join(install.A_GP_BIN_DIR,
+                                            "wcc_tfilter")) +
+                              "filelist=%s order=%d fhi=%f flo=%s " %
+                              (listfile, config.LF_ORD, config.LF_FHI,
+                               self.lf_flo) +
+                              "inbin=0 outbin=0 phase=%d " %
+                              (self.phase) +
+                              "outpath=%s >> %s 2>&1 " %
+                              (a_tmpdir, self.log))
+                bband_utils.runprog(progstring, print_cmd=False)
 
                 outfile = os.path.join(a_tmpdir, "%d.%s-lf-resamp.%s" %
                                        (sim_id, site, compo))
@@ -672,4 +691,3 @@ if __name__ == "__main__":
     print("Testing Module: %s" % os.path.basename((sys.argv[0])))
     ME = Match(sys.argv[1], sys.argv[2], int(sys.argv[3]), acc=False)
     ME.run()
-    sys.exit(0)
