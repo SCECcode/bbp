@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import shutil
 from genslip import Genslip
 from ucrmg import UCrmg
 from jbsim import Jbsim
-from lf_seismograms import LFSeismograms
 from hfsims import Hfsims
 from syn1D import Syn1D
 from uc_stitch import UCStitch
@@ -56,6 +55,7 @@ from rzz2015_gmpe import RZZ2015GMPE
 from rotd100 import RotD100
 from anderson_gof import AndersonGOF
 from irikura_gen_srf import IrikuraGenSrf
+#from irikura_hf import IrikuraHF
 
 class Module(object):
     def __init__(self):

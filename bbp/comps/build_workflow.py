@@ -32,21 +32,6 @@ import velocity_models
 from module import Module
 from install_cfg import InstallCfg
 
-#
-# Workflow consists of the following components:
-# 1) Rupture generator - optional - GP or UCSB
-#	a) Needs general fault description
-#	b) Otherwise, must point to SRF file
-# 2) Low frequency - GP, UCSB
-# 3) High frequency - GP, UCSB, SDSU
-# 4) Site response - GP, UCSB, SDSU
-# 5) Merge (if necessary)
-# 6) Map and Seismogram Plotting
-# 7) Sa calculation (RotD50 code)
-# 8) FAS Calculation (smc2fs2 code)
-# 9) Goodness of Fit, if requested
-#
-
 class ConfigurationError(Exception):
     """
     Exception used to indicate that a configuration error was detected
@@ -78,7 +63,6 @@ class WorkflowBuilder(object):
         self.vmodel_obj = None
         self.val_obj = None
         self.stations = None
-        self.supplied_seis = False
         self.method = None
         self.gp_lf_vel_file = None
         self.gp_hf_vel_file = None
@@ -107,7 +91,8 @@ class WorkflowBuilder(object):
                                    "(5) CSM (Composite Source Model)"
                                    " - Beta Version\n"
                                    "(6) Song\n"
-                                   "(7) Irikura Recipe Method 1\n"
+                                   "(7) Irikura Recipe Method 1 (Irikura1)\n"
+                                   # "(8) Irikura Recipe Method 2 (Irikura2)\n"
                                    "? ")
             if (method == '1' or method.lower() == "graves & pitarka" or
                 method.lower() == "gp"):
@@ -123,65 +108,10 @@ class WorkflowBuilder(object):
             elif (method == "6" or method.lower() == "song" or
                   method.lower() == "rmg"):
                 return "SONG"
-            elif method == "7" or method.lower() == "irikura":
-                return "IRIKURA"
-            else:
-                print("%s is not a valid choice for method!\n" % (method))
-                if self.opt_obj is not None:
-                    sys.exit(1)
-
-    def select_simulation_method_expert_mode(self, sim_type):
-        """
-        This function asks the user what method he/she wants to use
-        """
-        while True:
-            if self.opt_obj is not None:
-                method = self.opt_obj.get_next_option()
-            else:
-                # Print header information about method selection
-                print("=" * 80)
-                print()
-                print("The Broadband Platform includes several scientific"
-                      " methods that can be used to calculate synthetic"
-                      " seismograms.")
-                print()
-                method = raw_input("Choose a Method to use in this "
-                                   "Broadband %s simulation:\n" % (sim_type) +
-                                   "(1) GP (Graves & Pitarka)\n"
-                                   "(2) GP Seis (using precomp seismograms)\n"
-                                   "(3) UCSB\n"
-                                   "(4) SDSU\n"
-                                   "(5) SDSU Seis (using precomp seismograms)\n"
-                                   "(6) EXSIM\n"
-                                   "(7) CSM (Composite Source Model)"
-                                   " - Beta Version\n"
-                                   "(8) Song\n"
-                                   "(9) Irikura Recipe Method 1\n"
-                                   "? ")
-            if (method == '1' or method.lower() == "graves & pitarka" or
-                method.lower() == "gp"):
-                return "GP"
-            elif (method == '2' or method.lower() == "gp seis" or
-                  method.lower() == "gp precomp seismograms" or
-                  method.lower() == "gp precomputed seismograms"):
-                return "GPSeis"
-            elif method == '3' or method.lower() == "ucsb":
-                return "UCSB"
-            elif method == '4' or method.lower() == "sdsu":
-                return "SDSU"
-            elif (method == '5' or method.lower() == "sdsu seis" or
-                  method.lower() == "sdsu precomp seismograms" or
-                  method.lower() == "sdsu seismograms"):
-                return "SDSUSeis"
-            elif method == '6' or method.lower() == "exsim":
-                return "EXSIM"
-            elif method == '7' or method.lower() == "csm":
-                return "CSM"
-            elif (method == "8" or method.lower() == "song" or
-                  method.lower() == "rmg"):
-                return "SONG"
-            elif method == '9' or method.lower() == "irikura":
-                return "IRIKURA"
+            elif method == "7" or method.lower() == "irikura1":
+                return "IRIKURA1"
+            elif  method == "8" or method.lower() == "irikura2":
+                return "IRIKURA2"
             else:
                 print("%s is not a valid choice for method!\n" % (method))
                 if self.opt_obj is not None:
@@ -291,14 +221,9 @@ class WorkflowBuilder(object):
                     break
                 elif (user_src_file.lower() == 'n' or
                       user_src_file.lower() == 'no'):
-                    src_method = self.method
-                    if src_method == "SDSUSeis":
-                        src_method = "SDSU"
-                    if src_method == "GPSeis":
-                        src_method = "GP"
                     # The src_file is provided as a "source" parameter
                     # to the selected rupture generator codebase
-                    self.src_file = self.get_validation_source_file(src_method)
+                    self.src_file = self.get_validation_source_file(self.method)
                     print('=' * 80)
                     print("SRC file: %s" % (self.src_file))
                     break
@@ -357,21 +282,21 @@ class WorkflowBuilder(object):
         # List of velocity models to check for...
         need_vm = []
 
-        if self.method == "GP" or self.method == "GPSeis":
+        if self.method == "GP":
             need_vm = ["GP"]
         elif self.method == "UCSB":
             need_vm = ["UCSB"]
         elif self.method == "SDSU":
             need_vm = ["GP", "SDSU"]
-        elif self.method == "SDSUSeis":
-            need_vm = ["SDSU"]
         elif self.method == "EXSIM":
             need_vm = []
         elif self.method == "CSM":
             need_vm = ["CSM"]
         elif self.method == "SONG":
             need_vm = ["GP"]
-        elif self.method == "IRIKURA":
+        elif self.method == "IRIKURA1":
+            need_vm = ["GP"]
+        elif self.method == "IRIKURA2":
             need_vm = ["GP"]
         else:
             raise ConfigurationError("Method %s not supported in the Platform" %
@@ -413,40 +338,27 @@ class WorkflowBuilder(object):
                   "using GP_VELMODEL instead...")
             self.gp_hf_vel_file = self.vel_file
 
-        # Set the supplied_seis flag if needed
-        if self.method == "GPSeis":
-            self.supplied_seis = True
-
         # Low Frequency GP module
         lf_module = Module()
-        if self.supplied_seis:
-            lf_module.setName("LFSeismograms")
-            seis_dir = self.select_lf_seismograms()
-            lf_module.addArg(seis_dir)
-            lf_module.addStageFile(self.stations)
-            lf_module.addArg(os.path.basename(self.stations))
-            self.src_file = self.get_validation_source_file("GP")
-        else:
-            lf_module.setName("Jbsim")
-            if self.validation:
-                if not gen_srf:
-                    self.srf_file = self.val_obj.get_input(self.method,
-                                                           "srf")
-                    if not self.srf_file:
-                        self.srf_file = self.get_input_file("SRF", "srf")
-            lf_module.addStageFile(self.gp_lf_vel_file)
-            lf_module.addArg(os.path.basename(self.gp_lf_vel_file))
-            if self.src_file is not None and self.src_file != "":
-                # we supplied a source file, so stage it
-                lf_module.addStageFile(self.src_file)
+        lf_module.setName("Jbsim")
+        if self.validation:
             if not gen_srf:
-                # not generating an SRF, so we stage it
-                lf_module.addStageFile(self.srf_file)
-            lf_module.addArg(os.path.basename(self.src_file))
-            lf_module.addArg(os.path.basename(self.srf_file))
-            lf_module.addStageFile(self.stations)
-            lf_module.addArg(os.path.basename(self.stations))
-            lf_module.addArg(self.vmodel_name)
+                self.srf_file = self.val_obj.get_input(self.method, "srf")
+                if not self.srf_file:
+                    self.srf_file = self.get_input_file("SRF", "srf")
+        lf_module.addStageFile(self.gp_lf_vel_file)
+        lf_module.addArg(os.path.basename(self.gp_lf_vel_file))
+        if self.src_file is not None and self.src_file != "":
+            # we supplied a source file, so stage it
+            lf_module.addStageFile(self.src_file)
+        if not gen_srf:
+            # not generating an SRF, so we stage it
+            lf_module.addStageFile(self.srf_file)
+        lf_module.addArg(os.path.basename(self.src_file))
+        lf_module.addArg(os.path.basename(self.srf_file))
+        lf_module.addStageFile(self.stations)
+        lf_module.addArg(os.path.basename(self.stations))
+        lf_module.addArg(self.vmodel_name)
         self.workflow.append(lf_module)
 
         # High Frequency GP module
@@ -579,45 +491,28 @@ class WorkflowBuilder(object):
         """
         This function creates a workflow for the SDSU method
         """
-        # Set the supplied_seis flag if needed
-        if self.method == "SDSUSeis":
-            self.supplied_seis = True
-
         lf_module = Module()
-        if self.supplied_seis:
-            lf_module.setName("LFSeismograms")
-            seis_dir = self.select_lf_seismograms()
+        lf_module.setName("Jbsim")
+        if self.validation:
             if not gen_srf:
-                self.srf_file = self.val_obj.get_input("GP", 'SRF')
-                if self.srf_file is None:
-                    raise ConfigurationError("SRF parameter is missing"
-                                             " from codebase GP!")
-            self.src_file = self.get_validation_source_file("SDSU")
-            lf_module.addArg(seis_dir)
-            lf_module.addStageFile(self.stations)
-            lf_module.addArg(os.path.basename(self.stations))
-        else:
-            lf_module.setName("Jbsim")
-            if self.validation:
-                if not gen_srf:
-                    self.srf_file = self.val_obj.get_input("GP", "srf")
-                    if not self.srf_file:
-                        self.srf_file = self.get_input_file("SRF", "srf")
-            # Select velocity model for GP method for now
-            self.vel_file = self.vmodel_obj.get_velocity_model("GP")
-            lf_module.addStageFile(self.vel_file)
-            lf_module.addArg(os.path.basename(self.vel_file))
-            if self.src_file is not None and self.src_file != "":
-                # we supplied a source file, so stage it
-                lf_module.addStageFile(self.src_file)
-            if not gen_srf:
-                # not generating an SRF, so we stage it
-                lf_module.addStageFile(self.srf_file)
-            lf_module.addArg(os.path.basename(self.src_file))
-            lf_module.addArg(os.path.basename(self.srf_file))
-            lf_module.addStageFile(self.stations)
-            lf_module.addArg(os.path.basename(self.stations))
-            lf_module.addArg(self.vmodel_name)
+                self.srf_file = self.val_obj.get_input("GP", "srf")
+                if not self.srf_file:
+                    self.srf_file = self.get_input_file("SRF", "srf")
+        # Select velocity model for GP method for now
+        self.vel_file = self.vmodel_obj.get_velocity_model("GP")
+        lf_module.addStageFile(self.vel_file)
+        lf_module.addArg(os.path.basename(self.vel_file))
+        if self.src_file is not None and self.src_file != "":
+            # we supplied a source file, so stage it
+            lf_module.addStageFile(self.src_file)
+        if not gen_srf:
+            # not generating an SRF, so we stage it
+            lf_module.addStageFile(self.srf_file)
+        lf_module.addArg(os.path.basename(self.src_file))
+        lf_module.addArg(os.path.basename(self.srf_file))
+        lf_module.addStageFile(self.stations)
+        lf_module.addArg(os.path.basename(self.stations))
+        lf_module.addArg(self.vmodel_name)
         self.workflow.append(lf_module)
 
         # Select velocity model for SDSU method
@@ -644,11 +539,7 @@ class WorkflowBuilder(object):
                 # pick up srf_file from the validation
                 # configuration
                 if not self.srf_file:
-                    if not self.supplied_seis:
-                        self.srf_file = self.val_obj.get_input("GP", "srf")
-                    else:
-                        # self.srf_file is already set about 70 lines above
-                        pass
+                    self.srf_file = self.val_obj.get_input("GP", "srf")
         if self.src_file is not None and self.src_file != "":
             hf_module.addStageFile(self.src_file)
         if not gen_srf and self.srf_file is not None and self.srf_file != "":
@@ -781,17 +672,122 @@ class WorkflowBuilder(object):
                                      self.val_obj.get_validation_name())
         self.workflow.append(csm_module)
 
+    def run_irikura2_method(self, gen_srf):
+        """
+        This function creates a workflow for the Irikura Recipe Method 2
+        method
+        """
+        # Select velocity models for GP method
+        self.vel_file = self.vmodel_obj.get_velocity_model("GP")
+        vmodel_params = self.vmodel_obj.get_codebase_params('gp')
+        vmodel_base_dir = self.vmodel_obj.base_dir
+        if 'LF_VELMODEL' in vmodel_params:
+            self.gp_lf_vel_file = os.path.join(vmodel_base_dir,
+                                               vmodel_params['LF_VELMODEL'])
+        else:
+            print("Warning: Cannot find LF_VELMODEL parameter, "
+                  "using GP_VELMODEL instead...")
+            self.gp_lf_vel_file = self.vel_file
+        if 'HF_VELMODEL' in vmodel_params:
+            self.gp_hf_vel_file = os.path.join(vmodel_base_dir,
+                                               vmodel_params['HF_VELMODEL'])
+        else:
+            print("Warning: Cannot find HF_VELMODEL parameter, "
+                  "using GP_VELMODEL instead...")
+            self.gp_hf_vel_file = self.vel_file
+
+        # Low Frequency GP module
+        lf_module = Module()
+        lf_module.setName("Jbsim")
+        if self.validation:
+            if not gen_srf:
+                self.srf_file = self.val_obj.get_input(self.method,
+                                                       "srf")
+                if not self.srf_file:
+                    self.srf_file = self.get_input_file("SRF", "srf")
+        lf_module.addStageFile(self.gp_lf_vel_file)
+        lf_module.addArg(os.path.basename(self.gp_lf_vel_file))
+        if self.src_file is not None and self.src_file != "":
+            # we supplied a source file, so stage it
+            lf_module.addStageFile(self.src_file)
+        if not gen_srf:
+            # not generating an SRF, so we stage it
+            lf_module.addStageFile(self.srf_file)
+        lf_module.addArg(os.path.basename(self.src_file))
+        lf_module.addArg(os.path.basename(self.srf_file))
+        lf_module.addStageFile(self.stations)
+        lf_module.addArg(os.path.basename(self.stations))
+        lf_module.addArg(self.vmodel_name)
+        self.workflow.append(lf_module)
+
+        # High Frequency GP module
+        hf_module = Module()
+        hf_module.setName("IrikuraHF")
+        if self.src_file is not None and self.src_file != "":
+            hf_module.addStageFile(self.src_file)
+        hf_module.addArg(os.path.basename(self.src_file))
+        if self.validation:
+            if not gen_srf:
+                # If we are not running the rupture generator,
+                # pick up srf_file from the validation
+                # configuration
+                if not self.srf_file:
+                    self.srf_file = self.val_obj.get_input("GP", "srf")
+            hf_module.addKeywordArg("val_name",
+                                    self.val_obj.get_validation_name())
+        if not gen_srf and self.srf_file is not None and self.srf_file != "":
+            hf_module.addStageFile(self.srf_file)
+        hf_module.addArg(os.path.basename(self.srf_file))
+        hf_module.addStageFile(self.gp_hf_vel_file)
+        hf_module.addArg(os.path.basename(self.gp_hf_vel_file))
+        hf_module.addStageFile(self.stations)
+        hf_module.addArg(os.path.basename(self.stations))
+        hf_module.addArg(self.vmodel_name)
+        self.workflow.append(hf_module)
+
+        # Site response module
+        if self.expert_mode:
+            run_site_resp = self.select_site_response()
+        else:
+            run_site_resp = False
+        if run_site_resp:
+            site_module = Module()
+            site_module.setName("WccSiteamp")
+            site_module.addStageFile(self.stations)
+            site_module.addArg(os.path.basename(self.stations))
+            site_module.addArg("IRIKURA2")
+            site_module.addArg(self.vmodel_name)
+            self.workflow.append(site_module)
+
+            # And then, add the Match module
+            merge_module = Module()
+            merge_module.setName("Match")
+            merge_module.addStageFile(self.stations)
+            merge_module.addArg(os.path.basename(self.stations))
+            merge_module.addArg(self.vmodel_name)
+            merge_module.addKeywordArg('acc', True)
+            self.workflow.append(merge_module)
+        else:
+            # Not running site response
+            merge_module = Module()
+            merge_module.setName("Match")
+            merge_module.addStageFile(self.stations)
+            merge_module.addArg(os.path.basename(self.stations))
+            merge_module.addArg(self.vmodel_name)
+            merge_module.addKeywordArg('acc', False)
+            self.workflow.append(merge_module)
+
     def make_choices(self, gen_srf):
         """
         This function calls a method-specific function, then adds the
         common processing modules used in the Broadband Platform
         """
         # Fist, call the method-specific function
-        if self.method == "GP" or self.method == "GPSeis":
+        if self.method == "GP":
             self.run_gp_method(gen_srf)
         elif self.method == "UCSB":
             self.run_ucsb_method(gen_srf)
-        elif self.method == "SDSU" or self.method == "SDSUSeis":
+        elif self.method == "SDSU":
             self.run_sdsu_method(gen_srf)
         elif self.method == "EXSIM":
             self.run_exsim_method()
@@ -799,8 +795,10 @@ class WorkflowBuilder(object):
             self.run_csm_method()
         elif self.method == "SONG":
             self.run_gp_method(gen_srf)
-        elif self.method == "IRIKURA":
+        elif self.method == "IRIKURA1":
             self.run_gp_method(gen_srf)
+        elif self.method == "IRIKURA2":
+            self.run_irikura2_method(gen_srf)
         else:
             raise ConfigurationError("Method %s not supported in the Platform" %
                                      (self.method))
@@ -939,7 +937,6 @@ class WorkflowBuilder(object):
             gmpe_module.addStageFile(self.stations)
             gmpe_module.addArg(os.path.basename(self.stations))
             gmpe_module.addArg(self.val_obj.get_obs_format())
-            gmpe_module.addArg(self.val_obj.get_magnitude())
             gmpe_module.addArg(self.val_obj.get_validation_name())
             gmpe_module.addArg(gmpe_group_name)
             self.workflow.append(gmpe_module)
@@ -1598,49 +1595,6 @@ class WorkflowBuilder(object):
                     sys.exit(1)
         return choice_str
 
-    def select_lf_seismograms(self):
-        """
-        This function asks the user to select LF seismograms
-        """
-        if self.validation:
-            seis_dir = self.val_obj.get_input("GP", 'LF')
-            if seis_dir is None:
-                lf_seismograms = self.get_input_directory("LF precomputed seismograms")
-            else:
-                while True:
-                    if self.opt_obj is not None:
-                        user_seismograms = self.opt_obj.get_next_option()
-                    else:
-                        print("=" * 80)
-                        print()
-                        print("The validation packages includes a default"
-                              " set of LF seismograms for this event.")
-                        print()
-                        user_seismograms = raw_input("Would you like to use "
-                                                     "the LF seismograms "
-                                                     "in %s (y/n)? " %
-                                                     seis_dir)
-                    if (user_seismograms.lower() == 'y' or
-                        user_seismograms.lower() == 'yes'):
-                        lf_seismograms = seis_dir
-                        break
-                    elif (user_seismograms.lower() == 'n' or
-                          user_seismograms.lower() == 'no'):
-                        lf_seismograms = self.get_input_directory("LF "
-                                                                  "precomputed "
-                                                                  "seismograms")
-                        break
-                    else:
-                        print("Invalid choise for user seismograms: %s" %
-                              (user_seismograms))
-                        if self.opt_obj is not None:
-                            sys.exit(1)
-        else:
-            lf_seismograms = self.get_input_directory("LF precomputed seismograms")
-
-        # All done!
-        return lf_seismograms
-
     def select_velocity_model(self):
         """
         This function prompts the user to select a velocity model
@@ -1796,9 +1750,7 @@ class WorkflowBuilder(object):
             if rup_gen.lower() == 'y' or rup_gen.lower() == 'yes':
                 rupture_module = Module()
                 if (self.method == "GP" or
-                    self.method == "GPSeis" or
-                    self.method == "SDSU" or
-                    self.method == "SDSUSeis"):
+                    self.method == "SDSU"):
                     # add GP rupture generator
                     rupture_module.setName("Genslip")
                     codebase = "GP"
@@ -1806,7 +1758,8 @@ class WorkflowBuilder(object):
                     # add Song (RMG) rupture generator
                     rupture_module.setName("RMG")
                     codebase = "GP"
-                elif self.method == "IRIKURA":
+                elif (self.method == "IRIKURA1" or
+                      self.method == "IRIKURA2"):
                     # add Irikura rupture generator
                     rupture_module.setName("IrikuraGenSrf")
                     codebase = "GP"
@@ -1830,14 +1783,6 @@ class WorkflowBuilder(object):
                 return True
 
             elif rup_gen.lower() == 'n' or rup_gen.lower() == 'no':
-
-                if self.method == "GPSeis" or self.method == "SDSUSeis":
-                    # These methods do not require a rupture generator and do
-                    # not need a source_file (for SDSUSeis, one should be
-                    # configured in SDSU_SRC and will be picked up later in
-                    # the run_sdsu_method function).
-                    return False
-
                 if not self.validation:
                     # Then we need a srf file
                     self.srf_file = self.get_input_file("SRF", ".srf")
@@ -1859,10 +1804,7 @@ class WorkflowBuilder(object):
         self.vmodel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
 
         # Select method
-        if self.expert_mode:
-            self.method = self.select_simulation_method_expert_mode("scenario")
-        else:
-            self.method = self.select_simulation_method("scenario")
+        self.method = self.select_simulation_method("scenario")
 
         # Check for the needed velocity model(s)
         self.check_velocity_models()
@@ -1974,10 +1916,7 @@ class WorkflowBuilder(object):
         self.vmodel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
 
         # Select method
-        if self.expert_mode:
-            self.method = self.select_simulation_method_expert_mode("validation")
-        else:
-            self.method = self.select_simulation_method("validation")
+        self.method = self.select_simulation_method("validation")
 
         # Check for the needed velocity model(s)
         self.check_velocity_models()
@@ -2004,11 +1943,7 @@ class WorkflowBuilder(object):
                                      "   (2) provide a custom list with "
                                      "a subset of the stations\n? ")
             if stat_opt == "1":
-                stations = None
-                if self.method == "GPSeis" or self.method == "SDSUSeis":
-                    stations = self.val_obj.get_input("GP", "seis_stations")
-                if stations is None:
-                    stations = self.val_obj.get_input("GP", "stations")
+                stations = self.val_obj.get_input("GP", "stations")
                 if stations is None:
                     raise ConfigurationError("Missing stations parameter "
                                              "for the %s validation!" %
