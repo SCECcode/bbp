@@ -194,7 +194,7 @@ def create_resid_data_file(comp_label, input_indir, input_obsdir,
 
     # Get source file
     a_srcfile = glob.glob("%s%s*.src" % (basedir, os.sep))
-    if len(a_srcfile) != 1:
+    if len(a_srcfile) == 0:
         raise bband_utils.ProcessingError("Cannot get src file!")
     a_srcfile = a_srcfile[0]
 
