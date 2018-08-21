@@ -51,6 +51,8 @@ class WccSiteampCfg(object):
             vmodel_params = vmodel_obj.get_codebase_params('ucsb')
         elif method.lower() == "exsim":
             vmodel_params = vmodel_obj.get_codebase_params('exsim')
+        elif method.lower() == "sdsu":
+            vmodel_params = vmodel_obj.get_codebase_params('sdsu')
         else:
             # For now...
             vmodel_params = vmodel_obj.get_codebase_params('gp')
