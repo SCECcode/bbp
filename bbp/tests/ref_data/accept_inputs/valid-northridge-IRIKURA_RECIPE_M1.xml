@@ -1,23 +1,23 @@
 	<BBP_Run_Specification>
-		<Validation_Run event="Northridge" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.2.0"/>
+		<Validation_Run event="Northridge" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.3.0"/>
 		<BBP_Modules>
 			<BBP_Module>
-				<name>Irikura</name>
+				<name>IrikuraGenSrf</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
 					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">nr_v14_02_1.srf</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Jbsim</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
 					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -26,13 +26,13 @@
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">nr_v14_02_1.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Hfsims</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
 					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -41,7 +41,7 @@
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">nr_v14_02_1.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 				<keyword_arguments>
 					<keyword_argument keyword="val_name" type="str">Northridge</keyword_argument>
@@ -54,7 +54,7 @@
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 				<keyword_arguments>
 					<keyword_argument keyword="acc" type="bool">False</keyword_argument>
@@ -85,7 +85,7 @@
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
-				<name>RotD50</name>
+				<name>RotD100</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -143,9 +143,9 @@
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">nr_v14_02_1.src</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 					<argument type="str">Northridge</argument>
-					<argument type="str">IRIKURA</argument>
+					<argument type="str">IRIKURA1</argument>
 				</arguments>
 			</BBP_Module>
 		</BBP_Modules>

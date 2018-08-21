@@ -1,23 +1,23 @@
 	<BBP_Run_Specification>
-		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.2.0"/>
+		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.3.0"/>
 		<BBP_Modules>
 			<BBP_Module>
 				<name>Genslip</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
 					<argument type="str">northridge_eq_gp.src</argument>
 					<argument type="str">northridge_eq_gp.srf</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Jbsim</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -26,13 +26,13 @@
 					<argument type="str">northridge_eq_gp.src</argument>
 					<argument type="str">northridge_eq_gp.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>BBToolbox</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/sdsu/sdsu-apr2013-labasin-vmod.txt</file>
+					<file>$BBP_INSTALL_GF/LABasin863/sdsu/sdsu-apr2013-labasin-vmod.txt</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -42,7 +42,7 @@
 					<argument type="str">northridge_eq_gp.src</argument>
 					<argument type="str">northridge_eq_gp.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
@@ -82,7 +82,7 @@
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
-				<name>RotD50</name>
+				<name>RotD100</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -99,7 +99,7 @@
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">northridge_eq_gp.src</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 					<argument type="NoneType">None</argument>
 					<argument type="str">SDSU</argument>
 				</arguments>

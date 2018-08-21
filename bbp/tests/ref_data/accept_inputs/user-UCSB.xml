@@ -1,23 +1,23 @@
 	<BBP_Run_Specification>
-		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.2.0"/>
+		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.3.0"/>
 		<BBP_Modules>
 			<BBP_Module>
 				<name>UCrmg</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/ucsb/lf/socal_lf.vel</file>
+					<file>$BBP_INSTALL_GF/LABasin863/ucsb/lf/socal_lf.vel</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_ucsb.src</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">socal_lf.vel</argument>
 					<argument type="str">northridge_eq_ucsb.src</argument>
 					<argument type="str">northridge_eq_ucsb.srf</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Syn1D</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/ucsb/lf/socal_lf.vel</file>
+					<file>$BBP_INSTALL_GF/LABasin863/ucsb/lf/socal_lf.vel</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_ucsb.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -26,7 +26,7 @@
 					<argument type="str">northridge_eq_ucsb.src</argument>
 					<argument type="str">northridge_eq_ucsb.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
@@ -66,7 +66,7 @@
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
-				<name>RotD50</name>
+				<name>RotD100</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -83,7 +83,7 @@
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">northridge_eq_ucsb.src</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 					<argument type="NoneType">None</argument>
 					<argument type="str">UCSB</argument>
 				</arguments>
