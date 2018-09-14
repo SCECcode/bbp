@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-RMG Rupture Generator
-$Id: rmg.py 1763 2016-09-20 21:19:58Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Song RMG Rupture Generator Single Segment
 """
 from __future__ import division, print_function
 
@@ -22,7 +32,7 @@ import warnings
 # Import BBP modules
 import plot_srf
 import bband_utils
-from rmg_cfg import RMGCfg
+from song_rmg_single_seg_cfg import SongRMGSSCfg
 from install_cfg import InstallCfg
 
 # Constants from gen_stats_inp.m
@@ -294,9 +304,9 @@ def calc_time(i, j, Fij, T, frozen, m, n, dy, dx, order):
 
     return time, e_flag
 
-class RMG(object):
+class SongRMGSS(object):
     """
-    This class implements the RMG rupture generator
+    This class implements the Song RMG Single Segment rupture generator
     """
     # Number of stats points
     n_stats = 1000
@@ -1275,7 +1285,7 @@ class RMG(object):
         a_srffile = os.path.join(a_outdir, self.r_srffile)
 
         # Read SRC file
-        self.config = RMGCfg(a_srcname=a_srcfile)
+        self.config = SongRMGSSCfg(a_srcname=a_srcfile)
 
         # Run the Song RMG
         self.gen_stats_inp()
@@ -1297,5 +1307,5 @@ class RMG(object):
 
 if __name__ == "__main__":
     print("Testing module: %s" % (os.path.basename(sys.argv[0])))
-    RMG = RMG(None, sys.argv[1], sys.argv[2], None, int(sys.argv[3]))
+    RMG = SongRMGSS(None, sys.argv[1], sys.argv[2], None, int(sys.argv[3]))
     RMG.run()

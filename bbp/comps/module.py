@@ -48,7 +48,7 @@ from plot_map import Plot_Map
 from genhtml import GenHTML
 from exsim import ExSim
 from csm import CSM
-from rmg import RMG
+from song_rmg_single_seg import SongRMGSS
 from as16 import AS16
 from rzz2015 import RZZ2015
 from rzz2015_gmpe import RZZ2015GMPE

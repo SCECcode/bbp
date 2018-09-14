@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-RMG Rupture Generator Configuration File
-$Id: rmg_cfg.py 1762 2016-09-20 21:14:57Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Song RMG Rupture Generator Single Segment Configuration File
 """
 from __future__ import division, print_function
 
@@ -15,7 +25,7 @@ import sys
 # Import Broadband modules
 import bband_utils
 
-class RMGCfg(object):
+class SongRMGSSCfg(object):
     """
     This class implements the RMG rupture generator configuration options
     """
@@ -33,5 +43,5 @@ class RMGCfg(object):
             self.CFGDICT = bband_utils.parse_src_file(a_srcname)
 
 if __name__ == "__main__":
-    RMG_CFG = RMGCfg()
+    RMG_CFG = SongRMGSSCfg()
     print("Created Test Config Class: %s" % (os.path.basename(sys.argv[0])))

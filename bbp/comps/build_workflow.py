@@ -1755,8 +1755,8 @@ class WorkflowBuilder(object):
                     rupture_module.setName("Genslip")
                     codebase = "GP"
                 elif self.method == "SONG":
-                    # add Song (RMG) rupture generator
-                    rupture_module.setName("RMG")
+                    # add Song RMG rupture generator
+                    rupture_module.setName("SongRMGSS")
                     codebase = "GP"
                 elif (self.method == "IRIKURA1" or
                       self.method == "IRIKURA2"):
