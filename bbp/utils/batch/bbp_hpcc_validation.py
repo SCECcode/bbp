@@ -16,6 +16,7 @@ limitations under the License.
 
 Program to set up a full validation run on HPCC
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -116,11 +117,71 @@ def generate_src_files(numsim, source_file, srcdir,
             seed_file.write("%d\n" % (seed))
         seed_file.close()
 
+def generate_multi_segment_src_files(numsim, source_files,
+                                     srcdir, prefix):
+    """
+    Generates num_sim source files in the srcdir using different
+    random seeds, make sure we keep the common_seed constant for
+    all indivual segments in the multi-segment run
+    """
+    src_props = []
+    all_seeds = []
+    output = []
+
+    for source_file in source_files:
+        src_props.append(bband_utils.parse_properties(source_file))
+
+    # Delete "seed" and "common_seed" from the property set
+    for props in src_props:
+        if "seed" in props:
+            props.pop("seed")
+        if "common_seed" in props:
+            props.pop("common_seed")
+
+    # Start preparing output
+    for idx, props in enumerate(src_props):
+        # Create common list of keys for all realizations
+        output.append("")
+        for key in props:
+            output[idx] = output[idx] + "%s = %s\n" % (key.upper(), props[key])
+
+    # Generate seeds for all source files and realizations
+    for variation in range(1, (len(source_files) + 1)):
+        seeds = []
+        for sim in range(0, numsim):
+            random.seed((sim + 1) + (variation - 1) * 500)
+            seeds.append(int(math.exp(7 * math.log(10.0)) * random.random()))
+        all_seeds.append(seeds)
+
+    # Write seeds file
+    seed_file = open(os.path.join(srcdir, "seeds.txt"), 'w')
+    seed_file.write("%d\n" % (numsim))
+    for seed in all_seeds[0]:
+        seed_file.write("%d\n" % (seed))
+    seed_file.close()
+
+    # Generate the numsim SRC files
+    for sim in range(0, numsim):
+        for segment in range(0, len(source_files)):
+            srcfile = os.path.join(srcdir,
+                                   "%s-%04d_seg%02d.src" %
+                                    (prefix, sim, (segment + 1)))
+            outfile = open(srcfile, 'w')
+            # Write common part to all realizations
+            outfile.write(output[segment])
+            # Write seed
+            outfile.write("SEED = %d\n" % (all_seeds[segment][sim]))
+            # Write common seed except for segment 1
+            if segment > 0:
+                outfile.write("COMMON_SEED = %d\n" % (all_seeds[0][sim]))
+            outfile.close()
+
 def generate_xml(install, numsim, srcdir, xmldir,
                  logdir, event, codebase, prefix,
                  skip_rupgen, srf_prefix, only_rup,
                  gmpe_group_name, allmetrics,
-                 site_response, multiseg, segment):
+                 site_response, multiseg, segment,
+                 source_file):
     """
     Generates xml files in the xmldir for numsim simulations whose
     source files are in the srcdir using the validation event and
@@ -131,12 +192,25 @@ def generate_xml(install, numsim, srcdir, xmldir,
     bfn = os.path.join(xmldir, BATCH_SIM_FILE)
     batchfile = open(bfn, 'w')
     for sim in range(0, numsim):
-        if multiseg:
-            srcfile = os.path.join(srcdir,
-                                   "%s-%04d_seg%02d.src" %
-                                   (prefix, sim, segment))
-        else:
-            srcfile = os.path.join(srcdir, "%s-%04d.src" % (prefix, sim))
+        # Figure out if this is a multi-segment run with
+        # multiple SRC files
+        if source_file is not None:
+            if not isinstance(source_file, str):
+                # Yes!
+                srcfile = []
+                for seg in range(0, len(source_file)):
+                    srcfile.append(os.path.join(srcdir,
+                                                "%s-%04d_seg%02d.src" %
+                                                (prefix, sim, (seg + 1))))
+                # Now create a string representation of the list
+                srcfile = str(srcfile)
+            else:
+                if multiseg:
+                    srcfile = os.path.join(srcdir,
+                                           "%s-%04d_seg%02d.src" %
+                                           (prefix, sim, segment))
+                else:
+                    srcfile = os.path.join(srcdir, "%s-%04d.src" % (prefix, sim))
         if srf_prefix is not None:
             srffile = "%s-%04d.srf" % (srf_prefix, sim)
             # Make sure srf file exists and is readable
@@ -214,7 +288,13 @@ def generate_xml(install, numsim, srcdir, xmldir,
             if codebase == "gp" or codebase == "sdsu":
                 end_module = " -e Genslip "
             elif codebase == "song":
-                end_module = " -e RMG "
+                if source_file is not None:
+                    if not isinstance(source_file, str):
+                        end_module = " -e SongRMGMS "
+                    else:
+                        end_module = " -e SongRMGSS "
+                else:
+                    end_module = " -e SongRMGSS "
             elif codebase == "ucsb":
                 end_module = " -e UCrmg "
         else:
@@ -304,12 +384,12 @@ def write_slurm(install, numsim, simdir, xmldir, email,
     slurmfile.close()
 
     # All done!
-    print
-    print "Validation run is set up on: %s" % (simdir)
-    print
-    print "To start the validation run, just type: "
-    print "$ sbatch %s" % (slurmfn)
-    print
+    print()
+    print("Validation run is set up on: %s" % (simdir))
+    print()
+    print("To start the validation run, just type: ")
+    print("$ sbatch %s" % (slurmfn))
+    print()
 
 def main():
     """
@@ -515,26 +595,32 @@ def main():
             sys.exit(1)
     else:
         # Multisegment event
-        if not multiseg:
-            print("This is a multisegment event! Please specify segment!")
-            sys.exit(1)
-        source_file = source_file[segment - 1]
+        if multiseg:
+            source_file = source_file[segment - 1]
+        else:
+            if codebase != "song":
+                print("This is a multisegment event! Please specify segment!")
+                sys.exit(1)
+            else:
+                # For song, we keep source_file with all segments
+                # as this method can work with multiple SRC files
+                pass
 
     if skip_rupgen:
         if not srf_prefix:
             try:
                 srf_file = val_obj.get_input(codebase, "srf").strip()
             except KeyError:
-                print ("Event %s does not have a srf file for codebase %s!" %
-                       (event, codebase))
+                print("Event %s does not have a srf file for codebase %s!" %
+                      (event, codebase))
                 sys.exit(1)
             except AttributeError:
-                print ("Event %s does not have a srf file for codebase %s!" %
-                       (event, codebase))
+                print("Event %s does not have a srf file for codebase %s!" %
+                      (event, codebase))
                 sys.exit(1)
             if not srf_file:
-                print ("Event %s does not have a srf file for codebase %s!" %
-                       (event, codebase))
+                print("Event %s does not have a srf file for codebase %s!" %
+                      (event, codebase))
                 sys.exit(1)
             # Force number of simulations to 1
             options.numsim = 1
@@ -542,27 +628,22 @@ def main():
             # Use the SRF prefix to find the SRF files we need
             # Make it a full path
             srf_prefix = os.path.realpath(srf_prefix)
-            # Make sure source file is in the rcf-104 or scec-00 filesystems
-            if not "rcf-104" in srf_prefix and not "scec-00" in srf_prefix:
-                print "SRF files should be in the rcf-104 / scec-00 filesystems!"
-                sys.exit(1)
-
 
     # Check for the simulation directory
     simdir = options.simdir
     if simdir is None:
-        print "Please provide a simulation directory!"
+        print("Please provide a simulation directory!")
         sys.exit(1)
     simdir = os.path.abspath(simdir)
     if os.path.exists(simdir):
-        print "Simulation directory exists: %s" % (simdir)
+        print("Simulation directory exists: %s" % (simdir))
         opt = raw_input("Do you want to delete its contents (y/n)? ")
         if opt.lower() != "y":
-            print "Please provide another simulation directory!"
+            print("Please provide another simulation directory!")
             sys.exit(1)
         opt = raw_input("ARE YOU SURE (y/n)? ")
         if opt.lower() != "y":
-            print "Please provide another simulation directory!"
+            print("Please provide another simulation directory!")
             sys.exit(1)
         # Delete existing directory (we already asked the user twice!!!)
         shutil.rmtree(simdir)
@@ -570,22 +651,22 @@ def main():
     # Pick up number of simulations to run
     numsim = options.numsim
     if numsim < 1 or numsim > MAX_SIMULATIONS:
-        print ("Number of simulations should be between 1 and %d" %
-               (MAX_SIMULATIONS))
+        print("Number of simulations should be between 1 and %d" %
+              (MAX_SIMULATIONS))
         sys.exit(1)
 
     # Check for e-mail address
     email = options.email
     if email is None:
-        print "Please provide an e-mail address for job notifications"
+        print("Please provide an e-mail address for job notifications")
         sys.exit(1)
 
     # Figure out which gmpe group to use
     gmpe_group_name = options.gmpe_group_name
     if gmpe_group_name is not None:
         if not gmpe_group_name.lower() in gmpe_groups_available_lc:
-            print "Invalid gmpe group name!"
-            print "Options are: %s" % (gmpe_groups_available_lc)
+            print("Invalid gmpe group name!")
+            print("Options are: %s" % (gmpe_groups_available_lc))
             sys.exit(1)
         gmpe_group_index = gmpe_groups_available_lc.index(gmpe_group_name.lower())
         gmpe_group_name = gmpe_groups_available[gmpe_group_index]
@@ -594,8 +675,8 @@ def main():
     setup_bbp_env = os.path.join(bbp_install.A_INSTALL_ROOT,
                                  "utils/batch/setup_bbp_env.sh")
     if not os.path.exists(setup_bbp_env):
-        print ("Cannot find setup_bbp_env.sh script!")
-        print ("Expected at: %s" % (setup_bbp_env))
+        print("Cannot find setup_bbp_env.sh script!")
+        print("Expected at: %s" % (setup_bbp_env))
         sys.exit(1)
     # Create simulation directories
     prefix = "%s-%s" % (event.lower(), codebase.lower())
@@ -612,15 +693,20 @@ def main():
         os.makedirs(mdir)
     # Generate source files if needed
     if source_file is not None:
-        generate_src_files(numsim, source_file, srcdir,
-                           prefix, hypo_rand,
-                           variation, multiseg,
-                           segment, first_seg_dir)
+        if isinstance(source_file, str):
+            generate_src_files(numsim, source_file, srcdir,
+                               prefix, hypo_rand,
+                               variation, multiseg,
+                               segment, first_seg_dir)
+        else:
+            generate_multi_segment_src_files(numsim, source_file,
+                                             srcdir, prefix)
     # Generate xml files
     generate_xml(bbp_install, numsim, srcdir, xmldir,
                  logsdir, event, codebase, prefix,
-                 skip_rupgen, srf_prefix, only_rup, gmpe_group_name,
-                 allmetrics, site_response, multiseg, segment)
+                 skip_rupgen, srf_prefix, only_rup,
+                 gmpe_group_name, allmetrics, site_response,
+                 multiseg, segment, source_file)
     # Write slurm file
     write_slurm(bbp_install, numsim, simdir, xmldir,
                 email, prefix, newnodes, walltime, savetemp)
