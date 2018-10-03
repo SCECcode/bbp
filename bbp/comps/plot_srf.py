@@ -43,7 +43,7 @@ import plot_config
 SLIP_X_FACTOR = 20.0
 SLIP_Y_FACTOR = 5.0
 
-def read_srf(input_file, numx, numy):
+def read_xy_file(input_file, numx, numy):
     """
     Read in fault file
     """
@@ -61,22 +61,56 @@ def read_srf(input_file, numx, numy):
 
     return data
 
-def get_srf_params(srf_file):
+def get_srf_num_segments(srf_file):
     """
-    Reads fault_len, width, dlen, and dwid from the srd file
+    Returns number of segments in a SRF file
+    """
+    srf_segments = None
+
+    srf = open(srf_file, 'r')
+    for line in srf:
+        if line.startswith("PLANE"):
+            # Found the plane line, read number of segments
+            srf_segments = int(line.split()[1])
+            break
+    srf.close()
+
+    if srf_segments is None:
+        print("ERROR: Could not read number of segments from "
+              "SRF file: %s" % (src_file))
+        sys.exit(1)
+
+    # Return number of segments
+    return srf_segments
+
+def get_srf_params(srf_file, segment=0):
+    """
+    Reads fault_len, width, dlen, dwid, and azimuth from the srf_file
+    Segment allows users to specify segment of interest (0-based)
     """
     srf_params1 = None
     srf_params2 = None
     srf = open(srf_file, 'r')
     for line in srf:
         if line.startswith("PLANE"):
-            # Found the plane line, the next one should have what we need
+            # Found the plane line, read number of segments
+            srf_segments = int(line.split()[1])
+            if srf_segments < segment + 1:
+                print("ERROR: Requested parameters from segment %d, "
+                      "       SRF file only has %d segment(s)!" %
+                      (segment + 1, srf_segments))
+                sys.exit(1)
+            for _ in range(segment):
+                # Skip lines to get to the segment we want
+                _ = srf.next()
+                _ = srf.next()
+            # The next line should have what we need
             srf_params1 = srf.next()
             srf_params2 = srf.next()
             break
     srf.close()
     if srf_params1 is None or srf_params2 is None:
-        print("Cannot determine parameters from SRF file %s" %
+        print("ERROR: Cannot determine parameters from SRF file %s" %
               (srf_file))
         sys.exit(1)
     srf_params1 = srf_params1.strip()
@@ -85,7 +119,7 @@ def get_srf_params(srf_file):
     srf_params2 = srf_params2.split()
     # Make sure we have the correct number of pieces
     if len(srf_params1) != 6 or len(srf_params2) != 5:
-        print("Cannot parse params from SRF file %s" %
+        print("ERROR: Cannot parse params from SRF file %s" %
               (srf_file))
         sys.exit(1)
 
@@ -99,10 +133,12 @@ def get_srf_params(srf_file):
 
     return params
 
-def plot_multi_segment(plottitle, srffiles, outdir):
+def plot_multi_srf_files(plottitle, srffiles, outdir):
     """
     Produces the multi-segment SRF plot
     """
+    num_segments = len(srffiles)
+
     srf_params = []
     srf_dims = []
     srf_extents = []
@@ -122,11 +158,11 @@ def plot_multi_segment(plottitle, srffiles, outdir):
 
         # Read in SRF slips
         slipfile = "%s.slip" % (os.path.splitext(srffile)[0])
-        slips = read_srf(slipfile, dims[0], dims[1])
+        slips = read_xy_file(slipfile, dims[0], dims[1])
 
         # Read in SRF tinits
         tinitfile = "%s.tinit" % (os.path.splitext(srffile)[0])
-        tinits = read_srf(tinitfile, dims[0], dims[1])
+        tinits = read_xy_file(tinitfile, dims[0], dims[1])
 
         # Find avg/max slip
         sumslip = 0.0
@@ -164,7 +200,7 @@ def plot_multi_segment(plottitle, srffiles, outdir):
     avgslip = avgslip / totalpts
 
     # Create subfigures
-    fig, subfigs = pylab.plt.subplots(1, len(srffiles), sharey=True)
+    fig, subfigs = pylab.plt.subplots(1, num_segments, sharey=True)
     # Set plot dims
     fig.set_size_inches(11, 4)
     # Set title
@@ -174,7 +210,7 @@ def plot_multi_segment(plottitle, srffiles, outdir):
                                                       int(maxslip)), size=12)
 
     # Set up propotions, first we calculate what we need
-    num_spaces = len(srffiles) - 1
+    num_spaces = num_segments - 1
     between_space = 0.02
     total_space = 0.8 # Figure goes from 0.1 to 0.9
     usable_space = total_space - between_space * num_spaces
@@ -263,42 +299,211 @@ def plot_multi_segment(plottitle, srffiles, outdir):
     print("Saving plot to %s" % (outfile))
     pylab.savefig(outfile, format="png", transparent=False, dpi=plot_config.dpi)
 
+def plot_multi_plot(num_segments, srf_params, srf_dims,
+                    srf_extents, srf_slips, srf_tinits,
+                    plottitle, srffile, outdir):
+    """
+    Create actual plot for multi-segments
+    """
+    # Calculate min, max, average slip
+    avgslip = 0.0
+    minslip = 100000.0
+    maxslip = 0.0
+    totalpts = 0.0
+    for params, dims in zip(srf_params, srf_dims):
+        avgslip = avgslip + params["sumslip"]
+        totalpts = totalpts + (dims[0] * dims[1])
+        minslip = min(minslip, params["minslip"])
+        maxslip = max(maxslip, params["maxslip"])
+    avgslip = avgslip / totalpts
+
+    # Create subfigures
+    fig, subfigs = pylab.plt.subplots(1, num_segments, sharey=True)
+    # Make sure it is an array
+    if num_segments == 1:
+        subfigs = [subfigs]
+    # Set plot dims
+    fig.set_size_inches(11, 4)
+    # Set title
+    fig.suptitle('%s\nMin/Avg/Max Slip = %d/%d/%d' % (plottitle,
+                                                      int(minslip),
+                                                      int(avgslip),
+                                                      int(maxslip)), size=12)
+
+    # Set up propotions, first we calculate what we need
+    num_spaces = num_segments - 1
+    between_space = 0.02
+    total_space = 0.8 # Figure goes from 0.1 to 0.9
+    usable_space = total_space - between_space * num_spaces
+    total_len = 0.0
+    for params in srf_params:
+        total_len = total_len + params["fault_len"]
+    ratios = []
+    for params in srf_params:
+        ratios.append(params["fault_len"] / total_len)
+
+    # Now we apply these to the axes
+    current_position = 0.1
+    for subfig, ratio in zip(subfigs, ratios):
+        current_len = usable_space * ratio
+        subfig.set_position([current_position, 0.2,
+                             current_len, 0.60])
+        current_position = current_position + current_len + between_space
+
+    # Setup slip color scale
+    cmap = cm.hot_r
+    d = int(maxslip / SLIP_X_FACTOR + 0.0)
+    while SLIP_X_FACTOR * d < 0.9 * maxslip:
+        d = d + 1
+    colormin = 0.0
+    colormax = float(SLIP_X_FACTOR * d)
+    colorint = float(SLIP_Y_FACTOR * d)
+    norm = mcolors.Normalize(vmin=colormin, vmax=colormax)
+
+    for (subfig, params, dims,
+         slips, tinits,
+         extents) in zip(subfigs, srf_params, srf_dims,
+                         srf_slips, srf_tinits, srf_extents):
+
+        subfig.set_adjustable('box-forced')
+
+        # Plot slips
+        im = subfig.imshow(slips, cmap=cmap, norm=norm, extent=extents,
+                           interpolation='nearest')
+
+        # Freeze the axis extents
+        subfig.set_autoscale_on(False)
+
+        # Set font size
+        for tick in subfig.get_xticklabels():
+            tick.set_fontsize(8)
+        for tick in subfig.get_yticklabels():
+            tick.set_fontsize(8)
+
+        subfig.set_title(u"Azimuth = %d\u00b0" % (params["azimuth"]), size=8)
+        subfig.set_xlabel("Along Strike (km)", size=8)
+        if subfig is subfigs[0]:
+            subfig.set_ylabel("Down Dip (km)", size=8)
+
+        # Setup tinit contours
+        mintinit = 100000.0
+        maxtinit = 0.0
+        for y in xrange(0, dims[1]):
+            for x in xrange(0, dims[0]):
+                if tinits[y][x] > maxtinit:
+                    maxtinit = tinits[y][x]
+                if tinits[y][x] < mintinit:
+                    mintinit = tinits[y][x]
+
+        contour_intervals = ((maxtinit - mintinit) /
+                             plot_config.PLOT_SRF_DEFAULT_CONTOUR_INTERVALS)
+        if contour_intervals < 10:
+            contour_intervals = 10
+        # Plot tinit contours
+        subfig.contour(tinits,
+                       pylab.linspace(mintinit, maxtinit,
+                                      round(contour_intervals)),
+                       origin='upper', extent=extents, colors='k')
+
+    # Setup slip color scale
+    colorbar_ax = fig.add_axes([0.2, 0.1, 0.6, 0.02])
+    cb = fig.colorbar(im, cax=colorbar_ax, orientation='horizontal',
+                      ticks=pylab.linspace(colormin, colormax,
+                                           (colormax/colorint) + 1))
+    cb.set_label('Slip (cm)', fontsize=8)
+    for tick in cb.ax.get_xticklabels():
+        tick.set_fontsize(8)
+
+    # Save plot to file
+    outfile = os.path.join(outdir,
+                           "%s.png" %
+                           (os.path.splitext(srffile)[0]))
+    print("Saving plot to %s" % (outfile))
+    pylab.savefig(outfile, format="png",
+                  transparent=False, dpi=plot_config.dpi)
+
 def plot(plottitle, srffile, outdir):
     """
     Produce the SRF plot
     """
-    # Get SRF parameters
-    params = get_srf_params(srffile)
-    dim_len = params["dim_len"]
-    dim_wid = params["dim_wid"]
-    fault_len = params["fault_len"]
-    fault_width = params["fault_width"]
+    srf_params = []
+    srf_dims = []
+    srf_extents = []
+    srf_slips = []
+    srf_tinits = []
 
-    # Plot dimensions
-    dims = [dim_len, dim_wid]
-    extents = [-(fault_len / 2), (fault_len / 2),
-               fault_width, 0.0]
+    # Get number of segments
+    num_segments = get_srf_num_segments(srffile)
 
-    # Read in SRF slips
-    slipfile = "%s.slip" % (os.path.splitext(srffile)[0])
-    slips = read_srf(slipfile, dims[0], dims[1])
+    for seg in range(num_segments):
+        # Get SRF parameters
+        params = get_srf_params(srffile, seg)
+        dim_len = params["dim_len"]
+        dim_wid = params["dim_wid"]
+        fault_len = params["fault_len"]
+        fault_width = params["fault_width"]
 
-    # Read in SRF tinits
-    tinitfile = "%s.tinit" % (os.path.splitext(srffile)[0])
-    tinits = read_srf(tinitfile, dims[0], dims[1])
+        # Plot dimensions
+        dims = [dim_len, dim_wid]
+        extents = [-(fault_len / 2), (fault_len / 2),
+                   fault_width, 0.0]
 
-    # Find avg/max slip
+        # Read in SRF slips
+        slipfile = "%s_seg%d.slip" % (os.path.splitext(srffile)[0],
+                                      seg)
+        slips = read_xy_file(slipfile, dims[0], dims[1])
+
+        # Read in SRF tinits
+        tinitfile = "%s_seg%d.tinit" % (os.path.splitext(srffile)[0],
+                                        seg)
+        tinits = read_xy_file(tinitfile, dims[0], dims[1])
+
+        # Find avg/max slip
+        sumslip = 0.0
+        minslip = 100000.0
+        maxslip = 0.0
+        for y in xrange(0, dims[1]):
+            for x in xrange(0, dims[0]):
+                if slips[y][x] > maxslip:
+                    maxslip = slips[y][x]
+                if slips[y][x] < minslip:
+                    minslip = slips[y][x]
+                sumslip = sumslip + slips[y][x]
+
+        params["minslip"] = minslip
+        params["maxslip"] = maxslip
+        params["sumslip"] = sumslip
+
+        # Add to our lists
+        srf_params.append(params)
+        srf_dims.append(dims)
+        srf_extents.append(extents)
+        srf_slips.append(slips)
+        srf_tinits.append(tinits)
+
+    if num_segments > 1:
+        plot_multi_plot(num_segments, srf_params, srf_dims,
+                        srf_extents, srf_slips, srf_tinits,
+                        plottitle, srffile, outdir)
+        return
+
+    # Simple case for 1 segment only, keep it as before
+    dims = srf_dims[0]
+    tinits = srf_tinits[0]
+    slips = srf_slips[0]
+    extents = srf_extents[0]
+
+    # Calculate min, max, average slip
     avgslip = 0.0
     minslip = 100000.0
     maxslip = 0.0
-    for y in xrange(0, dims[1]):
-        for x in xrange(0, dims[0]):
-            if slips[y][x] > maxslip:
-                maxslip = slips[y][x]
-            if slips[y][x] < minslip:
-                minslip = slips[y][x]
-            avgslip = avgslip + slips[y][x]
-    avgslip = avgslip / (dims[0] * dims[1])
+    totalpts = 0.0
+    for params, dims in zip(srf_params, srf_dims):
+        avgslip = avgslip + params["sumslip"]
+        totalpts = totalpts + (dims[0] * dims[1])
+        minslip = min(minslip, params["minslip"])
+        maxslip = max(maxslip, params["maxslip"])
+    avgslip = avgslip / totalpts
 
     # Set plot dims
     pylab.gcf().set_size_inches(6, 8)
@@ -321,7 +526,8 @@ def plot(plottitle, srffile, outdir):
     norm = mcolors.Normalize(vmin=colormin, vmax=colormax)
 
     # Plot slips
-    pylab.imshow(slips, cmap=cmap, norm=norm, extent=extents,
+    pylab.imshow(slips, cmap=cmap,
+                 norm=norm, extent=extents,
                  interpolation='nearest')
 
     # Freeze the axis extents
@@ -369,7 +575,6 @@ def plot(plottitle, srffile, outdir):
     print("Saving plot to %s" % (outfile))
     pylab.savefig(outfile, format="png",
                   transparent=False, dpi=plot_config.dpi)
-    return
 
 def run(r_srffile, sim_id=0):
     """
@@ -379,23 +584,27 @@ def run(r_srffile, sim_id=0):
 
     a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
     a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
+    srf2xyz_bin = os.path.join(install.A_GP_BIN_DIR, "srf2xyz")
 
     # Save current directory
     old_cwd = os.getcwd()
     os.chdir(a_tmpdir)
 
-    # Write slip file
+    # Get number of segments
+    num_segments = get_srf_num_segments(r_srffile)
     srfbase = r_srffile[0:r_srffile.find(".srf")]
-    slipfile = "%s.slip" % (srfbase)
-    cmd = ("%s/srf2xyz calc_xy=0 type=slip nseg=-1 < %s > %s" %
-           (install.A_GP_BIN_DIR, r_srffile, slipfile))
-    bband_utils.runprog(cmd)
 
-    # Write tinit file
-    tinitfile = "%s.tinit" % (srfbase)
-    cmd = ("%s/srf2xyz calc_xy=0 type=tinit nseg=-1 < %s > %s" %
-           (install.A_GP_BIN_DIR, r_srffile, tinitfile))
-    bband_utils.runprog(cmd)
+    # Write slip and tinit files for each segment
+    for seg in range(num_segments):
+        slipfile = "%s_seg%d.slip" % (srfbase, seg)
+        cmd = ("%s calc_xy=0 type=slip nseg=%d < %s > %s" %
+               (srf2xyz_bin, seg, r_srffile, slipfile))
+        bband_utils.runprog(cmd)
+
+        tinitfile = "%s_seg%d.tinit" % (srfbase, seg)
+        cmd = ("%s calc_xy=0 type=tinit nseg=%d < %s > %s" %
+                (srf2xyz_bin, seg, r_srffile, tinitfile))
+        bband_utils.runprog(cmd)
 
     plottitle = 'Rupture Model for %s' % (r_srffile)
     plot(plottitle, r_srffile, a_outdir)
@@ -419,4 +628,3 @@ if __name__ == '__main__':
     SIMID = sys.argv[2]
 
     run(SRF_FILE, SIMID)
-    sys.exit(0)

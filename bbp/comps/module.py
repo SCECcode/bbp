@@ -49,6 +49,7 @@ from genhtml import GenHTML
 from exsim import ExSim
 from csm import CSM
 from song_rmg_single_seg import SongRMGSS
+from song_rmg_multi_seg import SongRMGMS
 from as16 import AS16
 from rzz2015 import RZZ2015
 from rzz2015_gmpe import RZZ2015GMPE

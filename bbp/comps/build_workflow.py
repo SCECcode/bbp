@@ -22,6 +22,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import ast
 import sys
 
 # Import Broadband modules
@@ -66,6 +67,8 @@ class WorkflowBuilder(object):
         self.method = None
         self.gp_lf_vel_file = None
         self.gp_hf_vel_file = None
+        self.multisegment_validation = False
+        self.multisegment_src_files = None
 
     def select_simulation_method(self, sim_type):
         """
@@ -138,6 +141,12 @@ class WorkflowBuilder(object):
         # Only one file
         if isinstance(src_file, str):
             return src_file
+
+        # For multisegment validation events
+        self.multisegment_validation = True
+        if method == "SONG":
+            self.multisegment_src_files = src_file
+            return src_file[0]
 
         while True:
             if self.opt_obj is not None:
@@ -218,7 +227,17 @@ class WorkflowBuilder(object):
                     self.val_obj.set_input(self.method,
                                            "source",
                                            self.src_file)
-                    break
+                    if isinstance(self.src_file, list):
+                        self.multisegment_validation = True
+                        if self.method == "SONG":
+                            self.multisegment_src_files = self.src_file
+                            self.src_file = self.src_file[0]
+                            break
+                        else:
+                            print("ERROR: Method does not accept "
+                                  "multiple SRC files!")
+                    else:
+                        break
                 elif (user_src_file.lower() == 'n' or
                       user_src_file.lower() == 'no'):
                     # The src_file is provided as a "source" parameter
@@ -1563,6 +1582,14 @@ class WorkflowBuilder(object):
                                                "filename of %s: " %
                                                (description))
 
+                    choice_str = choice_str.strip()
+                    # Check if file or list of files
+                    if choice_str[0] == '[' and choice_str[-1] == ']':
+                        # Looks like a list of files, convert to a
+                        # Python list and return to caller
+                        choice_str = ast.literal_eval(choice_str)
+                        return choice_str
+
                     if ((os.path.exists(choice_str) and
                          (choice_str.find(extension) >= 0))):
                         break
@@ -1756,7 +1783,14 @@ class WorkflowBuilder(object):
                     codebase = "GP"
                 elif self.method == "SONG":
                     # add Song RMG rupture generator
-                    rupture_module.setName("SongRMGSS")
+                    if self.multisegment_validation:
+                        rupture_module.setName("SongRMGMS")
+                        for idx, val in enumerate(self.multisegment_src_files):
+                            rupture_module.addStageFile(val)
+                            rupture_module.addKeywordArg('src%d' % (idx),
+                                                         val)
+                    else:
+                        rupture_module.setName("SongRMGSS")
                     codebase = "GP"
                 elif (self.method == "IRIKURA1" or
                       self.method == "IRIKURA2"):
