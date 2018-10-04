@@ -390,7 +390,6 @@ class SongRMGMS(object):
             ni = cp_node[0] + i_offsets_full[neigh]
             nj = cp_node[1] + j_offsets_full[neigh]
             n_ind = sub2ind(ni, nj, m, n)
-            print(ni, nj, n_ind)
 
             # Only check if is_in_domain
             if is_in_domain2(ni, nj, m, n):
@@ -402,7 +401,6 @@ class SongRMGMS(object):
                     FT[n_ind] = min(time, FT[n_ind])
                 else:
                     FT[n_ind] = time
-                print(time, FT[n_ind])
                 T = FT.reshape((m, n), order='F')
 
                 f_frozen = frozen.flatten(order='F')
@@ -1248,11 +1246,6 @@ class SongRMGMS(object):
             print("Running right segment: %d" % (seg))
             shypo = 0.0
             dhypo = rup["lz"][seg][iz_hypo]
-
-            print(shypo, dhypo)
-            print(config.CFGDICT[seg_ihypo]["dlen"],
-                  config.CFGDICT[seg_ihypo]["dwid"])
-            print(rup["vr_dist"][seg].shape)
             (rup["rupT_dist"][seg], _) = self.fm(rup["vr_dist"][seg],
                                                  [shypo, dhypo],
                                                  (config.CFGDICT[seg_ihypo]["dlen"],
