@@ -1163,7 +1163,6 @@ class WorkflowBuilder(object):
                 rd100_module.addArg(self.val_obj.get_obs_path())
                 rd100_module.addArg(self.val_obj.get_obs_format())
                 rd100_module.addArg(os.path.basename(self.val_obj.get_obs_corrections()))
-                rd100_module.addArg(self.val_obj.get_magnitude())
                 rd100_module.addArg(self.val_obj.get_validation_name())
                 rd100_module.addArg(self.val_obj.get_cutoff())
                 self.workflow.append(rd100_module)
@@ -1299,7 +1298,6 @@ class WorkflowBuilder(object):
                         raise bband_utils.ParameterError("SRC file needed for GoF")
                     gof_module.addStageFile(self.stations)
                     gof_module.addArg(os.path.basename(self.stations))
-                    gof_module.addArg(self.val_obj.get_magnitude())
                     gof_module.addArg(self.val_obj.get_validation_name())
                     gof_module.addArg(self.val_obj.get_cutoff())
                     if self.method == "EXSIM":
@@ -1319,7 +1317,6 @@ class WorkflowBuilder(object):
                     gof_module.addArg(True)
                     gof_module.addArg(self.val_obj.get_obs_path())
                     gof_module.addArg('A')
-                    gof_module.addArg(self.val_obj.get_magnitude())
                     gof_module.addArg(self.val_obj.get_validation_name())
                     self.workflow.append(gof_module)
                 break

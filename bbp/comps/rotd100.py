@@ -113,14 +113,13 @@ class RotD100(object):
 
     def __init__(self, i_r_stations, i_r_srcfile=None,
                  i_a_obsdir=None, i_obs_format=None, i_obs_corr=None,
-                 i_mag=None, i_comparison_label=None, cutoff=None, sim_id=0):
+                 i_comparison_label=None, cutoff=None, sim_id=0):
         """
         Initializes class variables
         """
         self.sim_id = sim_id
         self.r_srcfile = i_r_srcfile
         self.r_stations = i_r_stations
-        self.mag = i_mag
         self.comp_label = i_comparison_label
         self.max_cutoff = cutoff
         self.a_obsdir = i_a_obsdir
@@ -527,7 +526,8 @@ class RotD100(object):
                    "datafile1=%s simfile1=%s " % (obsfile, simfile) +
                    "comp1=rotd50 comp2=rotd100 comp3=ratio " +
                    "eqname=%s mag=%s stat=%s lon=%.4f lat=%.4f " %
-                   (self.comp_label, self.mag, stat, slon, slat) +
+                   (self.comp_label,
+                    self.src_keys['magnitude'], stat, slon, slat) +
                    "vs30=%d cd=%.2f " % (site.vs30, rrup) +
                    "flo=%f fhi=%f " % (site.low_freq_corner,
                                        site.high_freq_corner) +

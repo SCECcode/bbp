@@ -40,7 +40,7 @@ class GPGof(object):
     """
 
     def __init__(self, i_r_srcfile, i_r_stations,
-                 i_mag, i_comparison_label, cutoff=None,
+                 i_comparison_label, cutoff=None,
                  single_component=False, sim_id=0):
         """
         Initialize class instance variables
@@ -48,7 +48,6 @@ class GPGof(object):
         self.sim_id = sim_id
         self.r_srcfile = i_r_srcfile
         self.r_stations = i_r_stations
-        self.mag = i_mag
         self.comp_label = i_comparison_label
         self.max_cutoff = cutoff
         self.install = None
@@ -211,7 +210,8 @@ class GPGof(object):
                    "datafile1=%s simfile1=%s " % (datafile1, simfile1) +
                    "comp1=psa5n comp2=psa5e comp3=rotd50 " +
                    "eqname=%s mag=%s stat=%s lon=%.4f lat=%.4f " %
-                   (self.comp_label, self.mag, stat, slon, slat) +
+                   (self.comp_label, self.src_keys['magnitude'],
+                    stat, slon, slat) +
                    "vs30=%d cd=%.2f " % (site.vs30, rrup) +
                    "flo=%f fhi=%f " % (site.low_freq_corner,
                                        site.high_freq_corner) +
