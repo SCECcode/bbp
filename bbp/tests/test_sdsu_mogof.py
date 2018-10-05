@@ -72,7 +72,6 @@ class TestSDSUMOGof(unittest.TestCase):
         self.plot_map = False
         self.r_datadir = os.path.join(self.install.A_TEST_REF_DIR, "sdsu")
         self.r_format = "A"
-        self.r_mag = 0.0
         self.r_comparison_label = "Northridge"
         self.sim_id = int(seqnum.get_seq_num())
         self.a_ref_dir = os.path.join(self.install.A_TEST_REF_DIR, "sdsu")
@@ -151,8 +150,7 @@ class TestSDSUMOGof(unittest.TestCase):
                                                      os.path.basename(f))))
         site_obj = SDSUMOGoF(self.r_stations, self.gof_weights,
                              self.plot_map, ref_inputs_obs_dir,
-                             self.r_format, self.r_mag,
-                             self.r_comparison_label,
+                             self.r_format, self.r_comparison_label,
                              sim_id=self.sim_id)
         site_obj.run()
 
