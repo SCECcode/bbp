@@ -353,8 +353,6 @@ void get_rupt(struct velmodel *vm, float *h,
 ************************************************************************************
 */
 
-extern void wfront2d_(int *, int *, int *, int *, double *, int *, double *, double *, int *, double *, int *);
-
 int main(int ac,char **av)
 {
 FILE *fpr, *fpw;
@@ -370,7 +368,16 @@ float sum, neg_sum;
 int nstk, ndip, nstk2, ndip2, nstk3, ndip3;
 int i, j, k, ip, ip2, it;
 char infile[1024], str[1024];
-char init_slip_file[1024], outfile[1024];
+char outfile[1024];
+
+/* stuff for asperity model input */
+float slip1_scor = 1.0;
+char init_slip_file[1024];
+
+/* stuff for phase shift */
+double xshift = 0.0;
+double yshift = 0.0;
+char xshift_str[64], yshift_str[64];
 
 float extend_fac = -1.0;
 
@@ -417,6 +424,7 @@ float mag_area_Acoef = -1.0;
 float mag_area_Bcoef = -1.0;
 int use_median_mag = 0;
 
+int uniformgrid_hypo = 0;
 int random_hypo = 0;
 int uniform_prob4hypo = 0;
 struct hypo_distr_params hpar_as, hpar_dd;
@@ -426,7 +434,9 @@ float shypo = -1.0e+15;
 float dhypo = -1.0e+15;
 
 int nrup_min = 10;
-float nrup_scale_fac = 0.5;
+float target_hypo_spacing = 3.0;
+float hypo_s0, hypo_d0, hypo_ds, hypo_dd;
+int ih_scnt, ih_dcnt, nhypo_s, nhypo_d;
 
 float avgstk, rake, rt, tsmin;
 float xhypo, xdep;
@@ -439,7 +449,6 @@ float delh, hx, hg, gwid2, *gbnd, *gwid, shypo_mseg, *rvfac_seg;
 
 float rupture_delay = 0.0;
 
-float sd_rand = -1.0;
 float s_min, s_max, s_avg, s_fac;
 float d_min, d_max, d_avg, d_fac;
 
@@ -490,6 +499,17 @@ float hrms, rgh_max, rgh_avg, rgh_min, rgh_sig;
 float ss, dd, hh, ssfac, ddfac, hhfac;
 float cosS, sinS, cosD, sinD;
 
+float wavelength_min = -1.0;
+float wavelength_max = 1.0e+15;
+
+/* RWG 20160912
+   if perturb_subfault_location=0, apply roughness perturbations to strike & dip,
+                                   but don't move subfault location
+   if perturb_subfault_location=1, apply roughness perturbations to strike & dip,
+                                   and also move subfault location
+*/
+int perturb_subfault_location = 1;
+
 float erad = 6378.139;
 float mrot = -90.0;
 double g0 = 0.0;
@@ -505,14 +525,19 @@ float deep_vrup = 0.6;
 float deep_vrup_dep = 17.5;
 float deep_vrup_deprange = 2.5;
 
-float tsfac = -1.0e+15;;
+float tsfac_main = -1.0e+15;
 float tsfac_coef = 1.1;
+float tsfac_bzero = -0.1;
+float tsfac_slope = -0.5;
 float tsf1_max, tsf1_avg, tsf1_min, tsf1_sig;
 float tsfac1_sigma = 1.0;
 float tsfac1_scor = 0.8;
-float tsfac_rand = -1.0;
 float tsf2_max, tsf2_avg, tsf2_min, tsf2_sig;
 float tsfac2_scor = 0.5;
+float tsfac2_sigma = 1.0;
+float tsfac2_lambda_max = 5.0;
+float tsfac2_lambda_min = -1;
+int kord = 4;
 
 /* 20131119 RWG:
 
@@ -571,7 +596,7 @@ struct generic_slip gslip;
 
 float *stf, elon, elat;
 
-struct pointsource *psrc;
+struct pointsource *psrc_orig, *psrc;
 struct stfpar2 stfparams;
 
 int outbin = 0;
@@ -584,12 +609,15 @@ float alphaT, fD, fR, avgrak;
 
 int fdrup_time = 0;
 int fdrup_scale_slip = 0;
+float rvfrac_slip_sig = -1.0;
+float rvfmin = 0.25;
+float rvfmax = 1.414;
+float *fptr;
+
 double dh, *fdrt, *rslw, *fspace;
 float *rspd;
 int nstk_fd, ndip_fd, istk_off, idip_off;
 int ixs, iys, nsring, ntot, *ispace;
-float rvfmin = 0.25;
-float rvfmax = 1.414;
 float rvel_rand = 0.0;
 
 velfile[0] = '\0';
@@ -631,6 +659,34 @@ hpar_dd.x0 = 0.4;	/* default tapering starts at 40% along top edge of fault */
 hpar_dd.x1 = 0.8;	/* default tapering starts at 20% from fault bottom */
 hpar_dd.f0 = 0.01;	/* default probability at top edge is 1% of probability in middle of fault */
 hpar_dd.f1 = 0.1;	/* default probability at bottom edge is 10% of probability in middle of fault */
+
+/* RWG 20180423 - defaults for v5.4.1 */
+
+alpha_rough = 0.01;
+fdrup_time = 1;
+shal_vrup = 0.60;
+deep_vrup = 0.60;
+
+slip_sigma = 0.75;
+risetime_coef = 1.6;
+
+tsfac1_sigma = 1.0;
+tsfac1_scor = 0.8;
+
+tsfac2_sigma = 1.0e-10;
+
+rtime1_sigma = slip_sigma;
+rtime1_scor = 0.5;
+
+/* NEW 2018-04-23, rupture time perturbations determined from:
+
+      tsfac_main = tsfac_bzero + tsfac_slope*1.0e-09*Mo^(1/3)
+/*
+
+tsfac_bzero = -0.1;
+tsfac_slope = -0.5;
+
+/* END defaults for v5.4.1 */
 
 sprintf(seedfile,"dump_last_seed.txt");
 
@@ -706,13 +762,18 @@ getpar("shypo","f",&shypo);
 getpar("dhypo","f",&dhypo);
 
 /*XXXX*/
+getpar("generate_seed","d",&generate_seed);
+
+/* RWG 2014-04-24 uniform grid of hypocenters */
+getpar("uniformgrid_hypo","d",&uniformgrid_hypo);
+
 /* RWG 2014-02-20 randomized hypocenter */
 getpar("random_hypo","d",&random_hypo);
-getpar("generate_seed","d",&generate_seed);
-getpar("nrup_min","d",&nrup_min);
-getpar("nrup_scale_fac","f",&nrup_scale_fac);
-
 getpar("uniform_prob4hypo","d",&uniform_prob4hypo);
+
+getpar("nrup_min","d",&nrup_min);
+/* RWG 2014-04-24 target spacing of hypocenters, replaces nrup_scale_fac */
+getpar("target_hypo_spacing","f",&target_hypo_spacing);
 
 getpar("hypo_taperperc_left","f",&hpar_as.x0);
 getpar("hypo_taperval_left","f",&hpar_as.f0);
@@ -744,14 +805,15 @@ getpar("rupture_delay","f",&rupture_delay);
 
 getpar("fdrup_time","d",&fdrup_time);
 getpar("fdrup_scale_slip","d",&fdrup_scale_slip);
+getpar("rvfrac_slip_sig","f",&rvfrac_slip_sig);
 getpar("rvfmin","f",&rvfmin);
 getpar("rvfmax","f",&rvfmax);
 
-getpar("tsfac","f",&tsfac);
+getpar("tsfac_main","f",&tsfac_main);
 getpar("tsfac_coef","f",&tsfac_coef);
-getpar("tsfac_rand","f",&tsfac_rand);
+getpar("tsfac_bzero","f",&tsfac_bzero);
+getpar("tsfac_slope","f",&tsfac_slope);
 getpar("rtime_rand","f",&rtime_rand);
-getpar("sd_rand","f",&sd_rand);
 
 getpar("rand_rake_degs","f",&rand_rake_degs);
 getpar("set_rake","f",&set_rake);
@@ -768,6 +830,14 @@ if(kmodel != MAI_FLAG && kmodel != INPUT_CORNERS_FLAG && kmodel != FRANKEL_FLAG 
    kmodel = SOMERVILLE_FLAG;
 
 fprintf(stderr,"kmodel= %d\n",kmodel);
+
+if(kmodel == MAI_FLAG)
+   {
+   kx_corner = 2.50;
+   ky_corner = 1.50;
+   getpar("kx_corner","f",&kx_corner);
+   getpar("ky_corner","f",&ky_corner);
+   }
 
 if(kmodel == INPUT_CORNERS_FLAG)
    {
@@ -819,10 +889,24 @@ if(alpha_rough < 0.0)
 if(lambda_min < 0.0)
    lambda_min = lambda_min_default;
 
+getpar("wavelength_min","f",&wavelength_min);
+getpar("wavelength_max","f",&wavelength_max);
+
+getpar("perturb_subfault_location","d",&perturb_subfault_location);
+
 getpar("tsfac2_scor","f",&tsfac2_scor);
+getpar("tsfac2_sigma","f",&tsfac2_sigma);
+getpar("kord","d",&kord);
+getpar("tsfac2_lambda_min","f",&tsfac2_lambda_min);
+getpar("tsfac2_lambda_max","f",&tsfac2_lambda_max);
+
+if(tsfac2_lambda_min < 0.0)
+   tsfac2_lambda_min = lambda_min_default;
+
 getpar("rtime2_scor","f",&rtime2_scor);
 
 getpar("init_slip_file","s",init_slip_file);
+getpar("slip1_scor","f",&slip1_scor);
 
 getpar("seg_delay","d",&seg_delay);
 if(seg_delay == 1)
@@ -856,18 +940,28 @@ if(seg_delay == 1)
       }
    }
 
+sprintf(xshift_str,"0.0");
+getpar("xshift","s",xshift_str);
+xshift = 1.000000*atof(xshift_str);
+
+sprintf(yshift_str,"0.0");
+getpar("yshift","s",yshift_str);
+yshift = 1.000000*atof(yshift_str);
+
 endpar();
 
-psrc = (struct pointsource *)NULL;
+psrc_orig = (struct pointsource *)NULL;
 gslip.np = -1;
 gslip.spar = (struct slippars *)NULL;
 
 if(read_erf == 1)
-   psrc = read_ruppars(infile,psrc,&mag,&nstk,&ndip,&dstk,&ddip,&dtop,&avgstk,&avgdip,&elon,&elat);
+   psrc_orig = read_ruppars(infile,psrc_orig,&mag,&nstk,&ndip,&dstk,&ddip,&dtop,&avgstk,&avgdip,&elon,&elat);
 else if(read_gsf == 1)
-   psrc = read_gsfpars(infile,psrc,&gslip,&dstk,&ddip,&dtop,&avgdip);
+   psrc_orig = read_gsfpars(infile,psrc_orig,&gslip,&dstk,&ddip,&dtop,&avgdip);
 else
-   psrc = set_ruppars(psrc,&mag,&nstk,&ndip,&dstk,&ddip,&dtop,&avgstk,&avgdip,&rake,&elon,&elat);
+   psrc_orig = set_ruppars(psrc_orig,&mag,&nstk,&ndip,&dstk,&ddip,&dtop,&avgstk,&avgdip,&rake,&elon,&elat);
+
+psrc = (struct pointsource *)check_malloc((nstk)*(ndip)*sizeof(struct pointsource));
 
 flen = nstk*dstk;
 fwid = ndip*ddip;
@@ -877,8 +971,18 @@ if(flen_max < flen)
 if(fwid_max < fwid)
    fwid_max = fwid;
 
+wavelength_max = 1.0e+15;   /* hardwire for now 2016-10-21 */
+if(wavelength_min < 0.0)
+   wavelength_min = 2.0*sqrt(dstk*ddip)/0.8;    /* 80% of nyquist */
+
+if(lambda_min < wavelength_min)
+   lambda_min = wavelength_min;
+
 if(lambda_max < 0.0)
    lambda_max = flen_max;
+
+if(tsfac2_lambda_max < 0.0 || tsfac2_lambda_max > flen_max)
+   tsfac2_lambda_max = flen_max;
 
 bigM = log(10.0);
 mom = exp(bigM*1.5*(mag + 10.7));
@@ -886,8 +990,8 @@ mag_med = 3.98 + log(flen*fwid)/bigM;
 /* update 12/2005 */
 mag_med = 3.87 + 1.05*log(flen*fwid)/bigM;
 
-if(tsfac < -1.0e+10)
-   tsfac = -tsfac_coef*1.0e-09*exp(log(mom)/3.0);
+if(tsfac_main < -1.0e+10)
+   tsfac_main = tsfac_bzero + tsfac_slope*(1.0e-09*exp(log(mom)/3.0));
 
 /* update 12/2007 */
 if(mag_area_Acoef < 0.0)
@@ -955,8 +1059,13 @@ if(kmodel == MAI_FLAG || kmodel == FRANKEL_FLAG) /* mai scaling */
    
 */
 
+   /*
    clen_s = exp(bigM*(0.5*mag - 2.50));
    clen_d = exp(bigM*(0.3333*mag - 1.50));
+   */
+
+   clen_s = exp(bigM*(0.5*mag - kx_corner));
+   clen_d = exp(bigM*(0.3333*mag - ky_corner));
 
    if(circular_average)
       clen_d = clen_s;
@@ -992,7 +1101,7 @@ if(kmodel == INPUT_CORNERS_FLAG)
    }
 
 if(stfparams.trise < 0.0)
-   stfparams.trise = risetime_coef*1.0e-09*exp(log(mom)/3.0);
+   stfparams.trise = risetime_coef*(1.0e-09*exp(log(mom)/3.0));
 
 /* 20131118: rise time modification for rake and dip => update of GP2010 alphaT parameter */
 
@@ -1006,7 +1115,7 @@ else if(avgdip <= 45.0 && avgdip >= 0.0)
 
 avgrak = 0.0;
 for(j=0;j<ndip*nstk;j++)
-   avgrak = avgrak + psrc[j].rak;
+   avgrak = avgrak + psrc_orig[j].rak;
 
 avgrak = avgrak/((float)(nstk*ndip));
 while(avgrak < -180.0)
@@ -1105,12 +1214,12 @@ dip_r = (float *) check_malloc (nstk*ndip*sizeof(float));
 psrc_rake = (float *) check_malloc (nstk*ndip*sizeof(float));
 
 for(j=0;j<ndip*nstk;j++)
-   psrc_rake[j] = psrc[j].rak;
+   psrc_rake[j] = psrc_orig[j].rak;
 
 /* XXXX */
 /* RWG 2014-02-20 randomized hypocenter */
 if(generate_seed == 1)
-   gseed(&seed,psrc,&flen,&fwid,&dtop,&mag);
+   gseed(&seed,psrc_orig,&flen,&fwid,&dtop,&mag);
 
 /* RWG 2014-03-21 set starting seed */
 starting_seed = seed;
@@ -1130,11 +1239,43 @@ if(random_hypo == 1)
 
 if(read_erf == 1)
    {
-   if(random_hypo == 1)
+   if(uniformgrid_hypo == 1) /* RWG 20140424 added option for uniform grid of hypocenters */
       {
       calc_shypo = 0;
 
+      nhypo_s = (int)((float)(flen/target_hypo_spacing));
+      hypo_ds = target_hypo_spacing;
+      if(nhypo_s < 3)
+         {
+         nhypo_s = 3;
+         hypo_ds = flen/(nhypo_s+1);
+         }
+      hypo_s0 = 0.5*(flen - (nhypo_s-1)*hypo_ds) - 0.5*flen;
+
+      nhypo_d = (int)((float)(fwid/target_hypo_spacing));
+      hypo_dd = target_hypo_spacing;
+      if(nhypo_d < 3)
+         {
+         nhypo_d = 3;
+         hypo_dd = fwid/(nhypo_d+1);
+         }
+      hypo_d0 = 0.5*(fwid - (nhypo_d-1)*hypo_dd);
+
+      ns = nhypo_s*nhypo_d;
+      ih_scnt = 0;
+      ih_dcnt = 0;
+
+      nh = 1;
+      }
+   else if(random_hypo == 1)  /* RWG 2014-02-20 randomized hypocenter */
+      {
+      calc_shypo = 0;
+
+/* RWG 20140424 OLD way
       ns = (int)(0.1*nrup_scale_fac*flen*fwid + 0.5);
+if target_hypo_spacing ~= 4.5, then nrup_scale_fac ~= 0.5
+*/
+      ns = (int)(flen*fwid/(target_hypo_spacing*target_hypo_spacing) + 0.5);
       if(ns < nrup_min)
          ns = nrup_min;
 
@@ -1193,6 +1334,12 @@ sval = 0.0;
 for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
    {
 /*
+   RWG 20160913: Copy "psrc" information from input array so perturbations
+                 are applied to original locations.
+*/
+   copy_psrc(psrc_orig,psrc,nstk,ndip);
+
+/*
    RWG 2014-03-21 set initial seed using increments of starting seed.
    Allows reproducability of ruptures without having to generate entire set.
 */
@@ -1203,8 +1350,20 @@ for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
 
    fprintf(stderr,"js= %d seed= %d ran= %10.6f\n",js,seed,sval);
 
-/* RWG 2014-02-20 randomized hypocenter */
-   if(random_hypo == 1)
+   if(uniformgrid_hypo == 1) /* RWG 20140424 added option for uniform grid of hypocenters */
+      {
+      if(ih_scnt == nhypo_s)
+         {
+         ih_scnt = 0;
+         ih_dcnt++;
+         }
+
+      shypo = hypo_s0 + ih_scnt*hypo_ds;
+      dhypo = hypo_d0 + ih_dcnt*hypo_dd;
+
+      ih_scnt++;
+      }
+   if(random_hypo == 1) /* RWG 2014-02-20 randomized hypocenter */
       {
       if(uniform_prob4hypo == 1)
          rhypo_uniform(&seed,&shypo,&dhypo,&flen,&fwid);
@@ -1217,27 +1376,55 @@ for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
 
 /* do slip */
 
-   /*
-   init_slip_IO(slip_c,nstk2,ndip2,&dstk,&ddip,0,init_slip_file);
-   */
-
    for(j=0;j<ndip2*nstk2;j++)
       {
       slip_c[j].re = 1.0;
       slip_c[j].im = 0.0;
       }
 
-   fft2d(slip_c,nstk2,ndip2,-1,&dstk,&ddip);
+   fft2d_fftw(slip_c,nstk2,ndip2,-1,&dstk,&ddip);
 
    if(kmodel < 100)
       {
       if(use_gaus)
-         kfilt_gaus(slip_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel);
+         kfilt_gaus2(slip_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel,&wavelength_max,&wavelength_min);
       else
          kfilt_rphs(slip_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel);
       }
 
-   fft2d(slip_c,nstk2,ndip2,1,&dks2,&dkd2);
+/* RWG 20180601
+      combine with input slip model, e.g., asperity preservation
+      use tsfac1_c array for input values
+      if slip1_scor=0.0, then input model is not used
+*/
+
+   if(init_slip_file[0] != '\0' && slip1_scor > 0.0)
+      {
+      init_slip_IO(tsfac1_c,nstk2,ndip2,nstk,ndip,&dstk,&ddip,0,init_slip_file);
+      fft2d_fftw(tsfac1_c,nstk2,ndip2,-1,&dstk,&ddip);
+
+      sum = sqrt(tsfac1_c[0].re*tsfac1_c[0].re + tsfac1_c[0].im*tsfac1_c[0].im)/sqrt(slip_c[0].re*slip_c[0].re + slip_c[0].im*slip_c[0].im);
+
+      sf = sum*sqrt(1.0 - slip1_scor*slip1_scor);
+      for(j=0;j<ndip2*nstk2;j++)
+         {
+         slip_c[j].re = slip1_scor*tsfac1_c[j].re + sf*slip_c[j].re;
+         slip_c[j].im = slip1_scor*tsfac1_c[j].im + sf*slip_c[j].im;
+         }
+      }
+
+/* end of asperity preservation */
+
+/* RWG 20180623
+   added option to apply phase shift to slip field (LB33)
+*/
+   if(xshift != 0.0 || yshift != 0.0)
+      {
+      fprintf(stderr," **** xshift= %20.15f yshift= %20.15f\n",xshift,yshift);
+      shift_phase(slip_c,nstk2,ndip2,&dks2,&dkd2,&xshift,&yshift);
+      }
+
+   fft2d_fftw(slip_c,nstk2,ndip2,1,&dks2,&dkd2);
 
 /*
    Copy in to real array.
@@ -1400,7 +1587,7 @@ for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
 /*
    transform slip_c back to wavenumber domain for later use in correlations
 */
-   fft2d(slip_c,nstk2,ndip2,-1,&dstk,&ddip);
+   fft2d_fftw(slip_c,nstk2,ndip2,-1,&dstk,&ddip);
 
 /* end slip */
 
@@ -1412,14 +1599,14 @@ for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
       rake_c[j].im = 0.0;
       }
 
-   fft2d(rake_c,nstk2,ndip2,-1,&dstk,&ddip);
+   fft2d_fftw(rake_c,nstk2,ndip2,-1,&dstk,&ddip);
 
    if(use_gaus)
-      kfilt_gaus(rake_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel);
+      kfilt_gaus2(rake_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel,&wavelength_max,&wavelength_min);
    else
       kfilt_rphs(rake_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel);
 
-   fft2d(rake_c,nstk2,ndip2,1,&dks2,&dkd2);
+   fft2d_fftw(rake_c,nstk2,ndip2,1,&dks2,&dkd2);
 
    rk_avg = 0.0;
    for(j=0;j<ndip;j++)
@@ -1492,10 +1679,10 @@ for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
       tsfac1_c[j].im = 0.0;
       }
 
-   fft2d(tsfac1_c,nstk2,ndip2,-1,&dstk,&ddip);
+   fft2d_fftw(tsfac1_c,nstk2,ndip2,-1,&dstk,&ddip);
 
    if(use_gaus)
-      kfilt_gaus(tsfac1_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel);
+      kfilt_gaus2(tsfac1_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel,&wavelength_max,&wavelength_min);
    else
       kfilt_rphs(tsfac1_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel);
 
@@ -1510,7 +1697,7 @@ for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
       tsfac1_c[j].im = tsfac1_scor*slip_c[j].im + sf*tsfac1_c[j].im;
       }
 
-   fft2d(tsfac1_c,nstk2,ndip2,1,&dks2,&dkd2);
+   fft2d_fftw(tsfac1_c,nstk2,ndip2,1,&dks2,&dkd2);
 
 /*
    Copy in to real array.
@@ -1579,10 +1766,10 @@ for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
       rtime1_c[j].im = 0.0;
       }
 
-   fft2d(rtime1_c,nstk2,ndip2,-1,&dstk,&ddip);
+   fft2d_fftw(rtime1_c,nstk2,ndip2,-1,&dstk,&ddip);
 
    if(use_gaus)
-      kfilt_gaus(rtime1_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel);
+      kfilt_gaus2(rtime1_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel,&wavelength_max,&wavelength_min);
    else
       kfilt_rphs(rtime1_c,nstk2,ndip2,&dks2,&dkd2,&clen_s,&clen_d,&seed,kmodel);
 
@@ -1596,7 +1783,7 @@ for(js=0;js<ns;js++)    /* loop over slip/rupture realizations */
       rtime1_c[j].im = rtime1_scor*slip_c[j].im + sf*rtime1_c[j].im;
       }
 
-   fft2d(rtime1_c,nstk2,ndip2,1,&dks2,&dkd2);
+   fft2d_fftw(rtime1_c,nstk2,ndip2,1,&dks2,&dkd2);
 
 /*
    Copy in to real array.
@@ -1791,12 +1978,12 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
       rough_c[j].im = 0.0;
       }
 
-   fft2d(rough_c,nstk3,ndip3,-1,&dstk3,&ddip3);
+   fft2d_fftw(rough_c,nstk3,ndip3,-1,&dstk3,&ddip3);
 
    hcoef = 1.0;
    kfilt_beta2(rough_c,nstk3,ndip3,&dks3,&dkd3,&hcoef,&lambda_max,&lambda_min,&seed);
 
-   fft2d(rough_c,nstk3,ndip3,1,&dks3,&dkd3);
+   fft2d_fftw(rough_c,nstk3,ndip3,1,&dks3,&dkd3);
 
 /*
    scale roughness field to match desired fractal samplitude-to-wavelength ratio 'alpha_rough'
@@ -1844,13 +2031,16 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
          cosD = cos(rperd*psrc[ip].dip);
          sinD = sin(rperd*psrc[ip].dip);
 
-	 xx = rough_r[ip]*sinD*sinS;
-	 yy = -rough_r[ip]*sinD*cosS;
+	 if(perturb_subfault_location == 1)
+	    {
+	    xx = rough_r[ip]*sinD*sinS;
+	    yy = -rough_r[ip]*sinD*cosS;
 
-	 gen_matrices(amat,ainv,&mrot,&(psrc[ip].lon),&(psrc[ip].lat));
-	 gcproj(&xx,&yy,&(psrc[ip].lon),&(psrc[ip].lat),&erad,&g0,&b0,amat,ainv,0);
+	    gen_matrices(amat,ainv,&mrot,&(psrc[ip].lon),&(psrc[ip].lat));
+	    gcproj(&xx,&yy,&(psrc[ip].lon),&(psrc[ip].lat),&erad,&g0,&b0,amat,ainv,0);
 
-	 psrc[ip].dep = psrc[ip].dep + rough_r[ip]*cosD;
+	    psrc[ip].dep = psrc[ip].dep + rough_r[ip]*cosD;
+	    }
 
 /* compute unit normal to roughness surface in fault plane coordinates-
       ss = along strike (pos. in strike direction)
@@ -1934,13 +2124,13 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
 /*
    transform rough_c back to wavenumber domain for later use in correlations
 */
-   fft2d(rough_c,nstk3,ndip3,-1,&dstk3,&ddip3);
+   fft2d_fftw(rough_c,nstk3,ndip3,-1,&dstk3,&ddip3);
 
 /* end roughness */
 
 /* now do tsfac2 */
 
-   if(tsfac_rand <= 0.0)
+   if(tsfac2_sigma <= 0.0)
       {
       for(ip=0;ip<nstk*ndip;ip++)
          tsfac2_r[ip] = 0.0;
@@ -1953,7 +2143,7 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
          tsfac2_c[j].im = 0.0;
          }
 
-      fft2d(tsfac2_c,nstk3,ndip3,-1,&dstk3,&ddip3);
+      fft2d_fftw(tsfac2_c,nstk3,ndip3,-1,&dstk3,&ddip3);
 
       hcoef = 1.0;
       kfilt_beta2(tsfac2_c,nstk3,ndip3,&dks3,&dkd3,&hcoef,&lambda_max,&lambda_min,&seed);
@@ -1969,7 +2159,8 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
          tsfac2_c[j].im = tsfac2_scor*rough_c[j].im + sf*tsfac2_c[j].im;
          }
 
-      fft2d(tsfac2_c,nstk3,ndip3,1,&dks3,&dkd3);
+      kfilter(tsfac2_c,nstk3,ndip3,&dks3,&dkd3,kord,&tsfac2_lambda_max,&tsfac2_lambda_min);
+      fft2d_fftw(tsfac2_c,nstk3,ndip3,1,&dks3,&dkd3);
 
 /*
    compute average for initial field then remove it (should be zero anyway)
@@ -2006,7 +2197,7 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
 
       tsf2_sig = sqrt(tsf2_sig/(ndip*nstk));
 
-      sigfac = tsfac_rand/tsf2_sig;
+      sigfac = tsfac2_sigma/tsf2_sig;
       for(ip=0;ip<nstk*ndip;ip++)
          tsfac2_r[ip] = sigfac*(tsfac2_r[ip] - tsf2_avg) + tsf2_avg;
 
@@ -2044,7 +2235,7 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
          rtime2_c[j].im = 0.0;
          }
 
-      fft2d(rtime2_c,nstk3,ndip3,-1,&dstk3,&ddip3);
+      fft2d_fftw(rtime2_c,nstk3,ndip3,-1,&dstk3,&ddip3);
 
       hcoef = 1.0;
       kfilt_beta2(rtime2_c,nstk3,ndip3,&dks3,&dkd3,&hcoef,&lambda_max,&lambda_min,&seed);
@@ -2060,7 +2251,7 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
          rtime2_c[j].im = rtime2_scor*rough_c[j].im + sf*rtime2_c[j].im;
          }
 
-      fft2d(rtime2_c,nstk3,ndip3,1,&dks3,&dkd3);
+      fft2d_fftw(rtime2_c,nstk3,ndip3,1,&dks3,&dkd3);
 
 /*
    compute average for initial field then remove it (should be zero anyway)
@@ -2128,7 +2319,7 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
 
    for(ih=0;ih<nh;ih++)    /* loop over hypocenter realizations */
       {
-      if(random_hypo != 1 && calc_shypo == 1)
+      if(uniformgrid_hypo != 1 && random_hypo != 1 && calc_shypo == 1)
          shypo = sh0 + ih*shypo_step - 0.5*flen;
 
 /* calculate rupture time */
@@ -2146,7 +2337,15 @@ fprintf(stderr,"ratio (negative rt)/(positive rt)= %f\n",neg_sum/(rt1_avg+neg_su
 
       if(fdrup_time == 1)
          {
-         get_rspeed(&vmod,rspd,psrc,nstk,ndip,&slp_max,&slp_avg,&rvfrac,&shal_vrup,&shal_vrdep1,&shal_vrdep2,&deep_vrup,&deep_vrdep1,&deep_vrdep2,&rvfmin,&rvfmax,fdrup_scale_slip);
+	 if(rvfrac_slip_sig > 0.0)
+	    {
+	    fptr = slip_r;
+	    fptr = tsfac1_r;
+
+            get_rspeed_rvfslip(&vmod,rspd,psrc,fptr,nstk,ndip,&rvfrac,&shal_vrup,&shal_vrdep1,&shal_vrdep2,&deep_vrup,&deep_vrdep1,&deep_vrdep2,&rvfmin,&rvfmax,&rvfrac_slip_sig);
+	    }
+	 else
+            get_rspeed(&vmod,rspd,psrc,nstk,ndip,&slp_max,&slp_avg,&rvfrac,&shal_vrup,&shal_vrdep1,&shal_vrdep2,&deep_vrup,&deep_vrdep1,&deep_vrdep2,&rvfmin,&rvfmax,fdrup_scale_slip);
 
 	 if(seg_delay == 1)
             get_rsegdelay(rspd,nstk,ndip,&dh,nseg_bounds,gbnd,gwid,rvfac_seg);
@@ -2273,23 +2472,37 @@ fprintf(stderr,"ixs= %d iys= %d\n",ixs,iys);
 	    else
 	       rt = fdrt[(i+istk_off) + (j+idip_off)*nstk_fd];
 
-/* 20150320 RWG:
+/* 20180423 RWG:
 
-   New way with array of gaussian values
+   -add rupture time perturbations using tsfac_main which is determined from:
 
-   Add random perturbations to tsfac so that it is not 1:1 correlated with slip.
-   Perturbations are log normal with ln(sigma)=tsfac_rand*tsfac.  Default for
-   tsfac_rand=0.2.
-   
+        tsfac_main = tsfac_bzero + tsfac_slope*1.0e-09*Mo^(1/3)
+
+    defaults: tsfac_bzero= -0.1
+              tsfac_slope= -0.5
+
+   -tsfac1_sigma*tsfac_main sets sigma for these perturbations (default tsfac1_sigma=1.0)
+   -tsfac1_scor sets correlation level with slip (default tsfac1_scor=0.8)
 */
 
-	    tf = tsfac*exp(tsfac2_r[ip]);
-            psrc[ip].rupt = rt + tf*tsfac1_r[ip];
+	    if(tsfac_main > -1.0e+10)
+               psrc[ip].rupt = rt + tsfac_main*tsfac1_r[ip];
+
+/*  RWG 2017-02-09
+
+   -add rupture time perturbations using tsfac2_r which is partially correlated with roughness
+   -tsfac2_sigma sets sigma for these perturbations
+*/
+
+	    else if(tsfac2_sigma > 0.0)
+               psrc[ip].rupt = rt + tsfac2_r[ip];
 
 	    if(psrc[ip].rupt < tsmin)
 	       tsmin = psrc[ip].rupt;
             }
          }
+
+fprintf(stderr,"tsmin= %.5f\n",tsmin);
 
       /* adjust to start at rt=0.0, but only if hypo is in this segment */
 
@@ -2309,7 +2522,7 @@ fprintf(stderr,"ixs= %d iys= %d\n",ixs,iys);
 
          else if(read_erf == 1)
 	    {
-            if(random_hypo == 1)
+            if(uniformgrid_hypo == 1 || random_hypo == 1)
                sprintf(str,"%s-r%.6d.srf",outfile,js);
 
             else             /* old way */

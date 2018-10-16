@@ -7,7 +7,7 @@
 int main(int ac,char **av)
 {
 int nseg;
-char infile[256], type[64], outfile[256];
+char infile[4096], type[4096], outfile[4096];
 
 struct standrupformat srf;
 

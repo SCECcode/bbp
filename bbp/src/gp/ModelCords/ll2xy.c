@@ -134,7 +134,7 @@ else if(geoproj == 2)
    dlat = mlat;
    geoutm_(&dlon,&dlat,&xr0,&yr0,&utm_zone,&geo2utm);
 
-   fprintf(stderr,"UTM Zone= %d\n",utm_zone);
+   fprintf(stderr,"UTM Zone= %d xr0= %15.8e yr0= %15.8e\n",utm_zone,xr0,yr0);
    }
 
 if(strcmp(outfile,"stdout") == 0)
@@ -176,10 +176,34 @@ while(fgets(str,512,fpr) != NULL)
       yr = -xs*sinR + ys*cosR - yshift;
       }
 
+/*
    if(ns == 3)
-      fprintf(fpw,"%10.5f %10.5f %s\n",xr,yr,name);
+      fprintf(fpw,"%14.6e %14.6e %s\n",xr,yr,name);
    else if(ns == 2)
-      fprintf(fpw,"%10.5f %10.5f\n",xr,yr);
+      fprintf(fpw,"%14.6e %14.6e\n",xr,yr);
+*/
+   ns = 0;
+   while(str[ns] == ' ' || str[ns] == '\t')
+      ns++;
+
+   test = 0;
+   while(test != 2 && str[ns] != '\n')
+      {
+      if(str[ns] == ' ' || str[ns] == '\t' || str[ns] == '\n')
+         {
+         test++;
+	 if(test != 2)
+	    {
+            ns++;
+            while(str[ns] == ' ' || str[ns] == '\t')
+               ns++;
+	    }
+	 }
+      else
+         ns++;
+      }
+
+   fprintf(fpw,"%14.6e %14.6e%s",xr,yr,&str[ns]);
    }
 fclose(fpr);
 fclose(fpw);

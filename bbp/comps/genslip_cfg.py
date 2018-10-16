@@ -45,7 +45,7 @@ class GenslipCfg(object):
         """
 
         # User defined parms
-        self.SLIP_SIGMA = 0.85
+        self.SLIP_SIGMA = 0.75
         # This is now the default inside genslip-3.3, so don't need to use it
         # self.RAND_RAKE_RANGE = 60
 

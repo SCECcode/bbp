@@ -126,6 +126,8 @@ else if(geoproj == 2)
    dlon = mlon;
    dlat = mlat;
    geoutm_(&dlon,&dlat,&xr0,&yr0,&utm_zone,&geo2utm);
+
+   fprintf(stderr,"UTM Zone= %d xr0= %13.5e yr0= %13.5e\n",utm_zone,xr0,yr0);
    }
 
 name[0] = '\0';
@@ -155,19 +157,25 @@ while(fgets(str,512,fpr) != NULL)
          }
       else if(geoproj == 2)
          {
-         dxr = xr0 + 1000.0*((xp+xshift)*ar1 - (yp+yshift)*ar2);
-         dyr = yr0 - 1000.0*((xp+xshift)*ar4 + (yp+yshift)*ar3);
+         dxr = xr0 + 1000.0*((xp+xshift)*cosR - (yp+yshift)*sinR);
+         dyr = yr0 - 1000.0*((xp+xshift)*sinR + (yp+yshift)*cosR);
          geoutm_(&dlon,&dlat,&dxr,&dyr,&utm_zone,&utm2geo);
+
+	 /*
+         dxr = xp;
+         dyr = yp;
+         geoutm_(&dlon,&dlat,&dxr,&dyr,&utm_zone,&utm2geo);
+	 */
 
          plon = dlon;
          plat = dlat;
          }
 
    if(nr == 3)
-      fprintf(fpw,"%11.5f %11.5f %s\n",plon,plat,name);
+      fprintf(fpw,"%12.6f %12.6f %s\n",plon,plat,name);
 
    if(nr == 2)
-      fprintf(fpw,"%11.5f %11.5f\n",plon,plat);
+      fprintf(fpw,"%12.6f %12.6f\n",plon,plat);
    }
 
 fclose(fpr);

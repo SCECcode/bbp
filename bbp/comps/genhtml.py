@@ -261,17 +261,13 @@ class GenHTML(object):
                          (os.path.join(".", "%s" % (dist_log_plot)),
                           "PNG"))
             idxout.write("</tr>\n")
-        # Add station map and kml file
+        # Add station map
         if os.path.exists(os.path.join(a_outdir, "station_map.png")):
             idxout.write("<tr>\n")
             idxout.write("<td>Station Map</td>\n")
             idxout.write('<td><a href="%s">%s</a></td>\n' %
                          (os.path.join(".", "station_map.png"),
                           "PNG"))
-            if os.path.exists(os.path.join(a_outdir, "station_map.kml")):
-                idxout.write('<td><a href="%s">%s</a></td>\n' %
-                             (os.path.join(".", "station_map.kml"),
-                              "KML"))
             idxout.write("</tr>\n")
         # Now get SRF file and plot
         srfs = glob.glob(os.path.join(a_outdir, "*.srf"))

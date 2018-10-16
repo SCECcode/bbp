@@ -2,10 +2,11 @@
 #include "structure.h"
 #include "function.h"
 #include "defs.h"
+#include "fftw3.h"
 
 extern void fourg_(struct complex *, int *, int *, float *);
 
-void init_slip_IO(struct complex *sc,int nx,int ny,float *dx,float *dy,int flip,char *file)
+void init_slip_IO(struct complex *sc,int nx2,int ny2,int nx,int ny,float *dx,float *dy,int flip,char *file)
 {
 FILE *fpr;
 char str[1024];
@@ -15,7 +16,7 @@ int ix, iy, ip, ip1;
 
 if(file[0] == '\0')
    {
-   for(ip=0;ip<nx*ny;ip++)
+   for(ip=0;ip<nx2*ny2;ip++)
       {
       sc[ip].re = 0.5;
       sc[ip].im = 0.0;
@@ -28,7 +29,7 @@ else
    fgets(str,1024,fpr);
    sscanf(str,"%f",&slip);
 
-   for(ip=0;ip<nx*ny;ip++)
+   for(ip=0;ip<nx2*ny2;ip++)
       {
       sc[ip].re = slip;
       sc[ip].im = 0.0;
@@ -40,33 +41,33 @@ else
 
       iystart = 0;
       if(flip == 1)
-         iystart = ny/2;
+         iystart = ny2/2;
 
 iystart = 0;
 
       ix0 = (int)((0.5*nx*(*dx) + x0)/(*dx) + 0.5);
       if(ix0 < 0)
          ix0 = 0;
-      if(ix0 > nx)
-         ix0 = nx;
+      if(ix0 > nx2)
+         ix0 = nx2;
 
       iy0 = iystart + (int)(y0/(*dy) + 0.5);
       if(iy0 < iystart)
          iy0 = iystart;
-      if(iy0 > ny)
-         iy0 = ny;
+      if(iy0 > ny2)
+         iy0 = ny2;
 
       ix1 = (int)((0.5*nx*(*dx) + x1)/(*dx) + 0.5);
       if(ix1 < 0)
          ix1 = 0;
-      if(ix1 > nx)
-         ix1 = nx;
+      if(ix1 > nx2)
+         ix1 = nx2;
 
       iy1 = iystart + (int)(y1/(*dy) + 0.5) + 1;
       if(iy1 < iystart)
          iy1 = iystart;
-      if(iy1 > ny)
-         iy1 = ny;
+      if(iy1 > ny2)
+         iy1 = ny2;
 
 fprintf(stderr,"ix0= %d ix1= %d iy0= %d iy1= %d\n",ix0,ix1,iy0,iy1);
 
@@ -74,7 +75,7 @@ fprintf(stderr,"ix0= %d ix1= %d iy0= %d iy1= %d\n",ix0,ix1,iy0,iy1);
          {
          for(ix=ix0;ix<ix1;ix++)
             {
-	    ip = ix+iy*nx;
+	    ip = ix+iy*nx2;
 	    sc[ip].re = slip;
 	    }
 	 }
@@ -86,7 +87,7 @@ fprintf(stderr,"ix0= %d ix1= %d iy0= %d iy1= %d\n",ix0,ix1,iy0,iy1);
             {
             for(ix=ix0;ix<ix1;ix++)
                {
-	       ip = ix+iy*nx;
+	       ip = ix+iy*nx2;
 	       sc[ip].re = slip;
 	       }
 	    }
@@ -96,12 +97,12 @@ fprintf(stderr,"ix0= %d ix1= %d iy0= %d iy1= %d\n",ix0,ix1,iy0,iy1);
 
    if(flip == 1)
       {
-      for(iy=0;iy<ny/2;iy++)
+      for(iy=0;iy<ny2/2;iy++)
          {
-         for(ix=0;ix<nx;ix++)
+         for(ix=0;ix<nx2;ix++)
             {
-            ip = ix+iy*nx;
-            ip1 = ix+((ny-1)-iy)*nx;
+            ip = ix+iy*nx2;
+            ip1 = ix+((ny2-1)-iy)*nx2;
 
             sc[ip1].re = sc[ip].re;
             }
@@ -455,6 +456,84 @@ else
    }
 }
 
+void scale_slip_r_vsden(struct pointsource *ps,float *sr,int nstk,int ndip,int nys,float *dx,float *dy,float *dtop,float *dip,float *mom,float *savg,float *smax)
+{
+float sum, fac, sinD, area;
+float zz;
+int i, j, k;
+
+float rperd = 0.017453293;
+
+sinD = sin((*dip)*rperd);
+area = (*dx)*(*dy)*1.0e+10;    /* in CMS units */
+
+if(*savg < 0.0)
+   {
+   sum = 0.0;
+   for(j=0;j<ndip;j++)
+      {
+      for(i=0;i<nstk;i++)
+         sum = sum + area*ps[i + j*nstk].mu*sr[i + (j+nys)*nstk];
+      }
+
+   fac = (*mom)/sum;
+
+   *smax = 0.0;
+   *savg = 0.0;
+   for(j=0;j<ndip;j++)
+      {
+      for(i=0;i<nstk;i++)
+         {
+         ps[i + j*nstk].slip = fac*sr[i + (j+nys)*nstk];
+
+         *savg = *savg + ps[i + j*nstk].slip;
+         if(ps[i + j*nstk].slip > *smax)
+            *smax = ps[i + j*nstk].slip;
+         }
+      }
+   *savg = (*savg)/(float)(nstk*ndip);
+   }
+else
+   {
+   sinD = sin((*dip)*rperd);
+   area = (*dx)*(*dy)*1.0e+10;    /* in CMS units */
+
+   sum = 0.0;
+   for(j=0;j<ndip;j++)
+      {
+      for(i=0;i<nstk;i++)
+         {
+         sum = sum + sr[i + (j+nys)*nstk];
+         }
+      }
+
+   fac = (*savg)*(float)(nstk*ndip)/(sum);
+
+   *smax = 0.0;
+   *savg = 0.0;
+   for(j=0;j<ndip;j++)
+      {
+      for(i=0;i<nstk;i++)
+         {
+         ps[i + j*nstk].slip = fac*sr[i + (j+nys)*nstk];
+
+         *savg = *savg + ps[i + j*nstk].slip;
+         if(ps[i + j*nstk].slip > *smax)
+            *smax = ps[i + j*nstk].slip;
+         }
+      }
+   *savg = (*savg)/(float)(nstk*ndip);
+
+   sum = 0.0;
+   for(j=0;j<ndip;j++)
+      {
+      for(i=0;i<nstk;i++)
+         sum = sum + area*ps[i + j*nstk].mu*sr[i + (j+nys)*nstk];
+      }
+   *mom = sum;
+   }
+}
+
 void kfilt(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,long *seed,int kflag)
 {
 int i, j, ip;
@@ -740,6 +819,70 @@ for(i=0;i<n1;i++)
 
 free(xtc);
 free(space);
+}
+
+/* 20160914: fftw from Scott C. */
+
+void fft2d_fftw(struct complex *xc,int n1,int n2,int isgn,float *d1,float *d2)
+{
+int i, j, ip;
+float *space;
+struct complex *xtc;
+float normf;
+
+normf = (*d1)*(*d2);
+
+fftwf_plan plan;
+fftwf_complex *arr = check_malloc(sizeof(fftwf_complex)*n1);
+
+if (isgn==-1) {
+        plan = fftwf_plan_dft_1d(n1, arr, arr, FFTW_FORWARD, FFTW_ESTIMATE);
+} else if (isgn==1){
+        plan = fftwf_plan_dft_1d(n1, arr, arr, FFTW_BACKWARD, FFTW_ESTIMATE);
+}
+
+for(j=0;j<n2;j++) {
+   for (i=0; i<n1; i++) {
+        arr[i][0] = (xc+j*n1+i)->re;
+        arr[i][1] = (xc+j*n1+i)->im;
+   }
+   fftwf_execute(plan);
+   for (i=0; i<n1; i++) {
+        (xc+j*n1+i)->re = arr[i][0];
+        (xc+j*n1+i)->im = arr[i][1];
+   }
+}
+arr = check_realloc(arr, n2*sizeof(fftwf_complex));
+
+if (isgn==-1) {
+        plan = fftwf_plan_dft_1d(n2, arr, arr, FFTW_FORWARD, FFTW_ESTIMATE);
+} else if (isgn==1){
+        plan = fftwf_plan_dft_1d(n2, arr, arr, FFTW_BACKWARD, FFTW_ESTIMATE);
+}
+
+for(i=0;i<n1;i++)
+   {
+   for(j=0;j<n2;j++)
+      {
+      ip = i + j*n1;
+
+      arr[j][0] = xc[ip].re;
+      arr[j][1] = xc[ip].im;
+      }
+
+   fftwf_execute(plan);
+
+   for(j=0;j<n2;j++)
+      {
+      ip = i + j*n1;
+
+      xc[ip].re = normf*arr[j][0];
+      xc[ip].im = normf*arr[j][1];
+      }
+   }
+
+fftwf_destroy_plan(plan);
+fftwf_free(arr);
 }
 
 void kfilt_lw(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,long *seed,int kflag,float *fl,float *fw)
@@ -1347,6 +1490,444 @@ for(j=1;j<=(ny0-1)/2;j++)
    }
 
 for(i=1;i<=(nx0-1)/2;i++)
+   {
+   s0[nx0-i].re = s0[i].re;
+   s0[nx0-i].im = -s0[i].im;
+   }
+
+for(j=1;j<=ny0/2;j++)
+   {
+   for(i=1;i<=nx0/2;i++)
+      {
+      s0[(nx0-i)+(ny0-j)*nx0].re = s0[i+j*nx0].re;
+      s0[(nx0-i)+(ny0-j)*nx0].im = -s0[i+j*nx0].im;
+
+      s0[i+(ny0-j)*nx0].re = s0[(nx0-i)+j*nx0].re;
+      s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
+      }
+   }
+}
+
+/* 2016-10-21 RWG
+   added option to high- and low-pass filter random fields
+*/
+
+void kfilt_gaus2(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,long *seed,int kflag,float *lambda_max,float *lambda_min)
+{
+int i, j, ip;
+float kx, ky, fac, amp, amp0, phs, xl2, yl2;
+float phs1, fac1, wtS, wtD;
+float xp, k2, invkc2;
+float fre, fim;
+float lmax2, lmin2;
+int ndkc;
+
+int ord = 4;
+
+float hcoef, beta2;
+
+float fnorm;
+float fzero = 0.0;
+float fone = 1.0;
+
+fnorm = 1.0/sqrt(2.0);
+
+hcoef = 2.00; /* H=1.00, hcoef = H + 1 */
+hcoef = 1.80; /* H=0.80, hcoef = H + 1 */
+hcoef = 1.75; /* H=0.75, hcoef = H + 1 */
+
+beta2 = hcoef;
+beta2 = 2.0; /* strictly self-similar */
+
+amp0 = sqrt(s0[0].re*s0[0].re + s0[0].im*s0[0].im);
+
+xl2 = (*xl)*(*xl);
+yl2 = (*yl)*(*yl);
+
+lmax2 = (*lambda_max)*(*lambda_max);
+lmin2 = (*lambda_min)*(*lambda_min);
+
+for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
+   {
+   if(j <= ny0/2)
+      ky = j*(*dky);
+   else
+      ky = (j - ny0)*(*dky);
+
+   for(i=0;i<nx0;i++)
+      {
+      if(i <= nx0/2)
+         kx = i*(*dkx);
+      else
+         kx = (i - nx0)*(*dkx);
+
+      ip = i + j*nx0;
+
+      amp = kx*kx*xl2 + ky*ky*yl2;
+
+      /* default is somerville scaling */
+      fac = amp0/sqrt(1.0 + amp*amp);
+
+      if(kflag == MAI_FLAG) /* mai scaling */
+         {
+         fac = exp((hcoef)*log(1.0+amp));
+         fac = amp0/sqrt(fac);
+	 }
+
+      if(kflag == SOMERVILLE_FLAG)      /* somerville scaling */
+         fac = amp0/sqrt(1.0 + amp*amp);
+
+      if(kflag == FRANKEL_FLAG) /* frankel(2009) scaling */
+         {
+	 if(amp < 1.0)
+	    fac = amp0;
+         else
+            fac = amp0*exp(-0.5*beta2*log(amp));
+	 }
+
+      k2 = kx*kx + ky*ky;
+      if(k2 > 0.0)
+         fac = fac/((1.0 + exp(ord*log(k2*lmin2)))*(1.0 + exp(-ord*log(k2*lmax2))));
+
+      fre = fnorm*gaus_rand(&fone,&fzero,seed);
+      fim = fnorm*gaus_rand(&fone,&fzero,seed);
+
+      s0[ip].re = fac*fre;
+      s0[ip].im = fac*fim;
+      }
+   }
+
+/* 
+   Enforce DC & Nyquists to be real
+*/
+
+s0[0].re = amp0;
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+/* 
+   Enforce Hermitian symmetry to make slip real valued
+*/
+
+/*
+for(j=1;j<=(ny0-1)/2;j++)
+   {
+   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
+   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
+   }
+
+for(i=1;i<=(nx0-1)/2;i++)
+   {
+   s0[nx0-i].re = s0[i].re;
+   s0[nx0-i].im = -s0[i].im;
+   }
+*/
+for(j=1;j<=(ny0/2)-1;j++)
+   {
+   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
+   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
+   }
+
+for(i=1;i<=(nx0/2)-1;i++)
+   {
+   s0[nx0-i].re = s0[i].re;
+   s0[nx0-i].im = -s0[i].im;
+   }
+
+for(j=1;j<=ny0/2;j++)
+   {
+   for(i=1;i<=nx0/2;i++)
+      {
+      s0[(nx0-i)+(ny0-j)*nx0].re = s0[i+j*nx0].re;
+      s0[(nx0-i)+(ny0-j)*nx0].im = -s0[i+j*nx0].im;
+
+      s0[i+(ny0-j)*nx0].re = s0[(nx0-i)+j*nx0].re;
+      s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
+      }
+   }
+}
+
+/* 2017-xx-xx RWG
+   added option to allow detreminstic specification of low wavenumbers/asperities
+*/
+
+void kfilter(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,int ord,float *lambda_max,float *lambda_min)
+{
+int i, j, ip;
+float kx, ky, fac, k2;
+float lmax2, lmin2;
+
+lmax2 = (*lambda_max)*(*lambda_max);
+lmin2 = (*lambda_min)*(*lambda_min);
+
+for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
+   {
+   if(j <= ny0/2)
+      ky = j*(*dky);
+   else
+      ky = (j - ny0)*(*dky);
+
+   for(i=0;i<nx0;i++)
+      {
+      if(i <= nx0/2)
+         kx = i*(*dkx);
+      else
+         kx = (i - nx0)*(*dkx);
+
+      ip = i + j*nx0;
+
+      k2 = kx*kx + ky*ky;
+      fac = 1.0/((1.0 + exp(ord*log(k2*lmin2)))*(1.0 + exp(-ord*log(k2*lmax2))));
+
+      s0[ip].re = fac*s0[ip].re;
+      s0[ip].im = fac*s0[ip].im;
+      }
+   }
+
+/* 
+   Enforce DC & Nyquists to be real
+*/
+
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+/* 
+   Enforce Hermitian symmetry to make slip real valued
+*/
+
+for(j=1;j<=(ny0-1)/2;j++)
+   {
+   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
+   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
+   }
+
+for(i=1;i<=(nx0-1)/2;i++)
+   {
+   s0[nx0-i].re = s0[i].re;
+   s0[nx0-i].im = -s0[i].im;
+   }
+
+for(j=1;j<=ny0/2;j++)
+   {
+   for(i=1;i<=nx0/2;i++)
+      {
+      s0[(nx0-i)+(ny0-j)*nx0].re = s0[i+j*nx0].re;
+      s0[(nx0-i)+(ny0-j)*nx0].im = -s0[i+j*nx0].im;
+
+      s0[i+(ny0-j)*nx0].re = s0[(nx0-i)+j*nx0].re;
+      s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
+      }
+   }
+}
+
+/* 2017-xx-xx RWG
+   added option to allow detreminstic specification of low wavenumbers/asperities
+*/
+
+void kfilt_gaus2_asp(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,long *seed,int kflag,float *lambda_max,float *lambda_min)
+{
+int i, j, ip;
+float kx, ky, fac, amp, amp0, phs, xl2, yl2;
+float phs1, fac1, wtS, wtD;
+float xp, k2, invkc2;
+float fre, fim;
+float lmax2, lmin2;
+int ndkc;
+
+int ord = 4;
+
+float pi = 3.14159265;
+float hcoef, beta2;
+
+float fnorm;
+float fzero = 0.0;
+float fone = 1.0;
+
+fnorm = 0.1/sqrt(2.0);
+fnorm = 0.3/sqrt(2.0);
+fnorm = 1.0/sqrt(2.0);
+
+hcoef = 2.00; /* H=1.00, hcoef = H + 1 */
+hcoef = 1.80; /* H=0.80, hcoef = H + 1 */
+hcoef = 1.75; /* H=0.75, hcoef = H + 1 */
+
+beta2 = hcoef;
+beta2 = 2.0; /* strictly self-similar */
+
+amp0 = sqrt(s0[0].re*s0[0].re + s0[0].im*s0[0].im);
+
+xl2 = (*xl)*(*xl);
+yl2 = (*yl)*(*yl);
+
+lmax2 = (*lambda_max)*(*lambda_max);
+lmin2 = (*lambda_min)*(*lambda_min);
+
+for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
+   {
+   if(j <= ny0/2)
+      ky = j*(*dky);
+   else
+      ky = (j - ny0)*(*dky);
+
+   for(i=0;i<nx0;i++)
+      {
+      if(i <= nx0/2)
+         kx = i*(*dkx);
+      else
+         kx = (i - nx0)*(*dkx);
+
+      ip = i + j*nx0;
+
+      amp = kx*kx*xl2 + ky*ky*yl2;
+
+      /* default is somerville scaling */
+      fac = amp0/sqrt(1.0 + amp*amp);
+
+      if(kflag == MAI_FLAG) /* mai scaling */
+         {
+         fac = exp((hcoef)*log(1.0+amp));
+         fac = amp0/sqrt(fac);
+	 }
+
+      if(kflag == SOMERVILLE_FLAG)      /* somerville scaling */
+         fac = amp0/sqrt(1.0 + amp*amp);
+
+      if(kflag == FRANKEL_FLAG) /* frankel(2009) scaling */
+         {
+	 if(amp < 1.0)
+	    fac = amp0;
+         else
+            fac = amp0*exp(-0.5*beta2*log(amp));
+	 }
+
+/*   XXXXXX    for asperity preservation
+*/
+if(amp > 1.0e+20)
+	 {
+         k2 = kx*kx + ky*ky;
+         if(k2 > 0.0)
+            fac = fac/((1.0 + exp(ord*log(k2*lmin2)))*(1.0 + exp(-ord*log(k2*lmax2))));
+
+         fre = fnorm*gaus_rand(&fone,&fzero,seed);
+         fim = fnorm*gaus_rand(&fone,&fzero,seed);
+
+         s0[ip].re = fac*fre;
+         s0[ip].im = fac*fim;
+         }
+      }
+   }
+
+/* 
+   Enforce DC & Nyquists to be real
+*/
+
+s0[0].re = amp0;
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+/* 
+   Enforce Hermitian symmetry to make slip real valued
+*/
+
+for(j=1;j<=(ny0-1)/2;j++)
+   {
+   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
+   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
+   }
+
+for(i=1;i<=(nx0-1)/2;i++)
+   {
+   s0[nx0-i].re = s0[i].re;
+   s0[nx0-i].im = -s0[i].im;
+   }
+
+for(j=1;j<=ny0/2;j++)
+   {
+   for(i=1;i<=nx0/2;i++)
+      {
+      s0[(nx0-i)+(ny0-j)*nx0].re = s0[i+j*nx0].re;
+      s0[(nx0-i)+(ny0-j)*nx0].im = -s0[i+j*nx0].im;
+
+      s0[i+(ny0-j)*nx0].re = s0[(nx0-i)+j*nx0].re;
+      s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
+      }
+   }
+}
+
+/* 2018-06-22 RWG
+   added option to apply phase-shift to random field
+*/
+
+void shift_phase(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,double *xshift,double *yshift)
+{
+int i, j, ip;
+float kx, ky, fac, amp0;
+
+float xre, yre, tre, xim, yim, tim;
+double xarg, yarg, pi;
+
+pi = 4.0*atan(1.0);
+xarg = 2.0*pi*(*xshift);
+yarg = 2.0*pi*(*yshift);
+
+amp0 = sqrt(s0[0].re*s0[0].re + s0[0].im*s0[0].im);
+
+for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
+   {
+   if(j <= ny0/2)
+      ky = j*(*dky);
+   else
+      ky = (j - ny0)*(*dky);
+
+   for(i=0;i<nx0;i++)
+      {
+      if(i <= nx0/2)
+         kx = i*(*dkx);
+      else
+         kx = (i - nx0)*(*dkx);
+
+      ip = i + j*nx0;
+
+      xre = cos(xarg*kx);
+      xim = -sin(xarg*kx);
+      yre = cos(yarg*ky);
+      yim = -sin(yarg*ky);
+
+      tre = xre*s0[ip].re - xim*s0[ip].im;
+      tim = xre*s0[ip].im + xim*s0[ip].re;
+
+      s0[ip].re = tre*yre - tim*yim;
+      s0[ip].im = tre*yim + tim*yre;
+      }
+   }
+
+/* 
+   Enforce DC & Nyquists to be real
+*/
+
+s0[0].re = amp0;
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+/* 
+   Enforce Hermitian symmetry to make slip real valued
+*/
+
+for(j=1;j<=(ny0/2)-1;j++)
+   {
+   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
+   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
+   }
+
+for(i=1;i<=(nx0/2)-1;i++)
    {
    s0[nx0-i].re = s0[i].re;
    s0[nx0-i].im = -s0[i].im;

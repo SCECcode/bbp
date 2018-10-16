@@ -173,7 +173,7 @@ class Genslip(object):
                                             cfg.CFGDICT["dwid"])
         a_gsftmp = os.path.join(a_tmpdir, r_gsftmp)
 
-        r_outroot = "m%.2f-%.2fx%.2f_s%d-v5.2.2" % (cfg.CFGDICT["magnitude"],
+        r_outroot = "m%.2f-%.2fx%.2f_s%d-v5.4.1" % (cfg.CFGDICT["magnitude"],
                                                     cfg.CFGDICT["dlen"],
                                                     cfg.CFGDICT["dwid"],
                                                     cfg.CFGDICT["seed"])
@@ -191,7 +191,7 @@ class Genslip(object):
                        cfg.CFGDICT["fault_width"], nstk, ndip) + "EOF")
         bband_utils.runprog(progstring)
 
-        progstring = ("%s/genslip-v5.2.2 read_erf=0 write_srf=1 " %
+        progstring = ("%s/genslip-v5.4.1 read_erf=0 write_srf=1 " %
                       (install.A_GP_BIN_DIR) +
                       "read_gsf=1 write_gsf=0 infile=%s " % (a_gsftmp) +
                       "mag=%.2f nstk=%d ndip=%d " %
@@ -221,7 +221,9 @@ class Genslip(object):
                       "srf_version=2.0 rake_sigma=15.0 fdrup_time=1 " +
                       "deep_vrup=0.6 use_gaus=1 alpha_rough=0.01 " +
                       "lambda_min=0.08 tsfac_coef=1.1 tsfac1_sigma=1.0 " +
-                      "tsfac1_scor=0.8 rtime1_sigma=0.85 rtime1_scor=0.8 " +
+                      "tsfac1_scor=0.8 rtime1_sigma=%f rtime1_scor=0.5 " %
+                      (self.slip_sigma) +
+                      "tsfac_bzero=-0.1 tsfac_slope=-0.5 " +
                       "> %s 2>> %s" % (a_srffile, self.log))
         bband_utils.runprog(progstring)
 

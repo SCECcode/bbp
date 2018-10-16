@@ -20,6 +20,15 @@ c      print *,h,ns,ntot,ttime(1),slwns(1)
 
       eps = 1e-5
 c     
+
+c RWG 20160920
+c   Added explicit initialation of ttime() to zero; error caught by Scott C. when called multiple
+c   times by rupture generator
+
+        do i=1,ntot
+          ttime(i) = 0.0
+        enddo
+
       ttime(IS + m*(JS-1)) = 0.0
       IF(IS.LT.M) ttime(IS+1 + m*(JS-1)) = ttime(IS + m*(JS-1)) + 0.5*h*(slwns(IS+1 + m*(JS-1))+slwns(IS + m*(JS-1)))
       IF(JS.LT.N) ttime(IS + m*((JS-1)+1)) = ttime(IS + m*(JS-1)) + 0.5*h*(slwns(IS + m*((JS-1)+1))+slwns(IS + m*(JS-1)))

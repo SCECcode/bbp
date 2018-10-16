@@ -28,7 +28,6 @@ import fault_utils
 import plot_utils
 from station_list import StationList
 from install_cfg import InstallCfg
-import simplekml
 import PlotMap
 
 class Plot_Map(object):
@@ -46,34 +45,6 @@ class Plot_Map(object):
         self.east = None
         self.west = None
         self.trace = None
-
-    def create_kml_output(self, a_station_file, kml_file,
-                          hypo_lat=None, hypo_lon=None):
-        """
-        Creates a kml output file containing all stations and the fault
-        """
-        kml = simplekml.Kml()
-        stl = StationList(a_station_file).getStationList()
-        # Add stations first
-        for stat in stl:
-            kml.newpoint(name=stat.scode, coords=[(stat.lon, stat.lat)])
-        # Now add hypocenter
-        if hypo_lat is not None and hypo_lon is not None:
-            hyp = kml.newpoint(name="Hypocenter", coords=[(hypo_lon, hypo_lat)])
-            hyp.style.iconstyle.color = simplekml.Color.red
-        # Add fault trace
-        if self.trace is not None and len(self.trace) > 0:
-            line_str = kml.newlinestring(name="Fault")
-            line_str.altitudemode = simplekml.AltitudeMode.clamptoground
-            line_str.style.linestyle.color = simplekml.Color.red
-            line_str.style.linestyle.width = 5
-            line_str.tessellate = 1
-            points = []
-            for point in self.trace:
-                points.append((point[0], point[1], 0))
-            line_str.coords = points
-        # Save kml file
-        kml.save(kml_file)
 
     def run(self):
         """
@@ -113,14 +84,10 @@ class Plot_Map(object):
             self.trace = plot_utils.write_simple_trace(a_input_file, trace_file)
         plot_utils.write_simple_stations(a_station_file, simple_station_file)
         map_prefix = os.path.join(a_outdir, "station_map")
-        kml_file = os.path.join(a_outdir, "station_map.kml")
-        # Get hypo_lon, hypo_lat from src/srf file
-        hypo_lon, hypo_lat = fault_utils.calculate_epicenter(a_input_file)
 
-        # Write the kml file
-        self.create_kml_output(a_station_file, kml_file,
-                               hypo_lat=hypo_lat, hypo_lon=hypo_lon)
+        # Get hypo_lon, hypo_lat from src/srf file
         hypo_coord = {}
+        hypo_lon, hypo_lat = fault_utils.calculate_epicenter(a_input_file)
         hypo_coord['lat'] = hypo_lat
         hypo_coord['lon'] = hypo_lon
 

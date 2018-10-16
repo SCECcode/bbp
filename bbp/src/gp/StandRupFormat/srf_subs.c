@@ -282,7 +282,16 @@ else
          if(fgets(str,MAXLINE,fpr) == NULL)
             break;
          else
+	    {
             sscanf(str,"%s",pword);
+            while(strncmp(pword,"POINTS",6) != 0)
+               {
+               if(fgets(str,MAXLINE,fpr) == NULL)
+                  break;
+               else
+                  sscanf(str,"%s",pword);
+               }
+	    }
          }
 
       if(np_tot > srf[0].srf_apnts.np)
@@ -590,7 +599,7 @@ else
          {
          i = ip + nprite;
 
-         fprintf(fpw,"%12.6f %11.6f %12.5e %4.0f %4.0f %12.5e %10.4f %12.5e %13.5e %13.5e\n",
+         fprintf(fpw,"%12.6f %11.6f %12.5e %4.0f %4.0f %12.5e %13.6e %12.5e %13.5e %13.5e\n",
                                               apval_ptr[i].lon,
                                               apval_ptr[i].lat,
                                               apval_ptr[i].dep,
@@ -1437,4 +1446,137 @@ else if(atof(srf2->version) >= 2.0)
       strcpy(sptr_out,sptr_in);
       }
    }
+}
+
+void replace_sdr(struct standrupformat *srf0,struct standrupformat *srf1,struct standrupformat *srf2,int tflag)
+{
+struct standrupformat *srfp_in;
+struct srf_prectsegments *prseg_in0, *prseg_in1, *prseg_out;
+struct srf_apointvalues *apval_in0, *apval_in1, *apval_out;
+char *sptr_in, *sptr_out;
+float *stfin, *stfout;
+int i, j, k, it, ip, ig;
+int npoff;
+
+strcpy(srf2[0].version,srf0[0].version);
+
+   srf2[0].srf_hcmnt.nline = srf0[0].srf_hcmnt.nline;
+   srf2[0].srf_hcmnt.cbuf = (char *)check_malloc((srf2[0].srf_hcmnt.nline)*MAXLINE*sizeof(char));
+
+   for(i=0;i<srf2[0].srf_hcmnt.nline;i++)
+      {
+      sptr_in = srf0[0].srf_hcmnt.cbuf + i*MAXLINE;
+      sptr_out = srf2[0].srf_hcmnt.cbuf + i*MAXLINE;
+      strcpy(sptr_out,sptr_in);
+      }
+
+   srf2[0].type[0] = '\0';
+   if(strncmp(srf0[0].type,"PLANE",5) == 0 && strncmp(srf1[0].type,"PLANE",5) == 0)
+      {
+      strcpy(srf2[0].type,srf0[0].type);
+
+      srf2[0].srf_prect.nseg = srf0[0].srf_prect.nseg;
+      srf2[0].srf_prect.prectseg = (struct srf_prectsegments *)check_malloc(srf2[0].srf_prect.nseg*sizeof(struct srf_prectsegments));
+
+      prseg_in0 = srf0[0].srf_prect.prectseg;
+      prseg_in1 = srf1[0].srf_prect.prectseg;
+      prseg_out = srf2[0].srf_prect.prectseg;
+      for(ig=0;ig<srf2[0].srf_prect.nseg;ig++)
+         {
+         prseg_out[ig].elon = prseg_in0[ig].elon;
+         prseg_out[ig].elat = prseg_in0[ig].elat;
+         prseg_out[ig].nstk = prseg_in0[ig].nstk;
+         prseg_out[ig].ndip = prseg_in0[ig].ndip;
+         prseg_out[ig].flen = prseg_in0[ig].flen;
+         prseg_out[ig].fwid = prseg_in0[ig].fwid;
+         prseg_out[ig].stk = prseg_in1[ig].stk;
+         prseg_out[ig].dip = prseg_in1[ig].dip;
+         prseg_out[ig].dtop = prseg_in0[ig].dtop;
+         prseg_out[ig].shyp = prseg_in0[ig].shyp;
+         prseg_out[ig].dhyp = prseg_in0[ig].dhyp;
+         }
+      }
+
+   srf2[0].srf_apnts.np = srf0[0].srf_apnts.np;
+   srf2[0].srf_apnts.apntvals = (struct srf_apointvalues *)check_malloc((srf2[0].srf_apnts.np)*sizeof(struct srf_apointvalues));
+
+   srf2[0].nseg = srf0[0].nseg;
+   srf2[0].np_seg = (int *)check_malloc((srf2[0].nseg)*sizeof(int));
+
+   npoff = 0;
+   for(ig=0;ig<srf2[0].nseg;ig++)
+      {
+      srf2[0].np_seg[ig] = srf0[0].np_seg[ig];
+      for(i=0;i<srf2[0].np_seg[ig];i++)
+         {
+         apval_in0 = &(srf0[0].srf_apnts.apntvals[i+npoff]);
+         apval_in1 = &(srf1[0].srf_apnts.apntvals[i+npoff]);
+         apval_out = &(srf2[0].srf_apnts.apntvals[i+npoff]);
+
+         apval_out->lon = apval_in0->lon;
+         apval_out->lat = apval_in0->lat;
+         apval_out->dep = apval_in0->dep;
+         apval_out->stk = apval_in1->stk;
+         apval_out->dip = apval_in1->dip;
+         apval_out->area = apval_in0->area;
+
+	 if(tflag)
+            apval_out->tinit = apval_in1->tinit;
+	 else
+            apval_out->tinit = apval_in0->tinit;
+
+         apval_out->dt = apval_in0->dt;
+         apval_out->vs = apval_in0->vs;
+         apval_out->den = apval_in0->den;
+
+         apval_out->rake = apval_in1->rake;
+
+         apval_out->slip1 = apval_in0->slip1;
+         apval_out->nt1 = apval_in0->nt1;
+         apval_out->stf1 = NULL;
+
+         if(apval_out->nt1)
+            {
+            apval_out->stf1 = (float *)check_realloc(apval_out->stf1,(apval_out->nt1)*sizeof(float));
+
+            stfin = apval_in0->stf1;
+            stfout = apval_out->stf1;
+
+            for(it=0;it<(apval_out->nt1);it++)
+               stfout[it] = stfin[it];
+            }
+
+         apval_out->slip2 = apval_in0->slip2;
+         apval_out->nt2 = apval_in0->nt2;
+         apval_out->stf2 = NULL;
+
+         if(apval_out->nt2)
+            {
+            apval_out->stf2 = (float *)check_realloc(apval_out->stf2,(apval_out->nt2)*sizeof(float));
+
+            stfin = apval_in0->stf2;
+            stfout = apval_out->stf2;
+
+            for(it=0;it<(apval_out->nt2);it++)
+               stfout[it] = stfin[it];
+            }
+
+         apval_out->slip3 = apval_in0->slip3;
+         apval_out->nt3 = apval_in0->nt3;
+         apval_out->stf3 = NULL;
+
+         if(apval_out->nt3)
+            {
+            apval_out->stf3 = (float *)check_realloc(apval_out->stf3,(apval_out->nt3)*sizeof(float));
+
+            stfin = apval_in0->stf3;
+            stfout = apval_out->stf3;
+
+            for(it=0;it<(apval_out->nt3);it++)
+               stfout[it] = stfin[it];
+            }
+         }
+
+      npoff = npoff + srf2[0].np_seg[ig];
+      }
 }

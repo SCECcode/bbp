@@ -12,7 +12,7 @@ struct standrupformat srf;
 struct velmodel vmod;
 
 int inbin = 0;
-
+int use_srf_mu = 0;
 int moment_rate = 0;
 
 sprintf(infile,"stdin");
@@ -21,6 +21,7 @@ sprintf(velfile,"NOT_PROVIDED");
 setpar(ac,av);
 getpar("infile","s",infile);
 getpar("velfile","s",velfile);
+getpar("use_srf_mu","d",&use_srf_mu);
 getpar("moment_rate","d",&moment_rate);
 endpar();
 
@@ -30,5 +31,5 @@ read_srf(&srf,infile,inbin);
 if(moment_rate)
    get_moment_rate(&srf,&vmod);
 else
-   get_moment(&srf,&vmod);
+   get_moment(&srf,&vmod,use_srf_mu);
 }
