@@ -282,6 +282,12 @@ class WorkflowBuilder(object):
                       " requires a station list file containing the Vs30"
                       " values for each station location.")
                 print()
+                if not self.vmodel_obj.is_active_region():
+                    print("Warning: The site response module is currently "
+                          "based on Boore et al. (2014)\nas developed for "
+                          "Active Tectonic Regions.\nWe do not recommend "
+                          "its use for CEUS simulations.")
+                    print()
                 site_resp = raw_input("Do you want to run the "
                                       "site response module (y/n)? ")
             if site_resp.lower() == 'y' or site_resp.lower() == 'yes':
@@ -1625,9 +1631,10 @@ class WorkflowBuilder(object):
         """
         models = velocity_models.get_all_names()
         if len(models) == 0:
-            raise velocity_models.MissingVelocityModel("Velocity models are " +
-                                                       "not available! Cannot" +
-                                                       " proceed!")
+            print()
+            print("ERROR: No valid velocity models were found! Cannot proceed!")
+            print()
+            sys.exit(1)
         # Create list of options
         choose_string = ("\nThe Broadband Platform provides the following "
                          "velocity models, which also include several "
