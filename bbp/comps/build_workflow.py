@@ -264,6 +264,31 @@ class WorkflowBuilder(object):
             self.src_file = self.get_input_file("source description",
                                                 ".src")
 
+    def infer_site_response(self):
+        """
+        This function infers if the site response should be used in a
+        validation simulation. The decision comes from (1) having an
+        active tectonic region and (2) not having correction coefficients
+        in the validation package.
+        """
+        # Check if validation simulation
+        if self.validation == False:
+            # Site response not automatically invoked in
+            # scenario simulations, use expert mode if needed
+            return False
+
+        # Check if this is an active tectonic region
+        if not self.vmodel_obj.is_active_region():
+            # Site response not recommended for this region
+            return False
+
+        # Check for correction coefficients
+        if self.val_obj.get_obs_corrections():
+            # Found, no need to use site response module
+            return False
+
+        return True
+
     def select_site_response(self):
         """
         This function asks the user if he/she wants to run the site
@@ -416,7 +441,7 @@ class WorkflowBuilder(object):
         if self.expert_mode:
             run_site_resp = self.select_site_response()
         else:
-            run_site_resp = False
+            run_site_resp = self.infer_site_response()
         if run_site_resp:
             site_module = Module()
             site_module.setName("WccSiteamp")
@@ -478,15 +503,18 @@ class WorkflowBuilder(object):
 
         # Site response module
         if self.expert_mode:
-            if self.select_site_response():
-                site_module = Module()
-                site_module.setName("WccSiteamp")
-                site_module.addStageFile(self.stations)
-                site_module.addArg(os.path.basename(self.stations))
-                site_module.addArg("UCSB")
-                site_module.addArg(self.vmodel_name)
-                self.workflow.append(site_module)
-                return
+            run_site_resp = self.select_site_response()
+        else:
+            run_site_resp = self.infer_site_response()
+        if run_site_resp:
+            site_module = Module()
+            site_module.setName("WccSiteamp")
+            site_module.addStageFile(self.stations)
+            site_module.addArg(os.path.basename(self.stations))
+            site_module.addArg("UCSB")
+            site_module.addArg(self.vmodel_name)
+            self.workflow.append(site_module)
+            return
 
         #if run_site_resp:
         #    site_module = Module()
@@ -578,15 +606,18 @@ class WorkflowBuilder(object):
 
         # Site response module
         if self.expert_mode:
-            if self.select_site_response():
-                site_module = Module()
-                site_module.setName("WccSiteamp")
-                site_module.addStageFile(self.stations)
-                site_module.addArg(os.path.basename(self.stations))
-                site_module.addArg("SDSU")
-                site_module.addArg(self.vmodel_name)
-                self.workflow.append(site_module)
-                return
+            run_site_resp = self.select_site_response()
+        else:
+            run_site_resp = self.infer_site_response()
+        if run_site_resp:
+            site_module = Module()
+            site_module.setName("WccSiteamp")
+            site_module.addStageFile(self.stations)
+            site_module.addArg(os.path.basename(self.stations))
+            site_module.addArg("SDSU")
+            site_module.addArg(self.vmodel_name)
+            self.workflow.append(site_module)
+            return
 
         # Not running site response, use the
         # CopySeismograms module to wrap things up
@@ -664,14 +695,17 @@ class WorkflowBuilder(object):
 
         # Site response module
         if self.expert_mode:
-            if self.select_site_response():
-                site_module = Module()
-                site_module.setName("WccSiteamp")
-                site_module.addStageFile(self.stations)
-                site_module.addArg(os.path.basename(self.stations))
-                site_module.addArg("EXSIM")
-                site_module.addArg(self.vmodel_name)
-                self.workflow.append(site_module)
+            run_site_resp = self.select_site_response()
+        else:
+            run_site_resp = self.infer_site_response()
+        if run_site_resp:
+            site_module = Module()
+            site_module.setName("WccSiteamp")
+            site_module.addStageFile(self.stations)
+            site_module.addArg(os.path.basename(self.stations))
+            site_module.addArg("EXSIM")
+            site_module.addArg(self.vmodel_name)
+            self.workflow.append(site_module)
 
     def run_csm_method(self):
         """
@@ -774,7 +808,7 @@ class WorkflowBuilder(object):
         if self.expert_mode:
             run_site_resp = self.select_site_response()
         else:
-            run_site_resp = False
+            run_site_resp = self.infer_site_response()
         if run_site_resp:
             site_module = Module()
             site_module.setName("WccSiteamp")
