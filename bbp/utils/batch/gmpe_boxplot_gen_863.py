@@ -21,6 +21,7 @@ longer needs to mine gmpe data files from the realizations.
 
 NGA-West 1 and 2 comparison assumes data is calculated at Vs30=863m/s
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -1177,11 +1178,11 @@ def run():
     # Validate codebase to use
     codebase = options.codebase
     if codebase is None:
-        print "Please specify a codebase!"
+        print("Please specify a codebase!")
         sys.exit(1)
     codebase = codebase.lower()
     if codebase not in CODEBASES:
-        print "Codebase needs to be one of: %s" % (CODEBASES)
+        print("Codebase needs to be one of: %s" % (CODEBASES))
         sys.exit(1)
     if options.mag is None:
         parser.error("Please specify magnitude!")
@@ -1222,7 +1223,7 @@ def run():
     # Create plot
     create_plot(codebase, mag, vel, model, dist, mech, sim_data, output_file)
 
-    print "All Done!"
+    print("All Done!")
 
 ### Main
 run()
