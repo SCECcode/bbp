@@ -33,11 +33,10 @@ from station_list import StationList
 
 class GenPlots(object):
 
-    def __init__(self, i_r_stations, i_a_datadir, i_format,
+    def __init__(self, i_r_stations, i_format,
                  i_comparison_label, sim_id=0):
         self.sim_id = sim_id
         self.r_stations = i_r_stations
-        self.a_datadir = i_a_datadir
         self.format = i_format
         self.comp_label = i_comparison_label
 

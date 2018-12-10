@@ -277,6 +277,11 @@ class WorkflowBuilder(object):
             # scenario simulations, use expert mode if needed
             return False
 
+        if self.val_obj.get_event_type().lower() == "gmpe":
+            # This is a GMPE validation event, don't use the site
+            # response module for these events
+            return False
+
         # Check if this is an active tectonic region
         if not self.vmodel_obj.is_active_region():
             # Site response not recommended for this region
@@ -1310,7 +1315,6 @@ class WorkflowBuilder(object):
                 gen_plots_module.setName("GenPlots")
                 gen_plots_module.addStageFile(self.stations)
                 gen_plots_module.addArg(os.path.basename(self.stations))
-                gen_plots_module.addArg(self.val_obj.get_obs_path())
                 gen_plots_module.addArg('acc')
                 gen_plots_module.addArg(self.val_obj.get_validation_name())
                 self.workflow.append(gen_plots_module)
