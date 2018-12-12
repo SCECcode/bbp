@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -186,6 +186,11 @@ class Hfsims(object):
             self.default_dy = float(vmodel_params['DEFAULT_DY'])
         else:
             self.default_dy = config.DEFAULT_DY
+        # Look for ISPAR_ADJUST
+        if 'ISPAR_ADJUST' in vmodel_params:
+            ispar_adjust = int(vmodel_params['ISPAR_ADJUST'])
+        else:
+            ispar_adjust = config.ISPAR_ADJUST
 
         # Calculate rvfac
         if "common_seed" in config.CFGDICT:
@@ -295,7 +300,7 @@ class Hfsims(object):
                        self.kappa, self.qfexp) +
                       "%f %f %f %f %f\n" %
                       (rvfac, self.shal_rvfac, self.deep_rvfac,
-                       fcfac, config.C_ALPHA) +
+                       config.C_ZERO, config.C_ALPHA) +
                       "%s %f\n" % (moment, config.RUPV) +
                       "%s\n" % a_slipfile +
                       "%s\n" % a_velmod +
@@ -304,6 +309,7 @@ class Hfsims(object):
                       "-1\n" +
                       "%f 0.0 %f\n" % (config.FA_SIG1, self.rvsig) +
                       "%d\n" % (self.path_dur_model) +
+                      "%d -1 -1\n" % (ispar_adjust) +
                       "END")
         bband_utils.runprog(progstring)
 

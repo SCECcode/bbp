@@ -20,13 +20,13 @@ FC = gfortran
 #FC = g77
 
 ##### make options
- 
-hb_high_v5.4.3: hb_high_v5.4.3.f
-	${FC} ${FFLAGS} -o hb_high_v5.4.3 hb_high_v5.4.3.f
-	cp hb_high_v5.4.3 ../../bin/
+
+hb_high_v6.0.3: hb_high_v6.0.3.f
+	${FC} ${FFLAGS} -o hb_high_v6.0.3 hb_high_v6.0.3.f
+	cp -rp hb_high_v6.0.3 ../../bin/
 
 clean:
-	rm -f *.o hb_high_v5.4.3
+	rm -f *.o hb_high_v6.0.3
 
 %.c : ${MODLIB}
 	touch $@

@@ -99,6 +99,7 @@ CC      parameter (nq=600,np=50)
       complex cs(mm,3),sgc
 
       dimension fn(nlaymax),an(nlaymax)
+      dimension rdur(50),dpth(50), dpdr(50)
 
 CFFF Add variable astopq-> This is the along strike distance (km) on
 CFFF the top edge of the fault of the reference point (elonq,elatq).
@@ -141,10 +142,24 @@ c zz_default=2.1 works when random time sequence spectra is normalized according
 c 20131120 RWG: changed c0 to 2.0 based on SWUS validations
       zz_default = 2.0
 
+c 20171219 RWG: changed c0 to 2.1 and added Czero input parameter replacing fcfac
+c    zz=Czero, Czero is consistent with terminology used in papers.  fcfac is now
+c    defunct, just hardwired to be =0.0
+      Czero_default = 2.1
+
+c 20180822 RWG: changed default Czero to 2.0, being tested ...
+      Czero_default = 2.0
+
       rvfac_default = 0.8
-      shal_rvfac_default = 0.7
-      dmin_default = 5.0
-      dmax_default = 8.0
+
+      shal_rvfac_default = 0.6
+      shal_dmin_default = 5.0
+      shal_dmax_default = 8.0
+
+cc20140422 RWG
+      deep_rvfac_default = 0.6
+      deep_dmin_default = 15.0
+      deep_dmax_default = 20.0
 
       Calpha_default = 0.1
       fcfac_default = 0.0
@@ -197,13 +212,17 @@ c CMP =0     for N-S
       read(5,*) nsite
       read(5,*) duration,dt,fmx,akapp,qfexp
 
-      read(5,*) rvfac,shal_rvfac,fcfac,Calpha
+      read(5,*) rvfac,shal_rvfac,deep_rvfac,Czero,Calpha
 
 cRWG  apply default values if input is negative
       if(rvfac.lt.-1.0) rvfac = rvfac_default
       if(shal_rvfac.lt.-1.0) shal_rvfac = shal_rvfac_default
-      if(fcfac.lt.-1.0) fcfac = fcfac_default
+      if(deep_rvfac.lt.-1.0) deep_rvfac = deep_rvfac_default
+      if(Czero.lt.-1.0) Czero = Czero_default
       if(Calpha.lt.-1.0) Calpha = Calpha_default
+
+      fcfac = fcfac_default
+      fcfac = 0.0
 
       read(5,*) sm,vr
 
@@ -212,14 +231,23 @@ cRWG  apply default values if input is negative
 
       read(10,*) nevnt
 
+      zhyp_max = 0.0;
       nstot = 0
+      farea_in = 0.0
       do 133 iv=1,nevnt
 
          read(10,*) elonq(iv),elatq(iv),nx(iv),nw(iv),dx(iv),dw(iv)
          read(10,*) strq(iv),dipq(iv),rakeq(iv),dtop(iv),shyp(iv),dhyp(iv)
 
+	print*,'nx,nw= ',nx(iv),nw(iv)
+
 	 nstot = nx(iv)*nw(iv) + nstot
+	 farea_in = nx(iv)*dx(iv)*nw(iv)*dw(iv) + farea_in
 	 astop(iv) = 0.5*nx(iv)*dx(iv)
+
+c RWG 201241219: '*' should have been '/' in below, fixed 21041219
+	 zhyp = dtop(iv) + dhyp(iv)/sin(dipq(iv)*pu)
+	 if(zhyp.gt.zhyp_max) zhyp_max = zhyp
 
          do j=1,nw(iv)
             read(10,*) (sddp(iv,i,j),i=1,nx(iv))
@@ -236,6 +264,15 @@ cRWG  apply default values if input is negative
 133   continue 
 
       close(10)
+
+	print*,'slip model done'
+
+cc20140422 RWG
+      if(zhyp_max.gt.deep_dmin_default) then
+         deep_dmin_default = zhyp_max
+         deep_dmax_default = deep_dmin_default + 5.0
+      endif
+            print*,'deep_dmin,deep_dmax,deep_rvfac= ',deep_dmin_default,deep_dmax_default,deep_rvfac
 
       do iv=1,nevnt
          if(dx(iv).ne.dx(1)) then
@@ -285,6 +322,11 @@ c  in model, so all layers beneath the layer with Vs>vsmoho are truncated.
       j0 = jmoho
 C END 20140313
 
+C RWG 20160803
+C   make sure bottom layer has zero thickness so reflected rays are computed properly
+
+      thic0(j0) = 0.0
+
       nlskip = -99
       vpsig = -1.0
       vshsig = -1.0
@@ -297,11 +339,122 @@ C END 20140313
       if(vpsig.le.0.0.and.vshsig.le.0.0.and.rhosig.le.0.0.and.qssig.le.0.0) nplskip=-99
 
       print*,'nlskip,vpsig,vshsig,rhosig,qssig,icflag= ',nlskip,vpsig,vshsig,rhosig,qssig,icflag
-      print*,'velname= ',velname
+      print*,'velname= ',velfile
+      print*,'j0= ',j0
+
+      rvsig1 = -1.0
+      rvfmax = 1.4
 
       fasig1 = -1.0
       fasig2 = -1.0
-      read(5,*) fasig1,fasig2
+      read(5,*) fasig1,fasig2,rvsig1
+
+CCC RWG modified 2014-09-19
+      read(5,*) ipdur_model
+
+c set total time duration to be source duration (Ds) + path duration (Dp)
+c see Boore and Thompson (BSSA 2014, 2015).
+
+c     path duration options:
+c
+c     ipdur_model = 0, r0 = 0.0, dpdr = 0.063:	GP2010 formulation
+c     ipdur_model = 1, r0 = 0.0, dpdr = 0.070:	WUS modification (trial/error)
+c     ipdur_model = 2, r0 = 0.0, dpdr = 0.100:	ENA modification (trial/error)
+c     ipdur_model = 11, WUS formulation of BT2014, overpredicts for multiple rays
+c     ipdur_model = 12, ENA formulation of BT2015, overpredicts for multiple rays
+
+      if(ipdur_model.le.0) then
+
+         ndur = 1
+
+         rdur(1) = 0.0
+         dpth(1) = 0.0
+         dpdr(1) = 0.063
+
+      else if(ipdur_model.eq.1) then
+
+         ndur = 1
+
+         rdur(1) = 0.0
+         dpth(1) = 0.0
+         dpdr(1) = 0.07
+
+      else if(ipdur_model.eq.2) then
+
+         ndur = 1
+
+         rdur(1) = 0.0
+         dpth(1) = 0.0
+         dpdr(1) = 0.1
+
+      else if(ipdur_model.eq.11) then
+
+         ndur = 6
+
+         rdur(1) = 0.0
+         rdur(2) = 7.0
+         rdur(3) = 45.0
+         rdur(4) = 125.0
+         rdur(5) = 175.0
+         rdur(6) = 270.0
+
+         dpth(1) = 0.0
+         dpth(2) = 2.4
+         dpth(3) = 8.4
+         dpth(4) = 10.9
+         dpth(5) = 17.4
+         dpth(6) = 34.2
+
+      else if(ipdur_model.eq.12) then
+
+         ndur = 8
+
+         rdur(1) = 0.0
+         rdur(2) = 15.0
+         rdur(3) = 35.0
+         rdur(4) = 50.0
+         rdur(5) = 125.0
+         rdur(6) = 200.0
+         rdur(7) = 392.0
+         rdur(8) = 600.0
+
+         dpth(1) = 0.0
+         dpth(2) = 2.6
+         dpth(3) = 17.5
+         dpth(4) = 25.1
+         dpth(5) = 25.1
+         dpth(6) = 28.5
+         dpth(7) = 46.0
+         dpth(8) = 69.1
+
+      endif
+
+      if(ndur.ne.1) then
+
+         do 4389 i=1,ndur-1
+            dpdr(i) = (dpth(i+1)-dpth(i))/(rdur(i+1)-rdur(i))
+4389     continue
+         dpdr(ndur) = dpdr(ndur-1)
+
+      endif
+
+            print*,ipdur_model,ndur
+      do kk=1,ndur
+            print*,'rdur= ',rdur(kk),'dpth= ',dpth(kk),'dpdr= ',dpdr(kk)
+      enddo
+
+CCC END 2014-09-19
+
+CCC RWG modified 2018-08-30
+c adjust stress parameter based on magnitude and area relative to
+c standard scaling relation
+c     stress parameter adjustment options:
+c
+c     ispar_adjust = 0, no adjustment
+c     ispar_adjust = 1, adjust to Leonard (2010) for active tectonic
+c     ispar_adjust = 2, adjust to Leonard (2010) for stable continent
+
+      read(5,*) ispar_adjust,targ_mag,fault_area
 
 c Check to see if top layer of vel model has very thin "air" layer
 c this is necessary to get the correct FS reflection coefficient if
@@ -328,6 +481,8 @@ c using prduct() and sgc with surface reflected rays
 
       endif
 
+       print*,'j0= ',j0
+
       tdur=1.0
 
        if(fhil.gt.1./2./dt) then
@@ -335,8 +490,14 @@ c using prduct() and sgc with surface reflected rays
 C       pause 
        end if
 
+c avg Subfault dimensions (dlm) and max slip
+      dlm = 0.0
       amx2=0.
       do iv=1,nevnt
+
+C         dlm = 0.5*(dx(iv)+dw(iv)) + dlm
+         dlm = sqrt(dx(iv)*dw(iv)) + dlm
+
          do j=1,nw(iv)
             do i=1,nx(iv)
                amx2=amax1(amx2,abs(sddp(iv,i,j)))
@@ -345,22 +506,30 @@ C       pause
       enddo
 
       slip_max=amx2
+      dlm = dlm/(float(nevnt))
 
 CFFF convert relative slip into relative moment
 CFFF also determine total moment if absolute slips are input (sm=-1)
 
+c compute average corner frequency and average risetime here
+
+      islip_weight_avg = 1
+      islip_weight_avg = 0
+
+      nstot = 0
       xsum = 0.0
-      xsum_dmin = 0.0
-      dmin = 5.0
-      xsum_dmax = 0.0
-      dmax = 10.0
+      fce_avg = 0.0
+      trise_avg = 0.0
       do 5000 iv=1,nevnt
          dwdj = dw(iv)*sin(dipq(iv)*pu)
          do 4799 j=1,nw(iv)
 	 
             zdep = dtop(iv) + (j-0.5)*dwdj
             do 543 k=1,j0
-               if(zdep.le.depth0(k)) goto 542
+               if(zdep.le.depth0(k)) then
+                  bet = vsh0(k)
+                  goto 542
+               endif
 543         continue
 542         continue
          
@@ -368,41 +537,130 @@ CFFF also determine total moment if absolute slips are input (sm=-1)
 	    print *,'j= ',j,'  mu= ',xmu
 
             do 4798 i=1,nx(iv)
+
                sddp(iv,i,j) = xmu*sddp(iv,i,j)
 	       xsum = xsum + sddp(iv,i,j)
 
-	       if(zdep.le.dmin) then
-		  xsum_dmin = xsum_dmin + sddp(iv,i,j)
-	       endif
+c adjust for fault depth-> scale rupture velocity factor
+               dmin = shal_dmin_default
+               dmax = shal_dmax_default
 
-	       if(zdep.le.dmax) then
-		  xsum_dmax = xsum_dmax + sddp(iv,i,j)
-	       endif
+               rvf = rvfac*shal_rvfac
+               if(zdep.ge.dmin.and.zdep.lt.dmax) then
+                  rvf = rvfac*(shal_rvfac + (1.0 - shal_rvfac)*(zdep-dmin)/(dmax-dmin))
+               else if(zdep.ge.dmax) then
+                  rvf = rvfac
+               endif
+
+               dmin = deep_dmin_default
+               dmax = deep_dmax_default
+               if(zdep.ge.dmin.and.zdep.lt.dmax) then
+                  rvf = rvfac*(1.0 + (deep_rvfac - 1.0)*(zdep-dmin)/(dmax-dmin))
+               else if(zdep.ge.dmax) then
+                  rvf = rvfac*deep_rvfac
+               endif
+c End rvfac depth adjustment
+
+c alphaT adjustment
+               avgdip = dipq(iv);
+
+               fD = 0.0
+               if(avgdip.le.90.0.and.avgdip.gt.45.0) then
+                  fD = 1.0 - (avgdip - 45.0)/45.0
+               else if(avgdip.le.45.0.and.avgdip.ge.0.0) then
+                  fD = 1.0;
+               endif
+
+               avgrak = rakeq(iv)
+
+3256           continue
+               if(avgrak.lt.-180.0) then
+                  avgrak = avgrak + 360.0
+                  go to 3256
+               endif
+
+3257           continue
+               if(avgrak.gt.180.0) then
+                  avgrak = avgrak - 360.0
+                  go to 3257
+               endif
+
+               fR = 0.0
+               if(avgrak.le.180.0.and.avgrak.ge.0.0) then
+                  fR = 1.0 - sqrt((avgrak - 90.0)*(avgrak - 90.0))/90.0
+               endif
+
+               alphaT = 1.0/(1.0 + fD*fR*Calpha)
+c End alphaT
+
+               zz = Czero*(1.0 + fcfac)/alphaT
+               fce = zz*rvf*bet/(dlm*pai)
+
+               trise = rist(iv,i,j)
+
+               if(islip_weight_avg.eq.1) then
+                  fce = sddp(iv,i,j)*fce
+                  trise = sddp(iv,i,j)*trise
+               endif
+
+               fce_avg = fce_avg + fce
+               trise_avg = trise_avg + trise
+
+               nstot = nstot + 1
+
+c       print*,'rvf1= ',rvf
+c      print *,'zz1= ',zz,rvf,bet,dlm,pai
+c      print *,'alphaT1= ',alphaT,fD,fR,Calpha
+c      print*,'fce1= ',fce
 
 4798        continue
-
 4799     continue
 5000  continue
+
+C End corner frequency and risetime
 
       if(sm.lt.0.0) then
 	 sm = 1.0e+20*xsum
       endif
 
-      print*,'Average stress',stress_average,xsum_dmin,xsum_dmax,xsum
+      if(islip_weight_avg.eq.1) then
+         xnorm = 1/xsum
+      else
+         xnorm = 1.0/(float(nstot))
+      endif
+
+      fce_avg = fce_avg*xnorm
+      trise_avg = trise_avg*xnorm
+
+C trise_avg same as genslip-vX.X.X, based on somerville
+ccc      trise_avg = 1.6e-09*exp(alog(sm)/3.0)
+
+C specify fcmain based on trise_avg, fcmain = Fcoef/trise_avg
+C
+C scaling factor Fcoef is subjective, could be:
+C   Fcoef = 1.0/(2*pi), intuitive
+C   Fcoef = 5.0/(2*pi), t=0.2*trise is when Mliu reaches 62% of final
+C           slip, 62% of final slip corresponds to Czero=2.1 for brune
+C   Fcoef = Czero/(2*pi), beresnev & atkinson, 1997
+
+ccc      Fcoef = 5.0/(2*pai)
+ccc      Fcoef = 1.0/(2*pai)
+
+      Fcoef = Czero/(2*pai)
+
+      fcmain = Fcoef/trise_avg
+
       print*,'Maximum slip ',slip_max
+      print*,'Average fce ',fce_avg
+      print*,'Target fcmain ',fcmain
 
 CFFF end
 
 c normalize relative moments to have average weight of unity
-      dlm = 0.
+
       amx2=0.
-
       nstot = 0
-
       do iv=1,nevnt
-
-c Subfault dimensions  : DLM
-         dlm=0.5*(dx(iv)+dw(iv)) + dlm
 
          do j=1,nw(iv)
          do i=1,nx(iv)
@@ -419,8 +677,6 @@ CCC            amx2 = amx2 + sddp(iv,i,j)/(float(nx(iv)*nw(iv)))
 
       enddo
 
-      dlm = dlm/(float(nevnt))
-
       amx2 = (float(nstot))/amx2
       do iv=1,nevnt
 
@@ -432,6 +688,46 @@ CCC            amx2 = amx2 + sddp(iv,i,j)/(float(nx(iv)*nw(iv)))
 
       enddo
 
+CCC RWG modified 2018-08-30
+
+c adjust stress parameter based on magnitude and area relative to
+c standard scaling relation
+
+c     stress parameter adjustment options:
+c
+c     ispar_adjust = 0, no adjustment
+c     ispar_adjust = 1, adjust to Leonard (2010) for active tectonic
+c     ispar_adjust = 2, adjust to Leonard (2010) for stable continent
+
+      if(targ_mag.le.0.0) then
+         targ_mag = 2.0*(alog(sm)/alog(10.0))/3.0 - 10.7
+      endif
+
+      if(fault_area.le.0.0) then
+         fault_area = farea_in
+      endif
+
+      if(ispar_adjust.eq.1) then
+
+         spar_fac = exp((targ_mag-3.99)*alog(10.0))/fault_area
+
+      else if(ispar_adjust.eq.2) then
+
+         spar_fac = exp((targ_mag-4.19)*alog(10.0))/fault_area
+
+      else
+
+         spar_fac = 1.0
+
+      endif
+
+C scale by sqrt(Area_standard/area), don't know if this makes physical sense
+
+      spar_fac = sqrt(spar_fac)
+      stress_average = spar_fac*stress_average
+
+CCC END 2018-08-30
+
 c Seismic moment for the small event SMOE
 c is calculated based on the average stress on the fault
 
@@ -442,11 +738,54 @@ c is calculated based on the average stress on the fault
 C RWG 04/20/04
 C force nsum=1 and use Frankel convolution operator in stoc_f()
       nsum = 1
-      bigC = sm/(smoe*float(nstot*nsum))
+      bigC1 = sm/(smoe*float(nstot*nsum))
 
-      print*,'sp= ',stress_average,' Me= ',smoe,' ns= ',nsum
+C  RWG 2018-08-29
+C scaling by sqrt(ntot) removes dependence on subfault dimension
+C by canceling sqrt(N) scaling due to incoherent summation
+      bigC1b = sm/(smoe*sqrt(1.0*nstot))
+
+C  RWG 2018-05-27, Method 1:
+C
+C Changed computation of bigC to remove dependence of result on subfault
+C discretization.  Not sure why, but previous implementation had
+C dependence of ~dlm scaling.  Method outlined below removes this.
+C
+C Following Frankel (1995) and Boore (2009), bigC is the square of the ratio
+C of the corner frequencies of the small event (fce) to the main event (fcm):
+C
+C     bigC = (fce/fcm)^2  following Frankel (1995) and Boore (2009)
+C
+C Approximate these by using formula for 'fc' from Boore (1983):
+C
+C   fc = 4.9e+06 * Vs * (sdrop/Mo)^1/3
+C
+C for subevent:   fce = 4.9e+0.6 * Vs * (sdrop/smoe)^1/3
+C for main event: fcm = 4.9e+0.6 * Vs * (sdrop/sm)^1/3
+C
+C bigC = [ 4.9e+06 * Vs * (sdrop/smoe)^1/3 ]^2 / [ 4.9e+06 * Vs * (sdrop/sm)^1/3 ]^2
+C      = (sm/smoe)^2/3
+C
+      bigC2 = exp((2.0/3.0)*alog(sm/smoe))
+
+C  RWG 2018-05-29, Method 2:
+C
+C Direct computation of bigC using fce_avg and fcmain: bigC = (fce_avg/fcmain)^2
+
+      bigC3 = (fce_avg/fcmain)*(fce_avg/fcmain)
+
+      bigC = 0.5*(bigC2+bigC3)
+      bigC = bigC3
+      bigC = bigC1
+      bigC = bigC2
+      bigC = bigC1b
+
+      print*,'sp= ',stress_average,' Me= ',smoe,' nstot= ',nstot
+      print*,'targ_mag= ',targ_mag,' fault_area= ',fault_area,' spar_fac= ',spar_fac
       print*,'   target Mo= ',sm
-      print*,'   summed Mo= ',smoe*nstot*nsum,' bigC= ',bigC
+      print*,'   summed Mo= ',smoe*nstot*nsum
+      print*,'  bigC1= ',bigC1,'  bigC1b= ',bigC1b,'  bigC2= ',bigC2,' bigC3= ',bigC3
+      print*,'  bigC= ',bigC
 
 c      ratio = 1.0
       
@@ -546,11 +885,14 @@ c  Stations location
 
       endif
 
-      if(fasig1.gt.0.0.or.fasig2.gt.0.0) then
+      if(fasig1.gt.0.0.or.fasig2.gt.0.0.or.rvsig1.gt.0.0) then
 
          call normal_random_number(mmv,fgrand)
          print *,' fasig1= ',fasig1*fgrand(1)
 
+cCCCC       do ir=1,mmv
+cCCCC       print*,'fgrand= ',fgrand(ir)
+cCCCC       enddo
       endif
 
 c loop over fault segments
@@ -568,28 +910,6 @@ c  subfault to the station
 
 c Time Duration Model
 
-Crwg OLD WAY
-Crwg      tmax = 0.0
-Crwg      d10=10000.
-Crwg      amd = (alog10(smoe*nsum)-17.0)/1.33
-Crwg      tw0 = 10.0**(0.31*amd-0.774)
-Crwg      do 893 j=1,nw(iv)
-Crwg         do 894 i=1,nx(iv)
-Crwg
-Crwg            twin(i,j) = tw0
-CrwgCCCC            twin(i,j) = 2.0*rist(iv,i,j)
-Crwg            if(rlsu(i,j).gt.10.) twin(i,j) = twin(i,j) + 0.063*(rlsu(i,j)-10.)
-Crwg
-CrwgCCC Time Duration from Beresnev
-Crwgccc	    twin(i,j) = dlm/vr
-Crwg
-Crwg	    if(twin(i,j).gt.tmax) tmax = twin(i,j)
-Crwg
-Crwg            d10=amin1(d10,rlsu(i,j))
-Crwg
-Crwg894      continue
-Crwg893   continue
-
       tmax = 0.0
       d10=10000.
       do 893 j=1,nw(iv)
@@ -605,17 +925,25 @@ Crwg893   continue
 
 c get fce, tw0 = 1.0/fce + dlm/vr
 
-            zz = zz_default
+            zz = Czero
 
 c adjust for fault depth-> scale rupture velocity factor
-            dmin = dmin_default
-            dmax = dmax_default
+            dmin = shal_dmin_default
+            dmax = shal_dmax_default
 
 	    rvf = rvfac*shal_rvfac
             if(zet(i,j).ge.dmin.and.zet(i,j).lt.dmax) then
                rvf = rvfac*(shal_rvfac + (1.0 - shal_rvfac)*(zet(i,j)-dmin)/(dmax-dmin))
             else if(zet(i,j).ge.dmax) then
                rvf = rvfac
+            endif
+
+            dmin = deep_dmin_default
+            dmax = deep_dmax_default
+            if(zet(i,j).ge.dmin.and.zet(i,j).lt.dmax) then
+               rvf = rvfac*(1.0 + (deep_rvfac - 1.0)*(zet(i,j)-dmin)/(dmax-dmin))
+            else if(zet(i,j).ge.dmax) then
+               rvf = rvfac*deep_rvfac
             endif
 
 c 20131120 RWG added alphaT adjustment
@@ -629,15 +957,15 @@ c 20131120 RWG added alphaT adjustment
             endif
 
             avgrak = rakeq(iv)
-3256        continue
+3526        continue
             if(avgrak.lt.-180.0) then
                avgrak = avgrak + 360.0
-               go to 3256
+               go to 3526
             endif
-3257        continue
+3527        continue
             if(avgrak.gt.180.0) then
                avgrak = avgrak - 360.0
-               go to 3257
+               go to 3527
             endif
 
             fR = 0.0
@@ -650,19 +978,37 @@ c End alphaT
 
             zz = zz*(1.0 + fcfac)/alphaT
 
-cRWG corrected 02/28/2008
-            tw0 = (1.0 + pai/zz)*dlm/(rvf*bet)
+CCC RWG modified 2014-09-19
+c
+c set total time duration to be source duration (Ds) + path duration (Dp)
+c see Boore and Thompson (BSSA 2014, 2015).
 
-            twin(i,j) = tw0
-            if(rlsu(i,j).gt.10.) twin(i,j) = twin(i,j) + 0.063*(rlsu(i,j)-10.)
+c     tw0 = 1.0/fce = Ds
+c
+c     path duration options:
+c
+c     ipdur_model = 0, r0 = 0.0, dpdr = 0.063:	GP2010 formulation
+c     ipdur_model = 1, r0 = 0.0, dpdr = 0.070:	WUS modification (trial/error)
+c     ipdur_model = 2, r0 = 0.0, dpdr = 0.100:	ENA modification (trial/error)
+c     ipdur_model = 11, WUS formulation of BT2014, overpredicts for multiple rays
+c     ipdur_model = 12, ENA formulation of BT2015, overpredicts for multiple rays
 
-CCC RWG modified 02/18/2009
-c set tw0 = 1.0/fce + a*dist
+            do 3461 kk=1,ndur
+               if(rlsu(i,j).gt.rdur(kk)) then
+	          r0 = rdur(kk)
+		  d0 = dpth(kk)
+		  slp = dpdr(kk)
+               endif
+3461        continue
 
-            tw0 = pai*dlm/(zz*rvf*bet)
-            twin(i,j) = tw0 + 0.063*rlsu(i,j)
+            fce = zz*rvf*bet/(dlm*pai)
+            tw0 = 1.0/fce
+            tw0 = sqrt(bigC)*tw0
 
-CCC END 02/18/2009
+            dpath = d0 + slp*(rlsu(i,j)-r0)
+            twin(i,j) = tw0 + dpath
+
+CCC END 2014-09-19
 
 	    if(twin(i,j).gt.tmax) tmax = twin(i,j)
             d10=amin1(d10,rlsu(i,j))
@@ -711,6 +1057,7 @@ CNNNN      np2 = 8192
          dfr(i)=df*float(i-1)
  777  continue
 
+      irandcnt = 1
       do 4 i=1,nx(iv)      
       do 4 j=1,nw(iv)
 
@@ -738,16 +1085,15 @@ CNNNN      np2 = 8192
      
 66    continue
 
-CFFF the following 25 lines are new
-CFFF Bereznev's fce
-CFFF      fce=1.6*1.68*0.8*bet/dlm/pai
+c Begin subfault corner frequency
 
-c generic value for zz, this is value for deep faulting!!!
-      zz = zz_default
+c 20171219, changed to use Czero formulation
+c
+      zz = Czero
 
 c adjust for fault depth-> scale rupture velocity factor
-      dmin = dmin_default
-      dmax = dmax_default
+      dmin = shal_dmin_default
+      dmax = shal_dmax_default
 
       rvf = rvfac*shal_rvfac
       if(zet(i,j).ge.dmin.and.zet(i,j).lt.dmax) then
@@ -755,6 +1101,26 @@ c adjust for fault depth-> scale rupture velocity factor
       else if(zet(i,j).ge.dmax) then
          rvf = rvfac
       endif
+
+            dmin = deep_dmin_default
+            dmax = deep_dmax_default
+            if(zet(i,j).ge.dmin.and.zet(i,j).lt.dmax) then
+               rvf = rvfac*(1.0 + (deep_rvfac - 1.0)*(zet(i,j)-dmin)/(dmax-dmin))
+            else if(zet(i,j).ge.dmax) then
+               rvf = rvfac*deep_rvfac
+            endif
+
+      rvf0 = rvf
+      if(rvsig1.gt.0.0) then
+
+         irandcnt = irandcnt + 1
+         rvf = rvf0*exp(fgrand(irandcnt)*rvsig1)
+
+         if(rvf.gt.rvfmax) rvf = rvfmax
+
+      endif
+
+       print*,'rvf= ',rvf,rvf0
 
 c 20131120 RWG added alphaT adjustment
             avgdip = dipq(iv);
@@ -788,19 +1154,16 @@ c End alphaT
 
       zz = zz*(1.0 + fcfac)/alphaT
 
-      print *,'zz= ',zz,bet,dlm,pai
-      print *,'alphaT= ',alphaT,fD,fR,Calpha
-
       fce=zz*rvf*bet/dlm/pai
-CCCC      fce=fce*(1.0 + 0.4*(2*rand_numb(0) - 1.0))
-CFFF end
+
+      print *,'zz= ',zz,rvf,bet,dlm,pai
+      print *,'alphaT= ',alphaT,fD,fR,Calpha
+      print*,'fce= ',fce
+c End subfault corner frequency
 
 c  Rise Time  : Rise
-       
 c no modification for the rise time
              rise=rist(iv,i,j)
-
-       print*,'fce= ',fce
 
 cNNNN start of ray loop
 
@@ -1878,7 +2241,14 @@ c integrate
                                                              
                                                                 
       SUBROUTINE FAST(NNN,ACE,IND)                                              
-      COMPLEX*8 ACE(30000),TEMP,THETA                                            
+
+C RWG 20180815
+C changed array dimension declaration to ACE(1) to suppress compiler
+C warnings.  I think this is OK.
+C     COMPLEX*8 ACE(30000),TEMP,THETA                                            
+
+      COMPLEX*8 ACE(1),TEMP,THETA                                            
+
       J=1                                                                       
       DO 100 I=1,NNN                                                            
       IF(I.GE.J) GO TO 110                                                      
@@ -2745,6 +3115,8 @@ c down-going ray
 2925     continue
 
 	 kbot = j
+
+      print*,'hs,ksrc,j,j0,kbot= ',hs,ksrc,j,j0,kbot
 
          do 2924 j=kbot,krec,-1
 	    l = l+1
