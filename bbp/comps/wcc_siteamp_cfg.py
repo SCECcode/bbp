@@ -37,9 +37,11 @@ class WccSiteampCfg(object):
         self.FILTLIST = "filtmatchlist1"
         self.GEN_ROCK_VS = 865
         self.VREF_MAX = 1100
-        self.FMIN = 0.1
-        self.FMIDBOT = 0.2
+        self.FMIN = 0.05
+        self.FMIDBOT = 0.1
         self.FLOWCAP = 0.0
+        self.FMAX = 50.0
+        self.FHIGHTOP = 20.0
         self.COMPS = ["000", "090", "ver"]
 
         vmodel_obj = velocity_models.get_velocity_model_by_name(vmodel_name)

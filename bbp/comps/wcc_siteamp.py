@@ -56,8 +56,6 @@ class WccSiteamp(object):
         config = self.config
         install = self.install
 
-        flowcap = config.FLOWCAP
-
         # Run HF and LF components
         for freq in ['hf', 'lf']:
             print("**** Processing %s component..." % (freq))
@@ -151,7 +149,9 @@ class WccSiteamp(object):
                               (vs30, site_amp_model,
                                config.HF_VREF) +
                               'flowcap=%f infile=%s outfile=%s ' %
-                              (flowcap, filein, fileout) +
+                              (config.FLOWCAP, filein, fileout) +
+                              'fmax=%f fhightop=%f ' %
+                              (config.FMAX, config.FHIGHTOP) +
                               "fmidbot=%s fmin=%s >> %s 2>&1" %
                               (config.FMIDBOT, config.FMIN, self.log))
                 bband_utils.runprog(progstring, abort_on_error=True)
@@ -335,6 +335,8 @@ class WccSiteamp(object):
                            vpga, config.FLOWCAP) +
                           'infile=%s outfile=%s ' %
                           (filein, fileout) +
+                          'fmax=%f fhightop=%f ' %
+                          (config.FMAX, config.FHIGHTOP) +
                           "fmidbot=%s fmin=%s >> %s 2>&1" %
                           (config.FMIDBOT, config.FMIN, self.log))
             bband_utils.runprog(progstring, abort_on_error=True)
