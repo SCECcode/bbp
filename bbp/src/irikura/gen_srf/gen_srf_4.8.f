@@ -43,6 +43,7 @@ c  08/2016  correct bug for equivalent asperity radius when nasp=3
 c  08/2016  adjust min distance from top of the fault at 2km
 c  08/13/2016 adjust condition for single asperity limited depth  (accomodate 2 apsreities for Northridge)
 c  09/01/2016 replace Miyatake's source time function 
+c  10/25/2018 corrected fault width condition for single asperity 
  
         parameter (MAXnw=6000, MAXnl=6000) 
 	dimension slip(MAXnw,MAXnl),stres(MAXnw,MAXnl),alng(MAXnw,MAXnl)
@@ -71,7 +72,8 @@ c  hypo coordinates along strike
         read(5,'(a256)')velmodel
       
         fc = 6.0
-        if(xlen.le.25.and.ylen.lt.15.) then
+c        if(xlen.le.25.and.ylen.lt.15.) then
+        if(xlen.le.25) then
          nasp=1
         else
           if(xlen.lt.70) then

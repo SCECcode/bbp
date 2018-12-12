@@ -1,7 +1,7 @@
 all: gen_srf
 
-gen_srf: gen_srf_4.7.f
-	gfortran -o gen_srf gen_srf_4.7.f
+gen_srf: gen_srf_4.8.f
+	gfortran -o gen_srf gen_srf_4.8.f
 	cp gen_srf ../bin/.
 
 clean:
