@@ -95,7 +95,7 @@ class WorkflowBuilder(object):
                                    " - Beta Version\n"
                                    "(6) Song\n"
                                    "(7) Irikura Recipe Method 1 (Irikura1)\n"
-                                   # "(8) Irikura Recipe Method 2 (Irikura2)\n"
+                                   "(8) Irikura Recipe Method 2 (Irikura2)\n"
                                    "? ")
             if (method == '1' or method.lower() == "graves & pitarka" or
                 method.lower() == "gp"):
