@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import os
 import sys
 import glob
 import math
-import time
 import bisect
 import random
 import shutil
@@ -29,7 +28,6 @@ import shutil
 # Import Broadband modules
 import bband_utils
 import validation_cfg
-#import velocity_models
 from station_list import StationList
 from install_cfg import InstallCfg
 from irikura_hf_cfg import IrikuraHFCfg
@@ -58,7 +56,7 @@ class IrikuraHF(object):
         self.config = None
         self.log = None
 
-    def create_irikura_files(self, fault_param_dat_file, ini_file):
+    def create_irikura_files(self, fault_param_dat_file):
         """
         This function creates the other files needed by the Irikura
         recipe after doing some math with the input parameters
@@ -140,14 +138,6 @@ class IrikuraHF(object):
         dwid = 2
         dlen = 2
 
-        # The two below must be integers
-        #nwid = round(self.config.WIDTH / dwid)
-        #nlen = round(self.config.LENGTH / dlen)
-        #nelem = nlen * nwid
-        #moment = 10**(1.5 * self.config.MAGNITUDE + 16.05 - 7) # units N.m
-        #mo_elem = moment / nelem # units N-m
-        #m_elem = 2.0 / 3 * (math.log10(mo_elem) + 7) - 10.7
-
         # AI: stress drop on element = 10MPa 2018.7.25
         sigma_s = 1.0e7  # Pa
 
@@ -163,12 +153,8 @@ class IrikuraHF(object):
         myu = ro_pq * vs_pq * vs_pq * (1000 ** 3) # Units Pa
         ds_m = mo_elem / myu / dwid / dlen / 1000 / 1000 # Units m
 
-        ## R = math.sqrt(dlen * dwid / math.pi) * 1000 # Units m Average
-        ## sigma_s = mo_elem * 7 / (16 * (R ** 3) * 1e7) # Units Pa*1e-7 ??
-        ## stress drop on element (personal communication with
-        ## Prof. Irikura 18-April-2013)
-        #sigma_s = 2.64e7
-        desvel = vs_pq * 0.72 # Units km/s
+        # Units km/s
+        desvel = vs_pq * 0.72
 
         # AI: radiation pattern 0.63/sqrt(2) and m_elem 2018.7.25
         #radpatt = 0.4384
@@ -216,99 +202,6 @@ class IrikuraHF(object):
         out_file.write("%s" % (myu_string))
         out_file.write("%.3f \t\t# Vr\n" % (desvel))
         out_file.write("0.0 \t\t# offset\n")
-        out_file.close()
-
-        return
-
-        # Now output the INI file
-        out_file = open(ini_file, 'w')
-        out_file.write("[SGFValues]\n"
-                       "SamplingHz=120.0\n"
-                       "Duration=120.0\n")
-        out_file.write("Ro_sb=%d\n" % (round(density_bed * 1000)))
-        out_file.write("Vs_sb=%d\n" % (round(fault_vs_bed * 1000)))
-        out_file.write("Mo_s=%3.2E\n" % (mo_elem))
-        out_file.write("Sigma_s=%4.3f\n" % (sigma_s * 1E-7))
-        out_file.write("Rad_pat=%5.4f\n" % (radpatt))
-        out_file.write("Keisu_M=%4.3f\n" % (m_elem))
-        out_file.write("Q_A1=100.0\n"
-                       "Q_A2=0.69\n"
-                       "Q_A3=1\n"
-                       "Q_A4=100.0\n")
-        out_file.write("D_s=%5.4f\n" % (ds_m))
-        out_file.write("Offset=0.0\n")
-        out_file.write("[HYBValues]\n"
-                       "FDMFolder=fdm\n"
-                       "FDMHeader=ST\n"
-                       "SGFFolder=vel\n"
-                       "SGFHeader=ve\n"
-                       "HYBFolder=hyb\n"
-                       "HYBHeader=hyb\n"
-                       "ShiftF=2\n"
-                       "ShiftB=5\n"
-                       "HYBOffset=3\n"
-                       "FilterFLG=1\n"
-                       "HybFreq=1.0\n"
-                       "SearchStSec=0\n"
-                       "SearchEnSec=5\n"
-                       "[BCGrid]\n"
-                       "BCGridNum=20\n")
-        out_file.write("[Struct]\n"
-                       "DelThick=2.0\n"
-                       "[MainValues]\n")
-        out_file.write("Vs_pq=%d\n" % (round(fault_vs * 1000)))
-        out_file.write("Myu=%3.2E\n" % (myu))
-        out_file.write("DesVel=%d\n" % (round(desvel * 1000)))
-        out_file.write("Hz=6.00\n")
-        out_file.write("Ro_pq=%d\n" % (round(density * 1000)))
-        out_file.write("OffsetTime=0.0\n"
-                       "DispRate=2.0\n"
-                       "MeshSize=2000.0\n"
-                       "FdmMeshDiv=3.0\n"
-                       "Alpha=1\n"
-                       "Sa_S=0.22\n"
-                       "GMSGrid=400\n")
-        out_file.close()
-
-    def create_csv_file(self, csv_file):
-        """
-        This function creates the CSV file (input for make_param)
-        """
-        # Earth radius in km
-        radius = 6371
-        # How do we know if negative or positive, rake?
-        dist = self.config.LENGTH / 2
-        # Convert to radians
-        tclat1 = math.pi / 180 * self.config.LAT_TOP_CENTER
-        tclon1 = math.pi / 180 * self.config.LON_TOP_CENTER
-        end_lat = 180 / math.pi * (math.asin(math.sin(tclat1) *
-                                             math.cos(dist/radius) +
-                                             math.cos(tclat1) *
-                                             math.sin(dist/radius) *
-                                             math.cos(self.config.STRIKE *
-                                                      math.pi / 180)))
-        end_lon = 180 / math.pi * (tclon1 +
-                                   math.atan2(math.sin(self.config.STRIKE *
-                                                       math.pi / 180) *
-                                              math.sin(dist/radius) *
-                                              math.cos(tclat1),
-                                              math.cos(dist/radius) -
-                                              math.sin(tclat1) *
-                                              math.sin(end_lat *
-                                                       math.pi / 180)))
-
-        out_file = open(csv_file, 'w')
-        out_file.write("#\n# VER. = 1.0\n# DATE = %s\n#\n" %
-                       (time.strftime("%d-%b-%Y")))
-        out_file.write("%s,1\n" % str(self.sim_id))
-        out_file.write("909303,-%3.2f,1,1\n" % (self.config.MAGNITUDE))
-        out_file.write("1,%.4f,%.4f" % (end_lon, end_lat) +
-                       ",0.00000,0.00000,%.2f,%.1f,%.1f,%.1f,%.1f,1\n" %
-                       (self.config.DEPTH_TO_TOP,
-                        self.config.LENGTH,
-                        self.config.WIDTH,
-                        self.config.STRIKE,
-                        self.config.DIP))
         out_file.close()
 
     def create_velocity_file(self, vel_file, vel_file_p):
@@ -502,57 +395,6 @@ class IrikuraHF(object):
         irikura_hor_file.close()
         irikura_ver_file.close()
 
-    def filter_bbp_file(self, stat, tmp_acc_file, out_acc_file):
-        """
-        This function filters the tmp_acc_file, creating the
-        out_acc_file
-        """
-        install = self.install
-        sim_id = self.sim_id
-        a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
-
-        # Create path names and check if their sizes are within bounds
-        nsfile = os.path.join(a_tmpdir,
-                              "%d.%s.filt.000" % (sim_id, stat))
-        ewfile = os.path.join(a_tmpdir,
-                              "%d.%s.filt.090" % (sim_id, stat))
-        udfile = os.path.join(a_tmpdir,
-                              "%d.%s.filt.ver" % (sim_id, stat))
-        bband_utils.check_path_lengths([nsfile, ewfile, udfile],
-                                       bband_utils.GP_MAX_FILENAME)
-
-        cmd = ("%s/wcc2bbp " % (install.A_GP_BIN_DIR) +
-               "wcc2bbp=0 nsfile=%s ewfile=%s udfile=%s < %s >> %s 2>&1" %
-               (nsfile, ewfile, udfile, tmp_acc_file, self.log))
-        bband_utils.runprog(cmd, abort_on_error=True)
-
-        # Write list of files to filter
-        listfile = os.path.join(a_tmpdir, "filter_list.txt")
-        lfile = open(listfile, 'w')
-        for comp in ['000', '090', 'ver']:
-            lfile.write("%s\n" % (os.path.join(a_tmpdir,
-                                               "%d.%s.filt.%s" %
-                                               (sim_id, stat, comp))))
-        lfile.close()
-
-        # Apply filter to all components
-        cmd = ("%s/wcc_tfilter " % (install.A_GP_BIN_DIR) +
-               "filelist=%s order=%d fhi=%f flo=%s " %
-               (listfile,
-                self.config.filter_order,
-                self.config.filter_fhi,
-                self.config.filter_flo) +
-               "inbin=0 outbin=0 phase=%d " %
-               (self.config.filter_phase) +
-               "outpath=%s >> %s 2>&1" %
-               (a_tmpdir, self.log))
-        bband_utils.runprog(cmd, abort_on_error=True)
-
-        cmd = ("%s/wcc2bbp " % (install.A_GP_BIN_DIR) +
-               "wcc2bbp=1 nsfile=%s ewfile=%s udfile=%s > %s 2>> %s" %
-               (nsfile, ewfile, udfile, out_acc_file, self.log))
-        bband_utils.runprog(cmd, abort_on_error=True)
-
     def create_vel_bbp(self, stat):
         """
         This function derives a velocity bbp file from an acceleration
@@ -561,8 +403,6 @@ class IrikuraHF(object):
         install = self.install
         sim_id = self.sim_id
         a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
-        out_dir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
-
         in_acc_file = os.path.join(a_tmpdir, "%d.%s-hf.acc.bbp" %
                                    (sim_id, stat))
         out_vel_file = os.path.join(a_tmpdir, "%d.%s-hf.bbp" %
@@ -619,18 +459,14 @@ class IrikuraHF(object):
         """
         acc_hor_dir = os.path.join(irikura_dir, "HOR", "acc")
         acc_ver_dir = os.path.join(irikura_dir, "VER", "acc")
-        out_dir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
         tmp_dir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
 
         for idx, station in enumerate(self.stat_list.getStationList()):
             in_hor_file = os.path.join(acc_hor_dir, "ac%06d.dat" % (idx + 1))
             in_ver_file = os.path.join(acc_ver_dir, "ac%06d.dat" % (idx + 1))
-            #tmp_acc_file = os.path.join(tmp_dir, "%d.%s.unfilt.acc.bbp" %
-            #                            (self.sim_id, station.scode))
             out_acc_file = os.path.join(tmp_dir, "%d.%s-hf.acc.bbp" %
                                         (self.sim_id, station.scode))
             self.convert_to_bbp(in_hor_file, in_ver_file, out_acc_file)
-            #self.filter_bbp_file(station.scode, tmp_acc_file, out_acc_file)
             self.create_vel_bbp(station.scode)
 
     def run(self):
@@ -698,13 +534,6 @@ class IrikuraHF(object):
                                            (sim_id))
         srf2grns_input_file = os.path.join(irikura_dir,
                                            "input.txt")
-        ini_file = os.path.join(irikura_dir,
-                                "%d_make_param.ini" % (sim_id))
-        #csv_file = os.path.join(irikura_dir,
-        #                        "%d.csv" % (sim_id))
-        #sgfsrc_file = os.path.join(irikura_dir,
-        #                           "%d_%d_sgfsrc.dat" %
-        #                           (sim_id, sim_id))
         phase_file = os.path.join(irikura_dir, "phase.dat")
         phase2_file = os.path.join(irikura_dir, "phase2.dat")
 
@@ -715,11 +544,9 @@ class IrikuraHF(object):
         self.create_station_list(station_file)
 
         # Create other input files
-        self.create_irikura_files(fault_param_dat_file, ini_file)
+        self.create_irikura_files(fault_param_dat_file)
 
-        # Create Irikura csv file
-        #self.create_csv_file(csv_file)
-
+        # Create phase files
         self.create_phase_files(phase_file, phase2_file)
 
         # Copy velocity model and srf file to Irikura dir
@@ -731,8 +558,6 @@ class IrikuraHF(object):
         # Irikura binaries
         srf2grns_bin = os.path.join(install.A_IRIKURA_BIN_DIR,
                                     "srf2grns")
-        #make_param_bin = os.path.join(install.A_IRIKURA_BIN_DIR,
-        #                              "make_param")
         statgreen_bin = os.path.join(install.A_IRIKURA_BIN_DIR,
                                      "statgreen")
         statgreen2_bin = os.path.join(install.A_IRIKURA_BIN_DIR,
