@@ -44,7 +44,9 @@ c  08/2016  adjust min distance from top of the fault at 2km
 c  08/13/2016 adjust condition for single asperity limited depth  (accomodate 2 apsreities for Northridge)
 c  09/01/2016 replace Miyatake's source time function 
 c  10/25/2018 corrected fault width condition for single asperity 
- 
+c  02/02/2019 make the Vr/Vs ratio an input rupture model parameter
+
+  
         parameter (MAXnw=6000, MAXnl=6000) 
 	dimension slip(MAXnw,MAXnl),stres(MAXnw,MAXnl),alng(MAXnw,MAXnl)
      + ,ty(20000)
@@ -70,6 +72,7 @@ c  hypo coordinates along strike
         read(5,*)dt
         read(5,*)iseed
         read(5,'(a256)')velmodel
+        read(5,*)vel_fract
       
         fc = 6.0
 c        if(xlen.le.25.and.ylen.lt.15.) then
@@ -392,7 +395,9 @@ c       xlon0=alon+dl/2*sin(strike)/xsc
          z=zz+(j-1+dy2)*dy*sin(dip)
          call rupture_vel(z,nvel,zvel,k10)
 c         rupvel=vel(k10)*0.8
-         rupvel=vss*0.72
+c         rupvel=vss*0.72
+         rupvel=vss*vel_fract
+
          shearmod=den(k10)*vel(k10)*vel(k10)
            do i=1,nx
             k=k+1
