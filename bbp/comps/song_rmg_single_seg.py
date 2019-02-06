@@ -139,7 +139,8 @@ def get_points(nodes, dx, dy):
     return points
 
 def sub2ind(i, j, m, n):
-    return int(np.ravel_multi_index([[i-1], [j-1]], [m, n], order='F'))
+    #return int(np.ravel_multi_index([[i-1], [j-1]], [m, n], order='F'))
+    return((i + (j - 1) * m) - 1)
 
 def ind2sub(ind, m, n):
     return np.unravel_index(ind, (m, n), order='F')
