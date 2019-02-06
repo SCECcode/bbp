@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -548,10 +548,6 @@ def create_plot(codebase, mag, vel, dist, mech, sim_data, output_file):
     This function creates a GMPE comparison plot
     Code was migrated from the Matlab script written by Ronnie.
     """
-    # y axis
-    ymin = 0.0003
-    ymax = 2000 * ymin
-
     # Set method name
     if codebase == 'gp':
         method_name = "Graves & Pitarka"
@@ -643,13 +639,15 @@ def create_plot(codebase, mag, vel, dist, mech, sim_data, output_file):
 
     # Create arrays for sim_data mean and stddev
     sim_mean = []
-    sim_std_dev = []
     for data in sim_data:
         sim_mean.append(np.exp(np.mean(np.log(data))))
-        sim_std_dev.append(np.std(data, ddof=1) / np.sqrt(len(data)))
 
     box_positions = PERIODS
     box_width = 1.5*10.**(np.log10(PERIODS)-1)
+
+    # y axis
+    ymin = 0.00006
+    ymax = 4.0
 
     # Initialize plot
     fig, _ = plt.subplots()
