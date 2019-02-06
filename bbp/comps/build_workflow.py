@@ -144,7 +144,7 @@ class WorkflowBuilder(object):
 
         # For multisegment validation events
         self.multisegment_validation = True
-        if method == "SONG":
+        if method == "SONG" or method == "IRIKURA1":
             self.multisegment_src_files = src_file
             return src_file[0]
 
@@ -229,7 +229,7 @@ class WorkflowBuilder(object):
                                            self.src_file)
                     if isinstance(self.src_file, list):
                         self.multisegment_validation = True
-                        if self.method == "SONG":
+                        if self.method == "SONG" or self.method == "IRIKURA1":
                             self.multisegment_src_files = self.src_file
                             self.src_file = self.src_file[0]
                             break
@@ -819,7 +819,7 @@ class WorkflowBuilder(object):
             site_module.setName("WccSiteamp")
             site_module.addStageFile(self.stations)
             site_module.addArg(os.path.basename(self.stations))
-            site_module.addArg("IRIKURA2")
+            site_module.addArg("GP")
             site_module.addArg(self.vmodel_name)
             self.workflow.append(site_module)
 
@@ -1829,14 +1829,17 @@ class WorkflowBuilder(object):
                         rupture_module.setName("SongRMGMS")
                         for idx, val in enumerate(self.multisegment_src_files):
                             rupture_module.addStageFile(val)
-                            rupture_module.addKeywordArg('src%d' % (idx),
-                                                         val)
+                            rupture_module.addKeywordArg('src%d' % (idx), val)
                     else:
                         rupture_module.setName("SongRMGSS")
                     codebase = "GP"
                 elif (self.method == "IRIKURA1" or
                       self.method == "IRIKURA2"):
                     # add Irikura rupture generator
+                    if self.multisegment_validation:
+                        for idx, val in enumerate(self.multisegment_src_files):
+                            rupture_module.addStageFile(val)
+                            rupture_module.addKeywordArg('src%d' % (idx), val)
                     rupture_module.setName("IrikuraGenSrf")
                     codebase = "GP"
                 elif self.method == "UCSB":

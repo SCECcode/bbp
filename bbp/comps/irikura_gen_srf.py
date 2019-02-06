@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ from __future__ import division, print_function
 # Import Python modules
 import os
 import sys
+import math
 
 # Import Broadband modules
 import plot_srf
@@ -31,12 +32,22 @@ class IrikuraGenSrf(object):
     Implements Arben's gen_srf.csh script in Python
     """
     def __init__(self, i_r_velmodel, i_r_srcfile,
-                 o_r_srffile, i_vmodel_name, sim_id=0):
+                 o_r_srffile, i_vmodel_name, sim_id=0,
+                 **kwargs):
         self.sim_id = sim_id
         self.r_velmodel = i_r_velmodel
         self.r_srcfile = i_r_srcfile
         self.r_srffile = o_r_srffile
         self.vmodel_name = i_vmodel_name
+        self.r_srcfiles = []
+
+        # Get all src files that were passed to us
+        if kwargs is not None and len(kwargs) > 0:
+            for idx in range(len(kwargs)):
+                self.r_srcfiles.append(kwargs['src%d' % (idx)])
+        else:
+            # Not a multisegment run, just use the single src file
+            self.r_srcfiles.append(i_r_srcfile)
 
     def run(self):
         """
@@ -60,13 +71,18 @@ class IrikuraGenSrf(object):
 
         # Now, file paths
         self.log = os.path.join(a_logdir, "%d.gen_srf.log" % (sim_id))
-        a_srcfile = os.path.join(a_indir, self.r_srcfile)
+        a_srcfiles = [os.path.join(a_indir,
+                                   srcfile) for srcfile in self.r_srcfiles]
 
         # Read src file
-        cfg = IrikuraGenSrfCfg(a_srcfile)
+        cfg = IrikuraGenSrfCfg(a_srcfiles)
 
         # Define location of input velocity model and output srf file
-        a_srffile = os.path.join(a_indir, self.r_srffile)
+        if cfg.num_srcfiles > 1:
+            a_srffile = os.path.join(a_tmpdir, self.r_srffile)
+            a_final_srffile = os.path.join(a_indir, self.r_srffile)
+        else:
+            a_srffile = os.path.join(a_indir, self.r_srffile)
         a_velmod = os.path.join(install.A_IN_DATA_DIR, str(sim_id),
                                 self.r_velmodel)
 
@@ -75,6 +91,45 @@ class IrikuraGenSrf(object):
         old_cwd = os.getcwd()
         os.chdir(a_tmpdir)
 
+        # Read parameters from the src(s) file(s)
+        # The following parameters should be common to all SRC files
+        # So we just read from the first one
+        simulation_seed = int(cfg.CFGDICT[0]['seed'])
+        dip = cfg.CFGDICT[0]['dip']
+        rake = cfg.CFGDICT[0]['rake']
+        dlen = cfg.CFGDICT[0]['dlen']
+        dwid = cfg.CFGDICT[0]['dwid']
+        lon_top_center = cfg.CFGDICT[0]['lon_top_center']
+        lat_top_center = cfg.CFGDICT[0]['lat_top_center']
+        depth_to_top = cfg.CFGDICT[0]['depth_to_top']
+        if cfg.num_srcfiles > 1:
+            fault_len = cfg.CFGDICT[0]['max_fault_length']
+        else:
+            fault_len = cfg.CFGDICT[0]['fault_length']
+        fault_width = cfg.CFGDICT[0]['fault_width']
+        # Average strike of all SRC files
+        strike = 0.0
+        for segment in range(cfg.num_srcfiles):
+            strike = strike + cfg.CFGDICT[segment]['strike']
+        strike = math.ceil(strike / cfg.num_srcfiles)
+        # Hypocenter (down_dip is common to all src files)
+        hypo_down_dip = cfg.CFGDICT[0]['hypo_down_dip']
+        if cfg.num_srcfiles > 1:
+            hypo_along_stk = 0.0
+            for segment in range(cfg.num_srcfiles):
+                current_fault_len = cfg.CFGDICT[segment]['fault_length']
+                current_hypo_along_stk = cfg.CFGDICT[segment]['hypo_along_stk']
+                if abs(current_hypo_along_stk) <= current_fault_len:
+                    # Hypocenter in this segment!
+                    hypo_along_stk = hypo_along_stk + (current_fault_len / 2.0) + current_hypo_along_stk
+                    break
+                else:
+                    # Not here yet, just add the total length of this segment
+                    hypo_along_stk = hypo_along_stk + current_fault_len
+            # Now convert hypo_along_stk so that 0.0 is the middle of the fault
+            hypo_along_stk = hypo_along_stk - (fault_len / 2.0)
+        else:
+            hypo_along_stk = cfg.CFGDICT[0]['hypo_along_stk']
         #
         # Run gen_srf code
         #
@@ -83,26 +138,93 @@ class IrikuraGenSrf(object):
                        self.log) +
                       "%s\n" % a_srffile +
                       "%f %f %f %f %f\n" %
-                      (cfg.CFGDICT["fault_length"],
-                       cfg.CFGDICT["fault_width"],
-                       cfg.CFGDICT['strike'],
-                       cfg.CFGDICT['dip'],
-                       cfg.CFGDICT['rake']) +
+                      (fault_len, fault_width,
+                       strike, dip, rake) +
                       "%f %f %f\n" %
-                      (cfg.CFGDICT["lon_top_center"],
-                       cfg.CFGDICT["lat_top_center"],
-                       cfg.CFGDICT["depth_to_top"]) +
-                      "%f %f\n" % (cfg.CFGDICT["dlen"],
-                                   cfg.CFGDICT["dwid"]) +
+                      (lon_top_center, lat_top_center, depth_to_top) +
+                      "%f %f\n" % (dlen, dwid) +
                       "%f %f %f %f\n" %
-                      (cfg.CFGDICT["hypo_along_stk"],
-                       cfg.CFGDICT["hypo_down_dip"],
+                      (hypo_along_stk, hypo_down_dip,
                        cfg.DENS, cfg.VS) +
                       "%f\n" % (cfg.DT) +
-                      "%d\n" % (int(cfg.CFGDICT['seed'])) +
-                      "%s\n" % a_velmod +
+                      "%d\n" % (simulation_seed) +
+                      "%s\n" % (a_velmod) +
+                      "%f\n" % (cfg.VEL_RUP_FRAC) +
                       "END")
         bband_utils.runprog(progstring)
+
+        if cfg.num_srcfiles > 1:
+            # Assign the slip from the planar fault to each segment's SRF file
+            a_segs_file = os.path.join(a_tmpdir, "segments.midpoint.txt")
+            # Write segments' file
+            seg_file = open(a_segs_file, 'w')
+            seg_file.write("segm  lon       lat    depth   fleng fwidth shypo zhypo strike dip rake\n")
+            seg_file.write("%d\n" % (cfg.num_srcfiles))
+            total_length = 0.0
+            for segment in range(cfg.num_srcfiles):
+                if abs(cfg.CFGDICT[segment]['hypo_along_stk']) <= cfg.CFGDICT[segment]['fault_length']:
+                    hypo_along_stk = cfg.CFGDICT[segment]['hypo_along_stk']
+                    hypo_down_dip = cfg.CFGDICT[segment]['hypo_down_dip']
+                else:
+                    hypo_along_stk = 999.0
+                    hypo_down_dip = 999.0
+                seg_file.write("seg%d    %.6f %.6f %.1f %.1f %.1f %.1f %.1f %.1f %d %d %d\n" %
+                               (segment + 1,
+                                cfg.CFGDICT[segment]['lon_top_center'],
+                                cfg.CFGDICT[segment]['lat_top_center'],
+                                cfg.CFGDICT[segment]['depth_to_top'],
+                                total_length,
+                                (total_length + cfg.CFGDICT[segment]['fault_length']),
+                                cfg.CFGDICT[segment]['fault_width'],
+                                hypo_along_stk, hypo_down_dip,
+                                cfg.CFGDICT[segment]['strike'],
+                                cfg.CFGDICT[segment]['dip'],
+                                cfg.CFGDICT[segment]['rake']))
+                total_length = total_length + cfg.CFGDICT[segment]['fault_length']
+            seg_file.close()
+
+            #
+            # Run gen_srf_segment code
+            #
+            for segment in range(cfg.num_srcfiles):
+                progstring = ("%s >> %s 2>&1 << END\n" %
+                              (os.path.join(install.A_IRIKURA_BIN_DIR,
+                                            cfg.GENSRFSEGMENT), self.log) +
+                              ".\n" +
+                              "%s\n" % (self.r_srffile) +
+                              "./segments.midpoint.txt\n" +
+                              "%d\n" % (segment + 1) +
+                              "%f %f\n" % (dlen, dwid) +
+                              "END")
+
+                # Run code
+                bband_utils.runprog(progstring)
+
+            #
+            # Now add the segments together
+            #
+            progstring = ("%s >> %s 2>&1 << END\n" %
+                          (os.path.join(install.A_IRIKURA_BIN_DIR,
+                                        cfg.SUMSEG), self.log) +
+                          ".\n" +
+                          "%s\n" % (self.r_srffile) +
+                          "./segments.midpoint.txt\n" +
+                          "%d\n" % (cfg.num_srcfiles) +
+                          "%f %f\n" % (dlen, dwid) +
+                          "END")
+
+            # Run code
+            bband_utils.runprog(progstring)
+
+            # Copy file to final location
+            progstring = "cp %s %s" % (os.path.join(a_tmpdir,
+                                                    "all_seg.%s" %
+                                                    (self.r_srffile)),
+                                       a_final_srffile)
+            bband_utils.runprog(progstring)
+
+            # Use copied file from now on
+            a_srffile = a_final_srffile
 
         # Restore working directory
         os.chdir(old_cwd)
