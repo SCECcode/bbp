@@ -598,12 +598,12 @@ def main():
         if multiseg:
             source_file = source_file[segment - 1]
         else:
-            if codebase != "song":
+            if codebase != "song" and codebase != "irikura1":
                 print("This is a multisegment event! Please specify segment!")
                 sys.exit(1)
             else:
-                # For song, we keep source_file with all segments
-                # as this method can work with multiple SRC files
+                # For song and irikura1, we keep source_file with all segments
+                # as this methods can work with multiple SRC files
                 pass
 
     if skip_rupgen:
