@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -91,11 +91,11 @@ class WorkflowBuilder(object):
                                    "(2) UCSB\n"
                                    "(3) SDSU\n"
                                    "(4) EXSIM\n"
-                                   "(5) CSM (Composite Source Model)"
-                                   " - Beta Version\n"
-                                   "(6) Song\n"
-                                   "(7) Irikura Recipe Method 1 (Irikura1)\n"
-                                   "(8) Irikura Recipe Method 2 (Irikura2)\n"
+                                   "(5) Song\n"
+                                   "(6) Irikura Recipe Method 1 (Irikura1)\n"
+                                   "(7) Irikura Recipe Method 2 (Irikura2)\n"
+                                   # "(8) CSM (Composite Source Model)"
+                                   # " - Beta Version\n"
                                    "? ")
             if (method == '1' or method.lower() == "graves & pitarka" or
                 method.lower() == "gp"):
@@ -106,15 +106,15 @@ class WorkflowBuilder(object):
                 return "SDSU"
             elif method == '4' or method.lower() == "exsim":
                 return "EXSIM"
-            elif method == '5' or method.lower() == "csm":
-                return "CSM"
-            elif (method == "6" or method.lower() == "song" or
+            elif (method == "5" or method.lower() == "song" or
                   method.lower() == "rmg"):
                 return "SONG"
-            elif method == "7" or method.lower() == "irikura1":
+            elif method == "6" or method.lower() == "irikura1":
                 return "IRIKURA1"
-            elif  method == "8" or method.lower() == "irikura2":
+            elif  method == "7" or method.lower() == "irikura2":
                 return "IRIKURA2"
+            elif method == '8' or method.lower() == "csm":
+                return "CSM"
             else:
                 print("%s is not a valid choice for method!\n" % (method))
                 if self.opt_obj is not None:
