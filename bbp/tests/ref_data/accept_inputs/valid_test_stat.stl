@@ -1,4 +1,4 @@
-#Required:  lon, lat, station name, distance to fault plane, Vs30
+#Required:  lon, lat, station name, Vs30
 #Optional: low freq corner, high freq corner
 -118.6417       34.5640 cast    450     0.120   111.11
 -118.4180       34.0628 lacn    278     0.140   111.11

@@ -1,9 +1,0 @@
-n
-LABasin863
-csm
-1
-northridge_eq_gp.src
-1
-2
-n
-n
