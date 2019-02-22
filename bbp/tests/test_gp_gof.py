@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-Unit test for the gp_gof.py BBP module
-$Id: test_gp_gof.py 1736 2016-09-13 19:11:24Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -85,7 +93,7 @@ class TestGPGof(unittest.TestCase):
         Test GP GOF Code
         """
         gof_obj = GPGof(self.srcfile, self.stations,
-                        '6.7', "NR", 25, sim_id=self.sim_id)
+                        "NR", 25, sim_id=self.sim_id)
         gof_obj.run()
         resid_ref_file = os.path.join(self.install.A_TEST_REF_DIR,
                                       "gp", "GoF", "nr-rd50-resid.txt")

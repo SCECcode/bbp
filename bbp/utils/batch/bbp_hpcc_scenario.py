@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -146,16 +146,15 @@ def generate_xml(install, numsim, srcdir, xmldir,
         optfile.write('n\n') # Scenario
         optfile.write('%s\n' % (vmodel)) # Velocity model
         optfile.write('%s\n' % (codebase)) # Codebase to use
+        optfile.write('2\n') # Enter path to src file
+        optfile.write('%s\n' % (srcfile)) # Source file
         if codebase != "exsim" and codebase != "csm":
             if srf_prefix is None:
                 optfile.write('y\n') # Run rupture generator
             else:
                 optfile.write('n\n') # Skip rupture generator
-        optfile.write('2\n') # Enter path to src/srf file
-        if srf_prefix is None:
-            optfile.write('%s\n' % (srcfile)) # Source file
-        else:
-            optfile.write('%s\n' % (srffile)) # SRF file
+                optfile.write('2\n') # Enter path to srf file
+                optfile.write('%s\n' % (srffile)) # SRF file
         optfile.write('2\n') # Enter path to station list
         optfile.write('%s\n' % (station_list)) # Station list
         if codebase == "exsim":
@@ -203,81 +202,88 @@ def generate_xml(install, numsim, srcdir, xmldir,
     # Clean-up
     shutil.rmtree(tmpdir)
 
-def write_pbs(install, numsim, simdir, xmldir, email,
-              prefix, newnodes, walltime, savetemp):
+def write_slurm(install, numsim, simdir, xmldir, email,
+                prefix, newnodes, walltime, savetemp):
     """
-    Write the pbs script
+    Write the slurm script
     """
     # Calculate how many nodes we need
     if newnodes:
         nodes = int(math.ceil(1.0 * numsim / CORES_PER_NODE_NEW))
+        cores_per_node = CORES_PER_NODE_NEW
     else:
         nodes = int(math.ceil(1.0 * numsim / CORES_PER_NODE))
+        cores_per_node = CORES_PER_NODE
     # Some path names
     outfile = os.path.join(simdir, "%s.out" % (prefix))
     errfile = os.path.join(simdir, "%s.err" % (prefix))
     bfn = os.path.join(xmldir, BATCH_SIM_FILE)
     # Let's create the pbs file
-    pbsfn = os.path.join(simdir, "%s.pbs" % (prefix))
-    pbsfile = open(pbsfn, 'w')
-    pbsfile.write("#!/bin/bash\n")
-    pbsfile.write("\n")
+    slurmfn = os.path.join(simdir, "%s.slurm" % (prefix))
+    slurmfile = open(slurmfn, 'w')
+    slurmfile.write("#!/bin/bash\n")
+    slurmfile.write("\n")
     if not newnodes:
-        pbsfile.write("#PBS -q scec\n")
-        pbsfile.write("#PBS -l arch=x86_64,pmem=1000mb,pvmem=2000mb,walltime=%d:00:00,nodes=%d:ppn=%d\n" %
-                      (walltime, nodes, CORES_PER_NODE))
+        slurmfile.write("#SBATCH --partition=scec\n")
     else:
-        pbsfile.write("#PBS -l arch=x86_64,pmem=1000mb,pvmem=2000mb,walltime=%d:00:00,nodes=%d:ppn=%d:gpu\n" %
-                      (walltime, nodes, CORES_PER_NODE_NEW))
-    pbsfile.write("#PBS -V\n")
-    pbsfile.write("#PBS -m abe -M %s\n" % (email))
-    pbsfile.write("#PBS -e %s\n" % (errfile))
-    pbsfile.write("#PBS -o %s\n" % (outfile))
-    pbsfile.write("\n")
-    pbsfile.write("BBP_DIR=%s\n" % (install.A_INSTALL_ROOT))
-    pbsfile.write("PYTHONPATH=%s\n" % (install.A_COMP_DIR))
-    pbsfile.write("BBP_DATA_DIR=$TMPDIR/bbpruns\n")
-    pbsfile.write("BBP_BASE_DIR=$TMPDIR\n")
-    pbsfile.write("HOME=%s\n" % (simdir))
-    pbsfile.write("\n")
-    pbsfile.write("mkdir -p $BBP_DATA_DIR\n")
-    pbsfile.write("mkdir -p $HOME/Sims/indata\n")
-    pbsfile.write("mkdir -p $HOME/Sims/logs\n")
-    pbsfile.write("mkdir -p $HOME/Sims/outdata\n")
-    pbsfile.write("mkdir -p $HOME/Sims/tmpdata\n")
-    pbsfile.write("\n")
-    pbsfile.write('echo "Jobs start"\n')
-    pbsfile.write("date\n")
-    pbsfile.write('echo "BBP_DATA_DIR = $BBP_DATA_DIR"\n')
-    pbsfile.write("\n")
-    pbsfile.write("cd $HOME\n")
-    pbsfile.write("\n")
-    pbsfile.write("python $BBP_DIR/utils/batch/run_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh %s $PBS_NODEFILE 1\n" %
-                  (bfn))
-    pbsfile.write("\n")
-    pbsfile.write('echo "Processing end"\n')
-    pbsfile.write("date\n")
-    pbsfile.write("\n")
+        #slurmfile.write("#SBATCH --partition=main\n")
+        slurmfile.write("#SBATCH --gres=gpu:2\n")
+    #slurmfile.write("#SBATCH --mem-per-cpu=2GB\n")
+    slurmfile.write("#SBATCH --mem=0\n")
+    slurmfile.write("#SBATCH --nodes=%d\n" % (nodes))
+    slurmfile.write("#SBATCH --time=%d:00:00\n" % (walltime))
+    slurmfile.write("#SBATCH --export=all\n")
+    slurmfile.write('#SBATCH --job-name="BBP"\n')
+    slurmfile.write("#SBATCH --mail-user=%s\n" % (email))
+    slurmfile.write("#SBATCH --mail-type=BEGIN,END,ALL\n")
+    slurmfile.write("#SBATCH --error=%s\n" % (errfile))
+    slurmfile.write("#SBATCH --output=%s\n" % (outfile))
+    slurmfile.write("\n")
+    slurmfile.write("BBP_DIR=%s\n" % (install.A_INSTALL_ROOT))
+    slurmfile.write("PYTHONPATH=%s\n" % (install.A_COMP_DIR))
+    slurmfile.write("BBP_DATA_DIR=$TMPDIR/bbpruns\n")
+    slurmfile.write("BBP_BASE_DIR=$TMPDIR\n")
+    slurmfile.write("HOME=%s\n" % (simdir))
+    slurmfile.write("SLURM_NODES=`scontrol show hostname $SLURM_JOB_NODELIST | paste -d, -s`\n")
+    slurmfile.write("\n")
+    slurmfile.write("mkdir -p $BBP_DATA_DIR\n")
+    slurmfile.write("mkdir -p $HOME/Sims/indata\n")
+    slurmfile.write("mkdir -p $HOME/Sims/logs\n")
+    slurmfile.write("mkdir -p $HOME/Sims/outdata\n")
+    slurmfile.write("mkdir -p $HOME/Sims/tmpdata\n")
+    slurmfile.write("\n")
+    slurmfile.write('echo "Jobs start"\n')
+    slurmfile.write("date\n")
+    slurmfile.write('echo "BBP_DATA_DIR = $BBP_DATA_DIR"\n')
+    slurmfile.write("\n")
+    slurmfile.write("cd $HOME\n")
+    slurmfile.write("\n")
+    slurmfile.write("python $BBP_DIR/utils/batch/run_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh %s $SLURM_NODES %d\n" %
+                    (bfn, cores_per_node))
+    slurmfile.write("\n")
+    slurmfile.write('echo "Processing end"\n')
+    slurmfile.write("date\n")
+    slurmfile.write("\n")
     if savetemp:
         for dir_to_copy in ['outdata', 'indata', 'logs', 'tmpdata']:
-            pbsfile.write('python $BBP_DIR/utils/batch/command_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh "cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/." $PBS_NODEFILE\n' %
-                          (dir_to_copy, dir_to_copy))
+            slurmfile.write('python $BBP_DIR/utils/batch/command_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh "cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/." $SLURM_NODES\n' %
+                            (dir_to_copy, dir_to_copy))
     else:
         for dir_to_copy in ['outdata', 'indata', 'logs']:
-            pbsfile.write('python $BBP_DIR/utils/batch/command_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh "cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/." $PBS_NODEFILE\n' %
-                          (dir_to_copy, dir_to_copy))
-    pbsfile.write("\n")
-    pbsfile.write('echo "Jobs end"\n')
-    pbsfile.write("date\n")
-    pbsfile.flush()
-    pbsfile.close()
+            slurmfile.write('python $BBP_DIR/utils/batch/command_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh "cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/." $SLURM_NODES\n' %
+                            (dir_to_copy, dir_to_copy))
+    slurmfile.write("\n")
+    slurmfile.write('echo "Jobs end"\n')
+    slurmfile.write("date\n")
+    slurmfile.flush()
+    slurmfile.close()
 
     # All done!
     print
     print "Validation run is set up on: %s" % (simdir)
     print
     print "To start the validation run, just type: "
-    print "$ qsub %s" % (pbsfn)
+    print "$ sbatch %s" % (slurmfn)
     print
     if newnodes:
         print "Please note that the maximum walltime has been set to %d hours!" % (walltime)
@@ -579,8 +585,8 @@ def main():
                  station_list, only_rup, srf_prefix,
                  site_response)
     # Write pbs file
-    write_pbs(bbp_install, numsim, simdir, xmldir,
-              email, prefix, newnodes, walltime, savetemp)
+    write_slurm(bbp_install, numsim, simdir, xmldir,
+                email, prefix, newnodes, walltime, savetemp)
 
     # Write .info file
     info_file = open(os.path.join(simdir, "%s.info" % (prefix)), 'w')

@@ -82,7 +82,6 @@ class JbsimCfg(object):
         self.GF_SWAP_BYTES = 0
         self.DTOUT = self.MIN_GFDT
         self.COMPS = ["000", "090", "ver"]
-        self.VREF = 865
 
 if __name__ == "__main__":
     print("Test Config Class: %s" % os.path.basename((sys.argv[0])))

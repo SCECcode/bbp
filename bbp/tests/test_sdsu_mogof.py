@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-These are unit tests for the sdsu_mogof.py
-$Id: test_sdsu_mogof.py 1736 2016-09-13 19:11:24Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -64,7 +72,6 @@ class TestSDSUMOGof(unittest.TestCase):
         self.plot_map = False
         self.r_datadir = os.path.join(self.install.A_TEST_REF_DIR, "sdsu")
         self.r_format = "A"
-        self.r_mag = 0.0
         self.r_comparison_label = "Northridge"
         self.sim_id = int(seqnum.get_seq_num())
         self.a_ref_dir = os.path.join(self.install.A_TEST_REF_DIR, "sdsu")
@@ -143,8 +150,7 @@ class TestSDSUMOGof(unittest.TestCase):
                                                      os.path.basename(f))))
         site_obj = SDSUMOGoF(self.r_stations, self.gof_weights,
                              self.plot_map, ref_inputs_obs_dir,
-                             self.r_format, self.r_mag,
-                             self.r_comparison_label,
+                             self.r_format, self.r_comparison_label,
                              sim_id=self.sim_id)
         site_obj.run()
 

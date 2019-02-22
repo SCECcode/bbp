@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import pylab
 
 # Import Broadband modules
 from install_cfg import InstallCfg
-import plot_map
+import plot_utils
 import PlotMap
 import fault_utils
 import plot_config
@@ -136,15 +136,16 @@ def plot_map_gof(r_srcfile, r_stations, resid_file, comp_label, sim_id):
 
     # Define boundaries to plot using the stations in the station file
     (north, south,
-     east, west) = plot_map.set_boundaries_from_stations(a_station_file)
+     east, west) = plot_utils.set_boundaries_from_stations(a_station_file,
+                                                           a_input_file)
     trace_file = "%s.trace" % (a_input_file)
     simple_station_file = "%s.simple" % (a_station_file)
 
     if r_srcfile.endswith(".srf"):
-        plot_map.write_fault_trace(a_input_file, trace_file)
+        plot_utils.write_fault_trace(a_input_file, trace_file)
     else:
-        plot_map.write_simple_trace(a_input_file, trace_file)
-    plot_map.write_simple_stations(a_station_file, simple_station_file)
+        plot_utils.write_simple_trace(a_input_file, trace_file)
+    plot_utils.write_simple_stations(a_station_file, simple_station_file)
 
     # Get hypo_lon, hypo_lat from src/srf file
     hypo_lon, hypo_lat = fault_utils.calculate_epicenter(a_input_file)

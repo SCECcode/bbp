@@ -1,9 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-# This is PYTHON port of Walter Imperatori's GeoBB_srf.m matlab code
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+# This is PYTHON port of Walter Imperatori GeoBB_srf.m matlab code
 # Function to calculate stations position in CompSyn geometry convention.
 # It also calculates stations and hypocenter positions in BBTool geometry.
 # Then it provides some parameters useful for subsequent analysis, such
@@ -26,7 +37,6 @@ Copyright 2010-2016 Southern California Earthquake Center
 #
 #
 # Remarks: current version work only with positive dip
-$Id: geobb_srf.py 1730 2016-09-06 20:26:43Z fsilva $
 """
 from __future__ import division, print_function
 

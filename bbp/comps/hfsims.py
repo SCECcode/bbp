@@ -1,11 +1,21 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-Broadband Platform Version of Rob's hfsim-stats
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Broadband Platform Version of Rob hfsim-stats
 Outputs velocity (cm/s)
-$Id: hfsims.py 1768 2016-10-10 16:23:49Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -176,6 +186,11 @@ class Hfsims(object):
             self.default_dy = float(vmodel_params['DEFAULT_DY'])
         else:
             self.default_dy = config.DEFAULT_DY
+        # Look for ISPAR_ADJUST
+        if 'ISPAR_ADJUST' in vmodel_params:
+            ispar_adjust = int(vmodel_params['ISPAR_ADJUST'])
+        else:
+            ispar_adjust = config.ISPAR_ADJUST
 
         # Calculate rvfac
         if "common_seed" in config.CFGDICT:
@@ -285,7 +300,7 @@ class Hfsims(object):
                        self.kappa, self.qfexp) +
                       "%f %f %f %f %f\n" %
                       (rvfac, self.shal_rvfac, self.deep_rvfac,
-                       fcfac, config.C_ALPHA) +
+                       config.C_ZERO, config.C_ALPHA) +
                       "%s %f\n" % (moment, config.RUPV) +
                       "%s\n" % a_slipfile +
                       "%s\n" % a_velmod +
@@ -294,6 +309,7 @@ class Hfsims(object):
                       "-1\n" +
                       "%f 0.0 %f\n" % (config.FA_SIG1, self.rvsig) +
                       "%d\n" % (self.path_dur_model) +
+                      "%d -1 -1\n" % (ispar_adjust) +
                       "END")
         bband_utils.runprog(progstring)
 

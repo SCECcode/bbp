@@ -1,11 +1,11 @@
 n
-LABasin
+LABasin863
 ucsb
-y
 1
 northridge_eq_ucsb.src
+y
 1
-1
+2
 n
 n
 n

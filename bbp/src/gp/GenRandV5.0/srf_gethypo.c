@@ -4,6 +4,8 @@
 #include "defs.h"
 #include "getpar.h"
 
+void read_srf(struct standrupformat *srf,char *file,int bflag);
+
 int main(int ac,char **av)
 {
 int i, ip, j;

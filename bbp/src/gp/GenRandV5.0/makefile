@@ -7,7 +7,7 @@ GETPAR = ../getpar/lib
 INCPAR = -I ../getpar/include
 
 LIBS = -lm ${GETPAR}/libget.a
-LDLIBS = ${OBJS} ${LIBS}
+LDLIBS = ${OBJS} ${LIBS} -I ${FFTW_INCDIR} -lfftw3 -lfftw3f
 
 #LF_FLAGS = -D_FILE_OFFSET_BITS=32
 #
@@ -24,7 +24,11 @@ FFLAGS = ${UFLAGS} -ffixed-line-length-none
 
 ##### make options
 
-all : genslip-v5.2.2 srf_gethypo get_rvfrac
+all : genslip-v5.4.1 srf_gethypo get_rvfrac
+
+genslip-v5.4.1 : genslip-v5.4.1.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
+	${CC} ${CFLAGS} -o genslip-v5.4.1 genslip-v5.4.1.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
+	cp genslip-v5.4.1 ../bin/.
 
 genslip-v5.2.2 : genslip-v5.2.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
 	${CC} ${CFLAGS} -o genslip-v5.2.2 genslip-v5.2.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
@@ -40,4 +44,4 @@ get_rvfrac : get_rvfrac.c ${OBJS}
 ${OBJS} : ${HEADS}
 
 clean :
-	-rm -f *.o genslip-v5.2.2 srf_gethypo get_rvfrac
+	-rm -f *.o genslip-v5.4.1 srf_gethypo get_rvfrac

@@ -1,11 +1,11 @@
 n
-LABasin
-irikura
-y
+LABasin863
+irikura1
 1
 northridge_eq_gp.src
+y
 1
-1
+2
 n
 n
 n

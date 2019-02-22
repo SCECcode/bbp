@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-These are acceptance tests for syn1D_LAH.py
-$Id: test_syn1d.py 1734 2016-09-13 17:38:17Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -32,7 +40,7 @@ class TestSyn1D(unittest.TestCase):
         self.r_metadata = "metadata.txt"
         self.r_stations = "one_stat.txt"
         self.r_srffile = "FFSP_OUTPUT.001"
-        self.vmodel_name = "LABasin"
+        self.vmodel_name = "LABasin863"
         self.sim_id = int(seqnum.get_seq_num())
 
         self.install = InstallCfg()

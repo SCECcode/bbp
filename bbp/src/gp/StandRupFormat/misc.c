@@ -3,6 +3,21 @@
 #include "function.h"
 #include "defs.h"
 
+struct complex
+   {
+   float re;
+   float im;
+   };
+
+void get_filtvals(char *cbuf,float *flo,float *fhi,int *ord,int *phs);
+void tfilter(float *y, float *dt, int nt, int order,
+	     float *fhi, float *flo, int phase, float *space);
+void cxzero(struct complex *p, int n);
+void hp_filter(struct complex *q, struct complex *p,
+	       int n, float *alpha, float *beta, int sgn);
+void lp_filter(struct complex *q, struct complex *p,
+	       int n, float *alpha, float *beta, int sgn);
+
 void *check_malloc(size_t len)
 {
 void *ptr;
@@ -167,8 +182,17 @@ int igst, ignd, igp;
 int nd, place;
 char str[512], frmt[32];
 
+float sum1, sum2, sum3;
+
+float flo, fhi, mindt, *space, *sf1, *sf2, *sf3;
+int itsh, ord, phs;
+
 float dtdx, dtdy;
 int stride, jj;
+
+float a1, a2, a3, a4;
+float xr, yr, rr, rhypo_tol;
+int astride;
 
 int isgn = 1;
 
@@ -183,9 +207,48 @@ double b0 = 0.0;
 double amat[9], ainv[9];
 
 stride = 3;
-stride = 20;
-stride = 1;
 stride = 5;
+stride = 40;
+stride = 4;
+stride = 1;
+
+/*
+
+f'(x) = (1/dx)*{(252/3491)*[8*R1 - (1/2)*R2] - (1/6982)*[(64/3)*R3 - (27/4)*R4]} + O(dx^6)
+
+R1 = f(x+1*dx) - f(x-1*dx)
+R2 = f(x+2*dx) - f(x-2*dx)
+R3 = f(x+3*dx) - f(x-3*dx)
+R4 = f(x+4*dx) - f(x-4*dx)
+
+f'(x) = (1/dx)*(a1*R1 + a2*R2 + a3*R3 + a4*R4)
+
+a1 = (252/3491)*8 = 2016/3491;     0.57748496132...
+a2 = (252/3491)*(1/2) = -126/3491;     0.03609281008...
+a3 = (1/6982)*(64/3) = -32/10473;     0.00305547598587...
+a4 = (1/6982)*(27/4) = 27/27928;     0.00096677169865...
+
+*/
+
+a1 = 2016.0/3491.0;
+a2 = -126.0/3491.0;
+a3 = -32.0/10473.0;
+a4 = 27.0/27928.0;
+astride = 4;
+astride = 1;
+astride = 1;
+astride = 40;
+
+a1 = 0.5;
+a2 = 0.0;
+a3 = 0.0;
+a4 = 0.0;
+/*
+*/
+
+/* don't compute secant rupture speed within rhypo_tol of hypocenter */
+rhypo_tol = 0.0;
+rhypo_tol = 2.0;
 
 if(strcmp(srf[0].type,"PLANE") != 0 || ig >= srf[0].srf_prect.nseg)
    return(-99);
@@ -199,6 +262,14 @@ else
    {
    igst = ig;
    ignd = igst + 1;
+   }
+
+if(strncmp(type,"filter_velocity",15) == 0)
+   {
+   space = NULL;
+   sf1 = NULL;
+   sf2 = NULL;
+   sf3 = NULL;
    }
 
 if(strcmp(type,"rupture") == 0)
@@ -278,6 +349,49 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
 
       apval_ptr = srf[0].srf_apnts.apntvals + npskip;
 
+      if(strncmp(type,"filter_velocity",15) == 0)
+         {
+	 /* XXXX need to change */
+	 flo = 1.0e+15;
+	 fhi = 0.0;
+	 ord = 4;
+	 phs = 0;
+
+	 get_filtvals(type+15,&flo,&fhi,&ord,&phs);
+
+/*
+fprintf(stderr,"flo= %.5e fhi= %.5e ord= %d phs= %d\n",flo,fhi,ord,phs);
+*/
+
+	 maxnt = 0;
+	 mindt = 1.0e+15;
+         for(j=0;j<ny;j++)
+            {
+            for(i=0;i<nx;i++)
+               {
+	       k = i + j*nx;
+
+	       if(apval_ptr[k].nt1 > maxnt)
+	          maxnt = apval_ptr[k].nt1;
+	       if(apval_ptr[k].nt2 > maxnt)
+	          maxnt = apval_ptr[k].nt2;
+	       if(apval_ptr[k].nt3 > maxnt)
+	          maxnt = apval_ptr[k].nt3;
+
+	       if(apval_ptr[k].dt < mindt)
+	          mindt = apval_ptr[k].dt;
+               }
+            }
+
+	 itsh = 1.0/(mindt*flo);
+	 maxnt = maxnt + 2*itsh;
+
+	 space = (float *) check_realloc (space,4*maxnt*sizeof(float));
+	 sf1 = (float *) check_realloc (sf1,maxnt*sizeof(float));
+	 sf2 = (float *) check_realloc (sf2,maxnt*sizeof(float));
+	 sf3 = (float *) check_realloc (sf3,maxnt*sizeof(float));
+         }
+
       if(strcmp(type,"rough") == 0)
          {
          rlon = (float *)check_malloc(nx*ny*sizeof(float));
@@ -352,6 +466,21 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
                slipval = slip;
 	       }
 
+            if(strcmp(type,"secant_speed_frac") == 0)
+               {
+	       xr = (xx-len2) - shypo;
+	       yr = yy - dhypo;
+
+	       rr = sqrt(xr*xr + yr*yr);
+
+	       if(rr > rhypo_tol && apval_ptr[k].tinit > 0.0)
+	          outval = sqrt(xr*xr + yr*yr)/apval_ptr[k].tinit;
+	       else
+	          outval = 0.0;
+
+	       outval = 1.0e+05*outval/apval_ptr[k].vs;
+	       }
+
             if(strcmp(type,"rupture_speed") == 0)
                {
 	       if(i >= stride && i < nx-stride && j >= stride && j < ny-stride)
@@ -370,13 +499,11 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
                   outval = 0.0;
 	       }
 
-            else if(strcmp(type,"rupture_speed_frac") == 0)
+            if(strcmp(type,"rupture_speed_frac") == 0)
                {
-	       if(i >= stride && i < nx-stride && j >= stride && j < ny-stride)
+	       if(i >= 4*astride && i < nx-4*astride && j >= 4*astride && j < ny-4*astride)
 	          {
-		  dtdx = (apval_ptr[k+stride].tinit - apval_ptr[k-stride].tinit)/(2.0*stride*dx);
-		  dtdy = (apval_ptr[k+stride*nx].tinit - apval_ptr[k-stride*nx].tinit)/(2.0*stride*dy);
-
+/*
 		  dtdx = 0.0;
 		  dtdy = 0.0;
 		  for(jj=1;jj<=stride;jj++)
@@ -387,12 +514,26 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
 		  dtdx = dtdx/stride;
 		  dtdy = dtdy/stride;
 
+		  dtdx = (apval_ptr[k+stride].tinit - apval_ptr[k-stride].tinit)/(2.0*stride*dx);
+		  dtdy = (apval_ptr[k+stride*nx].tinit - apval_ptr[k-stride*nx].tinit)/(2.0*stride*dy);
+*/
+
+		  dtdx = (1/dx)*(a1*(apval_ptr[k+1*astride].tinit - apval_ptr[k-1*astride].tinit)
+		               + a2*(apval_ptr[k+2*astride].tinit - apval_ptr[k-2*astride].tinit)
+		               + a3*(apval_ptr[k+3*astride].tinit - apval_ptr[k-3*astride].tinit)
+		               + a4*(apval_ptr[k+4*astride].tinit - apval_ptr[k-4*astride].tinit));
+
+		  dtdy = (1/dy)*(a1*(apval_ptr[k+1*nx*astride].tinit - apval_ptr[k-1*nx*astride].tinit)
+		               + a2*(apval_ptr[k+2*nx*astride].tinit - apval_ptr[k-2*nx*astride].tinit)
+		               + a3*(apval_ptr[k+3*nx*astride].tinit - apval_ptr[k-3*nx*astride].tinit)
+		               + a4*(apval_ptr[k+4*nx*astride].tinit - apval_ptr[k-4*nx*astride].tinit));
+
 		  outval = sqrt(dtdx*dtdx + dtdy*dtdy);
 
 		  if(outval > 0.0)
-		     outval = 1.0/outval;
+		     outval = astride/outval;
 		  else
-		     outval = 0.0;
+		     outval = 9999.0;
 		  }
 	       else
                   outval = 0.0;
@@ -400,7 +541,28 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
 	       outval = 1.0e+05*outval/apval_ptr[k].vs;
 	       }
 
-            else if(strcmp(type,"velocity") == 0)
+            if(strcmp(type,"integrate_sliprate") == 0)
+               {
+               stf1 = apval_ptr[k].stf1;
+               stf2 = apval_ptr[k].stf2;
+               stf3 = apval_ptr[k].stf3;
+
+	       sum1 = 0.0;
+               for(it=0;it<apval_ptr[k].nt1;it++)
+	          sum1 = sum1 + apval_ptr[k].dt*stf1[it];
+
+	       sum2 = 0.0;
+               for(it=0;it<apval_ptr[k].nt2;it++)
+	          sum2 = sum2 + apval_ptr[k].dt*stf2[it];
+
+	       sum3 = 0.0;
+               for(it=0;it<apval_ptr[k].nt3;it++)
+	          sum3 = sum3 + apval_ptr[k].dt*stf3[it];
+
+               outval = sqrt(sum1*sum1 + sum2*sum2 + sum3*sum3);
+	       }
+
+            if(strcmp(type,"velocity") == 0)
                {
                stf1 = apval_ptr[k].stf1;
                stf2 = apval_ptr[k].stf2;
@@ -423,15 +585,57 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
 	          if(it < apval_ptr[k].nt3)
 	             sv = sv + stf3[it]*stf3[it];
 
-                  sv = sqrt(sv);
 	          if(sv > svmax)
 	             svmax = sv;
 	          }
 
-               outval = svmax;
+               outval = sqrt(svmax);
 	       }
 
-            else if(strcmp(type,"rupture") == 0)
+            if(strncmp(type,"filter_velocity",15) == 0)
+               {
+	       maxnt = apval_ptr[k].nt1;
+	       if(apval_ptr[k].nt2 > maxnt)
+	          maxnt = apval_ptr[k].nt2;
+	       if(apval_ptr[k].nt3 > maxnt)
+	          maxnt = apval_ptr[k].nt3;
+
+	       maxnt = maxnt + 2*itsh;
+               for(it=0;it<maxnt;it++)
+	          {
+                  sf1[it] = 0.0;
+                  sf2[it] = 0.0;
+                  sf3[it] = 0.0;
+		  }
+
+               stf1 = apval_ptr[k].stf1;
+               for(it=0;it<apval_ptr[k].nt1;it++)
+                  sf1[it+itsh] = stf1[it];
+               tfilter(sf1,&(apval_ptr[k].dt),maxnt,ord,&fhi,&flo,phs,space);
+
+               stf2 = apval_ptr[k].stf2;
+               for(it=0;it<apval_ptr[k].nt2;it++)
+                  sf2[it+itsh] = stf2[it];
+               tfilter(sf2,&(apval_ptr[k].dt),maxnt,ord,&fhi,&flo,phs,space);
+
+               stf3 = apval_ptr[k].stf3;
+               for(it=0;it<apval_ptr[k].nt3;it++)
+                  sf3[it+itsh] = stf3[it];
+               tfilter(sf3,&(apval_ptr[k].dt),maxnt,ord,&fhi,&flo,phs,space);
+
+	       svmax = 0.0;
+               for(it=0;it<maxnt;it++)
+	          {
+	          sv = sf1[it]*sf1[it] + sf2[it]*sf2[it] + sf3[it]*sf3[it];
+
+	          if(sv > svmax)
+	             svmax = sv;
+	          }
+
+               outval = sqrt(svmax);
+	       }
+
+            if(strcmp(type,"rupture") == 0)
                {
                stf1 = apval_ptr[k].stf1;
                stf2 = apval_ptr[k].stf2;
@@ -488,10 +692,10 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
                outval = sv;
 	       }
 
-            else if(strcmp(type,"tinit") == 0)
+            if(strcmp(type,"tinit") == 0)
                outval = apval_ptr[k].tinit;
 
-            else if(strcmp(type,"trise") == 0)
+            if(strcmp(type,"trise") == 0)
 	       {
                outval = apval_ptr[k].nt1*apval_ptr[k].dt;
 	       if(apval_ptr[k].nt2*apval_ptr[k].dt > outval)
@@ -500,13 +704,13 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
                   outval = apval_ptr[k].nt3*apval_ptr[k].dt;
 	       }
 
-            else if(strcmp(type,"strike") == 0)
+            if(strcmp(type,"strike") == 0)
                outval = apval_ptr[k].stk;
 
-            else if(strcmp(type,"dip") == 0)
+            if(strcmp(type,"dip") == 0)
                outval = apval_ptr[k].dip;
 
-            else if(strcmp(type,"rake") == 0)
+            if(strcmp(type,"rake") == 0)
 	       {
 	       ss = cos(rperd*apval_ptr[k].rake)*apval_ptr[k].slip1 - sin(rperd*apval_ptr[k].rake)*apval_ptr[k].slip2;
 	       dd = sin(rperd*apval_ptr[k].rake)*apval_ptr[k].slip1 + cos(rperd*apval_ptr[k].rake)*apval_ptr[k].slip2;
@@ -526,7 +730,7 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
 	          outval = outval + 360.0;
 	       }
 
-            else if(strcmp(type,"rough") == 0)
+            if(strcmp(type,"rough") == 0)
 	       {
                gen_matrices(amat,ainv,&mrot,&(rlon[k]),&(rlat[k]));
                gcproj(&x2,&y2,&(apval_ptr[k].lon),&(apval_ptr[k].lat),&erad,&g0,&b0,amat,ainv,1);
@@ -546,6 +750,14 @@ for(ts=tsstr;ts<tsend;ts=ts+tsinc)
       *xoff = *xoff + len;
       }
    fclose(fpw);
+   }
+
+if(strncmp(type,"filter_velocity",15) == 0)
+   {
+   free(space);
+   free(sf1);
+   free(sf2);
+   free(sf3);
    }
 
 if(strcmp(type,"rough") == 0)
@@ -1041,13 +1253,13 @@ else
    }
 }
 
-void get_moment(struct standrupformat *srf,struct velmodel *vm)
+void get_moment(struct standrupformat *srf,struct velmodel *vm,int use_srf_mu)
 {
 struct srf_prectsegments *prseg_ptr;
 struct srf_apointvalues *apval_ptr;
 float sigma, aslip, mslip, tarea, tmom, slip, slip_tol, sw_tarea;
 float amu, ssd, c1, c2, c3, len, wid;
-float amax, amin;
+float amax, amin, xmu;
 float surf_sigma, surf_aslip, surf_mslip;
 int np, surf_np;
 int j, k;
@@ -1077,14 +1289,21 @@ for(k=0;k<np;k++)
 	             apval_ptr[k].slip2*apval_ptr[k].slip2 +
 	             apval_ptr[k].slip3*apval_ptr[k].slip3);
 
-   j = 0;
-   while(vm->dep[j] < apval_ptr[k].dep)
-      j++;
+   if(use_srf_mu != 0 && apval_ptr[k].vs > 0.0 && apval_ptr[k].den > 0.0)
+      xmu = apval_ptr[k].vs*apval_ptr[k].vs*apval_ptr[k].den;
+   else
+      {
+      j = 0;
+      while(vm->dep[j] < apval_ptr[k].dep)
+         j++;
+
+      xmu = vm->mu[j];
+      }
 
    aslip = aslip + slip;
-   amu = amu + slip*vm->mu[j];
+   amu = amu + slip*xmu;
    tarea = tarea + apval_ptr[k].area*1.0e-10;
-   tmom = tmom + slip*apval_ptr[k].area*vm->mu[j];
+   tmom = tmom + slip*apval_ptr[k].area*xmu;
 
    if(slip > mslip)
       mslip = slip;
@@ -1161,7 +1380,7 @@ if(surf_np > 3)
    fprintf(stderr,"SURFACE: Average slip= %10.2f cm (sigma/aslip= %.3f)\n",surf_aslip,sqrt(surf_sigma/(surf_np-1))/surf_aslip);
    fprintf(stderr,"SURFACE: Maximum slip= %10.2f cm\n",surf_mslip);
    }
-fprintf(stderr,"Total moment= %13.5e dyne-cm (Mw= %.2f)\n",tmom,0.66667*(log(tmom)/log(10))-10.7);
+fprintf(stderr,"Total moment= %13.5e dyne-cm (Mw= %.3f)\n",tmom,0.66667*(log(tmom)/log(10))-10.7);
 fprintf(stderr,"Static stress drop= %.3f bar (dip-slip: length= %.2f width= %.2f km)\n",ssd/c3,len,wid);
 fprintf(stderr,"Static stress drop= %.3f bar (strike-slip: length= %.2f width= %.2f km)\n",ssd/c2,len,wid);
 fprintf(stderr,"Static stress drop= %.3f bar (circular crack: area= %13.5e km*km)\n",ssd/c1,tarea);
@@ -1384,4 +1603,281 @@ for(it=0;it<nt;it++)
 
 free(mr);
 free(xmr);
+}
+
+#define PI 3.141592653589740
+
+void tfilter(y,dt,nt,order,fhi,flo,phase,space)
+float *y, *dt, *fhi, *flo, *space;
+int nt, order, phase;
+{
+struct complex *q, *p, *tmpptr;
+double trig_arg;
+int j, it, i;
+float wplo, wphi, cosA, sinA;
+float fnyq;
+float are, aim;
+float one = 1.0;
+float two = 2.0;
+
+p = (struct complex *) space;
+q = (struct complex *) (space + 2*nt);
+cxzero(p,nt);
+cxzero(q,nt);
+
+for(it=0;it<nt;it++)
+   p[it].re = y[it];
+
+fnyq = one/(two*(*dt));
+
+if((*fhi))              
+   {
+   if((*fhi) < fnyq)
+      wphi = tan(PI*(*fhi)*(*dt));
+   else
+      wphi = 1.0e+10;
+   }   
+
+if((*flo) < fnyq)
+   wplo = tan(PI*(*flo)*(*dt));
+
+           /*  forward pass  */ 
+
+for(j=0;j<order;j++)            
+   {
+   trig_arg = 0.5*(two*j + one)*PI/order;
+   cosA = cos(trig_arg);
+   sinA = -sin(trig_arg);
+
+   if((*flo) < fnyq)    /* low-pass filter */
+      {
+      are = wplo*sinA;
+      aim = -wplo*cosA;
+      lp_filter(q,p,nt,&are,&aim,1);
+
+      tmpptr = p; p = q; q = tmpptr; 
+      }
+
+   if((*fhi) > 0.0)    /* high-pass filter */
+      {
+      are = wphi*sinA;
+      aim = -wphi*cosA;
+      hp_filter(q,p,nt,&are,&aim,1);
+
+      tmpptr = p; p = q; q = tmpptr; 
+      }
+   }
+
+              /*  reverse pass to obtain zero-phase response  */
+
+if(phase == 0)                                                   
+   {
+   for(j=0;j<order;j++)
+      {
+      trig_arg = 0.5*(two*j + one)*PI/order;
+      cosA = cos(trig_arg);
+      sinA = -sin(trig_arg);
+
+      if((*flo) < fnyq)    /* low-pass filter */
+         {
+         are = wplo*sinA;
+         aim = -wplo*cosA;
+         lp_filter(q,p,nt,&are,&aim,-1);
+
+         tmpptr = p; p = q; q = tmpptr;  
+         }
+
+      if((*fhi) > 0.0)    /* high-pass filter */
+         {
+         are = wphi*sinA;
+         aim = -wphi*cosA;
+         hp_filter(q,p,nt,&are,&aim,-1);
+
+         tmpptr = p; p = q; q = tmpptr;  
+         }
+      }
+   }
+
+for(it=0;it<nt;it++)
+   y[it] = p[it].re;
+}
+
+void cxzero(p,n)
+struct complex *p;
+int n;
+{
+float zap = 0.0;
+int i;
+
+for(i=0;i<n;i++)
+   p[i].re = p[i].im = zap;
+}
+
+void hp_filter(q,p,n,alpha,beta,sgn)
+struct complex *q, *p;
+float *alpha, *beta;
+int n, sgn;
+{
+float are, aim, bre, bim;
+float tmpre, tmpim, denom;
+float one = 1.0;
+int i, n1, k;
+
+tmpre = one - (*alpha);
+tmpim = -(*beta);
+denom = one/(tmpre*tmpre + tmpim*tmpim);
+are = tmpre*denom;
+aim = -tmpim*denom;
+
+bre = one + (*alpha);
+bim = (*beta);
+
+n1 = n - 1;    
+if(sgn == 1)
+   i = 1;
+if(sgn == -1)
+   i = n1 - 1;
+
+k = i - sgn;   
+
+q[k].re = (are*p[k].re - aim*p[k].im);
+q[k].im = (are*p[k].im + aim*p[k].re);
+ 
+while(n1--)
+   {
+   tmpre = (p[i].re - p[k].re) + bre*q[k].re - bim*q[k].im;
+   tmpim = (p[i].im - p[k].im) + bre*q[k].im + bim*q[k].re;
+
+   q[i].re = are*tmpre - aim*tmpim;                         
+   q[i].im = are*tmpim + aim*tmpre;
+
+   i = i + sgn;                     
+   k = i - sgn;
+   }
+}
+
+void lp_filter(q,p,n,alpha,beta,sgn)
+struct complex *q, *p;
+float *alpha, *beta;
+int n, sgn;
+{
+float are, aim, bre, bim, cre, cim;
+float tmpre, tmpim, denom;
+float one = 1.0;
+int i, n1, k;
+
+tmpre = one - (*alpha);
+tmpim = -(*beta);
+denom = one/(tmpre*tmpre + tmpim*tmpim);
+are = tmpre*denom;
+aim = -tmpim*denom;
+
+bre = one + (*alpha);
+bim = (*beta);
+
+cre = -(*alpha);
+cim = -(*beta);
+
+n1 = n - 1;     
+if(sgn == 1)
+   i = 1;
+if(sgn == -1)
+   i = n1 - 1;
+
+k = i - sgn;   
+
+tmpre = cre*p[k].re - cim*p[k].im;
+tmpim = cre*p[k].im + cim*p[k].re;
+
+q[k].re = are*tmpre - aim*tmpim;   
+q[k].im = are*tmpim + aim*tmpre;
+
+while(n1--)                      
+   {
+   tmpre = cre*(p[i].re + p[k].re) - cim*(p[i].im + p[k].im)
+      + bre*q[k].re - bim*q[k].im;
+   tmpim = cre*(p[i].im + p[k].im) + cim*(p[i].re + p[k].re)
+      + bre*q[k].im + bim*q[k].re;
+
+   q[i].re = are*tmpre - aim*tmpim;
+   q[i].im = are*tmpim + aim*tmpre;
+
+   i = i + sgn;                     
+   k = i - sgn;
+   }
+}
+
+void get_filtvals(char *cbuf,float *flo,float *fhi,int *ord,int *phs)
+{
+char temp1[1024];
+int i, j;
+
+while(cbuf[0] != '\0')
+   {
+   if(cbuf[0] == '-')
+      {
+      cbuf++;
+
+      if(strncmp(cbuf,"flo",3) == 0)
+         {
+	 cbuf = cbuf + 3;
+	 j = 0;
+
+         while(cbuf[j] != '-' && cbuf[j] != '\0')
+	    j++;
+
+         strncpy(temp1,cbuf,j);
+         temp1[j] = '\0';
+         *flo = atof(temp1);
+
+         cbuf = cbuf + j;
+	 }
+      else if(strncmp(cbuf,"fhi",3) == 0)
+         {
+	 cbuf = cbuf + 3;
+	 j = 0;
+
+         while(cbuf[j] != '-' && cbuf[j] != '\0')
+	    j++;
+
+         strncpy(temp1,cbuf,j);
+         temp1[j] = '\0';
+         *fhi = atof(temp1);
+
+         cbuf = cbuf + j;
+	 }
+      else if(strncmp(cbuf,"ord",3) == 0)
+         {
+	 cbuf = cbuf + 3;
+	 j = 0;
+
+         while(cbuf[j] != '-' && cbuf[j] != '\0')
+	    j++;
+
+         strncpy(temp1,cbuf,j);
+         temp1[j] = '\0';
+         *ord = atoi(temp1);
+
+         cbuf = cbuf + j;
+	 }
+      else if(strncmp(cbuf,"phs",3) == 0)
+         {
+	 cbuf = cbuf + 3;
+	 j = 0;
+
+         while(cbuf[j] != '-' && cbuf[j] != '\0')
+	    j++;
+
+         strncpy(temp1,cbuf,j);
+         temp1[j] = '\0';
+         *phs = atoi(temp1);
+
+         cbuf = cbuf + j;
+	 }
+      else
+         cbuf[0] = '\0';
+      }
+   else
+      cbuf[0] = '\0';
+   }
 }

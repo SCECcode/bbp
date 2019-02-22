@@ -4,6 +4,10 @@
 #include "defs.h"
 #include "getpar.h"
 
+void get_rupt(struct velmodel *vm, float *h,
+	      float *srcd, float *recd, float *srcr,
+	      float *recr, double *p, double *rad, float *tt);
+
 /*
 ************************************************************************************
 

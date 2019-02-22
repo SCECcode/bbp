@@ -24,7 +24,7 @@ from station_list import StationList
 import plot_srf
 import plot_rotd50
 from plot_seis import PlotSeis
-from rotd50 import RotD50
+from rotd100 import RotD100
 
 class MergeScenario(object):
     """
@@ -284,8 +284,8 @@ class MergeScenario(object):
                            True, True, self.output_sim_id)
         plotter.run()
         # RotD50
-        process = RotD50(os.path.basename(self.station_list),
-                         self.output_sim_id)
+        process = RotD100(os.path.basename(self.station_list),
+                          sim_id=self.output_sim_id)
         process.run()
         # Plot RotD50
 
@@ -304,7 +304,7 @@ class MergeScenario(object):
                                   site.low_freq_corner,
                                   site.high_freq_corner,
                                   quiet=True)
-        
+
     def merge_multisegment_scenario(self):
         """
         Merges multiple BBP runs for separate fault segments

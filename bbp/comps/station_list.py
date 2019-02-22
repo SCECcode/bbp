@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,12 +26,12 @@ from station import Station
 
 # Sets maximum allowed len for station name, code limits are:
 # jbsim: 64 characters
-# hfsims: 11 characters
+# hfsims: 64 characters
 # bbtoolbox: 128 characters
 # b_green_99v8: 15 characters
 # c_simula_v12: 15 characters
 # syn1D: 256 characters
-MAX_STATION_NAME_LEN = 11
+MAX_STATION_NAME_LEN = 15
 
 class StationList(object):
     """

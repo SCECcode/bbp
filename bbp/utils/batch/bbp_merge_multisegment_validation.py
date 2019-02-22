@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2018 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -109,9 +109,9 @@ def plot_srf_file(merged_indir, merged_tmpdir, merged_outdir,
         bband_utils.runprog(cmd)
 
     plottitle = 'Rupture Model for %s' % (val_event)
-    plot_srf.plot_multi_segment(plottitle,
-                                srf_files,
-                                merged_outdir)
+    plot_srf.plot_multi_srf_files(plottitle,
+                                  srf_files,
+                                  merged_outdir)
 
     # Restore directory
     os.chdir(old_cwd)

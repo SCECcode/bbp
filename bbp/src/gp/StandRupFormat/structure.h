@@ -5,6 +5,19 @@ struct stfparOLD
    float trise;
    };
 
+struct pointsource20171024
+   {
+   float lon;
+   float lat;
+   float dep;
+   float stk;
+   float dip;
+   float rak;
+   float area;
+   float slip;
+   float rupt;
+   };
+
 struct pointsource
    {
    float lon;
@@ -16,6 +29,9 @@ struct pointsource
    float area;
    float slip;
    float rupt;
+   float vs;
+   float den;
+   float mu;
    };
 
 struct srf_apointvalues20141109
@@ -118,6 +134,23 @@ struct standrupformat
    struct srf_allpoints srf_apnts;
    };
 
+struct slippars20171024
+   {
+   float lon;
+   float lat;
+   float dep;
+   float ds;
+   float dw;
+   float stk;
+   float dip;
+   float rake;
+   float slip;
+   float tinit;
+   int segno;
+   float trise;
+   float tau1_ratio;
+   };
+
 struct slippars
    {
    float lon;
@@ -133,6 +166,8 @@ struct slippars
    int segno;
    float trise;
    float tau1_ratio;
+   float vs;
+   float den;
    };
 
 struct generic_slip

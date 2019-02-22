@@ -1,0 +1,99 @@
+#!/usr/bin/env python
+"""
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+import sys
+import os
+import time
+import socket
+import subprocess
+
+class CommandParallel:
+
+    def __init__(self, envscript):
+        self.envscript = envscript
+        return
+
+
+    def runMultiSSH(self, remotecmd, nodefile):
+        hostname = socket.gethostname()
+
+        # Read in nodefile
+        nodelist = []
+        if (nodefile == 'localhost'):
+            nodelist.append('localhost')
+        else:
+            nodes = open(nodefile)
+            for node in nodes:
+                node = node.strip(' \n\t')
+                if ((node != hostname) and (node != '')):
+                    if node in nodelist:
+                        continue
+                    nodelist.append(node)
+                elif node == hostname:
+                    if 'localhost' in nodelist:
+                        continue
+                    nodelist.append('localhost')
+            nodes.close()
+
+        print "nodelist = ", nodelist
+
+        if (len(nodelist) == 0):
+            print "No compute nodes available"
+            return(1)
+        else:
+            print "Running on %s nodes" % (len(nodelist))
+
+        # Execute the copy command on each remote node
+        proclist = []
+        while (len(nodelist) > 0):
+            # Use next node
+            node = nodelist.pop()
+            # Make sure we set TMPDIR and PBS_JOBID
+            if not "TMPDIR" in os.environ:
+                os.environ["TMPDIR"] = ("/tmp/%s" %
+                                        (os.environ["PBS_JOBID"]))
+            if (node == 'localhost'):
+                cmd = ("TMPDIR=%s;PBS_JOBID=%s;source %s;%s" %
+                       (os.environ["TMPDIR"], os.environ["PBS_JOBID"],
+                        self.envscript, remotecmd))
+            else:
+                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;PBS_JOBID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["PBS_JOBID"], self.envscript, remotecmd)
+
+            print "Running on %s: %s" % (node, cmd)
+            proclist.append([subprocess.Popen(cmd,shell=True), node])
+
+            # Sleep a bit
+            time.sleep(5)
+
+        # Wait for all child processes to finish
+        if (len(proclist) > 0):
+            for proc in proclist:
+                proc[0].wait()
+
+        return(0)
+
+
+if __name__ == '__main__':
+
+    envscript = sys.argv[1]
+    remotecmd = sys.argv[2]
+    nodefile = sys.argv[3]
+
+    # Run the commands
+    runobj = CommandParallel(envscript)
+    runobj.runMultiSSH(remotecmd, nodefile)
+
+    sys.exit(0)

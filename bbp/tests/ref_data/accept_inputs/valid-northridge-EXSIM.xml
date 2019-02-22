@@ -1,18 +1,18 @@
 	<BBP_Run_Specification>
-		<Validation_Run event="Northridge" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.2.0"/>
+		<Validation_Run event="Northridge" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.3.0"/>
 		<BBP_Modules>
 			<BBP_Module>
 				<name>ExSim</name>
 				<staged_files>
 					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
-					<file>$BBP_INSTALL_GF/LABasin/uwo/labasin_exsim.par</file>
+					<file>$BBP_INSTALL_GF/LABasin863/uwo/labasin_exsim.par</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">labasin_exsim.par</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
@@ -40,7 +40,7 @@
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
-				<name>RotD50</name>
+				<name>RotD100</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -98,7 +98,7 @@
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">nr_v14_02_1.src</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin863</argument>
 					<argument type="str">Northridge</argument>
 					<argument type="str">EXSIM</argument>
 				</arguments>

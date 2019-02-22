@@ -199,3 +199,24 @@ else
 xr = xr + hpar->xshift;
 return(xr);
 }
+
+void copy_psrc(struct pointsource *ps_orig,struct pointsource *ps_copy,int ns,int nd)
+{
+int i;
+
+for(i=0;i<ns*nd;i++)
+   {
+   ps_copy[i].lon = ps_orig[i].lon;
+   ps_copy[i].lat = ps_orig[i].lat;
+   ps_copy[i].dep = ps_orig[i].dep;
+   ps_copy[i].stk = ps_orig[i].stk;
+   ps_copy[i].dip = ps_orig[i].dip;
+   ps_copy[i].rak = ps_orig[i].rak;
+   ps_copy[i].area = ps_orig[i].area;
+   ps_copy[i].slip = ps_orig[i].slip;
+   ps_copy[i].rupt = ps_orig[i].rupt;
+   ps_copy[i].vs = ps_orig[i].vs;
+   ps_copy[i].den = ps_orig[i].den;
+   ps_copy[i].mu = ps_orig[i].mu;
+   }
+}

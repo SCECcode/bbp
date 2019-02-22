@@ -7,7 +7,7 @@
 int main(int ac,char **av)
 {
 float rvfrac;
-int i, n;
+int i, n, old_seed;
 
 long seed = 0;
 float range_rvfrac = 0.05;
@@ -32,11 +32,12 @@ endpar();
 
 for(i=0;i<n;i++)
    {
+   old_seed = seed;
    if(gaus_dist == 1)
       rvfrac = mean_rvfrac*exp(gaus_rand(&sigma_rvfrac,&fzero,&seed));
    else
       rvfrac = mean_rvfrac + range_rvfrac*sfrand(&seed);
 
-   fprintf(stdout,"%.6f %.6f\n",rvfrac,mean_rvfrac);
+   fprintf(stdout,"%.6f %.6f %d\n",rvfrac,mean_rvfrac,old_seed);
    }
 }

@@ -1,10 +1,18 @@
 #!/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-Generate BBP acceptance test suite.
-$Id: gen_accept_tests.py 1807 2017-02-17 23:22:46Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -26,11 +34,9 @@ class Methods(object):
     """
     Defines available models on the platform
     """
-    gp, gp_seis, ucsb, sdsu, sdsu_seis, exsim, csm, song, irikura = range(9)
-    labels = ["GP", "GP_seis", "UCSB", "SDSU",
-              "SDSU_seis", "EXSIM", "CSM", "SONG", "IRIKURA_RECIPE_M1"]
-    options = ["gp", "gp seis", "ucsb", "sdsu",
-               "sdsu seis", "exsim", "csm", "song", "irikura"]
+    gp, ucsb, sdsu, exsim, csm, song, irikura = range(7)
+    labels = ["GP", "UCSB", "SDSU", "EXSIM", "CSM", "SONG", "IRIKURA_RECIPE_M1"]
+    options = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura1"]
 
 class GenAcceptTests(object):
     def __init__(self, resume=True):
@@ -117,30 +123,21 @@ class GenAcceptTests(object):
             opts.append("Northridge")
             # Select method
             opts.append(Methods.options[method])
-#            opts.append(str(method + 1))
-            # For GP, UCSB, and SDSU, we want to run the rupture
-            # generator
-            if method == 0 or method == 2 or method == 3 or method == 7 or method == 8:
+            # We don't need a custom source file
+            opts.append('n')
+            # For GP, UCSB, and SDSU, SONG, Irikura1
+            # we want to run the rupture generator
+            if method == 0 or method == 1 or method == 2 or method == 5 or method == 6:
                 opts.append('y')
-            if method == 1 or method == 4:
-                # Don't use rupture generator
-                opts.append('n')
-            # GPSeis and SDSUSeis don't ask for the source file
-            if method != 1 and method != 4:
-                # But we don't want a custom source file
-                opts.append('n')
             opts.append('2')
             opts.append('1')
             opts.append("%d" %
                         (stafiles.index("northridge_3_sta.stl") + 1))
-            # GPSeis and SDSUSeis want LF seismogrmas, pick from validation dir
-            if method == 1 or method == 4:
-                opts.append('y')
-            if method != 6:
-                # Skip site response (CSM does not ask this question)
-                opts.append('n')
-            if method == 5:
+            if method == 3:
                 # No custom EXSIM template file
+                opts.append('n')
+            if method != 4:
+                # Skip site response (CSM does not ask this question)
                 opts.append('n')
             # Skip plots
             opts.append('n')
@@ -160,38 +157,34 @@ class GenAcceptTests(object):
         # User simulations
         mode = "user"
         for method in xrange(0, len(Methods.labels)):
-            if method == 1 or method == 4:
-                # No user cases for gp_seis and sdsu_seis, skipping...
-                continue
             optfile = "%s-%s.txt" % (mode, Methods.labels[method])
             print("Generating %s" % (optfile))
             opts = []
             opts.append('n')
             # Select the velocity model, use LABasin
-            opts.append('LABasin')
+            opts.append('LABasin863')
             # Select method
             opts.append(Methods.options[method])
-#            opts.append(str(method + 1))
-            if method != 5 and method != 6:
-                # Use rupture generator
-                opts.append('y')
             # Source file
             opts.append('1')
-            if method == 2:
+            if method == 1:
                 opts.append('northridge_eq_ucsb.src')
-            elif method == 7:
+            elif method == 5:
                 opts.append('northridge_eq_song.src')
             else:
                 opts.append('northridge_eq_gp.src')
+            if method != 3 and method != 4:
+                # Use rupture generator
+                opts.append('y')
             # Select station from run directory
             opts.append('1')
             opts.append("%d" %
                         (stafiles.index("northridge_3_sta.stl") + 1))
-            if method == 5:
+            if method == 3:
                 # No custom template for ExSIM
                 opts.append('n')
-            if method != 6:
-                # No to site response
+            if method != 4:
+                # No to site response (CSM doesn't ask this question)
                 opts.append('n')
             # No plots
             opts.append('n')

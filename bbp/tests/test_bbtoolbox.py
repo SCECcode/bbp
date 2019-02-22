@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-These are acceptance tests for the bbtoolbox.py
-$Id: test_bbtoolbox.py 1734 2016-09-13 17:38:17Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -33,7 +41,7 @@ class TestBBToolbox(unittest.TestCase):
         self.srffile = "m589-s2379646.srf"
         self.stations = "test_stat.txt"
         self.srcfile = "wh_test.src"
-        self.vmodel_name = "LABasin"
+        self.vmodel_name = "LABasin863"
 
         # Set up paths
         a_indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
