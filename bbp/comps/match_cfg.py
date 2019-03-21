@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,8 +33,6 @@ class MatchCfg(object):
         self.HF_FLO = "1.0e+15"
         self.HF_ORD = 4
         self.HF_TSTART = 0.0
-        # This should be the same default value used by the hfsims program
-        self.NEW_HFDT = 0.01
 
         self.LF_FHI = 0.0
         self.LF_FLO = 1.0
