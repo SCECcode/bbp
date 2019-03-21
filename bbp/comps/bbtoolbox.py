@@ -1,6 +1,6 @@
 #!/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ class BBToolbox(object):
         self.afac = None
         self.bfac = None
         self.str_fac = None
+        self.correlation_file = None
 
     def create_bbtoolbox_files(self, stat_file):
         """
@@ -89,6 +90,17 @@ class BBToolbox(object):
         # Look for the source function parameter
         if 'SOURCE_FUNC' in vmodel_params:
             self.source_func = vmodel_params['SOURCE_FUNC']
+
+        # Look for correlation file parameter
+        if "CORRELATION_FILE" in vmodel_params:
+            self.correlation_file = os.path.join(vel_obj.base_dir,
+                                                 vmodel_params['CORRELATION_FILE'])
+            # Also copy file to bbtoolbox directory
+            shutil.copy2(self.correlation_file,
+                         os.path.join(a_tmpdir_mod,
+                                      os.path.basename(self.correlation_file)))
+        else:
+            self.correlation_file = "correlation_file_not_used.txt"
 
         # Take care of scattering file
         if not self.r_scattering:
@@ -362,6 +374,11 @@ class BBToolbox(object):
         parfile_fp.write("/* SRF FILE */\n")
         parfile_fp.write('"%s"\n' %
                          (os.path.join(a_indir, self.r_xyz_srffile)))
+        parfile_fp.write("/* CORRELATION FILE */\n")
+        parfile_fp.write("%s\n" %
+                         (os.path.basename(self.correlation_file)))
+        parfile_fp.write("/* RAKE */\n")
+        parfile_fp.write("%.2f\n" % (self.config.RAKE))
         parfile_fp.flush()
         parfile_fp.close()
 

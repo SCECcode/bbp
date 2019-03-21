@@ -110,16 +110,16 @@ float
 	ex0(), fd5(), fd6(), fd7(), fd8(),         /* VIDALE'S STENCILS */
         fdh3d(),fdhne(),fdh2d(),fdhnf();           /* HOLE'S STENCILS */
 
-/*void raytracing_(hypo,grid,step,velfile,timefile)*/
+/* void raytracing_(hypo,grid,step,velfile,timefile,timing) */
 void raytracing_(hypo,grid,step,PS_flag)
 	
 	float *hypo;
 	int   *grid;
 	float *step;
-	/*char  *velfile;
+	/* char  *velfile;
 	char  *timefile;
-	float *timing;*/
-	int   *PS_flag;
+	float *timing; */
+        int   *PS_flag;
 	
 	
 {
@@ -152,7 +152,7 @@ void raytracing_(hypo,grid,step,PS_flag)
 		zs,		/* shot depth */
 		xx, yy, zz,		/* Used to loop around xs, ys, zs coordinates	*/
 		X1, X2, lasti, index, ii, i, j, k, radius, 
-	        /*tfint, vfint, wfint, ofint,*/
+	        /* tfint, vfint, wfint, ofint, */
 	        wfint, ofint,
 		nxy, nyz, nxz, nxyz, nwall,
 		/* counters for the position of the sides of current cube */
@@ -202,9 +202,9 @@ void raytracing_(hypo,grid,step,PS_flag)
 		/*timefile[80],	 file in which travel times appear at the end */
                 wallfile[80];   /* file containing input wall values of traveltimes */
 
-	char  *velfile=malloc(11);
-	char  *timefile=malloc(12);
-	FILE  *vfint, *tfint;
+        char  *velfile=malloc(11);
+        char  *timefile=malloc(12);
+        FILE  *vfint, *tfint;
 
 	/* ARRAY TO ORDER SIDE FOR SOLUTION IN THE RIGHT ORDER */
 	struct sorted *sort;
@@ -235,6 +235,7 @@ void raytracing_(hypo,grid,step,PS_flag)
 	ys = (int)(fys + 0.5);
 	zs = (int)(fzs + 0.5);
 
+
     if (*PS_flag == 1){
        //timefile = "time3d_P.out";
        //velfile =  "vel3d_P.bin";
@@ -249,6 +250,7 @@ void raytracing_(hypo,grid,step,PS_flag)
        strcpy(velfile,   "vel3d_S.bin");
        printf("\nTEST2\n %s\n %s\n",timefile,velfile);
     }
+
 
     fprintf(stderr,"-- travel-times written to :%s\n",timefile);
     fprintf(stderr,"-- selected velocity file  :%s\n",velfile);
@@ -267,26 +269,26 @@ void raytracing_(hypo,grid,step,PS_flag)
 	nxyz = nx * ny * nz;
 	
 	/* FORM AND FILL TT AND SLOWNESS ARRAYS */
-	/*if((vfint=open(velfile,O_RDONLY,0664))<=1) {
-		fprintf(stderr,"cannot open %s\n",velfile);
-		exit(-1);
-	}
-        if((tfint=open(timefile,O_CREAT|O_WRONLY|O_TRUNC,0664))<=1) {
+	/* if((tfint=open(timefile,O_CREAT|O_WRONLY|O_TRUNC,0664))<=1) {
 		fprintf(stderr,"cannot open %s\n",timefile);
 		exit(-1);
-	}*/
-	vfint = fopen(velfile, "rb");
-	if(vfint == NULL) {
-	         fprintf(stderr,"cannot open %s %d\n",velfile,vfint);
-	         exit(-1);
 	}
-
-	tfint = fopen(timefile, "wb");
-	if(tfint == NULL) {
-	        fprintf(stderr,"cannot open %s %d\n",timefile,tfint);
+	if((vfint=open(velfile,O_RDONLY,0664))<=1) {
+		fprintf(stderr,"cannot open %s\n",velfile);
 		exit(-1);
-	}
+	} */
 
+        vfint = fopen(velfile, "rb");
+        if(vfint == NULL) {
+		fprintf(stderr,"cannot open %s %d\n",velfile,vfint);
+		exit(-1);
+        }
+
+        tfint = fopen(timefile, "wb");
+        if(tfint == NULL) {
+		fprintf(stderr,"cannot open %s %d\n",timefile,tfint);
+		exit(-1);
+        }
 
 	/* ALLOCATE MAIN AND ALTERNATE GRID FOR SLOWNESSES AND TIMES */
 	slow0 = (float *) malloc(4*nxyz);
@@ -313,8 +315,8 @@ void raytracing_(hypo,grid,step,PS_flag)
 		exit(-1);
 	}
 	/* READ IN VELOCITY FILE */
-	/*read(vfint,slow0,nxyz*4);*/
-	fread(slow0,sizeof(float),nxyz*4,vfint);
+	/* read(vfint,slow0,nxyz*4); */
+        fread(slow0,sizeof(float),nxyz*4,vfint);
 	
 	
 	/* CONVERT TO SLOWNESS TIMES MESH SPACING */
@@ -1687,12 +1689,11 @@ void raytracing_(hypo,grid,step,PS_flag)
 	/* OUTPUT COMPLETED WAVEFRONT */
 	/*write(tfint,time0,nxyz*4); */
 	
-         //write(tfint,times,nxy*4); 
-        //fwrite(times,sizeof(float),nxy*4,tfint);
+	/* write(tfint,times,nxy*4); */
         fwrite(times,sizeof(float),nxy,tfint);
-	
-	fclose(vfint);
-	fclose(tfint);
+
+        fclose(vfint);
+        fclose(tfint); 
 	
 	
 	fprintf(stderr,"wavefront done \n");

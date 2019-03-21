@@ -176,6 +176,19 @@ INTERFACE write_disk
    END SUBROUTINE write_disk
 END INTERFACE write_disk
 
+INTERFACE write_disk_mpi
+   SUBROUTINE write_disk_mpi(station,type_flag,in_arr)
+      use def_kind; use flags; use scattering, only: npts
+      use source_receiver, only: stat_name
+      use stf_data, only: npts_stf,total
+      use waveform, only: lf_len,lf_npts
+      implicit none
+      integer(kind=i_single),intent(in)            :: station
+      real(kind=r_single),dimension(:,:),intent(in):: in_arr
+      character(len=*),intent(in)                  :: type_flag
+   END SUBROUTINE write_disk_mpi
+END INTERFACE write_disk_mpi
+
 INTERFACE 
    FUNCTION zroots_unity(n,nn)
       use def_kind

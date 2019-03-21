@@ -3,7 +3,7 @@ SUBROUTINE simcoda(station)
 !
 ! Description:
 !
-!   Simulate S-wave coda for synthetic Green's function using Zeng's
+!   Simulate S-wave coda for synthetic Green's function using Zeng's 
 !   multiple S-to-S scattering theory
 !
 ! Dependencies:
@@ -16,16 +16,16 @@ SUBROUTINE simcoda(station)
 !   merr      - tolerance of the coda envelope              err=errx
 !   abscoeff  - absorption coefficient                      gi=gix
 !   scatcoeff - scattering coefficient  	                gs=gsx
-!   fmax      - maximum frequency for coda waves
+!   fmax      - maximum frequency for coda waves   
 !   Q         - Q0 attenuation factor {Q(f)=Q0*f**fdec}
 !   fdec      - frequency decay of Q(f) factor	            cn=cnx
-!   iseed     - seed number
-!   nscat     - number of scattering wavelets
+!   iseed     - seed number                                
+!   nscat     - number of scattering wavelets	
 !   hpass	  - highpass corner of the cosine filter        fl=flx
 !   trans     - transition bandwidth of the filter          flb=flbx
 !   t_len	  - length of time series                       twin=twinx
 !   npts	  - number of points computed for coda envelope nt=ntx
-!   t0	      - time of first arrival
+!   t0	      - time of first arrival 
 !   kappa     - kappa factor akp=akpx
 !   sr_hypo   - station-hypocenter distance          	    dist=distx
 !   aveVs	  - average S-speed between S-R                 vs=vsx
@@ -36,15 +36,15 @@ SUBROUTINE simcoda(station)
 !
 ! References:
 !
-!   Zeng, Anderson and Su (1995).  Subevent rake and random
-!   scattering effects in realistic strong ground motion
+!   Zeng, Anderson and Su (1995).  Subevent rake and random 
+!   scattering effects in realistic strong ground motion 
 !   simulation, Geophy. Res. Lett., 22 17-20
 !
 ! Note:
 !
 !   Allmost all needed parameters are passed by modules
 !
-! Authors: W. Imperatori, M. Mai, Y. Zeng
+! Authors: W. Imperatori, M. Mai, Y. Zeng 
 !
 ! Modified: July 2009 (v1.4)
 !
@@ -65,16 +65,19 @@ SUBROUTINE simcoda(station)
 ! Updated: December 2014 (v1.5.5.2)
 !    The dimension of p and t must be dimenstion(ncoda)
 !    in coda and scoda
+!
+! Updated: February 2019 (v2.0)
+!    Change dt and df computations using v_npts.
 
 use constants; use def_kind; use scattering; use source_receiver
-use waveform, only: lf_len, scattgram
+use waveform, only: lf_len, scattgram, v_npts
 use interfaces, only: four1d
 use tmp_para
 
 implicit none
 
 ! local variables
-integer(kind=i_single),intent(in)       :: station
+integer(kind=i_single),intent(in)       :: station 
 !complex(kind=r_single),dimension(npts)  :: u2
 !complex(kind=r_single),dimension(npts,3):: u1
 !complex(kind=r_single),dimension(2*npts):: u
@@ -87,39 +90,37 @@ integer(kind=i_single)                  :: mmb,i
 complex(kind=r_single),allocatable,dimension(:)   :: u2
 complex(kind=r_single),allocatable,dimension(:,:) :: u1
 complex(kind=r_single),allocatable,dimension(:)   :: u
-! adjusted dt
-real(kind=r_single)                     :: tmp_dt
 
 !---------------------------------------------------------------------
 
 ! compute some parameters
 kappa_local=kappa(station)*0.5
-dt = lf_len/(npts-1)
+!dt = lf_len/(npts-1)
+dt = lf_len/(v_npts-1)
 
 ! df is set to avoid time aliasing
-df = 1 / (2 * npts * dt)
+!df = 1 / (2 * npts * dt)                                        
+df = 1 / (2 * v_npts * dt)                                        
 dw=pi_double*df
 
-!!! set npts=32768 and dt=0.00312sec for all scenarios
-if (npts .gt. tmp_npts) then
-   tmp_dt = tmp_lf_len / (tmp_npts - 1)
-   df = 1 / (2 * tmp_npts * tmp_dt)
-   dw=pi_double*df
-endif
-
-! index of Fnyq
+! index of Fnyq 
 nw = (npts) + 1
-if (npts .gt. tmp_npts) nw = (tmp_npts) + 1
+
 ! index of Fmax   (Fmax < Fnyq, guaranteed by subroutine sampling_check)
 nwm = nint(fmax/df) + 1
+
 ! check Fmax < Fnyq (nwm < nw)
 if (npts .lt. nwm) then
-   nwm=npts
+   !nwm=npts
+   print*,'change Fmax'
    print*,'fmax,npts,nw,df,nwm',fmax,npts,nw,df,nwm
 endif
 
-!!! allocate u2
-if (.not. allocated(u2)) allocate(u2(tmp_npts))
+! allocate u2, u1, and u
+if (.not. allocated(u2)) then
+   allocate(u2(npts), u1(npts,3), u(npts*2))
+endif
+
 u2 = zero
 
 do j=2,nwm
@@ -128,13 +129,10 @@ do j=2,nwm
    u2(j)=((w-w*log(w/pi_double)*Qt/pi)/aveVs)*cmplx(0.5*Qt,1.0)
 enddo
 
-!!! allocate u1
-if (.not. allocated(u1)) allocate(u1(tmp_npts,3))
 u1 = zero
 
 do l=1,nscat
-   !!!x=aveVs*(t0+random_array(1,l)*lf_len)
-   x=aveVs*(t0+random_array(1,l)*tmp_lf_len)
+   x=aveVs*(t0+random_array(1,l)*lf_len)
    c1=random_array(2,l)*2.0-1.0
    c2=random_array(3,l)*2.0-1.0
    c3=random_array(4,l)*2.0-1.0
@@ -146,48 +144,38 @@ do l=1,nscat
       u1(j,3)=u1(j,3)+c3*tmp
    enddo
 
-enddo
-
+enddo  
+      
 !  filter the low frequency
-ml = nint(hpass/df) + 1
-mlb = nint((hpass-trans)/df) + 1
+ml = nint(hpass/df) + 1          
+mlb = nint((hpass-trans)/df) + 1 
 
 do i=1,3
 
-   !!! allocate u
-   if (.not. allocated(u)) allocate(u(tmp_npts*2))
    u = zero
 
    do j=mlb,ml-1
       w=(j-1)*dw
-      c1 = cos(pi_half * ( (ml-j) / (ml-(mlb-1)) )) *df
+      c1 = cos(pi_half * ( (ml-j) / (ml-(mlb-1)) )) *df   
       u(j)=u1(j,i)*exp(cmplx(-w*kappa_local,w*t0))*c1
    enddo
-
+ 
    do j=ml,nwm
       w=(j-1)*dw
       u(j)=u1(j,i)*exp(cmplx(-w*kappa_local,w*t0)) *df
    enddo
 
-   do j=2,nw-1
-      !!!u(2*npts+2 - j) = conjg(u(j))
-      u(2*tmp_npts+2 - j) = conjg(u(j))
-   enddo
+   do j=2,nw-1                        
+      u(2*npts+2 - j) = conjg(u(j))
+   enddo  
 
    call four1d(u,-1)
 
-   do j=1,tmp_npts
+   do j=1,npts
       scattgram(j,i)=real(u(j))
    enddo
 
-   if (tmp_npts .lt. npts) then
-      !!!do j=npts+1,tmp_npts
-      do j=tmp_npts+1,npts
-         scattgram(j,i)=0
-      enddo
-   endif
-
-enddo
+enddo  
 
 dw=dw*0.5
 
@@ -222,16 +210,16 @@ do i=1,lx
       cx(i)=ctemp
    end if
 
-   m=lx/2
+   m=lx/2 
 20 if(j.le.m) goto 30
    j=j-m
-   m=m/2
+   m=m/2 
    if(m.ge.1) goto 20
 30 j=j+m
 
 enddo
 
-l=1
+l=1 
 40 istep=2*l
 
 do m=1,l
@@ -239,9 +227,9 @@ do m=1,l
    cw=cexp(carg)
 
    do i=m,lx,istep
-      ctemp=cw*cx(i+l)
+      ctemp=cw*cx(i+l) 
       cx(i+l)=cx(i)-ctemp
-      cx(i)=cx(i)+ctemp
+      cx(i)=cx(i)+ctemp 
    enddo
 
 enddo
@@ -264,13 +252,16 @@ SUBROUTINE scoda(dist,dt,station)
 !    to check if n1 becomes greater than ncoda for p(n1)
 !
 ! Updated: December 2016 (v1.6.2)
-!    Change dt1 computation.
+!    Change dt1 computation. 
 !    Add shifting scattgram by minimum initiation time,
 !    (tinit, tmp_scatt, sft).
 !
+! Updated: February 2019 (v2.0)
+!    Back to use the original calling coda routine, and no use tmp_para.
+!
 use constants; use def_kind; use scattering
 use waveform, only: lf_len, scattgram
-use tmp_para
+! use tmp_para
 use vel_model, only: tinit
 
 implicit none
@@ -284,69 +275,50 @@ real(kind=r_single),dimension(npts) :: tmp_scatt ! for scattgram shifting, v162
 real(kind=r_single):: c0,c1,dt1,t1,pp
 integer(kind=i_single):: i1,i2,ii,i,i0,n1
 integer(kind=i_single):: sft ! number of scattgram shifting, v162
-! adjusted dt
-real(kind=r_single)              :: tmp_dt
 
 !	parameter (mm1=8192,mm2=800)
 !	dimension pcoda(mm1,3),t(mm2),p(mm2)
 !	common/codaw/n,m,err,gi,gs,fl,flb,rh0,rh1,vs0,vs1,vs,twin,dt
 !	pi=3.1415926
 
-!  generate the coda waves (1.05 is to avoid noise at time-series end)
+!  generate the coda waves (1.05 is to avoid noise at time-series end) 
 
-if (npts == tmp_npts) then
-   call coda(1.05*lf_len,dist,t,p,dt)
-endif
-if (npts .gt. tmp_npts) then
-   tmp_dt = tmp_lf_len/(tmp_npts-1)
-   call coda(1.05*tmp_lf_len,dist,t,p,tmp_dt)
-endif
+call coda(1.05*lf_len,dist,t,p,dt)
 
 c0=0.85/(pi*4.*dist*aveVs)*sqrt(srcVs*srcR/(siteVs(station)*siteR(station)))
 
-if (npts == tmp_npts) c1=sqrt(3.0*lf_len/float(nscat))*c0
-if (npts .gt. tmp_npts) c1=sqrt(3.0*tmp_lf_len/float(nscat))*c0
+c1=sqrt(3.0*lf_len/float(nscat))*c0
 
 ! dt1=t(2)-t(1) ! change v162
 
-if (npts == tmp_npts) then
-   i1=ifix(t0/dt+0.000001)
-   i2=ifix(t(1)/dt+0.000001)
-endif
-if (npts .gt. tmp_npts) then
-   i1=ifix(t0/tmp_dt+0.000001)
-   i2=ifix(t(1)/tmp_dt+0.000001)
-endif
+i1=ifix(t0/dt+0.000001)
+i2=ifix(t(1)/dt+0.000001)
 
 do ii=1,3
    do i=1,ncoda
       if(t0.le.t(i))goto 65
    enddo
-
+ 
 65 n1=i
    i0=0
-   if (npts == tmp_npts) t1=float(i1-1)*dt
-   if (npts .gt. tmp_npts) t1=float(i1-1)*tmp_dt
-
+   t1=float(i1-1)*dt
+ 
    do i=1,i2-i1+1
       i0=i0+1
-      if (npts == tmp_npts) t1=t1+dt
-      if (npts .gt. tmp_npts) t1=t1+tmp_dt
+      t1=t1+dt
       scattgram(i,ii)=0.0
    enddo
-
 
 ! ----- changed from srcV1.4_OLSEN ---------------------------------------------
 
    do i=i0+1,npts
-       if (npts == tmp_npts) t1=t1+dt
-       if (npts .gt. tmp_npts) t1=t1+tmp_dt
+       t1=t1+dt
        if(t1.gt.t(n1)) then
           n1=n1+1
           ! check if n1 <= ncoda (v1552)
           if (n1 .gt. ncoda) then
-             n1=ncoda
-             !print*,'n1=ncoda in scoda'
+             ! n1=ncoda
+             print*,'should be n1<=ncoda in scoda,n1,ncoda, STOP'
           endif
        endif
        if(n1>1) then
@@ -375,7 +347,7 @@ do ii=1,3
       scattgram(:,ii)=tmp_scatt
    endif
 
-enddo
+enddo   
 
 END SUBROUTINE scoda
 
@@ -396,7 +368,7 @@ real(kind=r_single),intent(in)                 :: ddt
 !  and updated by Yuehua Zeng on Feb. 9, 1993.
 !
 ! Updated: December 2014 (v1.5.5.2)
-!    change t(i) computation that "i" in t(i) must be ncoda
+!    change t(i) computation that "i" in t(i) must be ncoda 
 !    or less than ncoda.
 !
 ! Updated: December 2016 (v1.6.2)
@@ -453,7 +425,6 @@ if (i .lt. ncoda) then
 elseif (i .ge. ncoda) then
    t(ncoda)=r/aveVs+ddt
    t(ncoda-1)=r/aveVs-ddt
-   print*,'i and ncoda in coda',i,ncoda
 endif
 
 !  calculate the power spectrum for scattering order higher than two
@@ -543,7 +514,7 @@ do i=1,ncoda
       goto 55
    endif
    tau=r/vt
-
+ 
    call ener2(0.01)
 
    n1=ifix(t(i)/dt)+1
@@ -552,7 +523,8 @@ do i=1,ncoda
    tau=exp(-scatcoeff*vt)
    p(i)=c1*alog((vt+r)/(vt-r))/t(i)*tau+c2*coef*tau+c3*pd
    p(i)=p(i)*exp(-(0.03-abscoeff)*vt)
-55 p(i)=sqrt(p(i))
+55 p(i)=sqrt(abs(p(i))) ! avoid negative p(i) in sqrt()
+
 enddo
 
 
@@ -596,7 +568,7 @@ CONTAINS
 
    real(kind=r_single)   :: dd,vt,ud,du,coef,u
    real(kind=r_single)   :: aux,di,dimax
-   integer(kind=i_single):: i,m,j
+   integer(kind=i_single):: i,m,j 
 
 
    dd=0.01
@@ -620,7 +592,7 @@ CONTAINS
       u=0.75*scatcoeff/vt
       aux=(1.-exp(-scatcoeff*vt)*(1.+scatcoeff*vt))/coef
       di=aux*exp(1.5*alog(u/real(pi))-u*r*r-abscoeff*vt)
-
+ 
       if(i.eq.1)then
          dimax=di
       end if
@@ -629,6 +601,6 @@ CONTAINS
 
    wi=alog(500*di/dimax)/tw
 
-   END SUBROUTINE evwi
+   END SUBROUTINE evwi 
 
 END SUBROUTINE coda

@@ -3,7 +3,7 @@ FUNCTION delay(station)
 !
 ! Description:
 !
-!   Compute delays in S-wave arrival times for each station between deterministic
+!   Compute delays in S-wave arrival times for each station between deterministic 
 !   LF component and stochastic HF component (EXSIM)
 !
 ! Dependencies:
@@ -15,12 +15,12 @@ FUNCTION delay(station)
 !   HF first arrival is computed through a running-window algorithm. If delay
 !   value is positive, deterministic S-wave onset is located later in time.
 !
-! Author: W. Imperatori
+! Author: W. Imperatori 
 !
 ! Modified: January 2009 (v1.3)
 !
 
-use def_kind; use interfaces, only: peaker; use source_receiver; use waveform
+use def_kind; use interfaces, only: peaker; use source_receiver; use waveform 
 
 implicit none
 
@@ -41,7 +41,7 @@ END FUNCTION delay
 
 FUNCTION derive(fun,dt)
 !----------------------------------------------------------------------
-!
+! 
 ! Description:
 !
 !   Compute derivative of a function using lower terms of Taylor series.
@@ -78,10 +78,10 @@ integer(kind=i_single)                     :: npts,i
 npts = size(fun)
 
 do i=1,npts-1
-
+  
    derive(i) = (fun(i+1) - fun(i)) / dt
-
-enddo
+   
+enddo   
 
 END FUNCTION derive
 
@@ -136,7 +136,7 @@ allocate(f(W1_npts))
 
 ! compute energy-ratio function
 do i=1,W1_npts
-  f(i) = trapz(fun(i:i-1+W2_npts)**2,dt) / trapz(fun(1:i-1+W2_npts)**2,dt)
+  f(i) = trapz(fun(i:i-1+W2_npts)**2,dt) / trapz(fun(1:i-1+W2_npts)**2,dt) 
 enddo
 
 !open(1,file='tau.txt')
@@ -166,8 +166,8 @@ peaker = (maxloc(derivative,dim=1) - 1)*dt
 !      peaker = (i-1)*dt
 !      exit
 !   endif
-!enddo
-
+!enddo   
+      
 ! free memory
 deallocate(f,derivative)
 
@@ -180,8 +180,8 @@ SUBROUTINE time_distance
 !
 ! Description:
 !
-!   Reads P and S travel-times at a given number of locations, computed
-!   using J.Hole's 3D-raytracing program. The input files are binary. It
+!   Reads P and S travel-times at a given number of locations, computed 
+!   using J.Hole's 3D-raytracing program. The input files are binary. It 
 !   computes also S-R distances, eventually for each subfault (Empirical
 !   Green's Function approach).
 !
@@ -189,11 +189,11 @@ SUBROUTINE time_distance
 !
 !   None. All variables passed by modules.
 !
-! Notes:
+! Notes: 
 !
 !   Very simple way out to allow for input coordinates given in km has been
-!   taken; if you enter positions that DO NOT agree with a sample point in
-!   your grid, the routine will take the P/S-arrival times from the nearest
+!   taken; if you enter positions that DO NOT agree with a sample point in 
+!   your grid, the routine will take the P/S-arrival times from the nearest 
 !   grid-point (since no high precision is required).
 !
 ! Authors: W. Imperatori, M. Mai
@@ -206,6 +206,10 @@ SUBROUTINE time_distance
 ! Updated: December 2016 (v1.6.2)
 !   Avoid sr_cell = 0, for stf_ext computation in convolution.f90.
 !
+! Updated: February 2019 (v2.0)
+!   Change opening of time3d_P.out and time3d_S.out.
+!   Back to the original reading for tp and ts.
+
 use def_kind; use flags; use geometry; use interfaces, only: poly_interp
 use source_receiver
 
@@ -238,16 +242,16 @@ enddo
 if (ext_flag == 1) then
    ! allocate array for cells-receivers distances
    allocate(sr_cell(n_cell,n_stat))
-   ! compute distances
+   ! compute distances   
    !forall (i=1:n_cell,k=1:n_stat)
-   !  sr_cell(i,k) = sqrt( (xp(k) - x_cell(i))**2 + (yp(k) - y_cell(i))**2 + (z_cell(i))**2 )
+   !   sr_cell(i,k) = sqrt( (xp(k) - x_cell(i))**2 + (yp(k) - y_cell(i))**2 + (z_cell(i))**2 ) 
    !end forall
 
    ! compute distances, but avoid zero distances, v162
    do k=1,n_stat
       do i=1,n_cell
-        sr_cell(i,k) = sqrt( (xp(k) - x_cell(i))**2 + (yp(k) - y_cell(i))**2 + (z_cell(i))**2 )
-        if (sr_cell(i,k) == 0) sr_cell(i,k) = 0.1
+         sr_cell(i,k) = sqrt( (xp(k) - x_cell(i))**2 + (yp(k) - y_cell(i))**2 + (z_cell(i))**2 )
+         if (sr_cell(i,k) == 0) sr_cell(i,k) = 0.1
       enddo
    enddo
 
@@ -259,41 +263,36 @@ if (ext_flag == 1) then
       enddo
    enddo
 
-endif
+endif   
 
 ! open binary files that contain the travel-times
 !open(1,file='time3d_P.out',access='direct',recl=nx)
 !open(2,file='time3d_S.out',access='direct',recl=nx)
-open(1,file='time3d_P.out',access='direct',recl=4)
-open(2,file='time3d_S.out',access='direct',recl=4)
+!open(1,file='time3d_P.out',access='direct',recl=4)
+!open(2,file='time3d_S.out',access='direct',recl=4)
+open(1,file='time3d_P.out',access='direct',recl=nx*4)
+open(2,file='time3d_S.out',access='direct',recl=nx*4)
 
 ! read travel times into a potentially large ny x nx array
 ! using only the information for nz=1, i.e. the surface layer
 nrec=0
-!do j=1,ny
-!   nrec=nrec+1
-!   read(1,rec=nrec) (tp(i,j),i=1,nx)
-!   read(2,rec=nrec) (ts(i,j),i=1,nx)
-!enddo
 do j=1,ny
-   do i=1,nx
-      nrec=nrec+1
-      read(1,rec=nrec) tp(i,j)
-      read(2,rec=nrec) ts(i,j)
-   enddo
+   nrec=nrec+1
+   read(1,rec=nrec) (tp(i,j),i=1,nx)
+   read(2,rec=nrec) (ts(i,j),i=1,nx)
 enddo
 
 ! extract travel-time values
 do k=1,n_stat
-
-   ! find station's neighbouring points ([2x2] for bilinear interpolation)
+   
+   ! find station's neighbouring points ([2x2] for bilinear interpolation)   
    x_pos = (/ floor( xp(k) / h_step ) + 1, floor( xp(k) / h_step ) + 2 /)
    y_pos = (/ floor( yp(k) / h_step ) + 1, floor( yp(k) / h_step ) + 2 /)
-
+                                                                           
    ! assign travel-times through bilinear interpolation
    call poly_interp(h_step*(x_pos-1),h_step*(y_pos-1),ts(x_pos,y_pos),xp(k),yp(k),time_s(k))
    call poly_interp(h_step*(x_pos-1),h_step*(y_pos-1),tp(x_pos,y_pos),xp(k),yp(k),time_p(k))
-
+                                                                         
 enddo
 
 ! close input files
@@ -301,17 +300,17 @@ close(1);close(2)
 
 ! deallocate memory
 deallocate(tp,ts)
+ 
 
-
-END SUBROUTINE time_distance
+END SUBROUTINE time_distance 
 
 !===================================================================================================
 
 FUNCTION trapz(fun,dt)
 !------------------------------------------------------------------------
-!
+! 
 ! Description:
-!
+! 
 !    Perform intergration using trapezoidal rule over a given function.
 !
 ! Dependencies:
@@ -321,7 +320,7 @@ FUNCTION trapz(fun,dt)
 ! Note:
 !
 !   Here step is equal to function's time-step. No checks for accuracy
-!   are implemented.
+!   are implemented. 
 !
 ! Author: W. Imperatori
 !

@@ -206,7 +206,6 @@ else if (modality_flag /= 0) then
    exponent = log(real(npts)) / log(2.0)
 
    if (exponent /= nint(exponent))  npts = 2**(ceiling(exponent))
-
 endif
 
 END SUBROUTINE sampling_check
@@ -233,8 +232,12 @@ SUBROUTINE spline_interp(in_seis,time_len,interp_npts,orig_npts,out_seis)
 !
 ! Modified: January 2009 (v1.3)
 !
-
+! Updated: February 2019 (v2.0)
+!   Change dt_interp and dt_orig computations.
+!
 use def_kind
+use tmp_para;
+use waveform, only: lf_dt,v_npts
 
 implicit none 
 
@@ -251,27 +254,21 @@ real(kind=r_single),allocatable,dimension(:):: t_vec,sec_der
 ! time-vector, time-steps of interpolated and original time-series
 real(kind=r_single)                         :: t_interp,dt_interp,dt_orig
 ! counter
-integer(kind=i_single)                      :: j
+integer(kind=i_single)                      :: j,n
 ! parameters used for spline interpolation
 real(kind=r_single),parameter               :: yp1=2.0e20, ypn=2.0e20
-
-
-! add
-real(kind=r_single)                         :: tmp_dt !3.1243325E-03
-real(kind=r_single),parameter               :: tmp_time_len=102.3750
-integer(kind=i_single),parameter            :: tmp_interp_npts=32768
-
 
 !------------------------------------------------------------------------------------
 
 ! time-step of interpolated time-series
-dt_interp = time_len / (interp_npts-1)
-if (interp_npts .gt. tmp_interp_npts) then
-   dt_interp = tmp_time_len/(tmp_interp_npts-1)
-endif 
+!dt_interp = time_len / (interp_npts-1)
+n=ceiling(time_len/tmp_lf_len)
+dt_interp = tmp_lf_len*n / (v_npts - 1)
 
 ! time-step of original time-series
-dt_orig = time_len / (orig_npts-1)
+!dt_orig = time_len / (orig_npts-1)
+! dt_orig is from the actual dt from LF = lf_dt
+dt_orig = lf_dt
 
 if(.not.allocated(t_vec)) allocate(t_vec(orig_npts),sec_der(orig_npts))                 
 
