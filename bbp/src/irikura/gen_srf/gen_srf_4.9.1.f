@@ -45,7 +45,7 @@ c  08/13/2016 adjust condition for single asperity limited depth  (accomodate 2 
 c  09/01/2016 replace Miyatake's source time function 
 c  10/25/2018 corrected fault width condition for single asperity 
 c  02/02/2019 make the Vr/Vs ratio an input rupture model parameter
-
+c  03/25/2019 the code outputs the stress drop . output file name: stress_drop.out
   
         parameter (MAXnw=6000, MAXnl=6000) 
 	dimension slip(MAXnw,MAXnl),stres(MAXnw,MAXnl),alng(MAXnw,MAXnl)
@@ -357,6 +357,7 @@ c        open (13,file=file_gmt)
         open (14,file='stf_background.out')
         open (16,file='stf_asperity1.out')
         open (26,file='stf_asperity2.out')
+        open (27,file='stress_drop.out')
 
         version=1.0
         nums=1
@@ -416,6 +417,10 @@ c         if(j.eq.1)print*,yy,xx,alon,dl/2-x,sin(strike), y*cos(str2)/xsc
               slip3 = 0.0
               zero  = 0.0
               sdrop = stres(j,i)
+
+c  output stress drop in MPa 
+         write(27,*)i,j,sdrop/10.
+
 c  rise time for each asperity
              tr =alng(j,i)/rupvel/2.
 

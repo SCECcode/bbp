@@ -20,6 +20,7 @@ from __future__ import division, print_function
 import os
 import sys
 import math
+import shutil
 
 # Import Broadband modules
 import plot_srf
@@ -65,9 +66,11 @@ class IrikuraGenSrf(object):
         a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_logdir = os.path.join(install.A_OUT_LOG_DIR, str(sim_id))
+        a_param_outdir = os.path.join(a_outdir, "param_files")
 
         # Make sure the output and tmp directories exist
-        bband_utils.mkdirs([a_tmpdir, a_indir, a_outdir])
+        bband_utils.mkdirs([a_tmpdir, a_indir, a_outdir,
+                            a_logdir, a_param_outdir])
 
         # Now, file paths
         self.log = os.path.join(a_logdir, "%d.gen_srf.log" % (sim_id))
@@ -230,7 +233,7 @@ class IrikuraGenSrf(object):
         os.chdir(old_cwd)
 
         #
-        # mv result to outputfile
+        # Move results to outputfile
         #
         progstring = "cp %s %s" % (a_srffile,
                                    os.path.join(a_tmpdir, self.r_srffile))
@@ -238,6 +241,10 @@ class IrikuraGenSrf(object):
         progstring = "cp %s %s" % (a_srffile,
                                    os.path.join(a_outdir, self.r_srffile))
         bband_utils.runprog(progstring)
+        shutil.copy2(os.path.join(a_tmpdir, "stress_drop.out"),
+                     os.path.join(a_param_outdir,
+                                  "stress_drop.out"))
+
 
         # Plot SRF
         plot_srf.run(self.r_srffile, sim_id=self.sim_id)
