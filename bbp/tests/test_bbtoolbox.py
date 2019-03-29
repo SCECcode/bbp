@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,11 +37,11 @@ class TestBBToolbox(unittest.TestCase):
         self.install = InstallCfg()
         self.cfg = BBToolboxCfg()
         self.sim_id = int(seqnum.get_seq_num())
-        self.velmodel = "sdsu-apr2013-labasin-vmod.txt"
+        self.velmodel = "sdsu-aug2018-labasin-vmod.txt"
         self.srffile = "m589-s2379646.srf"
         self.stations = "test_stat.txt"
         self.srcfile = "wh_test.src"
-        self.vmodel_name = "LABasin863"
+        self.vmodel_name = "LABasin500"
 
         # Set up paths
         a_indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
@@ -93,7 +93,8 @@ class TestBBToolbox(unittest.TestCase):
             hybfile = os.path.join(self.install.A_TMP_DATA_DIR,
                                    str(self.sim_id),
                                    "%d.s0%d.bbp" % (self.sim_id, i))
-            self.failIf(cmp_bbp.cmp_bbp(ref_file, hybfile) != 0,
+            self.failIf(cmp_bbp.cmp_bbp(ref_file, hybfile,
+                                        tolerance=0.01) != 0,
                         "output HF BBP %s " % (hybfile) +
                         " file does not match reference hf bbp file %s" %
                         (ref_file))

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ class TestHfsims(unittest.TestCase):
         """
         self.install = InstallCfg()
         self.hfsim_cfg = HfsimsCfg()
-        self.velmodel = "genslip_nr_generic1d-gp01.vmod"
+        self.velmodel = "nr02-vs500.fk1d"
         self.srcfile = "test_wh.src"
         self.srffile = "m5.89-0.20x0.20_s2379646.srf"
         self.stations = "test_stat.txt"
@@ -74,7 +74,7 @@ class TestHfsims(unittest.TestCase):
         Test GP HFSims code
         """
         hfs_obj = Hfsims(self.velmodel, self.srcfile, self.srffile, self.stations,
-                         "LABasin863", sim_id=self.sim_id)
+                         "LABasin500", sim_id=self.sim_id)
         hfs_obj.run()
         for i in range(1, 6):
             ref_file = os.path.join(self.install.A_TEST_REF_DIR,

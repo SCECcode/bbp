@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class TestExsim(unittest.TestCase):
         """
         Cope needed files to run the test
         """
-        self.vmodel_name = "LABasin863"
+        self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
         self.install = InstallCfg()
         self.vmodel_obj = vmodels.get_velocity_model_by_name(self.vmodel_name)
@@ -52,7 +52,7 @@ class TestExsim(unittest.TestCase):
         # Copy needed files
 
         # src file
-        r_src_file = "nr_v12_11_0_fs.src"
+        r_src_file = "nr_v14_02_1.src"
         src_file = os.path.join(self.install.A_TEST_REF_DIR, "uwo", r_src_file)
         self.src_file = os.path.join(indir, r_src_file)
         cmd = "cp %s %s" % (src_file, self.src_file)
@@ -74,7 +74,7 @@ class TestExsim(unittest.TestCase):
         bband_utils.runprog(cmd)
 
         # station file
-        r_stations = "nr_v12_11_2.stl"
+        r_stations = "nr_v19_02_1_one_station.stl"
         stations = os.path.join(self.install.A_TEST_REF_DIR, "uwo", r_stations)
         self.stations = os.path.join(indir, r_stations)
         cmd = "cp %s %s" % (stations, self.stations)

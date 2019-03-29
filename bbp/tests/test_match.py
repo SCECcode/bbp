@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class TestMatch(unittest.TestCase):
         self.match_cfg = MatchCfg()
         os.chdir(self.install.A_INSTALL_ROOT)
         self.stations = "test_stat.txt"
-        self.vmodel_name = "LABasin863"
+        self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
         self.freqs = ['lf', 'hf']
         cmd = "mkdir -p %s/%d" % (self.install.A_IN_DATA_DIR, self.sim_id)

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ class TestUCrmg(unittest.TestCase):
 
     def setUp(self):
         self.install = InstallCfg()
-        self.r_velmodel = "labasin.vel"
-        self.vmodel_name = "LABasin863"
+        self.r_velmodel = "nr02-vs500_lf.vel"
+        self.vmodel_name = "LABasin500"
         self.r_srcfile = "test_wh_ucsb.src"
         self.r_srffile = "FFSP_OUTPUT.001"
         self.sim_id = int(seqnum.get_seq_num())

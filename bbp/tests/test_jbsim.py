@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ class TestJbsim(unittest.TestCase):
         """
         Copy needed files to run the test
         """
-        self.velmodel = "genslip_nr_generic1d-gp01.vmod"
+        self.velmodel = "nr02-vs500.fk1d"
         self.srffile = "m5.89-0.20x0.20_s2379646.srf"
         self.stations = "one_stat.txt"
-        self.vmodel_name = "LABasin863"
+        self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
 
         self.install = InstallCfg()

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class TestWccSiteamp(unittest.TestCase):
 
     def setUp(self):
         self.install = InstallCfg()
-        self.wcc_siteamp_cfg = WccSiteampCfg("LABasin863", "GP")
+        self.wcc_siteamp_cfg = WccSiteampCfg("LABasin500", "GP")
         os.chdir(self.install.A_INSTALL_ROOT)
         self.stations = "test_stat.txt"
         self.sim_id = int(seqnum.get_seq_num())
@@ -66,7 +66,7 @@ class TestWccSiteamp(unittest.TestCase):
         Test GP site response module
         """
         wcc_obj = WccSiteamp(self.stations, "GP",
-                             "LABasin863", sim_id=self.sim_id)
+                             "LABasin500", sim_id=self.sim_id)
         wcc_obj.run()
         freqs = ['lf', 'hf']
 
