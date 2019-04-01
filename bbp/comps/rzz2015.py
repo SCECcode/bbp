@@ -1,9 +1,18 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-$Id: rzz2015.py 1800 2017-02-14 23:18:11Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -12,7 +21,7 @@ import os
 import sys
 import math
 from scipy import integrate
-# from scipy.signal import butter, filtfilt
+from scipy.signal import butter, filtfilt
 from scipy import interpolate
 import numpy as np
 import matplotlib as mpl
@@ -192,12 +201,45 @@ class RZZ2015(object):
         if deltat == RZZ_DT:
             return cur_times, cur_data, deltat
 
+        #######################################################################
+        # # Now downsample as needed                                          #
+        # if deltat > obs_delta_t:                                            #
+        #     # Filter obs_data                                               #
+        #     X5, Y5 = butter(8, (1.0 / deltat) / (1.0 / obs_delta_t), 'low') #
+        #     tfif = filtfilt(X5, Y5, obs_data,                               #
+        #                     padlen=3*(max(len(X5), len(Y5))-1))             #
+        #     idx = [int(round(x)) for x in np.arange(1,                      #
+        #                                             len(tfif) + 0.0000001,  #
+        #                                             (deltat/obs_delta_t))]  #
+        #     tf = [tfif[i-1] for i in idx]                                   #
+        #     # Keep sym_data intact                                          #
+        #     xi = sym_data                                                   #
+        # elif deltat < obs_delta_t:                                          #
+        #     # Filter sym_data                                               #
+        #     X5, Y5 = butter(8, (1.0 / obs_delta_t) / (1.0 / deltat), 'low') #
+        #     xif = filtfilt(X5, Y5, sym_data,                                #
+        #                    padlen=3*(max(len(X5), len(Y5))-1))              #
+        #     idx = [int(round(x)) for x in np.arange(1,                      #
+        #                                             len(xif) + 0.0000001,   #
+        #                                             (obs_delta_t/deltat))]  #
+        #     xi = [xif[i-1] for i in idx]                                    #
+        #     # Keep obs_data intact                                          #
+        #     tf = obs_data                                                   #
+        # else:                                                               #
+        #     tf = obs_data                                                   #
+        #     xi = sym_data                                                   #
+        #######################################################################
+
         # Check if we can decimate (preferable)
         dt_ratio = 1.0 * RZZ_DT / deltat
         if (dt_ratio > 1.0) and (dt_ratio == int(dt_ratio)):
             # Yes!
+            X5, Y5 = butter(8, (1.0 / RZZ_DT) / (1.0 / deltat), 'low')
+            filt_data = filtfilt(X5, Y5, cur_data,
+                                 padlen=3*(max(len(X5), len(Y5))-1))
             dt_ratio = int(dt_ratio)
-            new_data = cur_data[::dt_ratio]
+            new_data = filt_data[::dt_ratio]
+            #new_data = cur_data[::dt_ratio]
             new_times = cur_times[::dt_ratio]
             return new_times, new_data, RZZ_DT
 
@@ -431,46 +473,20 @@ class RZZ2015(object):
               (stat, comp, obs_delta_t, deltat))
 
         # Bring obs_data to desired RZZ_DT
+        print("Obs in: %d pts, %f delta t" % (len(obs_data), obs_delta_t))
         obs_times, obs_data, obs_delta_t = self.filter_data(obs_times,
                                                             obs_data,
                                                             obs_delta_t)
-
+        print("Obs out: %d pts, %f delta t" % (len(obs_data), obs_delta_t))
         # Bring sym_data to desired RZZ_DT
+        print("Sym in: %d pts, %f delta t" % (len(sym_data), deltat))
         sym_times, sym_data, deltat = self.filter_data(sym_times,
                                                        sym_data,
                                                        deltat)
+        print("Sym out: %d pts, %f delta t" % (len(sym_data), deltat))
 
         tf = obs_data
         xi = sym_data
-
-        #######################################################################
-        # # Now downsample as needed                                          #
-        # if deltat > obs_delta_t:                                            #
-        #     # Filter obs_data                                               #
-        #     X5, Y5 = butter(8, (1.0 / deltat) / (1.0 / obs_delta_t), 'low') #
-        #     tfif = filtfilt(X5, Y5, obs_data,                               #
-        #                     padlen=3*(max(len(X5), len(Y5))-1))             #
-        #     idx = [int(round(x)) for x in np.arange(1,                      #
-        #                                             len(tfif) + 0.0000001,  #
-        #                                             (deltat/obs_delta_t))]  #
-        #     tf = [tfif[i-1] for i in idx]                                   #
-        #     # Keep sym_data intact                                          #
-        #     xi = sym_data                                                   #
-        # elif deltat < obs_delta_t:                                          #
-        #     # Filter sym_data                                               #
-        #     X5, Y5 = butter(8, (1.0 / obs_delta_t) / (1.0 / deltat), 'low') #
-        #     xif = filtfilt(X5, Y5, sym_data,                                #
-        #                    padlen=3*(max(len(X5), len(Y5))-1))              #
-        #     idx = [int(round(x)) for x in np.arange(1,                      #
-        #                                             len(xif) + 0.0000001,   #
-        #                                             (obs_delta_t/deltat))]  #
-        #     xi = [xif[i-1] for i in idx]                                    #
-        #     # Keep obs_data intact                                          #
-        #     tf = obs_data                                                   #
-        # else:                                                               #
-        #     tf = obs_data                                                   #
-        #     xi = sym_data                                                   #
-        #######################################################################
 
         # Truncate simulated ground motion according to cross-correlation
         tq2_integ = np.zeros((1, len(tf)))[0]
@@ -743,8 +759,12 @@ class RZZ2015(object):
         metric_error_shape_3 = metric_error_6 / metric_error_3
 
         # Calculate the bandwidth parameter zeta
-        result_6 = self.damping_z(tf, deltat, result_4, result_5)
-        result_12 = self.damping_z(x, deltat, result_10, result_11)
+        result_6 = 0.0
+        result_12 = 0.0
+        # Disabled calculations below as processing can take a long time
+        # Will be re-enabled in the future once the algorithm is revised
+        # result_6 = self.damping_z(tf, deltat, result_4, result_5)
+        # result_12 = self.damping_z(x, deltat, result_10, result_11)
 
         # Plot validation metric 3
         subfig = axs[1][2]
