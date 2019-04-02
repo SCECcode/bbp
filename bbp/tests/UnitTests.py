@@ -41,6 +41,7 @@ from test_bbtoolbox import TestBBToolbox
 from test_exsim import TestExsim
 from test_rmg import TestRMG
 from test_rotd50 import TestRotD50
+from test_rotd100 import TestRotD100
 from test_gp_gof import TestGPGof
 from test_sdsu_mogof import TestSDSUMOGof
 from test_anderson_gof import TestAndersonGof
@@ -97,6 +98,7 @@ TS.addTest(unittest.makeSuite(TestRMG))
 
 # Add Post-Processing tests
 TS.addTest(unittest.makeSuite(TestRotD50))
+TS.addTest(unittest.makeSuite(TestRotD100))
 TS.addTest(unittest.makeSuite(TestGPGof))
 TS.addTest(unittest.makeSuite(TestSDSUMOGof))
 TS.addTest(unittest.makeSuite(TestAndersonGof))

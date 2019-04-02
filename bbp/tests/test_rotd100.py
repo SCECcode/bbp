@@ -13,9 +13,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-Created on Aug 10, 2012
-@author: maechlin
 """
 from __future__ import division, print_function
 
@@ -25,14 +22,14 @@ import unittest
 
 # Import Broadband modules
 import cmp_bbp
-import rotd50
+import rotd100
 import seqnum
 import bband_utils
 import install_cfg
 
-class TestRotD50(unittest.TestCase):
+class TestRotD100(unittest.TestCase):
     """
-    Unit test for the rotd50.py module
+    Unit test for the rotd100.py module
     """
 
     def setUp(self):
@@ -54,9 +51,9 @@ class TestRotD50(unittest.TestCase):
         bband_utils.mkdirs([self.indir, self.tmpdir, self.outdir, self.logdir],
                            print_cmd=False)
 
-    def test_rotd50(self):
+    def test_rotd100(self):
         """
-        Test the rotd50 module
+        Test the rotd100 module
         """
         # Load configuration, set sim_id
         sim_id = self.sim_id
@@ -79,19 +76,27 @@ class TestRotD50(unittest.TestCase):
             cmd = "cp %s %s" % (src_bbp, dst_bbp)
             bband_utils.runprog(cmd)
 
-        rotd50_obj = rotd50.RotD50(r_station_list, sim_id)
-        rotd50_obj.run()
+        rotd100_obj = rotd100.RotD100(r_station_list, sim_id=sim_id)
+        rotd100_obj.run()
 
         # Check results
         for i in range(1, 6):
-            ref_rd50 = os.path.join(ref_dir, "8000%d.rd50" % (i))
-            new_rd50 = os.path.join(self.outdir, "%d.8000%d.rd50" %
-                                    (sim_id, i))
-            errmsg = ("Output file %s does not match reference file: %s" %
-                      (new_rd50, ref_rd50))
-            self.failIf(cmp_bbp.cmp_files_generic(ref_rd50,
-                                                  new_rd50) != 0, errmsg)
+            ref_rd100 = os.path.join(ref_dir, "8000%d.rd100" % (i))
+            ref_rd100_v = os.path.join(ref_dir, "8000%d.rd100.vertical" % (i))
+            new_rd100 = os.path.join(self.outdir, "%d.8000%d.rd100" %
+                                     (sim_id, i))
+            new_rd100_v = os.path.join(self.outdir, "%d.8000%d.rd100.vertical" %
+                                       (sim_id, i))
+            self.failIf(cmp_bbp.cmp_files_generic(ref_rd100,
+                                                  new_rd100) != 0,
+                        "Output file %s does not match reference file: %s" %
+                        (new_rd100, ref_rd100))
+            self.failIf(cmp_bbp.cmp_files_generic(ref_rd100_v,
+                                                  new_rd100_v) != 0,
+                        "Output file %s does not match reference file: %s" %
+                        (new_rd100_v, ref_rd100_v))
+
 
 if __name__ == "__main__":
-    SUITE = unittest.TestLoader().loadTestsFromTestCase(TestRotD50)
+    SUITE = unittest.TestLoader().loadTestsFromTestCase(TestRotD100)
     unittest.TextTestRunner(verbosity=2).run(SUITE)

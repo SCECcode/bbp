@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -86,10 +86,10 @@ class TestAS16(unittest.TestCase):
                                     "stewart_duration_gmpe",
                                     "%d.as16.%s.txt" %
                                     (self.sim_id, self.eventname))
-        self.failIf(cmp_bbp.cmp_anderson_gof(ref_sum_file, cal_sum_file,
-                                             tolerance=0.005,
-                                             start_col=1,
-                                             sep=",") != 0,
+        self.failIf(cmp_bbp.cmp_files_generic(ref_sum_file, cal_sum_file,
+                                              tolerance=0.005,
+                                              start_col=1,
+                                              sep=",") != 0,
                     "AS16 Summary file does not match reference file!")
 
 if __name__ == '__main__':

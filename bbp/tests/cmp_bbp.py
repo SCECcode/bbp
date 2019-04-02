@@ -463,10 +463,10 @@ def cmp_gof(filename1, filename2, col_start=0, col_end=1, tolerance=0.0015):
             return returncode
     return returncode
 
-def cmp_anderson_gof(filename1, filename2, tolerance=0.0015,
-                     start_col=0, sep=None):
+def cmp_files_generic(filename1, filename2, tolerance=0.0015,
+                      start_col=0, sep=None):
     """
-    This function compares two output files from the Anderson GOF
+    This function compares tokens from two output files
     """
     # Start with zero return code
     return_code = 0
