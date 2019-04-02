@@ -31,6 +31,7 @@ from test_jbsim import TestJbsim
 from test_hfsims import TestHfsims
 from test_wcc_siteamp import TestWccSiteamp
 from test_match import TestMatch
+from test_gensrf import TestGenSRF
 from test_uc_fault_utils import TestUCFaultUtils
 from test_vm2vm import TestVm2vm
 from test_cc import TestCC
@@ -76,6 +77,9 @@ TS.addTest(unittest.makeSuite(TestJbsim))
 TS.addTest(unittest.makeSuite(TestHfsims))
 TS.addTest(unittest.makeSuite(TestWccSiteamp))
 TS.addTest(unittest.makeSuite(TestMatch))
+
+# Add Irikura tests
+TS.addTest(unittest.makeSuite(TestGenSRF))
 
 # Add UCSB tests
 TS.addTest(unittest.makeSuite(TestUCFaultUtils))
