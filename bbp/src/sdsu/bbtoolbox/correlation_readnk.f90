@@ -9,7 +9,13 @@ SUBROUTINE infcorr(cnpts,dt,station)
 !
 ! Modified: February 2019 (v2.0)
 !
+! Update: March 2019 (v2.1)
+!   Add cseed, for inter-frequency correlation random seed
+!              if cseed = -1, seed defined by system-time
+!              else, cseed defined by user and seed value increases 107 for each station
+
 use interfaces, only: four1d
+use scattering, only: cseed
 use constants 
 use def_kind 
 use waveform 
@@ -41,7 +47,7 @@ real(kind=r_single),allocatable,dimension(:)          :: corr_cut_ns,corr_cut_ew
 ! delta-f
 real(kind=r_single)                                   :: df,A,sigma,sigma_low
 
-integer(kind=i_single)                                :: seed_size,rseed
+integer(kind=i_single)                                :: seed_size
 integer(kind=i_single),allocatable,dimension(:)       :: tmp_seed
 integer, dimension(1:8)                               :: dt_seed
 
@@ -80,19 +86,32 @@ Ph_hf_ew=atan2(aimag(hf_four_ud),real(hf_four_ud))
 
 !! log normal random number----------------------
 ! generate a different random number every time
+
+! set random seed (cseed) for compute random numbers
+if (cseed == -1) then            !random seed based on system time
+    call random_seed(size=seed_size)
+    if (.not.allocated(tmp_seed)) allocate(tmp_seed(seed_size))
+    call random_seed(get=tmp_seed)
+    call DATE_AND_TIME(values=dt_seed)
+    tmp_seed(seed_size)=dt_seed(8); tmp_seed(1)=dt_seed(8)*dt_seed(7)*dt_seed(6)
+    print*, 'seed value for correlation random number tmp_seed(1) & cseed', tmp_seed(1), cseed
+    print*, 'seed size', seed_size
+    print*, 'tmp_seed', tmp_seed
+    call random_seed(put=tmp_seed)
+    deallocate(tmp_seed)
+else
+    call random_seed(size=seed_size)
+    if (.not.allocated(tmp_seed)) allocate(tmp_seed(seed_size))
+    tmp_seed = cseed + 107*station  !set fixed random seed for each realization/station
+    print*, 'seed value for correlation random number & cseed', tmp_seed(1), cseed
+    print*, 'seed size', seed_size
+    print*, 'tmp_seed', tmp_seed
+    call random_seed(put=tmp_seed)
+    deallocate(tmp_seed)
+endif
+
+
 do i = 1,3
-
-   call random_seed(size=seed_size)
-   if (.not.allocated(tmp_seed)) allocate(tmp_seed(seed_size))
-   !! set fixed random seed for each realization/component
-   !!!!   tmp_seed = cseed + (station-1)*3 + comp
-   !! set random seed according to system time (different at each run)
-   call random_seed(get=tmp_seed)
-   call DATE_AND_TIME(values=dt_seed)
-   tmp_seed(seed_size)=dt_seed(8); tmp_seed(1)=dt_seed(8)*dt_seed(7)*dt_seed(6)
-
-   call random_seed(put=tmp_seed)
-   deallocate(tmp_seed)
 
    do rr=1,cnpts
 

@@ -54,7 +54,12 @@ SUBROUTINE scattering_parameters
 !   Add infcorr_flag, for inter-frequency correlation flag
 !                     if infcorr_flag = 0, no correlation
 !                     if infcorr_flag = 1, apply correlation
-
+!
+! Update: March 2019 (v2.1)
+! Author: N. Wang
+!   Add cseed, for inter-frequency correlation random seed
+!              if cseed = -1, seed defined by system-time
+!              else, seed defined by user
 
 use def_kind; use interfaces, only: rand_pdf 
 use io_file, only: scat_file; use scattering 
@@ -310,10 +315,14 @@ else
    print*,'change infcorr_flag'
 endif
 
-! set iseed if infcorr_flag = 1, do inter-frequency correlation
-if (infcorr_flag == 1) iseed=3071
-print*,'iseed',iseed
-print*,'tmp_iseed',tmp_iseed
+! seed number for inter-frequency correlation section
+read(1,*) cseed
+
+
+!! set iseed if infcorr_flag = 1, do inter-frequency correlation
+!if (infcorr_flag == 1) iseed=3071
+!print*,'iseed',iseed
+!print*,'tmp_iseed',tmp_iseed
 
 ! jump to the third part of the scattering file
 !read(1,*);read(1,*);read(1,*)

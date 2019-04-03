@@ -210,6 +210,12 @@ class BBToolbox(object):
                     scat_out.write("%.2e %s" %
                                    (self.str_fac,
                                     line[pos:]))
+                elif line.find(r"\* cseed - seed number") >= 0:
+                    # This is the line, insert here
+                    pos = line.find(r"\* cseed - seed number")
+                    scat_out.write("%d   %s" %
+                                   (self.config.SEED,
+                                   line[pos:]))
                 else:
                     scat_out.write(line)
 

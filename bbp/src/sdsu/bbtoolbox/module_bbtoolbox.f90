@@ -321,6 +321,11 @@ MODULE scattering
 !   Add aveVp for coda computation.
 !   Add loc_aveVs for output in run.log.
 !
+! Update: March 2019 (v2.1)
+! Author: N. Wang
+!   Add cseed, for inter-frequency correlation random seed
+!
+
 use def_kind
 
 implicit none
@@ -336,6 +341,8 @@ real(kind=r_scat),allocatable,dimension(:):: siteR,siteVs,kappa
 real(kind=r_scat),allocatable,dimension(:):: loc_aveVs  
 ! Seed number used to compute scattered wavelets
 integer(kind=i_single)                    :: iseed 
+! Seed number used to add inter-frequency correlarion
+integer(kind=i_single)                    :: cseed
 
 !--------add----------------------------------------------------------------
 ! Flag to determine stle of combining LF and HF, old merging, new with 1 or more subfaults
