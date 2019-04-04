@@ -1,0 +1,11 @@
+n
+LABasin500
+irikura2
+1
+northridge_eq_gp.src
+y
+1
+4
+y
+n
+n

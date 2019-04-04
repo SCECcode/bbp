@@ -4,58 +4,57 @@
 			<BBP_Module>
 				<name>Genslip</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
 				</staged_files>
 				<arguments>
-					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
 					<argument type="str">northridge_eq_gp.src</argument>
 					<argument type="str">northridge_eq_gp.srf</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Jbsim</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
-					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
 					<argument type="str">northridge_eq_gp.src</argument>
 					<argument type="str">northridge_eq_gp.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>BBToolbox</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin863/sdsu/sdsu-apr2013-labasin-vmod.txt</file>
+					<file>$BBP_INSTALL_GF/LABasin500/sdsu/sdsu-aug2018-labasin-vmod.txt</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_gp.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
 					<argument type="str"></argument>
-					<argument type="str">sdsu-apr2013-labasin-vmod.txt</argument>
+					<argument type="str">sdsu-aug2018-labasin-vmod.txt</argument>
 					<argument type="str">northridge_eq_gp.src</argument>
 					<argument type="str">northridge_eq_gp.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
-				<name>CopySeismograms</name>
+				<name>WccSiteamp</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">SDSU</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
-				<keyword_arguments>
-					<keyword_argument keyword="hybrid" type="bool">True</keyword_argument>
-				</keyword_arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Plot_Map</name>
@@ -99,7 +98,7 @@
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">northridge_eq_gp.src</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
 					<argument type="NoneType">None</argument>
 					<argument type="str">SDSU</argument>
 				</arguments>

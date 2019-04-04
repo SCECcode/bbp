@@ -1,11 +1,11 @@
 n
-LABasin863
+LABasin500
 song
 1
 northridge_eq_song.src
 y
 1
-2
-n
+4
+y
 n
 n

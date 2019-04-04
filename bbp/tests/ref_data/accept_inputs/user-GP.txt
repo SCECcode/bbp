@@ -1,11 +1,11 @@
 n
-LABasin863
+LABasin500
 gp
 1
 northridge_eq_gp.src
 y
 1
-2
-n
+4
+y
 n
 n

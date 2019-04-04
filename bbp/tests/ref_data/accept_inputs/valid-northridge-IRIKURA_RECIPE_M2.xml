@@ -1,0 +1,161 @@
+	<BBP_Run_Specification>
+		<Validation_Run event="NR" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.3.0"/>
+		<BBP_Modules>
+			<BBP_Module>
+				<name>IrikuraGenSrf</name>
+				<staged_files>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">nr02-vs500.fk1d</argument>
+					<argument type="str">nr_v14_02_1.src</argument>
+					<argument type="str">nr_v14_02_1.srf</argument>
+					<argument type="str">LABasin500</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>Jbsim</name>
+				<staged_files>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">nr02-vs500.fk1d</argument>
+					<argument type="str">nr_v14_02_1.src</argument>
+					<argument type="str">nr_v14_02_1.srf</argument>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">LABasin500</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>IrikuraHF</name>
+				<staged_files>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">nr_v14_02_1.src</argument>
+					<argument type="str">nr_v14_02_1.srf</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">LABasin500</argument>
+				</arguments>
+				<keyword_arguments>
+					<keyword_argument keyword="val_name" type="str">NR</keyword_argument>
+				</keyword_arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>WccSiteamp</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">GP</argument>
+					<argument type="str">LABasin500</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>Match</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">LABasin500</argument>
+				</arguments>
+				<keyword_arguments>
+					<keyword_argument keyword="acc" type="bool">True</keyword_argument>
+				</keyword_arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>Plot_Map</name>
+				<staged_files>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">nr_v14_02_1.src</argument>
+					<argument type="str">northridge_3_sta.stl</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>PlotSeis</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">nr_v14_02_1.src</argument>
+					<argument type="bool">False</argument>
+					<argument type="bool">False</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>RotD100</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>ObsSeismograms</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">$BBP_INSTALL_VAL/NR/obs/Acc</argument>
+					<argument type="str">acc_peer</argument>
+					<argument type="str"></argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>GenPlots</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">acc</argument>
+					<argument type="str">NR</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>GPGof</name>
+				<staged_files>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">nr_v14_02_1.src</argument>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">NR</argument>
+					<argument type="int">120</argument>
+				</arguments>
+				<keyword_arguments>
+					<keyword_argument keyword="single_component" type="bool">False</keyword_argument>
+				</keyword_arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>GenHTML</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">nr_v14_02_1.src</argument>
+					<argument type="str">LABasin500</argument>
+					<argument type="str">NR</argument>
+					<argument type="str">IRIKURA2</argument>
+				</arguments>
+			</BBP_Module>
+		</BBP_Modules>
+	</BBP_Run_Specification>
