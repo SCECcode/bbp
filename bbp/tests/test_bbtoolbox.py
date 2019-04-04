@@ -48,35 +48,25 @@ class TestBBToolbox(unittest.TestCase):
         a_tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
         a_outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
         a_logdir = os.path.join(self.install.A_OUT_LOG_DIR, str(self.sim_id))
+        a_refdir = os.path.join(self.install.A_TEST_REF_DIR, "sdsu")
 
         # Create directories
         bband_utils.mkdirs([a_indir, a_tmpdir, a_outdir, a_logdir],
                            print_cmd=False)
 
-        cmd = "cp %s/sdsu/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.velmodel,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.velmodel), a_indir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/sdsu/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.stations,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.stations), a_indir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/sdsu/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.srffile,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.srffile), a_indir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/sdsu/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.srcfile,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.srcfile), a_indir)
         bband_utils.runprog(cmd)
         for i in range(1, 6):
-            cmd = ("cp %s/gp/s0%d-lf.bbp %s/%d/%d.s0%d-lf.bbp" %
-                   (self.install.A_TEST_REF_DIR, i,
-                    self.install.A_TMP_DATA_DIR, self.sim_id, self.sim_id, i))
+            cmd = "cp %s %s" % (os.path.join(self.install.A_TEST_REF_DIR,
+                                             "gp", "s0%d-lf.bbp" % (i)),
+                                os.path.join(a_tmpdir,
+                                             "%d.s0%d-lf.bbp" % (self.sim_id, i)))
             bband_utils.runprog(cmd)
 
     def test_bbtoolbox(self):
