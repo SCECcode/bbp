@@ -1,4 +1,0 @@
-#Required:  lon, lat, station name, distance to fault trace, Vs30
-#Optional: low freq corner, high freq corner
-#Unused: station information
--118.4808	34.3124	scse	5.21	370	0.410	23.0	DWP	peer.berkeley.edu/nga
