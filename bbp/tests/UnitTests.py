@@ -32,6 +32,7 @@ from test_hfsims import TestHfsims
 from test_wcc_siteamp import TestWccSiteamp
 from test_match import TestMatch
 from test_gensrf import TestGenSRF
+from test_irikura_hf import TestIrikuraHF
 from test_uc_fault_utils import TestUCFaultUtils
 from test_vm2vm import TestVm2vm
 from test_cc import TestCC
@@ -80,6 +81,7 @@ TS.addTest(unittest.makeSuite(TestMatch))
 
 # Add Irikura tests
 TS.addTest(unittest.makeSuite(TestGenSRF))
+TS.addTest(unittest.makeSuite(TestIrikuraHF))
 
 # Add UCSB tests
 TS.addTest(unittest.makeSuite(TestUCFaultUtils))
