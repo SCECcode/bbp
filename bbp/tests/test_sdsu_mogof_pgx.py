@@ -26,7 +26,6 @@ import cmp_bbp
 import seqnum
 import bband_utils
 from install_cfg import InstallCfg
-from sdsu_mogof_cfg import SDSUMOGofCfg
 from sdsu_mogof import SDSU_MOGof
 
 class Test_SDSU_MOGof_PGX(unittest.TestCase):
@@ -36,7 +35,6 @@ class Test_SDSU_MOGof_PGX(unittest.TestCase):
         Set up unit test
         """
         self.install = InstallCfg()
-        self.cfg = SDSUMOGofCfg()
         os.chdir(self.install.A_INSTALL_ROOT)
         self.r_velocity = ""
         self.gof_weights = dict()

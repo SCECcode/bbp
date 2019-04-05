@@ -25,7 +25,6 @@ import cmp_bbp
 import seqnum
 import bband_utils
 from install_cfg import InstallCfg
-from syn1D_cfg import Syn1DCfg
 from syn1D import Syn1D
 
 class TestSyn1D(unittest.TestCase):
@@ -37,14 +36,12 @@ class TestSyn1D(unittest.TestCase):
     def setUp(self):
         self.r_velmodel = "nr02-vs500_lf.vel"
         self.r_srcfile = "test_wh_ucsb.src"
-        self.r_metadata = "metadata.txt"
         self.r_stations = "one_stat.txt"
         self.r_srffile = "FFSP_OUTPUT.001"
         self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
 
         self.install = InstallCfg()
-        self.cfg = Syn1DCfg(self.vmodel_name)
 
         a_refdir = os.path.join(self.install.A_TEST_REF_DIR, "ucsb")
         a_indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))

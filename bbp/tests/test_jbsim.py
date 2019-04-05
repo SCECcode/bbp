@@ -25,7 +25,6 @@ import cmp_bbp
 import seqnum
 import bband_utils
 from install_cfg import InstallCfg
-from jbsim_cfg import JbsimCfg
 from jbsim import Jbsim
 
 class TestJbsim(unittest.TestCase):
@@ -44,7 +43,6 @@ class TestJbsim(unittest.TestCase):
         self.sim_id = int(seqnum.get_seq_num())
 
         self.install = InstallCfg()
-        self.jbsim_cfg = JbsimCfg(self.vmodel_name)
 
         refdir = os.path.join(self.install.A_TEST_REF_DIR, "gp")
         indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
@@ -65,7 +63,6 @@ class TestJbsim(unittest.TestCase):
         """
         Run Jbsim module
         """
-        # i_simID,i_r_velmodel,i_r_srffile,i_r_stations,i_r_metadata
         jbsim_obj = Jbsim(self.velmodel, "", self.srffile, self.stations,
                           self.vmodel_name, sim_id=self.sim_id)
         jbsim_obj.run()

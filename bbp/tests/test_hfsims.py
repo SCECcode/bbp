@@ -25,7 +25,6 @@ import cmp_bbp
 import bband_utils
 import seqnum
 from install_cfg import InstallCfg
-from hfsims_cfg import HfsimsCfg
 from hfsims import Hfsims
 
 class TestHfsims(unittest.TestCase):
@@ -38,12 +37,10 @@ class TestHfsims(unittest.TestCase):
         Set up and stage in all input files
         """
         self.install = InstallCfg()
-        self.hfsim_cfg = HfsimsCfg()
         self.velmodel = "nr02-vs500.fk1d"
         self.srcfile = "test_wh.src"
         self.srffile = "m5.89-0.20x0.20_s2379646.srf"
         self.stations = "test_stat.txt"
-        self.metadata = "metadata.txt"
         self.sim_id = int(seqnum.get_seq_num())
 
         # Set up paths
