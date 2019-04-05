@@ -68,8 +68,6 @@ class TestSyn1D(unittest.TestCase):
         bband_utils.runprog(cmd)
         cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_stations), a_indir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s %s" % (os.path.join(a_refdir, "faultGlobal.in"), a_tmpdir)
-        bband_utils.runprog(cmd)
         cmd = "cp %s %s" % (os.path.join(a_refdir, "source_model.list"), a_tmpdir)
         bband_utils.runprog(cmd)
 
