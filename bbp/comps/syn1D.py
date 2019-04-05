@@ -244,10 +244,7 @@ class Syn1D(object):
 
         # Parse SRC file
         a_srcfile = os.path.join(self.a_indir, self.r_srcfile)
-
         self.cfg = Syn1DCfg(self.vmodel_name, a_srcfile)
-
-
 
         # Read station list
         a_stations = os.path.join(self.a_indir, self.r_stations)
