@@ -1,6 +1,6 @@
 #! /usr/bin/python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ from test_jbsim import TestJbsim
 from test_hfsims import TestHfsims
 from test_wcc_siteamp import TestWccSiteamp
 from test_match import TestMatch
-from test_respect import TestRespect
 from test_rotd50 import TestRotD50
 from test_gp_gof import TestGPGof
 
