@@ -1,7 +1,5 @@
 #
-# Whittier source file for PEER Validation Study
-# Currently, DLEN and DWID are temp values until correct are selected
-# CornerFreq are under review
+# Whittier source file
 #
 MAGNITUDE = 5.89
 FAULT_LENGTH = 10.00
@@ -14,7 +12,6 @@ LAT_TOP_CENTER = 34.012
 LON_TOP_CENTER = -118.0885
 HYPO_ALONG_STK = 0.0
 HYPO_DOWN_DIP =  5.20
-#MOMENT = 7.72E+17
 #
 # Model specific parameters
 #

@@ -42,25 +42,28 @@ class TestUCrmg(unittest.TestCase):
         self.r_srffile = "FFSP_OUTPUT.001"
         self.sim_id = int(seqnum.get_seq_num())
         self.cfg = UCrmgCfg(self.vmodel_name)
-        cmd = "mkdir -p %s/%d" % (self.install.A_IN_DATA_DIR, self.sim_id)
+
+        a_refdir = os.path.join(self.install.A_TEST_REF_DIR, "ucsb")
+        a_indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
+        a_tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
+        a_logdir = os.path.join(self.install.A_OUT_LOG_DIR, str(self.sim_id))
+        a_outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
+
+        cmd = "mkdir -p %s" % (a_indir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_TMP_DATA_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_tmpdir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_OUT_DATA_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_outdir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_OUT_LOG_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_logdir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/ucsb/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.r_srcfile,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_srcfile), a_indir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/ucsb/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.r_velmodel,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_velmodel), a_indir)
         bband_utils.runprog(cmd)
-        os.chdir(os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id)))
+
+        os.chdir(a_tmpdir)
 
     def tearDown(self):
         os.chdir(self.install.A_TEST_DIR)
