@@ -46,6 +46,7 @@ class TestJbsim(unittest.TestCase):
         self.install = InstallCfg()
         self.jbsim_cfg = JbsimCfg(self.vmodel_name)
 
+        refdir = os.path.join(self.install.A_TEST_REF_DIR, "gp")
         indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
         tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
         outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
@@ -53,20 +54,11 @@ class TestJbsim(unittest.TestCase):
         # Create all directories
         bband_utils.mkdirs([indir, tmpdir, outdir, logdir], print_cmd=False)
 
-        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.velmodel,
-                                       self.install.A_IN_DATA_DIR,
-                                       self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(refdir, self.velmodel), indir)
         bband_utils.runprog(cmd, print_cmd=False)
-        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.stations,
-                                       self.install.A_IN_DATA_DIR,
-                                       self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(refdir, self.stations), indir)
         bband_utils.runprog(cmd, print_cmd=False)
-        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.srffile,
-                                       self.install.A_IN_DATA_DIR,
-                                       self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(refdir, self.srffile), indir)
         bband_utils.runprog(cmd, print_cmd=False)
 
     def test_jbsim(self):
