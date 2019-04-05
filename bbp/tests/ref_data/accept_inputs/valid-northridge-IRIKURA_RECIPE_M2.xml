@@ -43,9 +43,6 @@
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">LABasin500</argument>
 				</arguments>
-				<keyword_arguments>
-					<keyword_argument keyword="val_name" type="str">NR</keyword_argument>
-				</keyword_arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>WccSiteamp</name>

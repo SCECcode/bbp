@@ -27,7 +27,6 @@ import shutil
 
 # Import Broadband modules
 import bband_utils
-import validation_cfg
 from station_list import StationList
 from install_cfg import InstallCfg
 from irikura_hf_cfg import IrikuraHFCfg
@@ -38,8 +37,7 @@ class IrikuraHF(object):
     Irikura Recipe Method 2 High Frequency and the Broadband Platform.
     """
     def __init__(self, i_r_srcfile, i_r_srffile, i_r_velmodel,
-                 i_r_stations, vmodel_name,
-                 val_name=None, sim_id=0):
+                 i_r_stations, vmodel_name, sim_id=0):
         """
         This function initializes basic class objects
         """
@@ -49,8 +47,6 @@ class IrikuraHF(object):
         self.r_velmodel = i_r_velmodel
         self.r_stations = i_r_stations
         self.vmodel_name = vmodel_name
-        self.val_name = val_name
-        self.val_obj = None
         self.stat_list = None
         self.install = None
         self.config = None
@@ -480,10 +476,6 @@ class IrikuraHF(object):
         self.install = InstallCfg.getInstance()
         install = self.install
         sim_id = self.sim_id
-
-        # Find validation object if this is a validation run
-        if self.val_name is not None:
-            self.val_obj = validation_cfg.VE_EVENTS.get_event_by_name(self.val_name)
 
         sta_base = os.path.basename(os.path.splitext(self.r_stations)[0])
         self.log = os.path.join(install.A_OUT_LOG_DIR,

@@ -797,8 +797,6 @@ class WorkflowBuilder(object):
                 # configuration
                 if not self.srf_file:
                     self.srf_file = self.val_obj.get_input("GP", "srf")
-            hf_module.addKeywordArg("val_name",
-                                    self.val_obj.get_validation_name())
         if not gen_srf and self.srf_file is not None and self.srf_file != "":
             hf_module.addStageFile(self.srf_file)
         hf_module.addArg(os.path.basename(self.srf_file))
