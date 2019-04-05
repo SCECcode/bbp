@@ -1,27 +1,62 @@
-// Copyright (c) 2011-2018 National Research Institute for Earth Science and Disaster Resilience (NIED)
+// Copyright (c) 2011-2018 National Research Institute for Earth
+// Science and Disaster Resilience (NIED)
+//
 // All rights reserved.
 //
-// Programs statgreen, statgreen2, and greenscale computes ground motion time series by the stochastic Green's function (SGF) method.
+// Programs statgreen, statgreen2, and greenscale computes ground
+// motion time series by the stochastic Green's function (SGF) method.
 //
 // Disclaimer:
-/* Users take full responsibility for the use of the software. Neither NIED nor any of the contributors shall be responsible for any loss, damages, or costs which may be incurred by the users or third parties arising in the use of the software, whatever the reason may be, even if advised of the possibility of such damages. */
+/* Users take full responsibility for the use of the software. Neither
+   NIED nor any of the contributors shall be responsible for any loss,
+   damages, or costs which may be incurred by the users or third
+   parties arising in the use of the software, whatever the reason may
+   be, even if advised of the possibility of such damages. */
 //
 // References:
+//
 // (1) Reference for the SGF software
 /*
-- Senna, S. and H. Fujiwara (2011): Development of Estimation Tools for Earthquake Ground Motion, Technical Note of the National Research Institute for Earth Science and Disaster Prevention, No. 354 (in Japanese)
+- Senna, S. and H. Fujiwara (2011): Development of Estimation Tools
+  for Earthquake Ground Motion, Technical Note of the National
+  Research Institute for Earth Science and Disaster Prevention,
+  No. 354 (in Japanese)
 */
+//
 // (2) Stochastic Green's function (SGF) method
 /*
-- Dan, K. and T. Sato (1998): Strong Motion Prediction by Semi-empirical Method Based on Variable-slip Rupture Model of Earthquake Fault, Journal of Structural and Construction Engineering (Transactions of AIJ), No.509, 49-60. (in Japanese)
-- Dan, K., M. Watanabe, T. Sato, J. Miyakoshi, and T. Sato (2000): Isoseismal Map of Strong Motions for the 1923 Kanto Earthquake (MJMA7.9) by Stochastic Green's Function Method, Journal of Structural and Construction Engineering (Transactions of AIJ), No.530, 53-62. (in Japanese)
-- Satoh, T., H. Kawase, and T. Sato (1994): Engineering bedrock waves obtained through the identification analysis based on borehole records and their statistical envelope characteristics, Journal of Structural and Construction Engineering (Transactions of AIJ), No.461, 19-28. (in Japanese)
+- Dan, K. and T. Sato (1998): Strong Motion Prediction by
+  Semi-empirical Method Based on Variable-slip Rupture Model of
+  Earthquake Fault, Journal of Structural and Construction Engineering
+  (Transactions of AIJ), No.509, 49-60. (in Japanese)
+
+- Dan, K., M. Watanabe, T. Sato, J. Miyakoshi, and T. Sato (2000):
+  Isoseismal Map of Strong Motions for the 1923 Kanto Earthquake
+  (MJMA7.9) by Stochastic Green's Function Method, Journal of
+  Structural and Construction Engineering (Transactions of AIJ),
+  No.530, 53-62. (in Japanese)
+
+- Satoh, T., H. Kawase, and T. Sato (1994): Engineering bedrock waves
+  obtained through the identification analysis based on borehole
+  records and their statistical envelope characteristics, Journal of
+  Structural and Construction Engineering (Transactions of AIJ),
+  No.461, 19-28. (in Japanese)
 */
+//
 // (3) NIED broadband ground motion computation by recipe
 /*
-- Fujiwara, H. et al. (2009). Technical Reports on National Seismic Hazard Maps for Japan, Technical Note of the National Res. Inst. for Earth Science and Disaster Prevention 336, 528pp (in English)
-- Fujiwara, H. et al. (2012): Some Improvements of Seismic Hazard Assessment based on the 2011 Tohoku Earthquake, Technical Note of the National Research Institute for Earth Science and Disaster Prevention, No.379. (in Japanese)
-- They can be obtained from http://www.j-shis.bosai.go.jp/map/JSHIS2/download.html?lang=en .
+- Fujiwara, H. et al. (2009). Technical Reports on National Seismic
+  Hazard Maps for Japan, Technical Note of the National Res. Inst. for
+  Earth Science and Disaster Prevention 336, 528pp (in English)
+
+- Fujiwara, H. et al. (2012): Some Improvements of Seismic Hazard
+  Assessment based on the 2011 Tohoku Earthquake, Technical Note of
+  the National Research Institute for Earth Science and Disaster
+  Prevention, No.379. (in Japanese)
+
+- They can be obtained from:
+
+  http://www.j-shis.bosai.go.jp/map/JSHIS2/download.html?lang=en
 */
 
 #include "greenscale.h"
@@ -60,11 +95,11 @@ int main(int argc, char* argv[])
     double intensity = 0;
 	double xxi,ddi,XXDi,XXEQ;
 	std::complex<double> sekibunc;
-    int nShiftFlg; //ï¿½Vï¿½tï¿½gï¿½ï¿½ï¿½Ô‚ï¿½ï¿½ï¿½ï¿½ß‚ï¿½ï¿½tï¿½ï¿½ï¿½O
+    int nShiftFlg; //ƒVƒtƒgŠÔ‚ğŒˆ‚ß‚éƒtƒ‰ƒO
 
-	minRpq = 30000000;//ï¿½Å‘ï¿½ï¿½Ï‘ï¿½ï¿½ï¿½ï¿½ï¿½(m)
+	minRpq = 30000000;//Å‘åŠÏ‘ª‹——£(m)
 
-	//--------------------- ï¿½Ç‚İï¿½ï¿½İƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½------------------------
+	//--------------------- “Ç‚İ‚İƒtƒ@ƒCƒ‹”ƒGƒ‰[ˆ—------------------------
     if( argc == 11 || argc == 9 ){
 		;
 	}else{
@@ -75,18 +110,18 @@ int main(int argc, char* argv[])
                      "log filt_flg(HP LP NO) freq shiftflg" << std::endl;
 		return 1;
     }
-	//------------------------- ï¿½vï¿½fï¿½nï¿½kï¿½gï¿½`ï¿½Ì“Ç‚İï¿½ï¿½ï¿½--------------------------
+	//------------------------- —v‘f’nk”gŒ`‚Ì“Ç‚İ‚İ--------------------------
 
 	std::vector<double> data;
 
 	//char* filename = argv[1];
 
-	//------------------ ï¿½vï¿½fï¿½fï¿½wï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ŞB ----------------
+	//------------------ —v‘f’f‘wƒf[ƒ^‚ğƒtƒ@ƒCƒ‹‚©‚ç“Ç‚İ‚ŞB ----------------
 
 	char* filename1 = argv[3];
-	//ï¿½vï¿½fï¿½l(elementï¿½tï¿½@ï¿½Cï¿½ï¿½)ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
+	//—v‘f’l(elementƒtƒ@ƒCƒ‹)‚ğ“Ç‚İ‚Ş
 
-	//fieldï¿½ï¿½vectorï¿½ï¿½ï¿½oï¿½^
+	//field‚Évector‚ğ“o˜^
 	std::vector<double> Enumber;
 	std::vector<double> latitude;
 	std::vector<double> longitude;
@@ -103,20 +138,20 @@ int main(int argc, char* argv[])
 	field.push_back( &ElementDpq );
 	field.push_back( &ElementSigpq );
 	field.push_back( &dElementLagTime );
-
+	
 	unsigned int numofElement = read_csv( filename1, field );
 	if( numofElement == 0 ){
 		std::cerr << filename1 << " not found." << std::endl;
 		return 1;
 	}
 
-	//------------------ ï¿½Ï‘ï¿½ï¿½_ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ŞB ----------------
+	//------------------ ŠÏ‘ª“_ƒf[ƒ^‚ğƒtƒ@ƒCƒ‹‚©‚ç“Ç‚İ‚ŞB ----------------
 
 	char* filename2 = argv[2];
     string folder = argv[1];
 
-	// ï¿½Ï‘ï¿½ï¿½_(observï¿½tï¿½@ï¿½Cï¿½ï¿½)ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
-	// observï¿½ï¿½vectorï¿½ï¿½ï¿½oï¿½^
+	// ŠÏ‘ª“_(observƒtƒ@ƒCƒ‹)‚ğ“Ç‚İ‚Ş
+	// observ‚Évector‚ğ“o˜^
 
 	std::vector<string> OBserno;
 	std::vector<string> OLatitude;
@@ -138,7 +173,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	//------------ ï¿½fï¿½wï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½Cï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½Ç‚İï¿½ï¿½ï¿½ ----------------
+	//------------ ’f‘wƒpƒ‰ƒ[ƒ^C”j‰óŠJn“™ƒpƒ‰ƒ[ƒ^“Ç‚İ‚İ ----------------
 
     char* efaultparam = argv[4];
 
@@ -208,10 +243,10 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	//------------------------------ ï¿½oï¿½Íƒï¿½ï¿½Oï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ----------------------------
+	//------------------------------ o—ÍƒƒOƒtƒ@ƒCƒ‹–¼“ü—Í ----------------------------
 
 	char* Outputlogfile = argv[5];
-    //ï¿½nï¿½Cï¿½pï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½pï¿½Xï¿½ï¿½ï¿½Ìƒtï¿½ï¿½ï¿½O
+    //ƒnƒCƒpƒX‚©ƒ[ƒpƒX‚©‚Ìƒtƒ‰ƒO
     string sHL_Flg = argv[6];
     if(sHL_Flg == "HP" || sHL_Flg == "LP" || sHL_Flg == "NO"){
         ;
@@ -219,9 +254,9 @@ int main(int argc, char* argv[])
         std::cerr << "Filter Flg error" << std::endl;
         return 1;
     }
-    //ï¿½Ú‘ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Ìwï¿½ï¿½
+    //Ú‘±ü”g”‚Ìw’è
     string sC_Freq = argv[7];
-    //ï¿½ï¿½ï¿½[ï¿½vï¿½Ì‚Í‚ï¿½ï¿½ï¿½
+    //ƒ‹[ƒv‚Ì‚Í‚¶‚ß
     unsigned int lSta,lEnd;
     if(argc == 9){
         lSta = 0;
@@ -229,18 +264,18 @@ int main(int argc, char* argv[])
     }else{
         lSta = atoi(argv[9]);
         if(lSta > 0 ){
-            //ï¿½wï¿½è‚µï¿½ï¿½ï¿½Ôï¿½ï¿½Æƒtï¿½@ï¿½Cï¿½ï¿½ï¿½Ì”Ôï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½É‚í‚©ï¿½ï¿½ï¿½â‚·ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½B
+            //w’è‚µ‚½”Ô†‚Æƒtƒ@ƒCƒ‹‚Ì”Ô†‚Ì®‡‚ğæ‚éB’¼Š´“I‚É‚í‚©‚è‚â‚·‚­‚µ‚Ä‚¨‚­B
             lSta = lSta -1;
         }
         lEnd = atoi(argv[10])  ;
         if(lEnd > numofObpoint){
-            //ï¿½Å‘ï¿½ï¿½lï¿½ğ’´‚ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ÍCï¿½Å‘ï¿½ï¿½lï¿½É–ß‚ï¿½ï¿½B
+            //Å‘å’l‚ğ’´‚¦‚éê‡‚ÍCÅ‘å’l‚É–ß‚·B
             lEnd = numofObpoint;
         }
     }
 
-    //ï¿½kï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒgï¿½ï¿½ï¿½xï¿½ï¿½ï¿½^ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½Ìƒtï¿½ï¿½ï¿½O
-    //nShiftFlg==1 ï¿½Ì‚Æ‚ï¿½ï¿½]ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B0ï¿½Ì‚Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
+    //kŒ¹‚©‚ç‚Ìƒgƒ‰ƒxƒ‹ƒ^ƒCƒ€‚ğˆø‚­‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO
+    //nShiftFlg==1 ‚Ì‚Æ‚«]—ˆ‚Ç‚¨‚èˆø‚­B0‚Ì‚Æ‚«ˆø‚©‚È‚¢
     nShiftFlg = atoi(argv[8]);
     if(nShiftFlg == 0 || nShiftFlg == 1){
         ;//OK
@@ -248,7 +283,7 @@ int main(int argc, char* argv[])
 		std::cerr << "shift flg error nShiftFlg = (0 or 1) : input="<< nShiftFlg << std::endl;
         return 1;
     }
-	//-----------------------------------ï¿½gï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½Z--------------------------------------
+	//-----------------------------------”gŒ`‡¬ŒvZ--------------------------------------
 
 	double sss2[65535];
 
@@ -260,10 +295,10 @@ int main(int argc, char* argv[])
 	//while(!wavefile->eof())
 	//{
         //bFlg=false;
-        //ï¿½ï¿½ï¿½ï¿½ï¿½Ìwï¿½ï¿½ï¿½É‚ï¿½ï¿½ï¿½ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½Ï‘ï¿½ï¿½_ï¿½Ìƒï¿½ï¿½[ï¿½vï¿½ï¿½ï¿½Uï¿½è•ªï¿½ï¿½ï¿½ï¿½ï¿½B
+        //ˆø”‚Ìw’è‚É‚æ‚èŒvZ‚·‚éŠÏ‘ª“_‚Ìƒ‹[ƒv‚ğU‚è•ª‚¯‚éB
         //
-    for( l = lSta ; l < lEnd ; l++ ) {// ï¿½Ï‘ï¿½ï¿½_ï¿½ï¿½ï¿½[ï¿½v
-        //ï¿½ï¿½ï¿½ÍŠÏ‘ï¿½ï¿½_ï¿½ÌƒJï¿½Eï¿½ï¿½ï¿½^
+    for( l = lSta ; l < lEnd ; l++ ) {// ŠÏ‘ª“_ƒ‹[ƒv
+        //‚Œ‚ÍŠÏ‘ª“_‚ÌƒJƒEƒ“ƒ^
         bFlg=false;
         if(numofObpoint != 1){
     		if( l == numofObpoint)
@@ -294,8 +329,8 @@ int main(int argc, char* argv[])
 		ifs1.close();
 		knet1.get_data(data);
 		Samplefrq = knet1.get_sampling_frequency();
-
-		//ï¿½tï¿½[ï¿½ï¿½ï¿½Gï¿½pï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½Tï¿½Cï¿½Y
+		
+		//ƒt[ƒŠƒG—pƒf[ƒ^ƒŠƒTƒCƒY
 		int oridatasize = (int)data.size();
 		int datasize;
 		for(int nn = 0 ;  nn < 16 ; nn++ )
@@ -303,7 +338,7 @@ int main(int argc, char* argv[])
 			if( oridatasize > (int)std::pow(2.0,nn) )
                 datasize = (int)std::pow(2.0,nn+1);
 		}
-		// ï¿½vï¿½Zï¿½p
+		// ŒvZ—p
 		std::vector< std::complex<double> > wdat(datasize);
 		std::vector< std::complex<double> > wtmp(datasize);
 		std::vector< std::complex<double> > wtmp2(datasize);
@@ -312,21 +347,21 @@ int main(int argc, char* argv[])
 		std::vector< std::complex<double> > wdats2(datasize);
 		std::vector< std::complex<double> > wdatp2(datasize);
 
-		// ï¿½vï¿½Zï¿½ï¿½ï¿½Ê—p
-		std::vector<double> sss( datasize,0 ); // Sï¿½gï¿½ï¿½ï¿½ï¿½ï¿½gï¿½`
-		std::vector<double> sss1( datasize,0 ); // Sï¿½gï¿½vï¿½fï¿½gï¿½`
-		std::vector<double> ppp( datasize,0 );  // Pï¿½gï¿½ï¿½ï¿½ï¿½ï¿½gï¿½`
-		std::vector<double> ppp1( datasize,0 ); // Pï¿½gï¿½vï¿½fï¿½gï¿½`
-		std::vector<double> sekibuns( datasize,0 ); // ï¿½Ï•ï¿½ï¿½ï¿½ï¿½xï¿½gï¿½`Sï¿½g
-		std::vector<double> sekibunp( datasize,0 ); // ï¿½Ï•ï¿½ï¿½ï¿½ï¿½xï¿½gï¿½`Pï¿½g
-		std::complex<double> Sscalefactor; //Sï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-		std::complex<double> Pscalefactor; //Pï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		// ŒvZŒ‹‰Ê—p
+		std::vector<double> sss( datasize,0 ); // S”g‡¬”gŒ`
+		std::vector<double> sss1( datasize,0 ); // S”g—v‘f”gŒ`
+		std::vector<double> ppp( datasize,0 );  // P”g‡¬”gŒ`
+		std::vector<double> ppp1( datasize,0 ); // P”g—v‘f”gŒ`
+		std::vector<double> sekibuns( datasize,0 ); // Ï•ª‘¬“x”gŒ`S”g
+		std::vector<double> sekibunp( datasize,0 ); // Ï•ª‘¬“x”gŒ`P”g
+		std::complex<double> Sscalefactor; //S”g‘•—¦
+		std::complex<double> Pscalefactor; //P”g‘•—¦
 		std::vector<double> Xi( numofObpoint,0 );
 		std::vector<double> Di( numofObpoint,0 );
 		std::vector<double> XDi( numofObpoint,0 );
 		std::vector<double> XEQ( numofObpoint,0 );
 
-		//ï¿½fï¿½[ï¿½^ï¿½Tï¿½Cï¿½Yï¿½Ì•ÏX
+		//ƒf[ƒ^ƒTƒCƒY‚Ì•ÏX
 		data.resize(datasize);
 		wdat.resize(datasize);
 		wtmp.resize(datasize);
@@ -335,7 +370,7 @@ int main(int argc, char* argv[])
 		wtmpp.resize(datasize);
 		wdats2.resize(datasize);
 		wdatp2.resize(datasize);
-        sss2[datasize];//ï¿½zï¿½ï¿½ï¿½ï¿½CHECK?
+        sss2[datasize];//”z—ñ‚ÌCHECK?
 
 		subf1.LengthElement = atof(ELs[0].c_str())*1000.0;
 		subf1.WidthElement  = atof(EWs[0].c_str())*1000.0;
@@ -358,7 +393,7 @@ int main(int argc, char* argv[])
 
 		double dt = 1.0/(double)Samplefrq;
 
-		// ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½eï¿½\ï¿½ï¿½
+		// ƒf[ƒ^“à—e•\¦
 		printf(" STATION-POINTS = %d , ELEMENT-POINTS = %d\n", numofObpoint , numofElement );
 		printf(" ORIGINAL-DATASIZE = %d , SET-DATASIZE = %d , SAMPLING-FREQUENCY(Hz) = %d\n\n", oridatasize , datasize , Samplefrq );
 
@@ -374,25 +409,25 @@ int main(int argc, char* argv[])
 		Rs = 0;
 		minRpq = 30000000;
 
-		double RsLatitude   =  atof(RLatitude[0].c_str());       // ï¿½fï¿½wï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½Ü“x
-		double RsLongitude  =  atof(RLongitude[0].c_str());      // ï¿½fï¿½wï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½oï¿½x
-		double RsDepth		=  atof(RDepth[0].c_str());		   // ï¿½fï¿½wï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½x
-		double DLatitude	=  atof(DDLatitude[0].c_str());      // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½Ü“x
-		double DLongitude	=  atof(DDLongitude[0].c_str());     // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½oï¿½x
-		double DDepth		=  atof(DDDepth[0].c_str());         // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½[ï¿½x
+		double RsLatitude   =  atof(RLatitude[0].c_str());       // ’f‘w’†‰›“_ˆÜ“x
+		double RsLongitude  =  atof(RLongitude[0].c_str());      // ’f‘w’†‰›“_Œo“x
+		double RsDepth		=  atof(RDepth[0].c_str());		   // ’f‘w’†‰›[“x
+		double DLatitude	=  atof(DDLatitude[0].c_str());      // ”j‰óŠJn“_ˆÜ“x
+		double DLongitude	=  atof(DDLongitude[0].c_str());     // ”j‰óŠJn“_Œo“x
+		double DDepth		=  atof(DDDepth[0].c_str());         // ”j‰óŠJn“_[“x
 
 		Distance( OBLongitude, OBLatitude, OBDepth ,RsLongitude, RsLatitude, RsDepth , Rs );
 
-	//------------------------- ï¿½dï¿½Ëï¿½ï¿½í‚¹ï¿½vï¿½Zï¿½ï¿½(ï¿½dï¿½Eï¿½ï¿½ï¿½ï¿½(1998)ï¿½j----------------------
-        //TDistanceï¿½ÍAï¿½vï¿½fï¿½fï¿½wï¿½É‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ç‚¸ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½Ì‚ÅAï¿½ï¿½ï¿½[ï¿½vï¿½Ì‚ï¿½ï¿½Æ‚ï¿½
-        //ï¿½oï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½ÆŠÏ‘ï¿½ï¿½_ï¿½É‚ï¿½ï¿½ï¿½ï¿½ÄŒï¿½ï¿½Ü‚é”ï¿½lï¿½Å‚ï¿½ï¿½ï¿½ï¿½B
-        double TDistance = 0; // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ï‘ï¿½ï¿½_ï¿½Ü‚Å‚Ì‹ï¿½ï¿½ï¿½(m)
-		// ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_-ï¿½Ï‘ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½Z
+	//------------------------- d‚Ë‡‚í‚¹ŒvZ•”(’dE²“¡(1998)j----------------------
+        //TDistance‚ÍA—v‘f’f‘w‚É‚©‚©‚í‚ç‚¸ˆê’è‚Å‚ ‚é‚Ì‚ÅAƒ‹[ƒv‚Ì‚»‚Æ‚É
+        //o‚µ‚½B”j‰óŠJn“_‚ÆŠÏ‘ª“_‚É‚æ‚Á‚ÄŒˆ‚Ü‚é”’l‚Å‚ ‚éB
+        double TDistance = 0; // ”j‰óŠJn“_‚©‚çŠÏ‘ª“_‚Ü‚Å‚Ì‹——£(m)
+		// ”j‰óŠJn“_-ŠÏ‘ª“_‹——£ŒvZ
 		Distance( DLongitude, DLatitude, DDepth ,OBLongitude, OBLatitude, OBDepth , TDistance );
-		double  tvrt     =  TDistance  / subf1.Beta_s; // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ï‘ï¿½ï¿½_ï¿½Ü‚Å‚Ìï¿½ï¿½ï¿½(sec)
+		double  tvrt     =  TDistance  / subf1.Beta_s; // ”j‰óŠJn“_‚©‚çŠÏ‘ª“_‚Ü‚Å‚ÌŠÔ(sec)
 
 		for( unsigned int k = 0 ; k < numofElement ; k++ ){
-            //ï¿½ï¿½ï¿½Í—vï¿½fï¿½Ôï¿½ï¿½ÌƒJï¿½Eï¿½ï¿½ï¿½^
+            //‚‹‚Í—v‘f”Ô†‚ÌƒJƒEƒ“ƒ^
 			EEnumber   = Enumber[k];
 			ELatitude  = latitude[k];
 			ELongitude = longitude[k];
@@ -421,24 +456,24 @@ int main(int argc, char* argv[])
 			XEQ[l] = sqrt(Di[l]/XDi[l]);
 
 			wtmp2[0] = 0.0;
-	//----------------------------------- ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½vï¿½ï¿½ ----------------------------------------
+	//----------------------------------- ü”g”ƒ‹[ƒv“à ----------------------------------------
 			for( int iii = 1 ; iii < (int)(datasize/2) ; iii++ ){
 
 				fhz = df * (double)iii;
-				omega = 2 * pi * fhz;                         //ï¿½Ö‚ÌŒvï¿½Z
+				omega = 2 * pi * fhz;                         //ƒÖ‚ÌŒvZ
 
 				if( subf1.Qdepend3 <= fhz )
                     Qvalue = (subf1.Qdepend1 * pow(fhz, subf1.Qdepend2));
 				else
                     Qvalue = subf1.Qdepend4;
 
-				Sscalefactor = ScaleFactorS( omega, Qvalue, EDpq, EomegaDpq, Rpq, Rs, Sigmapq, mnfault, subf1 ); // Sï¿½gï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½tï¿½@ï¿½Nï¿½^ï¿½[Fpqï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
-				Pscalefactor = ScaleFactorP( omega, Qvalue, EDpq, EomegaDpq, Rpq, Rs, Sigmapq, mnfault, subf1 ); // Pï¿½gï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½tï¿½@ï¿½Nï¿½^ï¿½[Fpqï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
+				Sscalefactor = ScaleFactorS( omega, Qvalue, EDpq, EomegaDpq, Rpq, Rs, Sigmapq, mnfault, subf1 ); // S”gƒXƒP[ƒ‹ƒtƒ@ƒNƒ^[Fpq‚ğ‹‚ß‚é
+				Pscalefactor = ScaleFactorP( omega, Qvalue, EDpq, EomegaDpq, Rpq, Rs, Sigmapq, mnfault, subf1 ); // P”gƒXƒP[ƒ‹ƒtƒ@ƒNƒ^[Fpq‚ğ‹‚ß‚é
 				wtmps[iii] = wtmp2[iii] * Sscalefactor;
 			}
 			wdats2 = wtmps;
             ///////
-			CFastFourierTransform::Inverse( wdats2 ); //ï¿½gï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Ìˆæ‚©ï¿½çï¿½Ô—Ìˆï¿½ï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½iSï¿½gï¿½j
+			CFastFourierTransform::Inverse( wdats2 ); //”gŒ`‚ğü”g”—Ìˆæ‚©‚çŠÔ—Ìˆæ‚É•ÏŠ·‚·‚éBiS”gj
             ////////
 			tmp = 1.0 / (double) datasize;
 
@@ -447,19 +482,19 @@ int main(int argc, char* argv[])
 				sss1[m] = wdats2[m].real();
 			}
 
-			double DDistance = 0; // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ì‹ï¿½ï¿½ï¿½(m)
-			//double TDistance = 0; // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ï‘ï¿½ï¿½_ï¿½Ü‚Å‚Ì‹ï¿½ï¿½ï¿½(m)   -> ï¿½ï¿½ï¿½[ï¿½vï¿½ÌŠOï¿½ï¿½
-			// ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_-ï¿½vï¿½fï¿½fï¿½wï¿½ï¿½ï¿½ï¿½ï¿½vï¿½Z
+			double DDistance = 0; // ”j‰óŠJn“_‚©‚ç‚Ì‹——£(m)
+			//double TDistance = 0; // ”j‰óŠJn“_‚©‚çŠÏ‘ª“_‚Ü‚Å‚Ì‹——£(m)   -> ƒ‹[ƒv‚ÌŠO‚Ö
+			// ”j‰óŠJn“_-—v‘f’f‘w‹——£ŒvZ
 			//Distance( DLongitude, DLatitude, DDepth ,ELongitude, ELatitude, EDepth , DDistance );
-			// ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_-ï¿½Ï‘ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½Z  -> ï¿½ï¿½ï¿½[ï¿½vï¿½ÌŠOï¿½ï¿½
+			// ”j‰óŠJn“_-ŠÏ‘ª“_‹——£ŒvZ  -> ƒ‹[ƒv‚ÌŠO‚Ö
 			//Distance( DLongitude, DLatitude, DDepth ,OBLongitude, OBLatitude, OBDepth , TDistance );
-			double  vrt;//      =  DDistance  / subf1.vr; // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½ÌŠeï¿½vï¿½fï¿½Ì”ï¿½ï¿½kï¿½ï¿½ï¿½ï¿½(sec)
+			double  vrt;//      =  DDistance  / subf1.vr; // ”j‰óŠJn“_‚©‚ç‚ÌŠe—v‘f‚Ì”­kŠÔ(sec)
             vrt = ELagTime;
-			//double  tvrt     =  TDistance  / subf1.Beta_s; // ï¿½jï¿½ï¿½ï¿½Jï¿½nï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ï‘ï¿½ï¿½_ï¿½Ü‚Å‚Ìï¿½ï¿½ï¿½(sec)ï¿½@-> ï¿½ï¿½ï¿½[ï¿½vï¿½ÌŠOï¿½ï¿½
-			double  travelts =  Rpq / subf1.Beta_s;   // ï¿½vï¿½fï¿½nï¿½kï¿½ï¿½ï¿½ï¿½Sï¿½gï¿½ÌŠÏ‘ï¿½ï¿½_ï¿½Ö‚Ì“ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½(sec)
-			double  traveltp =  Rpq / subf1.Alpha_p;  // ï¿½vï¿½fï¿½nï¿½kï¿½ï¿½ï¿½ï¿½Pï¿½gï¿½ÌŠÏ‘ï¿½ï¿½_ï¿½Ö‚Ì“ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½(sec)
+			//double  tvrt     =  TDistance  / subf1.Beta_s; // ”j‰óŠJn“_‚©‚çŠÏ‘ª“_‚Ü‚Å‚ÌŠÔ(sec)@-> ƒ‹[ƒv‚ÌŠO‚Ö
+			double  travelts =  Rpq / subf1.Beta_s;   // —v‘f’nk–ˆ‚ÌS”g‚ÌŠÏ‘ª“_‚Ö‚Ì“’BŠÔ(sec)
+			double  traveltp =  Rpq / subf1.Alpha_p;  // —v‘f’nk–ˆ‚ÌP”g‚ÌŠÏ‘ª“_‚Ö‚Ì“’BŠÔ(sec)
 
-			if( Rpq < minRpq ) minRpq = Rpq;// ï¿½fï¿½wï¿½Å’Zï¿½ï¿½ï¿½ï¿½(m)
+			if( Rpq < minRpq ) minRpq = Rpq;// ’f‘wÅ’Z‹——£(m)
 
 			int vrshifts ;
             if( nShiftFlg == 1){
@@ -467,46 +502,46 @@ int main(int argc, char* argv[])
             }else{
                 vrshifts = (int)( ( subf1.offsettime + travelts + vrt ) / (1.0/(double)Samplefrq) );
             }
-			int midsift = datasize - vrshifts;//Sï¿½gï¿½`ï¿½dï¿½ï¿½ï¿½ÔƒVï¿½tï¿½gï¿½ï¿½ï¿½Ô’ï¿½
+			int midsift = datasize - vrshifts;//S”g“`”dŠÔƒVƒtƒgŠÔ’·
 
-			GetGousei( &sss , &sss1 , midsift , vrshifts );// Sï¿½gï¿½ï¿½ï¿½ï¿½(NS,EW)
+			GetGousei( &sss , &sss1 , midsift , vrshifts );// S”g‡¬(NS,EW)
 
 			//for( unsigned int pp = 0 ; pp < 	wdats2.size() ; pp++ ){
 			//	sss2[pp] = sss[pp];
-			//}   -> ï¿½ï¿½ï¿½[ï¿½vï¿½ÌŠOï¿½ï¿½
+			//}   -> ƒ‹[ƒv‚ÌŠO‚Ö
 		}
         for( unsigned int pp = 0 ; pp <	wdats2.size() ; pp++ ){
 			sss2[pp] = sss[pp];
 		}
 
-		// ï¿½ï¿½ï¿½ï¿½ï¿½kï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½Zï¿½pï¿½Öï¿½
+		// “™‰¿kŒ¹‹——£ŒvZ—pŠÖ”
         //xxi = Xi[l]/numofElement;
 		//xxi = Xi[l];
 		//ddi = Di[l];
 		//XXDi = XDi[l];
 		XXEQ = XEQ[l];
 
-		// ï¿½Ï•ï¿½ï¿½ï¿½ï¿½xï¿½gï¿½`ï¿½vï¿½Z
+		// Ï•ª‘¬“x”gŒ`ŒvZ
 		Ssekibun( &sss, &sekibuns, datasize, dt, 10, 0.6321);
 
-		// ï¿½vï¿½ï¿½ï¿½kï¿½xï¿½vï¿½Z
+		// Œv‘ªk“xŒvZ
 		seismic_intensity( datasize, dt, sss2, intensity );
 
-		// Sï¿½gï¿½ï¿½ï¿½ï¿½ï¿½xï¿½Å‘ï¿½ï¿½l
+		// S”g‰Á‘¬“xÅ‘å’l
 		double amax = *max_element(sss.begin(),sss.end());
 		double amin = *min_element(sss.begin(),sss.end());
 		double absamax = 0;
 		if( fabs(amax) > fabs(amin) ) absamax = fabs(amax);
 		else absamax = fabs(amin);
 
-		// Sï¿½gï¿½ï¿½ï¿½xï¿½Å‘ï¿½ï¿½l
+		// S”g‘¬“xÅ‘å’l
 		double vmax = *max_element(sekibuns.begin(),sekibuns.end());
 		double vmin = *min_element(sekibuns.begin(),sekibuns.end());
 		double absvmax = 0;
 		if( fabs(vmax) > fabs(vmin) ) absvmax = fabs(vmax);
 		else absvmax = fabs(vmin);
 
-		// ï¿½ï¿½ï¿½ï¿½ï¿½xï¿½gï¿½`ï¿½oï¿½ï¿½
+		// ‰Á‘¬“x”gŒ`o—Í
 		std::ostringstream filename_strm;
 		filename_strm << "ac" << std::setw(6) << std::setfill('0') << OBBserno << ".dat";
 		std::ofstream strm( filename_strm.str().c_str() );
@@ -517,7 +552,7 @@ int main(int argc, char* argv[])
 			std::cerr << "file out error." << std::endl;
 		}
 
-		// ï¿½ï¿½ï¿½xï¿½gï¿½`ï¿½oï¿½ï¿½
+		// ‘¬“x”gŒ`o—Í
 		std::ostringstream filename_strm1;
 		filename_strm1 << "ve" << std::setw(6) << std::setfill('0') << OBBserno << ".dat";
 		std::ofstream strm1( filename_strm1.str().c_str() );
@@ -527,25 +562,25 @@ int main(int argc, char* argv[])
 		}else{
 			std::cerr << "file out error." << std::endl;
 		}
-        //ï¿½ï¿½ï¿½xï¿½gï¿½`ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½tï¿½Bï¿½ï¿½ï¿½^ï¿½[ï¿½ï¿½ï¿½[ï¿½`ï¿½ï¿½ï¿½É“nï¿½ï¿½ï¿½B
+        //‘¬“x”gŒ`ƒtƒ@ƒCƒ‹–¼‚ğƒtƒBƒ‹ƒ^[ƒ‹[ƒ`ƒ“‚É“n‚·B
         double dFilteredMax=0.0;
         if(sHL_Flg != "NO"){
             filter_main(filename_strm1.str(),sHL_Flg,sC_Freq,&dFilteredMax);
         }
-		// ï¿½ï¿½ï¿½ÍŒï¿½ï¿½Êƒï¿½ï¿½Oï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½oï¿½ï¿½
-        //ï¿½tï¿½Bï¿½ï¿½ï¿½^ï¿½[ï¿½ï¿½ï¿½ÌŒï¿½ï¿½Ê‚ï¿½ï¿½oï¿½Í‚ï¿½ï¿½é‚½ï¿½ß‚ï¿½ï¿½ï¿½ï¿½ÉˆÚ“ï¿½
+		// ‰ğÍŒ‹‰ÊƒƒOƒtƒ@ƒCƒ‹o—Í
+        //ƒtƒBƒ‹ƒ^[Œã‚ÌŒ‹‰Ê‚ğo—Í‚·‚é‚½‚ß‚±‚±‚ÉˆÚ“®
 		FILE *fpo1;
 		if( (fpo1 = fopen( Outputlogfile , "a" )) == NULL )exit(1);
 		fprintf( fpo1 , "%8.0lf\t%8.4lf\t%8.4lf\t%8.4lf\t%9.5lf\t%8.4lf\t%8.4lf\t%8.4lf\t%s\t%9.5lf\n"
 			, OBBserno , OBLatitude , OBLongitude , absamax , absvmax ,
               minRpq/1000.0 , XXEQ , intensity , sHL_Flg.c_str(), dFilteredMax);
 		fclose( fpo1 );
-		// ï¿½ï¿½ï¿½ÍŒï¿½ï¿½Ê‰ï¿½ï¿½Êoï¿½ï¿½
+		// ‰ğÍŒ‹‰Ê‰æ–Êo—Í
 		printf(" CALC No. = %d  MAXACC(gal) = %f \n MAXVEL(kine) = %f FilteredMAXVEL(kine) = %f\n",
                              l+1 , absamax , absvmax, dFilteredMax );
 		printf(" MINR(km) = %f Xeq(km) = %f INTENSITY = %f\n\n", minRpq/1000.0 , XXEQ , intensity );
 
-		// ï¿½fï¿½[ï¿½^ï¿½Nï¿½ï¿½ï¿½A
+		// ƒf[ƒ^ƒNƒŠƒA
 		std::fill( data.begin(), data.end(), 0);
 		std::fill( wtmp.begin(), wtmp.end(), 0);
 		std::fill( wtmp2.begin(), wtmp2.end(), 0);
@@ -570,3 +605,4 @@ int main(int argc, char* argv[])
 	//	delete wavefile;
 	return 0;
 }
+
