@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -208,7 +208,7 @@ def create_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
     num_columns = num_plots // 2
     fig, axs = pylab.plt.subplots(2, num_columns)
     fig.set_size_inches(12, 6.5)
-    fig.autofmt_xdate()
+    #fig.autofmt_xdate()
 
     # Setup color scale
     cmap = cm.gist_gray
@@ -298,6 +298,8 @@ def create_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
         # Set font size
         for tick in subfig.get_xticklabels():
             tick.set_fontsize(6)
+            tick.set_ha("right")
+            tick.set_rotation(30)
         for tick in subfig.get_yticklabels():
             tick.set_fontsize(6)
 

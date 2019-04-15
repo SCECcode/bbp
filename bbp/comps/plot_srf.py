@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -202,7 +202,7 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
     # Create subfigures
     fig, subfigs = pylab.plt.subplots(1, num_segments, sharey=True)
     # Set plot dims
-    fig.set_size_inches(11, 4)
+    fig.set_size_inches(11, 4.2)
     # Set title
     fig.suptitle('%s\nMin/Avg/Max Slip = %d/%d/%d' % (plottitle,
                                                       int(minslip),
@@ -212,7 +212,7 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
     # Set up propotions, first we calculate what we need
     num_spaces = num_segments - 1
     between_space = 0.02
-    total_space = 0.8 # Figure goes from 0.1 to 0.9
+    total_space = 0.9 # Figure goes from 0.05 to 0.95
     usable_space = total_space - between_space * num_spaces
     total_len = 0.0
     for params in srf_params:
@@ -222,7 +222,7 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
         ratios.append(params["fault_len"] / total_len)
 
     # Now we apply these to the axes
-    current_position = 0.1
+    current_position = 0.05
     for subfig, ratio in zip(subfigs, ratios):
         current_len = usable_space * ratio
         subfig.set_position([current_position, 0.2,

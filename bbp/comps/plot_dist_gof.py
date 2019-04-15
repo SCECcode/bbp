@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -268,7 +268,9 @@ def create_dist_gof(all_data, all_distances,
     num_columns = num_plots // 2
     fig, axs = pylab.plt.subplots(2, num_columns)
     fig.set_size_inches(18, 8)
-    fig.subplots_adjust(left=0.05, right=0.95)
+    fig.subplots_adjust(left=0.05)
+    fig.subplots_adjust(right=0.95)
+    fig.subplots_adjust(hspace=0.25)
 
     # Find max, min values for x_axis
     if log_scale:
@@ -306,18 +308,15 @@ def create_dist_gof(all_data, all_distances,
         subfig.set_xlim(min_x, max_x)
         subfig.set_ylim(min_y, max_y)
         subfig.set_title("Period = %.3f s" % (period), size=8)
-        if DIST_PERIODS.index(period) % num_columns == 0:
-            subfig.set_ylabel("ln (data/model)", size=8)
-        subfig.tick_params(labelsize=8)
+        subfig.set_ylabel("ln (data/model)", size=8)
+        subfig.tick_params(labelsize=7)
         subfig.plot(dist, data, 'o', color='black',
                     label='_nolegend_')
         subfig.plot([min_x, max_x], [0.0, 0.0],
                     color='grey', label='_nolegend_')
         if log_scale:
             subfig.set_xscale('log')
-        # Only add label to last row
-        if DIST_PERIODS.index(period) >= (2 * num_columns) // 2:
-            subfig.set_xlabel("Distance (km)", size=8)
+        subfig.set_xlabel("Distance (km)", size=8)
 
     fig.suptitle('%s' % (plottitle), size=12)
     print("==> Created Distance GoF plot: %s" % (outfile))
