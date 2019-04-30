@@ -1,5 +1,5 @@
 	<BBP_Run_Specification>
-		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.3.0"/>
+		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="19.4.0"/>
 		<BBP_Modules>
 			<BBP_Module>
 				<name>ExSim</name>

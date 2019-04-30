@@ -4,7 +4,7 @@ exsim
 1
 northridge_eq_gp.src
 1
-4
+1
 n
 y
 n

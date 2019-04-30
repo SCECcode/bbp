@@ -5,7 +5,7 @@ ucsb
 northridge_eq_ucsb.src
 y
 1
-4
+1
 y
 n
 n

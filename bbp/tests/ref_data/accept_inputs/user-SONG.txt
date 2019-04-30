@@ -5,7 +5,7 @@ song
 northridge_eq_song.src
 y
 1
-4
+1
 y
 n
 n
