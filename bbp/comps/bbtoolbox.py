@@ -62,6 +62,7 @@ class BBToolbox(object):
         self.bfac = None
         self.str_fac = None
         self.correlation_file = None
+        self.infcorr_flag = None
 
     def create_bbtoolbox_files(self, stat_file):
         """
@@ -93,6 +94,9 @@ class BBToolbox(object):
 
         # Look for correlation file parameter
         if "CORRELATION_FILE" in vmodel_params:
+            # Set flag
+            self.infcorr_flag = 1
+            # Find correlation file
             self.correlation_file = os.path.join(vel_obj.base_dir,
                                                  vmodel_params['CORRELATION_FILE'])
             # Also copy file to bbtoolbox directory
@@ -100,6 +104,8 @@ class BBToolbox(object):
                          os.path.join(a_tmpdir_mod,
                                       os.path.basename(self.correlation_file)))
         else:
+            # Disable flag
+            self.infcorr_flag = 0
             self.correlation_file = "correlation_file_not_used.txt"
 
         # Take care of scattering file
@@ -216,6 +222,12 @@ class BBToolbox(object):
                     scat_out.write("%d   %s" %
                                    (self.config.SEED,
                                    line[pos:]))
+                elif line.find(r"\* infcorr_flag") >= 0:
+                    # This is the line, insert here
+                    pos = line.find(r"\* infcorr_flag")
+                    scat_out.write("%d    %s" %
+                                   (int(self.infcorr_flag),
+                                    line[pos:]))
                 else:
                     scat_out.write(line)
 
