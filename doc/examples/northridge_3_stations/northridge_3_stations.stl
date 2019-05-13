@@ -1,6 +1,0 @@
-#Required:  lon, lat, station name, Vs30
-#Optional: low freq corner, high freq corner
-#lon		lat	station	Vs30	LF corn	HF corn
--118.6417       34.5640 cast    450     0.120   111.11
--118.4180       34.0628 lacn    278     0.140   111.11
--118.8811       34.2886 moor    405     0.160   111.11
