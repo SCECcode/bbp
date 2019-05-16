@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
 # Set version number
-VERSION=17.3.0
+VERSION=19.4.0
 
 die () {
     echo >&2 "$@"
@@ -116,7 +116,7 @@ echo " Please select what velocity models (regions) you would like to install:"
 echo
 
 # Ask questions first
-echo "==> Would you like to install the Northern California region (6.5GB)?"
+echo "==> Would you like to install the Northern California region (27GB)?"
 select yn in "Yes" "No"; do
     case $yn in
 	Yes ) NOCAL=y; break;;
@@ -124,7 +124,8 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "==> Would you like to install the LA Basin region (6.5GB)?"
+echo "==> Would you like to install the LA Basin region (25GB)"
+echo "    needed for unit and acceptance tests to run?"
 select yn in "Yes" "No"; do
     case $yn in
 	Yes ) LABASIN=y; break;;
@@ -132,7 +133,15 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "==> Would you like to install the Mojave region (6.5GB)?"
+echo "==> Would you like to install the Central California region (14GB)?"
+select yn in "Yes" "No"; do
+    case $yn in
+	Yes ) CCAL=y; break;;
+	No ) CCAL=n; break;;
+    esac
+done
+
+echo "==> Would you like to install the Mojave region (27GB)?"
 select yn in "Yes" "No"; do
     case $yn in
 	Yes ) MOJAVE=y; break;;
@@ -140,7 +149,7 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "==> Would you like to install the Central Japan region (2.0GB)?"
+echo "==> Would you like to install the Central Japan region (28GB)?"
 select yn in "Yes" "No"; do
     case $yn in
 	Yes ) CJAPAN=y; break;;
@@ -148,35 +157,11 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "==> Would you like to install the Western Japan region (2.0GB)?"
+echo "==> Would you like to install the Western Japan region (28GB)?"
 select yn in "Yes" "No"; do
     case $yn in
 	Yes ) WJAPAN=y; break;;
 	No ) WJAPAN=n; break;;
-    esac
-done
-
-echo "==> Would you like to install the Eastern Canada region (3.5GB)?"
-select yn in "Yes" "No"; do
-    case $yn in
-	Yes ) CANADA=y; break;;
-	No ) CANADA=n; break;;
-    esac
-done
-
-echo "==> Would you like to install the Eastern United States excluding Mississippi embayment and gulf coast region (3.8GB)?"
-select yn in "Yes" "No"; do
-    case $yn in
-	Yes ) CEUS=y; break;;
-	No ) CEUS=n; break;;
-    esac
-done
-
-echo "==> Would you like to install the Central United States including Mississippi embayment region (1.8GB)?"
-select yn in "Yes" "No"; do
-    case $yn in
-	Yes ) CENTRALUS=y; break;;
-	No ) CENTRALUS=n; break;;
     esac
 done
 
@@ -185,49 +170,37 @@ echo "=> Installing Broadband Platform Velocity Model Packages"
 if [ "$NOCAL" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Northern California"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nocal-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nocal500-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$LABASIN" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> LA Basin"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/labasin-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/labasin500-velocity-model-$VERSION.tar.gz $MD5FILE
+fi
+
+if [ "$CCAL" == "y" ]; then
+    cd $BASEDIR/bbp_gf
+    echo "==> Central California"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centralcal500-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$MOJAVE" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Mojave"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/mojave-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/mojave500-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$CJAPAN" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Central Japan"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centraljapan-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centraljapan500-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$WJAPAN" == "y" ]; then
     cd $BASEDIR/bbp_gf
     echo "==> Western Japan"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/westernjapan-velocity-model-$VERSION.tar.gz $MD5FILE
-fi
-
-if [ "$CANADA" == "y" ]; then
-    cd $BASEDIR/bbp_gf
-    echo "==> Canada"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/canada1000-velocity-model-$VERSION.tar.gz $MD5FILE
-fi
-
-if [ "$CEUS" == "y" ]; then
-    cd $BASEDIR/bbp_gf
-    echo "==> Central Eastern United States"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/ceus1000-velocity-model-$VERSION.tar.gz $MD5FILE
-fi
-
-if [ "$CENTRALUS" == "y" ]; then
-    cd $BASEDIR/bbp_gf
-    echo "==> Central United States"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centralus-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/westernjapan500-velocity-model-$VERSION.tar.gz $MD5FILE
 fi
 
 echo "==> Completed!"
@@ -236,14 +209,52 @@ echo "=> Installing Broadband Platform Validation Packages"
 
 if [ "$NOCAL" == "y" ]; then
     cd $BASEDIR/bbp_val
-    echo "==> Loma Prieta"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/lomaprieta-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> LOMAP"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/lomap-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> Alum Rock"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/alum-rock-validation-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$LABASIN" == "y" ]; then
     cd $BASEDIR/bbp_val
-    echo "==> Northridge"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/northridge-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> NR"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nr-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> Whittier Narrows"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/whittier-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> Chino Hills"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/chino-hills-validation-$VERSION.tar.gz $MD5FILE
+fi
+
+if [ "$CCAL" == "y" ]; then
+    cd $BASEDIR/bbp_val
+    echo "==> Parkfield"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/parkfield-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> San Simeon"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/sansimeon-validation-$VERSION.tar.gz $MD5FILE
+fi
+
+if [ "$MOJAVE" == "y" ]; then
+    cd $BASEDIR/bbp_val
+    echo "==> Landers"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/landers-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> North Palm Springs"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nps-validation-$VERSION.tar.gz $MD5FILE
+fi
+
+if [ "$CJAPAN" == "y" ]; then
+    cd $BASEDIR/bbp_val
+    echo "==> Chuetsu"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/chuetsu-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> Iwate"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/iwate-validation-$VERSION.tar.gz $MD5FILE
+    echo "==> Niigata"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/niigata-validation-$VERSION.tar.gz $MD5FILE
+fi
+
+if [ "$WJAPAN" == "y" ]; then
+    cd $BASEDIR/bbp_val
+    echo "==> Tottori"
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/tottori-validation-$VERSION.tar.gz $MD5FILE
 fi
 
 if [ "$LABASIN" == "y" ] || [ "$NOCAL" == "y" ]; then
