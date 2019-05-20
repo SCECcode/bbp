@@ -52,7 +52,7 @@ SRCDIR="$BBPDIR/src"
 MD5FILE="$BASEBBP/setup/bbp-$VERSION-md5.txt"
 
 echo
-echo " ====== Welcome to Broadband Platform $VERSION installation script ====="
+echo " ====== Welcome to Broadband Platform $VERSION installation script ======"
 echo
 echo " Using destination directory: $BASEDIR"
 echo
@@ -112,7 +112,8 @@ echo "==> Installed!"
 
 # Install velocity model packages
 echo
-echo " Please select what velocity models (regions) you would like to install:"
+echo " Please select what velocity models (regions) you would like to install,"
+echo " using 1 for 'Yes', or '2' for 'No':"
 echo
 
 # Ask questions first
