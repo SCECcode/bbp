@@ -113,7 +113,7 @@ echo "==> Installed!"
 # Install velocity model packages
 echo
 echo " Please select what velocity models (regions) you would like to install,"
-echo " using 1 for 'Yes', or '2' for 'No':"
+echo " using '1' for Yes, or '2' for No:"
 echo
 
 # Ask questions first
