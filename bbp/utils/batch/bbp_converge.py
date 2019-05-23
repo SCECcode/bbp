@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@ limitations under the License.
 
 Program used to learn how many realizations are needed
 for a method to converge.
+
+This program is based on the original bbp_converge script
+from Karen Assatourians, Western University
 """
 from __future__ import division, print_function
 
