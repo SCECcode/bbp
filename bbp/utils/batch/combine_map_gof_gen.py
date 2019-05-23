@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ DIST_PERIODS = [0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0]
 # Functions
 # --------------------------------------------------------------------------
 
-def set_boundaries_from_lon_lat(all_lon, all_lat):
+def set_boundaries_from_lon_lat(all_sta_lon, all_sta_lat):
     """
     This function sets the north, south, east, and west boundaries
     of the region we should plot, using the stations' locations in
@@ -60,6 +60,13 @@ def set_boundaries_from_lon_lat(all_lon, all_lat):
     south = None
     east = None
     west = None
+
+    all_lon = []
+    all_lat = []
+    for lon_list, lat_list in zip(all_sta_lon, all_sta_lat):
+        for sta_lon, sta_lat in zip(lon_list, lat_list):
+            all_lon.append(sta_lon)
+            all_lat.append(sta_lat)
 
     for lon, lat in zip(all_lon, all_lat):
         # If this is the first station, use its location
@@ -208,8 +215,8 @@ def plot_combined_map_gof(indir, tmpdir, outdir, codebase):
 
     # Get plot boundaries
     (north, south,
-     east, west) = set_boundaries_from_lon_lat(all_sta_x_data[0],
-                                               all_sta_y_data[0])
+     east, west) = set_boundaries_from_lon_lat(all_sta_x_data,
+                                               all_sta_y_data)
 
     # Get directory names
     install = InstallCfg.getInstance()
