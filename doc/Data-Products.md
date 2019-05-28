@@ -8,11 +8,11 @@ Scenario simulations are hypothetical simulations, what-if scenarios. Users prov
 
 A map showing the fault trace along with the stations for which ground motions are calculated. The yellow star shows the hypocenter location.
 
-[[/images/station_map_landers-cut.png|Station Map]]
+[[./images/station_map_landers-cut.png|Station Map]]
 
 #### Rupture Model
 
-[[/images/lomap-gp-srf-cut.png|Rupture Model]]
+[[./images/lomap-gp-srf-cut.png|Rupture Model]]
 
 #### Velocity and Acceleration Seismograms
 
