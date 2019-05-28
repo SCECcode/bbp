@@ -12,27 +12,22 @@ class CommandParallel:
         self.envscript = envscript
         return
 
-        
-    def runMultiSSH(self, remotecmd, nodefile):
+    def runMultiSSH(self, remotecmd, nodes):
         hostname = socket.gethostname()
 
         # Read in nodefile
         nodelist = []
-        if (nodefile == 'localhost'):
-            nodelist.append('localhost')
-        else:
-            nodes = open(nodefile)
-            for node in nodes:
-                node = node.strip(' \n\t')
-                if ((node != hostname) and (node != '')):
-                    if node in nodelist:
-                        continue
-                    nodelist.append(node)
-                elif node == hostname:
-                    if 'localhost' in nodelist:
-                        continue
-                    nodelist.append('localhost')
-            nodes.close()
+        nodes = nodes.split(',')
+        for node in nodes:
+            node = node.strip(' \n\t')
+            if ((node != hostname) and (node != '')):
+                if node in nodelist:
+                    continue
+                nodelist.append(node)
+            elif node == hostname:
+                if 'localhost' in nodelist:
+                    continue
+                nodelist.append('localhost')
 
         print "nodelist = ", nodelist
 
@@ -47,16 +42,16 @@ class CommandParallel:
         while (len(nodelist) > 0):
             # Use next node
             node = nodelist.pop()
-            # Make sure we set TMPDIR and PBS_JOBID
+            # Make sure we set TMPDIR and SLURM_JOB_ID
             if not "TMPDIR" in os.environ:
                 os.environ["TMPDIR"] = ("/tmp/%s" %
-                                        (os.environ["PBS_JOBID"]))
+                                        (os.environ["SLURM_JOB_ID"]))
             if (node == 'localhost'):
-                cmd = ("TMPDIR=%s;PBS_JOBID=%s;source %s;%s" %
-                       (os.environ["TMPDIR"], os.environ["PBS_JOBID"],
+                cmd = ("TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s" %
+                       (os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"],
                         self.envscript, remotecmd))
             else:
-                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;PBS_JOBID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["PBS_JOBID"], self.envscript, remotecmd)
+                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, remotecmd)
             
             print "Running on %s: %s" % (node, cmd)   
             proclist.append([subprocess.Popen(cmd,shell=True), node])
@@ -71,15 +66,13 @@ class CommandParallel:
             
         return(0)
 
-
 if __name__ == '__main__':
-
     envscript = sys.argv[1]
     remotecmd = sys.argv[2]
-    nodefile = sys.argv[3]
+    nodelist = sys.argv[3]
 
     # Run the commands
     runobj = CommandParallel(envscript)
-    runobj.runMultiSSH(remotecmd, nodefile)
+    runobj.runMultiSSH(remotecmd, nodelist)
     
     sys.exit(0)

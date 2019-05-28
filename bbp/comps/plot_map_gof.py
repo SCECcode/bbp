@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Creates a map gof plot for a list of periods
-$Id: plot_map_gof.py 1718 2016-08-16 21:55:36Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -21,7 +31,7 @@ import pylab
 
 # Import Broadband modules
 from install_cfg import InstallCfg
-import plot_map
+import plot_utils
 import PlotMap
 import fault_utils
 import plot_config
@@ -126,15 +136,16 @@ def plot_map_gof(r_srcfile, r_stations, resid_file, comp_label, sim_id):
 
     # Define boundaries to plot using the stations in the station file
     (north, south,
-     east, west) = plot_map.set_boundaries_from_stations(a_station_file)
+     east, west) = plot_utils.set_boundaries_from_stations(a_station_file,
+                                                           a_input_file)
     trace_file = "%s.trace" % (a_input_file)
     simple_station_file = "%s.simple" % (a_station_file)
 
     if r_srcfile.endswith(".srf"):
-        plot_map.write_fault_trace(a_input_file, trace_file)
+        plot_utils.write_fault_trace(a_input_file, trace_file)
     else:
-        plot_map.write_simple_trace(a_input_file, trace_file)
-    plot_map.write_simple_stations(a_station_file, simple_station_file)
+        plot_utils.write_simple_trace(a_input_file, trace_file)
+    plot_utils.write_simple_stations(a_station_file, simple_station_file)
 
     # Get hypo_lon, hypo_lat from src/srf file
     hypo_lon, hypo_lat = fault_utils.calculate_epicenter(a_input_file)
@@ -197,7 +208,7 @@ def create_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
     num_columns = num_plots // 2
     fig, axs = pylab.plt.subplots(2, num_columns)
     fig.set_size_inches(12, 6.5)
-    fig.autofmt_xdate()
+    #fig.autofmt_xdate()
 
     # Setup color scale
     cmap = cm.gist_gray
@@ -287,6 +298,8 @@ def create_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
         # Set font size
         for tick in subfig.get_xticklabels():
             tick.set_fontsize(6)
+            tick.set_ha("right")
+            tick.set_rotation(30)
         for tick in subfig.get_yticklabels():
             tick.set_fontsize(6)
 

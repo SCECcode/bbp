@@ -1,0 +1,25 @@
+// Copyright (c) 2011-2018 National Research Institute for Earth Science and Disaster Resilience (NIED)
+// All rights reserved.
+//
+// Programs statgreen, statgreen2, and greenscale computes ground motion time series by the stochastic Green's function (SGF) method.
+//
+// Disclaimer:
+/* Users take full responsibility for the use of the software. Neither NIED nor any of the contributors shall be responsible for any loss, damages, or costs which may be incurred by the users or third parties arising in the use of the software, whatever the reason may be, even if advised of the possibility of such damages. */
+//
+// References:
+// (1) Reference for the SGF software
+/*
+- Senna, S. and H. Fujiwara (2011): Development of Estimation Tools for Earthquake Ground Motion, Technical Note of the National Research Institute for Earth Science and Disaster Prevention, No. 354 (in Japanese) 
+*/
+// (2) Stochastic Green's function (SGF) method
+/*
+- Dan, K. and T. Sato (1998): Strong Motion Prediction by Semi-empirical Method Based on Variable-slip Rupture Model of Earthquake Fault, Journal of Structural and Construction Engineering (Transactions of AIJ), No.509, 49-60. (in Japanese)
+- Dan, K., M. Watanabe, T. Sato, J. Miyakoshi, and T. Sato (2000): Isoseismal Map of Strong Motions for the 1923 Kanto Earthquake (MJMA7.9) by Stochastic Green's Function Method, Journal of Structural and Construction Engineering (Transactions of AIJ), No.530, 53-62. (in Japanese)
+- Satoh, T., H. Kawase, and T. Sato (1994): Engineering bedrock waves obtained through the identification analysis based on borehole records and their statistical envelope characteristics, Journal of Structural and Construction Engineering (Transactions of AIJ), No.461, 19-28. (in Japanese)
+*/
+// (3) NIED broadband ground motion computation by recipe
+/*
+- Fujiwara, H. et al. (2009). Technical Reports on National Seismic Hazard Maps for Japan, Technical Note of the National Res. Inst. for Earth Science and Disaster Prevention 336, 528pp (in English)
+- Fujiwara, H. et al. (2012): Some Improvements of Seismic Hazard Assessment based on the 2011 Tohoku Earthquake, Technical Note of the National Research Institute for Earth Science and Disaster Prevention, No.379. (in Japanese)
+- They can be obtained from http://www.j-shis.bosai.go.jp/map/JSHIS2/download.html?lang=en .
+*/

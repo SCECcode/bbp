@@ -1,10 +1,20 @@
 #!/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 This module plots station map and fault trace
-$Id: PlotMap.py 1719 2016-08-18 21:44:13Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -184,94 +194,93 @@ def read_topo(filename, plotregion):
     # All done
     return masked
 
-class PlotMap(object):
-    def __init__(self):
-        return
+def plot_station_map(plottitle, plotregion, topo, coastal, border,
+                     fault, sta, map_prefix, hypocenter_list=None):
+    """
+    Genereate the station map plot
+    """
 
-    def plot(self, plottitle, plotregion, topo, coastal, border,
-             fault, sta, map_prefix, hypo_lat=None, hypo_lon=None):
-        """
-        Produce the plot
-        """
+    # Read in topo data
+    topo_points = read_topo(topo, plotregion)
 
-        # Read in topo data
-        topo_points = read_topo(topo, plotregion)
+    # Read in fault data
+    fault_x, fault_y = read_fault(fault)
 
-        # Read in fault data
-        fault_x, fault_y = read_fault(fault)
+    # Read in station data
+    sta_x, sta_y = read_stations(sta)
 
-        # Read in station data
-        sta_x, sta_y = read_stations(sta)
+    # Read coastlines
+    coast_x, coast_y = read_coastal(coastal, plotregion)
 
-        # Read coastlines
-        coast_x, coast_y = read_coastal(coastal, plotregion)
+    # Read borders
+    bord_x, bord_y = read_coastal(border, plotregion)
 
-        # Read borders
-        bord_x, bord_y = read_coastal(border, plotregion)
+    # Set plot dims
+    pylab.gcf().set_size_inches(6, 6)
+    pylab.gcf().clf()
 
-        # Set plot dims
-        pylab.gcf().set_size_inches(6, 6)
-        pylab.gcf().clf()
+    # Adjust title y-position
+    t = pylab.title(plottitle, size=12)
+    t.set_y(1.06)
 
-        # Adjust title y-position
-        t = pylab.title(plottitle, size=12)
-        t.set_y(1.09)
+    # Setup color scale
+    cmap = cm.gist_earth
+    norm = mcolors.Normalize(vmin=-1000.0, vmax=3000.0)
 
-        # Setup color scale
-        cmap = cm.gist_earth
-        norm = mcolors.Normalize(vmin=-1000.0, vmax=3000.0)
+    # Plot basemap
+    pylab.imshow(topo_points, cmap=cmap, norm=norm,
+                 extent=plotregion, interpolation='nearest')
 
-        # Plot basemap
-        pylab.imshow(topo_points, cmap=cmap, norm=norm,
-                     extent=plotregion, interpolation='nearest')
+    # Freeze the axis extents
+    pylab.gca().set_autoscale_on(False)
 
-        # Freeze the axis extents
-        pylab.gca().set_autoscale_on(False)
+    # Plot coast lines
+    for i in xrange(0, len(coast_x)):
+        pylab.plot(coast_x[i], coast_y[i], linestyle='-', color='0.5')
 
-        # Plot coast lines
-        for i in xrange(0, len(coast_x)):
-            pylab.plot(coast_x[i], coast_y[i], linestyle='-', color='0.5')
+    # Plot borders
+    for i in xrange(0, len(bord_x)):
+        pylab.plot(bord_x[i], bord_y[i], linestyle='-', color='0.75')
 
-        # Plot borders
-        for i in xrange(0, len(bord_x)):
-            pylab.plot(bord_x[i], bord_y[i], linestyle='-', color='0.75')
+    # Plot fault trace
+    pylab.plot(fault_x, fault_y, linestyle='-', color='k')
 
-        # Plot fault trace
-        pylab.plot(fault_x, fault_y, linestyle='-', color='k')
+    # Plot stations
+    pylab.plot(sta_x, sta_y, marker='o', color='r', linewidth=0)
 
-        # Plot stations
-        pylab.plot(sta_x, sta_y, marker='o', color='r', linewidth=0)
+    # Plot hypocenter if provided
+    if hypocenter_list is not None:
+        hypo_lat = []
+        hypo_lon = []
+        for hypocenter in hypocenter_list:
+            hypo_lat.append(hypocenter['lat'])
+            hypo_lon.append(hypocenter['lon'])
+        pylab.plot(hypo_lon, hypo_lat, marker='*',
+                   markersize=12, color='y', linewidth=0)
 
-        # Plot hypocenter
-        if hypo_lat is not None and hypo_lon is not None:
-            hypo_lat = [hypo_lat]
-            hypo_lon = [hypo_lon]
-            pylab.plot(hypo_lon, hypo_lat, marker='*',
-                       markersize=12, color='y', linewidth=0)
+    # Set degree formatting of tick values
+    majorFormatter = FormatStrFormatter(u'%.1f\u00b0')
+    pylab.gca().xaxis.set_major_formatter(majorFormatter)
+    pylab.gca().yaxis.set_major_formatter(majorFormatter)
 
-        # Set degree formatting of tick values
-        majorFormatter = FormatStrFormatter(u'%.1f\u00b0')
-        pylab.gca().xaxis.set_major_formatter(majorFormatter)
-        pylab.gca().yaxis.set_major_formatter(majorFormatter)
+    # Turn on ticks for both sides of axis
+    for tick in pylab.gca().xaxis.get_major_ticks():
+        tick.label1On = True
+        tick.label2On = True
+    for tick in pylab.gca().yaxis.get_major_ticks():
+        tick.label1On = True
+        tick.label2On = True
 
-        # Turn on ticks for both sides of axis
-        for tick in pylab.gca().xaxis.get_major_ticks():
-            tick.label1On = True
-            tick.label2On = True
-        for tick in pylab.gca().yaxis.get_major_ticks():
-            tick.label1On = True
-            tick.label2On = True
+    # Set font size
+    for tick in pylab.gca().get_xticklabels():
+        tick.set_fontsize(8)
+    for tick in pylab.gca().get_yticklabels():
+        tick.set_fontsize(8)
 
-        # Set font size
-        for tick in pylab.gca().get_xticklabels():
-            tick.set_fontsize(8)
-        for tick in pylab.gca().get_yticklabels():
-            tick.set_fontsize(8)
-
-        print("==> Creating Plot: %s.png" % (map_prefix))
-        pylab.savefig('%s.png' % (map_prefix), format="png",
-                      transparent=False, dpi=plot_config.dpi)
-        pylab.close()
+    print("==> Creating Plot: %s.png" % (map_prefix))
+    pylab.savefig('%s.png' % (map_prefix), format="png",
+                  transparent=False, dpi=plot_config.dpi)
+    pylab.close()
 
 def usage():
     """
@@ -296,7 +305,6 @@ if __name__ == '__main__':
     COASTAL = sys.argv[9]
     BORDER = sys.argv[10]
 
-    PLOTTER = PlotMap()
-    PLOTTER.plot(PLOTTITLE, PLOTREGION, TOPO, COASTAL, BORDER,
-                 FAULT, STA, MAP_PREFIX)
+    plot_station_map(PLOTTITLE, PLOTREGION, TOPO, COASTAL, BORDER,
+                     FAULT, STA, MAP_PREFIX)
     sys.exit(0)

@@ -1,51 +1,62 @@
 	<BBP_Run_Specification>
-		<Validation_Run event="Northridge" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.2.0"/>
+		<Validation_Run event="NR" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="19.4.0"/>
 		<BBP_Modules>
 			<BBP_Module>
-				<name>RMG</name>
+				<name>SongRMGSS</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod</file>
-					<file>$BBP_INSTALL_VAL/Northridge/song/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
+					<file>$BBP_INSTALL_VAL/NR/song/nr_v14_02_1.src</file>
 				</staged_files>
 				<arguments>
-					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">nr_v14_02_1.srf</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Jbsim</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod</file>
-					<file>$BBP_INSTALL_VAL/Northridge/song/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
+					<file>$BBP_INSTALL_VAL/NR/song/nr_v14_02_1.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
-					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">nr_v14_02_1.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Hfsims</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod</file>
-					<file>$BBP_INSTALL_VAL/Northridge/song/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
+					<file>$BBP_INSTALL_VAL/NR/song/nr_v14_02_1.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
-					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">nr_v14_02_1.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 				<keyword_arguments>
-					<keyword_argument keyword="val_name" type="str">Northridge</keyword_argument>
+					<keyword_argument keyword="val_name" type="str">NR</keyword_argument>
 				</keyword_arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>WccSiteamp</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">GP</argument>
+					<argument type="str">LABasin500</argument>
+				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Match</name>
@@ -54,16 +65,16 @@
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 				<keyword_arguments>
-					<keyword_argument keyword="acc" type="bool">False</keyword_argument>
+					<keyword_argument keyword="acc" type="bool">True</keyword_argument>
 				</keyword_arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Plot_Map</name>
 				<staged_files>
-					<file>$BBP_INSTALL_VAL/Northridge/song/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_VAL/NR/song/nr_v14_02_1.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
@@ -75,7 +86,7 @@
 				<name>PlotSeis</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
-					<file>$BBP_INSTALL_VAL/Northridge/song/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_VAL/NR/song/nr_v14_02_1.src</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
@@ -85,7 +96,7 @@
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
-				<name>RotD50</name>
+				<name>RotD100</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
@@ -100,8 +111,8 @@
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">$BBP_INSTALL_VAL/Northridge/common/AccBBP</argument>
-					<argument type="str">acc_bbp</argument>
+					<argument type="str">$BBP_INSTALL_VAL/NR/obs/Acc</argument>
+					<argument type="str">acc_peer</argument>
 					<argument type="str"></argument>
 				</arguments>
 			</BBP_Module>
@@ -112,22 +123,20 @@
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">$BBP_INSTALL_VAL/Northridge/common/AccBBP</argument>
 					<argument type="str">acc</argument>
-					<argument type="str">Northridge</argument>
+					<argument type="str">NR</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>GPGof</name>
 				<staged_files>
-					<file>$BBP_INSTALL_VAL/Northridge/song/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_VAL/NR/song/nr_v14_02_1.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="float">6.73</argument>
-					<argument type="str">Northridge</argument>
+					<argument type="str">NR</argument>
 					<argument type="int">120</argument>
 				</arguments>
 				<keyword_arguments>
@@ -138,13 +147,13 @@
 				<name>GenHTML</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
-					<file>$BBP_INSTALL_VAL/Northridge/song/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_VAL/NR/song/nr_v14_02_1.src</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">nr_v14_02_1.src</argument>
-					<argument type="str">LABasin</argument>
-					<argument type="str">Northridge</argument>
+					<argument type="str">LABasin500</argument>
+					<argument type="str">NR</argument>
 					<argument type="str">SONG</argument>
 				</arguments>
 			</BBP_Module>

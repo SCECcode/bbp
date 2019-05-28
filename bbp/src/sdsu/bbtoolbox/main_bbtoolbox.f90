@@ -64,17 +64,28 @@ PROGRAM main_broadband
 !
 ! Updated: May 2015 (v1.5.5.3, gfortran)
 !   Add temporary files (velfile and timefile) and PS_flag for raytracing.
-
+!
+! Updated: December 2016 (v1.6.2)
+!   Add aveVp and loc_aveVs(n_stat).
+!
+! Updated: February 2019 (v2.0)
+!   Add reading Kemp_*.bin routine.
+!   Add filtering routine for LFs and HFs.
+!
+! Updated: March 2019 (v2.1)
+!   Change input_file length from 90 to 256.
+!
 use omp_lib
 
-use def_kind; use flags; use geometry; use interfaces, only: spline_interp, write_disk 
+use def_kind; use flags; use geometry; use interfaces, only: spline_interp, write_disk
 use io_file; use scattering; use source_receiver; use stf_data
 use waveform; use fault_area
+use earthquake, only: Mw
 
 implicit none
 
 ! counters
-integer(kind=i_single)                        :: station,i,index_delay
+integer(kind=i_single)                        :: station,i,index_delay,ki,kj,ierr
 ! main input-file name 
 character(len=256)                            :: input_file
 ! fixed string variable
@@ -91,7 +102,7 @@ integer(kind=i_single)                         :: PS_flag
 !----------------------------------------------------------------------------------
 
 print*,''
-print*,'*** Welcome to the Broad-Band Toolbox (v1.6) ***'
+print*,'*** Welcome to the Broad-Band Toolbox (v2.0) ***'
 print*,''
 print*,'Initialising the code, please type input filename ...'
 
@@ -112,22 +123,13 @@ call raytracing_input
 ! start the raytracer code for P and S waves
 !$OMP SECTIONS
 !$OMP SECTION           
-   PS_flag = 1
-   !velfile = 'vel3d_P.bin'
-   !timefile = 'time3d_P.out'
-   !print*,velfile, timefile
    !call raytracing(hypo,grid,h_step,'vel3d_P.bin','time3d_P.out')
-   !call raytracing(hypo,grid,h_step,velfile, timefile)
+   PS_flag = 1
    call raytracing(hypo,grid,h_step,PS_flag)
-   print*,'done Pwave travel time'
 !$OMP SECTION        
-   PS_flag = 2
-   !velfile = 'vel3d_S.bin'
-   !timefile = 'time3d_S.out'
    !call raytracing(hypo,grid,h_step,'vel3d_S.bin','time3d_S.out')
-   !call raytracing(hypo,grid,h_step,velfile, timefile)
+   PS_flag = 2
    call raytracing(hypo,grid,h_step,PS_flag)
-   print*,'done Swave travel time'
 !$OMP END SECTIONS
 !<- end parallel section
 
@@ -136,15 +138,20 @@ call raytracing_input
 call time_distance                             
 
 ! delete temporary files from the raytracing code
-call cleaner                                  
+  call cleaner                                  
 
 if (modality_flag /= 0) then
    ! read and/or computes several scattering values  
    call scattering_parameters                    
 
    ! generate random numbers to be used during coda waves computation
-   !call random_sequence                            
-endif   
+   !call random_sequence
+
+   ! Read input Kemp, Cholesky factor of frequency correlation matrix, lower triangular matrix
+   if (infcorr_flag == 1) then
+     call read_KL
+   endif
+endif
 
 !print*, '---------------------------------------------------'
 !print*, 'Reading input low-frequency seismograms...'
@@ -201,17 +208,24 @@ if (modality_flag /= 0) then
       if (station == 1) allocate(bb_seis(npts,3),conv_seis(npts,3),scattgram(npts,3))
 
       ! set-up or read stf from file
-      !if (modality_flag /= 0)  call set_stf
-      if (modality_flag /= 0)  call set_stf(station)
+      !if (modality_flag /= 0)  call set_stf 
+      if (modality_flag /= 0)  call set_stf(station) 
 
       ! initialize the LOG file   
       if (station == 1) call log_init  
 
       ! allocating some arrays before looping
-      if (.not.allocated(lf_int)) allocate(lf_int(npts,3))   
+      ! add loc_aveVs v162
+      if (.not.allocated(lf_int)) allocate(lf_int(npts,3),loc_aveVs(n_stat))   
 
       ! calculates average S-wave speed between hypocenter and receiver
       aveVs = sr_hypo(station)/time_s(station)               
+
+      ! save aveVs for run.log output ! add v162
+      loc_aveVs(station) = aveVs
+
+      ! calculates average P-wave speed between hypocenter and receiver ! add v162
+      aveVp = sr_hypo(station)/time_p(station)
 
       ! generate random numbers to be used during coda waves computation
       call random_sequence 
@@ -220,12 +234,20 @@ if (modality_flag /= 0) then
       call simcoda(station)                      
 
       ! convolves scattering seismograms with moment rate function
-      call conv_stf_scat(station)                  
+      call conv_stf_scat(station)
+
+      if (merging_flag == 2) then 
+         ! R.Graves' matched filtering for low frequencies
+         call match(0)
+
+         ! R.Graves' matched filtering for high frequencies
+         call match(1) 
+      endif
 
       ! interpolates original LF time series to scatt. npts
       do i=1,3	
          call spline_interp(lf_seis(:,i),lf_len,npts,lf_npts,lf_int(:,i))
-      enddo 
+      enddo
 
       ! combines scattering seismograms with LF ones -> broadband 
       call broadband_comp(station)    
@@ -310,7 +332,6 @@ do station=1,n_stat
 
    ! write other informations on log-file
    call write_log(station)             
-
 enddo
 
 
@@ -322,5 +343,5 @@ write(5,*)'Computation terminated in: ',(time_end-time_beg),' secs'
 close(5) !Close log-file
 
 ! last not-deallocated arrays are automatically deallocated as the program exits
-   
+
 END PROGRAM main_broadband

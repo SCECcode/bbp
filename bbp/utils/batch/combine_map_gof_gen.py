@@ -1,10 +1,22 @@
 #!/usr/bin/env python
 """
+Copyright 2010-2019 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
 This program created a map-based GOF, combining information from all
 realizations into a single map plot where the color of each station is
 the average bias from all realizations.
-
-$Id: combine_map_gof_gen.py 1644 2016-04-19 18:54:19Z fsilva $
 """
 
 # Import Python modules
@@ -37,7 +49,7 @@ DIST_PERIODS = [0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0]
 # Functions
 # --------------------------------------------------------------------------
 
-def set_boundaries_from_lon_lat(all_lon, all_lat):
+def set_boundaries_from_lon_lat(all_sta_lon, all_sta_lat):
     """
     This function sets the north, south, east, and west boundaries
     of the region we should plot, using the stations' locations in
@@ -48,6 +60,13 @@ def set_boundaries_from_lon_lat(all_lon, all_lat):
     south = None
     east = None
     west = None
+
+    all_lon = []
+    all_lat = []
+    for lon_list, lat_list in zip(all_sta_lon, all_sta_lat):
+        for sta_lon, sta_lat in zip(lon_list, lat_list):
+            all_lon.append(sta_lon)
+            all_lat.append(sta_lat)
 
     for lon, lat in zip(all_lon, all_lat):
         # If this is the first station, use its location
@@ -147,7 +166,7 @@ def combine_realization_data(tmpdir, period):
         sta_resid_data.append(numpy.mean(data[item]))
     # Return the data we found
     return sta_x_data, sta_y_data, sta_resid_data
-        
+
 def plot_combined_map_gof(indir, tmpdir, outdir, codebase):
     """
     This function reads data from the residuals files from multiple
@@ -196,8 +215,8 @@ def plot_combined_map_gof(indir, tmpdir, outdir, codebase):
 
     # Get plot boundaries
     (north, south,
-     east, west) = set_boundaries_from_lon_lat(all_sta_x_data[0],
-                                               all_sta_y_data[0])
+     east, west) = set_boundaries_from_lon_lat(all_sta_x_data,
+                                               all_sta_y_data)
 
     # Get directory names
     install = InstallCfg.getInstance()
@@ -251,7 +270,7 @@ def create_combined_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
     # Setup color scale
     cmap = cm.gist_gray
     norm = mcolors.Normalize(vmin=-2000.0, vmax=3000.0)
-    
+
     # Convert to list
     subfigs = []
     for y_subplot in range(0, 2):
@@ -275,14 +294,14 @@ def create_combined_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
 
         # Plot coast lines
         for idx in xrange(0, len(coast_x)):
-            subfig.plot(coast_x[idx], coast_y[idx], marker='-', color='0.75')
+            subfig.plot(coast_x[idx], coast_y[idx], linestyle='-', color='0.75')
 
         # Plot borders
         for idx in xrange(0, len(bord_x)):
-            subfig.plot(bord_x[idx], bord_y[idx], marker='-', color='0.75')
+            subfig.plot(bord_x[idx], bord_y[idx], linestyle='-', color='0.75')
 
         # Plot fault trace
-        subfig.plot(fault_x, fault_y, marker='-', color='k')
+        subfig.plot(fault_x, fault_y, linestyle='-', color='k')
 
         # Plot hypocenter
         if hypo_lat is not None and hypo_lon is not None:
@@ -294,7 +313,7 @@ def create_combined_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
         # Plot the stations
         im = subfig.scatter(sta_x_data, sta_y_data, s=20, c=sta_resid_data,
                             cmap=cm.jet_r, vmin=vmin, vmax=vmax, marker='o')
-                
+
         # Set degree formatting of tick values
         major_formatter = FormatStrFormatter(u'%.1f\u00b0')
         subfig.xaxis.set_major_formatter(major_formatter)
@@ -361,4 +380,3 @@ plot_combined_map_gof(INPUT_INDIR, INPUT_OUTDIR, OUTPUT_DIR, OPTIONS.codebase)
 
 # All done!
 print "All Done!"
-

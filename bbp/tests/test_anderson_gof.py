@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-This is the unit test for the anderson_gof.py BBP module
-$Id: test_anderson_gof.py 1795 2017-02-09 16:23:34Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -112,9 +120,9 @@ class TestAndersonGof(unittest.TestCase):
                                     "anderson_gof",
                                     "%d.gof_anderson.%s.txt" %
                                     (self.sim_id, self.eventname))
-        self.failIf(cmp_bbp.cmp_anderson_gof(ref_sum_file, cal_sum_file,
-                                             tolerance=0.005,
-                                             start_col=1) != 0,
+        self.failIf(cmp_bbp.cmp_files_generic(ref_sum_file, cal_sum_file,
+                                              tolerance=0.005,
+                                              start_col=1) != 0,
                     "GOF Summary file does not match reference file!")
 
         # Read station list
@@ -139,9 +147,9 @@ class TestAndersonGof(unittest.TestCase):
                                         "gof-%s-%d-anderson-%s.txt" %
                                         (self.eventname, self.sim_id,
                                          station))
-            self.failIf(cmp_bbp.cmp_anderson_gof(ref_sum_file, cal_sum_file,
-                                                 tolerance=0.005,
-                                                 start_col=1) != 0,
+            self.failIf(cmp_bbp.cmp_files_generic(ref_sum_file, cal_sum_file,
+                                                  tolerance=0.005,
+                                                  start_col=1) != 0,
                         "GOF file for station %s does not match!" %
                         (station))
 

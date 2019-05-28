@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Broadband module that generates rotd50 and seismogram overlay plots
-$Id: gen_plots.py 1730 2016-09-06 20:26:43Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -23,11 +33,10 @@ from station_list import StationList
 
 class GenPlots(object):
 
-    def __init__(self, i_r_stations, i_a_datadir, i_format,
+    def __init__(self, i_r_stations, i_format,
                  i_comparison_label, sim_id=0):
         self.sim_id = sim_id
         self.r_stations = i_r_stations
-        self.a_datadir = i_a_datadir
         self.format = i_format
         self.comp_label = i_comparison_label
 
@@ -40,16 +49,13 @@ class GenPlots(object):
         sta_base = os.path.basename(os.path.splitext(self.r_stations)[0])
 
         self.log = os.path.join(install.A_OUT_LOG_DIR,
-                                "%d/%d.gen_plots.log" %
-                                (sim_id, sim_id))
+                                str(sim_id),
+                                "%d.gen_plots.log" % (sim_id))
 
 
         # Input, tmp, and output directories
         a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
-#        if self.a_datadir is None:
-#            # When datadir is None, we look for the observation data in
-#            # the tmpdir where the ObsSeismograms module generates them
         a_tmpdir_seis = os.path.join(install.A_TMP_DATA_DIR, str(sim_id),
                                      "obs_seis_%s" % (sta_base))
 
@@ -66,10 +72,7 @@ class GenPlots(object):
         for site in site_list:
             stat = site.scode
 
-            # Since we're using the GP station list, make sure the
-            # .bbp for the station exists.  It might not if we ran the
-            # validation with a different station list (like UCSB for
-            # Landers)
+            # Look for the files we need
             bbpfile = os.path.join(a_tmpdir_seis, "%s.bbp" % stat)
             expected_file = os.path.join(a_outdir, "%d.%s.vel.bbp" %
                                          (sim_id, stat))

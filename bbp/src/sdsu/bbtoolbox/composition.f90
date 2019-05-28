@@ -40,45 +40,86 @@ SUBROUTINE broadband_comp(station)
 ! Updated: July 2015 (v1.6.1)
 !   Add tmp_para and change dt computation at the first step.
 !
-use constants; use def_kind; use flags; use scattering, only: npts,time_step
-use source_receiver; use waveform; use fault_area; use tmp_para
+! Updated: December 2016 (v1.6.2)
+!   Add minimum initiation time on time_p for zero padding.
+!
+! Updated: February 2019 (v2.0)
+!   Add time-domain merging system by R. Graves (Dec. 5 2016), "Theoretical Constraints on
+!       the Amplitude Spectra of Matched Filters".
+!       The acc_ratio for the time-domain merging is from the ratio in bb_calc, computed from acc_spec.
+!   Cahnge taper_len around P-wave arrival time from 10 to 30.
+!   Add call infcorr routine.
+!
+use constants; use def_kind; use flags;
+use scattering, only: npts,time_step
+use source_receiver; use waveform; use fault_area;  use tmp_para
+use vel_model, only: tinit ! add v162
+use matching, only: targ_fr
 
 implicit none
 
 ! actual station number
-integer(kind=i_single),intent(in)             :: station
+integer(kind=i_single),intent(in)              :: station
 ! indexes, taper length
-integer(kind=i_single)                        :: i,ind,taper_len
-! time-step
-real(kind=r_single)                           :: dt
-! taper
-real(kind=r_single),allocatable,dimension(:,:):: taper
-
-! add for output decimation factor
+integer(kind=i_single)                         :: i,ind,taper_len
+! for output decimation factor
 integer(kind=i_single)                         :: bb_npts,k
+! time-step
+real(kind=r_single)                            :: dt
+! frequency for acc_spec
+real(kind=r_single)                            :: acc_spec_freq
+! get ratio from bb_calc
+real(kind=r_single),allocatable,dimension(:)   :: acc_ratio
+! taper
+real(kind=r_single),allocatable,dimension(:,:) :: taper
+! for tapering and bb_seis
 real(kind=r_single),allocatable,dimension(:,:) :: tmp_seis
-real(kind=r_single)                            :: w_t
-
 !------------------------------------------------------------------------------------
 
 ! delta-t of both high and low-frequency (already interpolated) time-series   
-! dt = lf_len/(npts-1)
-if (npts == tmp_npts) dt = lf_len/(npts-1)
-if (npts .gt. tmp_npts) dt = tmp_lf_len/(tmp_npts-1)
+dt = lf_len/(v_npts-1)
 
-! calculate broadband seismograms for each component
-do i=1,3   
-   call bb_calc(i,dt,station)
+! calculate HFs scaling factor from bb_calc for each component
+if (.not.allocated(acc_ratio)) allocate(acc_ratio(3))
+
+acc_spec_freq = 50.0
+
+do i=1,3 
+   call bb_calc(i,dt,station,acc_ratio(i),acc_spec_freq)
 enddo
-   
+
+!!! ----- time domain merging only ----------
+
+if (merging_flag == 2) then
+
+   print*,'*** start time domain merging ***'
+
+   bb_seis(1:npts,1:3)=0.0
+
+   do i=1,3
+      do k=1,npts
+         bb_seis(k,i)=lf_int(k,i) + (conv_seis(k,i)*acc_ratio(i))
+      enddo
+   enddo
+endif
+
+!!! ----- end time domain merging --------
+
+if (infcorr_flag == 1) then
+   ! calculate corrlated bb seismograms for each component
+   call infcorr(npts,dt,station)
+endif
+
 if (modality_flag /= 0) then   
    ! find time-index corresponding to P-wave arrival 
-   ind=nint(time_p(station)/dt)                        
+   !ind=nint(time_p(station)/dt)
+   ind=nint((time_p(station)+tinit)/dt) ! change v162
 
    ! setting up the taper (rising half of Hanning window) to avoid spikes in acceleration 
    ! at P-wave onset
    ! taper length in points (this is the effective length)
-   taper_len=10
+   !taper_len=10
+   taper_len=30
 
    ! reduce taper if too long
    if (floor(taper_len/2.) >= ind) then
@@ -130,7 +171,8 @@ END SUBROUTINE broadband_comp
 
 !===================================================================================================
 
-SUBROUTINE bb_calc(comp,dt,station)
+!SUBROUTINE bb_calc(comp,dt,station)
+SUBROUTINE bb_calc(comp,dt,station,ratio,f_acc_spec)
 !-----------------------------------------------------------------------------------
 !
 ! Description:
@@ -169,11 +211,20 @@ SUBROUTINE bb_calc(comp,dt,station)
 !
 ! Updated: july 2015 (v1.6.1)
 !    Do not need tmp_para, tmp_dt for df computation.
-!  
+!
+! Updated: February 2019 (v2.0)
+!   Add ratio and f_acc_spec in subroutine, such that
+!   bb_calc(comp,dt,station,ratio,f_acc_spec).
+!   ratio: for HFs scaling for both frequency-domain merging and time-domain merging.
+!   f_acc_spec: specify frequency for acc_spec.
+!   Separate ratio computation imerg=0 or imerg=1 or 2.
+!   Use v_npts for df computation.
+! 
 use interfaces, only: four1d
 use constants; use def_kind; use matching
 use scattering; use waveform; use earthquake
-use fault_area
+use fault_area 
+use flags, only: merging_flag
 !use tmp_para
 
 implicit none
@@ -183,7 +234,7 @@ integer(kind=i_single),intent(in)           :: comp,station
 ! FOR ACC_SPEC TEST
 integer(kind=i_single)                      :: sca_index, fscale_11, fscale_22, acc_size1 
 ! time-step
-real(kind=r_single),intent(in)              :: dt
+real(kind=r_single),intent(in)              :: dt,f_acc_spec
 ! indexes, counters, dummies 
 integer(kind=i_single)                      :: index_diff,index_min,fscale_1,fscale_2,acc_size
 ! flag and counters 
@@ -205,32 +256,25 @@ real(kind=r_single),dimension(npts)         :: hf_am_win,lf_am_win,hf_ph_win,lf_
 ! array for amplitude differences 
 real(kind=r_single),allocatable,dimension(:):: diff_amp
 ! actual target frequency, averaged spectra and their ratio, Nyquist frequency
-real(kind=r_single)                         :: f_targ,Av_hf,Av_lf,ratio,f_nyq,Av_hf1
+!real(kind=r_single)                         :: f_targ,Av_hf,Av_lf,ratio,f_nyq,Av_hf1
+real(kind=r_single)                         :: f_targ,Av_hf,Av_lf,f_nyq,Av_hf1
 ! other averaged spectra
 real(kind=r_single)                         :: Av_hf11,Av_lf11
 ! delta-f
 real(kind=r_single)                         :: df,A,acc_spec
-
-! adjusted dt
-!real(kind=r_single)                         :: tmp_dt
+! ratio
+real(kind=r_single),intent(out)              :: ratio
 
 !----------------------------------------------------------------------------------- 
 
 ! computing frequency-delta
-df = 1 / (npts * dt)    !according to NR
-!if (npts .gt. tmp_npts) then
-!   tmp_dt = tmp_lf_len/(tmp_npts-1)
-!   df = 1 / (tmp_npts * tmp_dt) / (npts/tmp_npts) ! test always the same dt &  df
-!endif
+df = 1 / (v_npts * dt)
+!df = 1 / (npts * dt)    !according to NR
 
 ! compute nyquist frequency (its index is npts/2 +1) 
 ! (since npts is multiple of 2, f_nyq = {(npts+2)/2 -1)*df}
 f_nyq = 0.5 * (1 / dt)         
 f_nyq_index = npts/2 + 1
-!if (npts .gt. tmp_npts) then 
-!   f_nyq = 0.5 * (1 / tmp_dt)         
-!   f_nyq_index = tmp_npts/2 + 1
-!endif
 
 ! create frequency vector
 f(1)=0.
@@ -272,7 +316,8 @@ enddo
 
 ! index of target frequency for scaling in frequency vector 
 do i=1,f_nyq_index
-   if (f(i) >= 50.-df .and. f(i) <= 50.+df) then
+   !if (f(i) >= 50.-df .and. f(i) <= 50.+df) then
+   if (f(i) >= f_acc_spec-df .and. f(i) <= f_acc_spec+df) then
       sca_index=i
       exit
    endif
@@ -311,7 +356,6 @@ index_min=index_diff-1+win_low
 
 ! determine matching frequency, which corresponds to the minimum amplitude difference
 match_fr(comp,station)=f(index_min)
-!match_fr(comp,station)=f(targ_index)
 
 ! ----> section for AMPLITUDE SCALING (to avoid spectral jumps at the matching frequency) <----
 
@@ -323,80 +367,91 @@ Acc_hf=Am_hf(1:f_nyq_index)*2.*pi*f(1:f_nyq_index)
 Acc_lf=Am_lf(1:f_nyq_index)*2.*pi*f(1:f_nyq_index)
 ! note: here above the problem WAS that f went from -f_nyq to f_nyq, while Am from 0 to 2*fnyq-1 
 
-! compute spectral averages over a large window (3 times search window)
-!!! fscale_1=index_min-3*win_fr; if (fscale_1 <= 0) fscale_1=1
-!!! fscale_2=index_min+3*win_fr; if (fscale_2 > f_nyq_index) fscale_2=f_nyq_index
-!fscale_1=targ_index-3*win_fr; if (fscale_1 <= 0) fscale_1=1
-!fscale_2=targ_index+3*win_fr; if (fscale_2 > f_nyq_index) fscale_2=f_nyq_index
-!acc_size=(fscale_2-fscale_1)+1
-fscale_11=sca_index-3*win_fr; if (fscale_11 <= 0) fscale_11=1
-fscale_22=sca_index+3*win_fr; if (fscale_22 > f_nyq_index) fscale_22=f_nyq_index
-acc_size1=(fscale_22-fscale_11)+1
+if (imerg .eq. 0) then
+   ! compute spectral averages over a large window (3 times search window)
+   fscale_1=index_min-3*win_fr; if (fscale_1 <= 0) fscale_1=1
+   fscale_2=index_min+3*win_fr; if (fscale_2 > f_nyq_index) fscale_2=f_nyq_index
+   ! fscale_1=targ_index-3*win_fr; if (fscale_1 <= 0) fscale_1=1
+   ! fscale_2=targ_index+3*win_fr; if (fscale_2 > f_nyq_index) fscale_2=f_nyq_index
+   acc_size=(fscale_2-fscale_1)+1
 
-! check for the above secondary search window
-!!if ( (fscale_1 == 1) .or. (fscale_2 == f_nyq_index) ) then
-!!   call warning_handling(2,'0','BB_CALC (composition.f90)')
-!!endif
+   ! check for the above secondary search window
+   ! if ( (fscale_1 == 1) .or. (fscale_2 == f_nyq_index) ) then
+   !    call warning_handling(2,'0','BB_CALC (composition.f90)')
+   ! endif
 
-! compute averages
-!!! Av_hf = sum(Acc_hf(fscale_1:fscale_2))/(acc_size-1)   
-!!! Av_lf = sum(Acc_lf(fscale_1:fscale_2))/(acc_size-1)
-!Av_hf = sum(Acc_hf(fscale_1:fscale_2))/(acc_size)   
-!Av_lf = sum(Acc_lf(fscale_1:fscale_2))/(acc_size) 
-Av_hf11 = sum(Acc_hf(fscale_11:fscale_22))/(acc_size1)   
-Av_lf11 = sum(Acc_lf(fscale_11:fscale_22))/(acc_size1)   
+   ! compute averages
+   ! Av_hf = sum(Acc_hf(fscale_1:fscale_2))/(acc_size-1)   
+   ! Av_lf = sum(Acc_lf(fscale_1:fscale_2))/(acc_size-1)
+   Av_hf = sum(Acc_hf(fscale_1:fscale_2))/(acc_size)   
+   Av_lf = sum(Acc_lf(fscale_1:fscale_2))/(acc_size) 
+   ratio = Av_lf/Av_hf   !averages ratio
+   print*,'Av_lf, Av_hf, ratio for imerg=0: ',Av_lf,Av_hf,ratio
 
-! imerg flag
-if (imerg.eq.0) then
-   !old merging
-   !ratio = Av_lf/Av_hf   !averages ratio
-   ratio = Av_lf11/Av_hf11   !averages ratio
-else 
-   !new merging, imerg=1: one big subfault, =2: more subfaults
-   !Av_hf1=acc_spec(f(index_min),station)
-   !ratio = Av_hf1/Av_hf
-   Av_hf1=acc_spec(50.,station) ! use 50Hz for fmax=100Hz 
+else
+   ! compute spectral averages over a large window (3 times search window)
+   fscale_11=sca_index-3*win_fr; if (fscale_11 <= 0) fscale_11=1
+   fscale_22=sca_index+3*win_fr; if (fscale_22 > f_nyq_index) fscale_22=f_nyq_index
+   acc_size1=(fscale_22-fscale_11)+1
+
+   ! compute averages
+   Av_hf11 = sum(Acc_hf(fscale_11:fscale_22))/(acc_size1)   
+   !Av_lf11 = sum(Acc_lf(fscale_11:fscale_22))/(acc_size1)   
+
+   ! new merging, imerg=1: one big subfault, =2: more subfaults
+   Av_hf1=acc_spec(f_acc_spec,station) ! use 50Hz for fmax=100Hz 
    ratio = Av_hf1/Av_hf11
+   print*,'imerg,Av_hf1,Av_hf11,ratio for imerg>0= ', &
+           imerg,Av_hf1,Av_hf11,ratio
 endif
 
-Am_hf = Am_hf*ratio
+!!! ----- frequency domain merging -----
+
+if (merging_flag == 1) then
+
+   print*,'*** start frequency domain merging ***'
+
+   Am_hf = Am_hf*ratio
 
 ! ----------------------> end section for amplitude scaling <---------------------- 
 
-! windowing function for low frequency
-where ( f <= match_fr(comp,station) )
-   fn_lf=1.0
-elsewhere
-   fn_lf=0.
-end where
+   ! windowing function for low frequency
+   where ( f <= match_fr(comp,station) )
+      fn_lf=1.0
+   elsewhere
+      fn_lf=0.
+   end where
 
-! windowing function for high frequency 
-where ( f > match_fr(comp,station) )
-   fn_hf=1.0
-elsewhere
-   fn_hf=0.
-end where
+   ! windowing function for high frequency 
+   where ( f > match_fr(comp,station) )
+      fn_hf=1.0
+   elsewhere
+      fn_hf=0.
+   end where
 
-! multiply phase and amplitude spectra with the windowing function
-hf_ph_win=Ph_hf*fn_hf; lf_ph_win=Ph_lf*fn_lf
-hf_am_win=Am_hf*fn_hf; lf_am_win=Am_lf*fn_lf      
+   ! multiply phase and amplitude spectra with the windowing function
+   hf_ph_win=Ph_hf*fn_hf; lf_ph_win=Ph_lf*fn_lf
+   hf_am_win=Am_hf*fn_hf; lf_am_win=Am_lf*fn_lf      
 
-! compose low and high frequency phase spectra	
-phase=hf_ph_win+lf_ph_win
+   ! compose low and high frequency phase spectra	
+   phase=hf_ph_win+lf_ph_win
 
-! compose low and high frequency amplitude spectra
-amp=hf_am_win+lf_am_win
+   ! compose low and high frequency amplitude spectra
+   amp=hf_am_win+lf_am_win
 
-! combine amplitude and phase spectra (whole broadband spectrum) 
-broad_complex=amp*exp(zeta*phase)
+   ! combine amplitude and phase spectra (whole broadband spectrum) 
+   broad_complex=amp*exp(zeta*phase)
 
-! perform IFFT to find time history from broadband spectrum
-trasf_sign=-1
-call four1d(broad_complex,trasf_sign)
+   ! perform IFFT to find time history from broadband spectrum
+   trasf_sign=-1
+   call four1d(broad_complex,trasf_sign)
 
-! output broadband time-series (after scaling)
-bb_seis(:,comp)=real(broad_complex/npts)
+   ! output broadband time-series (after scaling)
+   bb_seis(:,comp)=real(broad_complex/npts)
 
+endif
+
+!!! ----- end frequency domain merging -----
 
 END SUBROUTINE bb_calc
 
@@ -434,9 +489,9 @@ FUNCTION acc_spec(f,station)
 !
 ! Updated: September 2014 (v1.5.5.1)
 !   Change sdec factor for gs_flag=2.
-!
+! 
 ! Updated: February 2015 (v1.5.5.3)
-!    Updated sdec computation for gs_flag=2.
+!   Updated sdec computation for gs_flag=2.
 !
 ! Updated: May 2015 (V1.5.5.3, gfortran)
 !   Use DtoR for trigonometric functions.
@@ -446,7 +501,10 @@ FUNCTION acc_spec(f,station)
 !
 ! Updated: June 2015 (V1.6)
 !   Move alt computation into srf_read subroutine in source.f90.
-!  
+!
+! Updated: February 2019 (v2.0)
+!   Avoid theta = 0 for t_star computation for imerg=1 and imerg=2.
+!
 use constants; use def_kind; use flags; use scattering
 use source_receiver; use waveform; use earthquake
 use fault_area
@@ -576,7 +634,11 @@ do j=2, n_lay
       t_star1=t_star1+(tin/qk(j-1)) ! t*=sum(time/qk) [sec]
 
    elseif (hyp_z < depth(j) .and. hyp_z >= depth(j-1)) then
-      rayin=(hyp_z-depth(j-1))/sin(theta)
+      if (theta .eq. 0.0) then
+         rayin=sr_hypo(station) ! avoid using 0-theta when hyp_z = 0
+      else
+         rayin=(hyp_z-depth(j-1))/sin(theta)
+      endif
       tin=rayin/vs(j-1)
       ! using qk factor from  G&P (2010) eqn 15 instead of Qs
       t_star1=t_star1+(tin/qk(j-1)) ! t*=sum(time/qk) [sec]
@@ -606,7 +668,7 @@ rad=rad/1000.
 
 w=sqrt(sum_area)
 !if (gs_flag .eq. 1) then
-if (gs_flag == 1 .or. gs_flag == 3) then
+if (gs_flag == 1 .or. gs_flag == 3) then 
    f0=(2.1*vr_sub1*1e5)/(alt*pi*w)
 elseif (gs_flag .eq. 2) then
    f0=(1.1*vr_sub1*1e5)/(alt*pi*w)
@@ -655,7 +717,11 @@ do i=1,nsub
          t_star(i)=t_star(i)+(tin/qk(j-1)) ! t*=sum(time/qk) [sec]
 
       elseif (fz(i) < depth(j) .and. fz(i) >= depth(j-1)) then
-         rayin=(fz(i)-depth(j-1))/sin(theta)
+         if (theta .eq. 0.0) then   ! avoid 0-theta when fz(i)=0km
+            rayin=R_cell(i)/100000. ! [km]
+         else
+            rayin=(fz(i)-depth(j-1))/sin(theta)
+         endif
          tin=rayin/vs(j-1)
          ! using qk factor from  G&P (2010) eqn 15 instead of Qs
          t_star(i)=t_star(i)+(tin/qk(j-1))
@@ -684,8 +750,8 @@ do k=1,nsub
    do i=1,1000
       call random_number(rdm) !should be 0-1
       toa=rdm*90.*DtoR
-      lam=360.*rdm*DtoR
-      dp=90.*rdm*DtoR
+      lam=360.*rdm*DtoR 
+      dp=90.*rdm*DtoR 
       str=(rdm-0.5)*90.*DtoR
       sh1=cos(lam)*cos(dp)*cos(toa)*sin(str)+cos(lam)*sin(dp)*sin(toa)*cos(2.*str)
       sh2=sin(lam)*cos(2.*dp)*cos(toa)*cos(str)-0.5*sin(lam)*sin(2.*dp)*sin(toa)*sin(2.*str)
@@ -699,8 +765,8 @@ do k=1,nsub
    imp=sqrt(vscu(k)*rhcu(k)/t_vsd_ave) !gross impedance effects, G&P (2010) eqn (14)
    attn=exp(-pi*t_star(k)) !t* effects, G&P (2010), eqn (14)
 
-
-   !if (gs_flag .eq. 1) then
+    
+   ! if (gs_flag .eq. 1) then
    if (gs_flag == 1 .or. gs_flag == 3) then
       f0=(2.1*vr_sub(k))/(alt*pi*wsub(k)) !subfault corner frequency, G&P (2010) eqn (13)
    elseif (gs_flag .eq. 2) then
@@ -710,7 +776,7 @@ do k=1,nsub
    C=rad*2./(4.*pi*(rhcu(k))*(vscu(k))**3) !radiation scale factor, G&P (2010) eqn (11)
    S=mo_ratio(k)*(Mo/nsub)*(2.*pi*f)**2/(1.+F1*(f/f0)**2) !radiation spectrum, G&P (2010) eqn (12)
 
-   !if (gs_flag .eq. 1) sdec = 1.0
+   ! if (gs_flag .eq. 1) sdec = 1.0
    if (gs_flag == 1 .or. gs_flag == 3) sdec = 1.0
    ! updated (01/14/2015)
    if (gs_flag .eq. 2) then
@@ -742,7 +808,7 @@ do k=1,nsub
 !         sdec=1.10
 !      endif
 !   endif
-
+   
 
    G=imp*attn/(R_cell(k))**sdec !path term, G&P (2010) eqn 14
    P=exp(-pi*kappa(1)*f) ! high-freq spectral decay, G&P (2010) eqn (16)

@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-These are acceptance tests for the get_modelbox.py program.
-$Id: test_hfsims.py 1743 2016-09-13 21:51:27Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -17,7 +25,6 @@ import cmp_bbp
 import bband_utils
 import seqnum
 from install_cfg import InstallCfg
-from hfsims_cfg import HfsimsCfg
 from hfsims import Hfsims
 
 class TestHfsims(unittest.TestCase):
@@ -30,12 +37,10 @@ class TestHfsims(unittest.TestCase):
         Set up and stage in all input files
         """
         self.install = InstallCfg()
-        self.hfsim_cfg = HfsimsCfg()
-        self.velmodel = "genslip_nr_generic1d-gp01.vmod"
+        self.velmodel = "nr02-vs500.fk1d"
         self.srcfile = "test_wh.src"
         self.srffile = "m5.89-0.20x0.20_s2379646.srf"
         self.stations = "test_stat.txt"
-        self.metadata = "metadata.txt"
         self.sim_id = int(seqnum.get_seq_num())
 
         # Set up paths
@@ -66,7 +71,7 @@ class TestHfsims(unittest.TestCase):
         Test GP HFSims code
         """
         hfs_obj = Hfsims(self.velmodel, self.srcfile, self.srffile, self.stations,
-                         "LABasin", sim_id=self.sim_id)
+                         "LABasin500", sim_id=self.sim_id)
         hfs_obj.run()
         for i in range(1, 6):
             ref_file = os.path.join(self.install.A_TEST_REF_DIR,

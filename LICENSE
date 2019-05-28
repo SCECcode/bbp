@@ -1,4 +1,73 @@
-                                 Apache License
+Copyright 2010-2019 University Of Southern California (USC) and the
+Southern California Earthquake Center (SCEC).
+
+This software is made available under the terms of the Apache License,
+Version 2.0. A copy of the License is provided by the Apache Software
+Foundation (http://www.apache.org/licenses/LICENSE-2.0) and can also be
+found at the bottom of this document.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+
+Disclaimer
+==========
+
+THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+THE SOUTHERN CALIFORNIA EARTHQUAKE CENTER (SCEC), THE UNIVERSITY OF SOUTHERN
+CALIFORNIA (USC), OR ANY OF THEIR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Without limiting the foregoing, SCEC and USC make no warranty that:
+
+1. The software will meet your requirements.
+2. The software will be uninterrupted, timely, secure or error-free.
+3. The results that may be obtained from the use of the software will be
+   effective, accurate or reliable.
+4. The quality of the software will meet your expectations.
+5. Any errors in the software will be corrected.
+
+The software and its documentation:
+
+6. Could include technical or other mistakes, inaccuracies or typographical
+errors. Broadband contributors may make changes to the software or to the
+documentation made available on its web site.
+7. May be out of date and SCEC, its contributors, and USC make no commitment
+to update such materials.
+
+SCEC, its contributors, and USC assume no responsibility for errors or
+omissions in the software or documentation.
+
+In no event shall SCEC, its contributors, or USC be liable to you or any third
+parties for any special, punitive, incidental, indirect or consequential
+damages of any kind, or any damages whatsoever, including, without limitation,
+those resulting from loss of use, data or profits, whether or not SCEC, its
+contributors, or USC has been advised of the possibility of such damages, and
+on any theory of liability, arising out of or in connection with the use of
+this software.
+
+The use of this software is done at your own discretion and risk and with
+agreement that you will be solely responsible for any damage to your computer
+system or loss of data that results from such activities. No advice or
+information, whether oral or written, obtained by you from SCEC,
+the Broadband Platform websites, its contributors, or USC shall create any
+warranty for the software.
+
+
+Apache 2.0 License
+==================
+
+
+                               Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
 
@@ -174,28 +243,3 @@
       of your accepting any such warranty or additional liability.
 
    END OF TERMS AND CONDITIONS
-
-   APPENDIX: How to apply the Apache License to your work.
-
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "{}"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
-
-   Copyright 2010-2017 University Of Southern California
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.

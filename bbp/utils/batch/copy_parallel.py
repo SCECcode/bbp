@@ -51,18 +51,18 @@ class CopyParallel:
             # Use next node
             node = nodelist.pop()
      
-            # Make sure we set TMPDIR and PBS_JOBID
+            # Make sure we set TMPDIR and SLURM_JOB_ID
             if not "TMPDIR" in os.environ:
                 os.environ["TMPDIR"] = ("/tmp/%s" %
-                                        (os.environ["PBS_JOBID"]))
+                                        (os.environ["SLURM_JOB_ID"]))
             if (node == 'localhost'):
-                cmd = ("TMPDIR=%s;PBS_JOBID=%s;source %s;%s" %
-                       (os.environ["TMPDIR"], os.environ["PBS_JOBID"],
+                cmd = ("TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s" %
+                       (os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"],
                         self.envscript, c))
 #                cmd = "%s" % (c)
             else:
 #                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'source %s;%s\'\"" % (node, self.envscript, c)
-                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;PBS_JOBID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["PBS_JOBID"], self.envscript, c)
+                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, c)
             
             print "Running on %s: %s" % (node, cmd)   
             proclist.append([subprocess.Popen(cmd,shell=True), node])

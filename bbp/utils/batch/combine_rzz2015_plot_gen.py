@@ -1,12 +1,21 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 This program creates a combined plot for the RZZ2015 metrics,
 using data from multiple realizations.
-
-$Id: combine_rzz2015_plot_gen.py 1790 2017-02-06 22:25:40Z fsilva $
 """
 
 # Import Python modules
@@ -94,7 +103,7 @@ def plot_rzz2015_data(tmpdir, outdir, data,
     # R2
     subfig = axs[0][1]
     plot_param(data, subfig, "r2", "Duration", "D5-95 (s)")
-    
+
     # R3
     subfig = axs[0][2]
     plot_param(data, subfig, "r3", "Ia/D5-95", "Ia/D5-95 (g^2)")
@@ -102,11 +111,11 @@ def plot_rzz2015_data(tmpdir, outdir, data,
     # R4
     subfig = axs[1][0]
     plot_param(data, subfig, "r4", "Wmid", "Wmid (Hz)")
-    
+
     # R5
     subfig = axs[1][1]
     plot_param(data, subfig, "r5", "w'", "w' (Hz)")
-    
+
     # All done! Save plot!
     pylab.savefig(out_plot, format="png", dpi=plot_config.dpi)
 
@@ -191,7 +200,7 @@ def load_all_data(comp_label, input_indir, input_obsdir,
     and creates the structures needed for plotting.
     """
     data = {}
-    
+
     # Get realizations
     realizations = sorted(os.listdir(input_indir))
     one_realization = realizations[0]
@@ -266,7 +275,7 @@ def load_all_data(comp_label, input_indir, input_obsdir,
         data[stat]["r3_gmpe"] = None
         data[stat]["r4_gmpe"] = None
         data[stat]["r5_gmpe"] = None
-        
+
         in_file = open(data_file, 'r')
         for line in in_file:
             line = line.strip()
@@ -368,7 +377,7 @@ else:
         COMP = "002"
     else:
         PARSER.error("Component must be 1 or 2")
-        
+
 # Create temp dir
 TMPDIR = tempfile.mkdtemp(prefix="bbp-")
 COMBINED_FILE = os.path.join(TMPDIR,

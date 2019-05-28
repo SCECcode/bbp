@@ -1,10 +1,20 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Top level test suites for BB Platform
-$Id: UnitTests.py 1780 2017-01-10 18:17:06Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -21,6 +31,8 @@ from test_jbsim import TestJbsim
 from test_hfsims import TestHfsims
 from test_wcc_siteamp import TestWccSiteamp
 from test_match import TestMatch
+from test_gensrf import TestGenSRF
+from test_irikura_hf import TestIrikuraHF
 from test_uc_fault_utils import TestUCFaultUtils
 from test_vm2vm import TestVm2vm
 from test_cc import TestCC
@@ -31,6 +43,7 @@ from test_bbtoolbox import TestBBToolbox
 from test_exsim import TestExsim
 from test_rmg import TestRMG
 from test_rotd50 import TestRotD50
+from test_rotd100 import TestRotD100
 from test_gp_gof import TestGPGof
 from test_sdsu_mogof import TestSDSUMOGof
 from test_anderson_gof import TestAndersonGof
@@ -66,6 +79,10 @@ TS.addTest(unittest.makeSuite(TestHfsims))
 TS.addTest(unittest.makeSuite(TestWccSiteamp))
 TS.addTest(unittest.makeSuite(TestMatch))
 
+# Add Irikura tests
+TS.addTest(unittest.makeSuite(TestGenSRF))
+TS.addTest(unittest.makeSuite(TestIrikuraHF))
+
 # Add UCSB tests
 TS.addTest(unittest.makeSuite(TestUCFaultUtils))
 TS.addTest(unittest.makeSuite(TestUCrmg))
@@ -87,6 +104,7 @@ TS.addTest(unittest.makeSuite(TestRMG))
 
 # Add Post-Processing tests
 TS.addTest(unittest.makeSuite(TestRotD50))
+TS.addTest(unittest.makeSuite(TestRotD100))
 TS.addTest(unittest.makeSuite(TestGPGof))
 TS.addTest(unittest.makeSuite(TestSDSUMOGof))
 TS.addTest(unittest.makeSuite(TestAndersonGof))

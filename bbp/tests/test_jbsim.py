@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-These are acceptance tests for the jbsim.py
-$Id: test_jbsim.py 1743 2016-09-13 21:51:27Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -17,7 +25,6 @@ import cmp_bbp
 import seqnum
 import bband_utils
 from install_cfg import InstallCfg
-from jbsim_cfg import JbsimCfg
 from jbsim import Jbsim
 
 class TestJbsim(unittest.TestCase):
@@ -29,15 +36,15 @@ class TestJbsim(unittest.TestCase):
         """
         Copy needed files to run the test
         """
-        self.velmodel = "genslip_nr_generic1d-gp01.vmod"
+        self.velmodel = "nr02-vs500.fk1d"
         self.srffile = "m5.89-0.20x0.20_s2379646.srf"
         self.stations = "one_stat.txt"
-        self.vmodel_name = "LABasin"
+        self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
 
         self.install = InstallCfg()
-        self.jbsim_cfg = JbsimCfg(self.vmodel_name)
 
+        refdir = os.path.join(self.install.A_TEST_REF_DIR, "gp")
         indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
         tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
         outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
@@ -45,27 +52,17 @@ class TestJbsim(unittest.TestCase):
         # Create all directories
         bband_utils.mkdirs([indir, tmpdir, outdir, logdir], print_cmd=False)
 
-        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.velmodel,
-                                       self.install.A_IN_DATA_DIR,
-                                       self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(refdir, self.velmodel), indir)
         bband_utils.runprog(cmd, print_cmd=False)
-        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.stations,
-                                       self.install.A_IN_DATA_DIR,
-                                       self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(refdir, self.stations), indir)
         bband_utils.runprog(cmd, print_cmd=False)
-        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.srffile,
-                                       self.install.A_IN_DATA_DIR,
-                                       self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(refdir, self.srffile), indir)
         bband_utils.runprog(cmd, print_cmd=False)
 
     def test_jbsim(self):
         """
         Run Jbsim module
         """
-        # i_simID,i_r_velmodel,i_r_srffile,i_r_stations,i_r_metadata
         jbsim_obj = Jbsim(self.velmodel, "", self.srffile, self.stations,
                           self.vmodel_name, sim_id=self.sim_id)
         jbsim_obj.run()

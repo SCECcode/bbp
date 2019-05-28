@@ -32,8 +32,24 @@ if(gflag == 0)
    yg = xp*amat[3] + yp*amat[4] + zp*amat[5];
    zg = xp*amat[6] + yp*amat[7] + zp*amat[8];
 
+/*
+   RWG 04/10/2012
+   Following is incorrect for southern hemisphere.  Replace with the following
+   additional conditionals on zg
+
    arg = sqrt(xg*xg + yg*yg)/zg;
    (*rlat) = 90.0 - atan(arg)/rperd;
+*/
+
+   if(zg != (double)(0.0))
+      {
+      arg = sqrt(xg*xg + yg*yg)/zg;
+      (*rlat) = 90.0 - atan(arg)/rperd;
+      if(zg < (double)(0.0))
+         (*rlat) = (*rlat) - 180.0;
+      }
+   else
+      (*rlat) = 0.0;
 
    if(xg != (double)(0.0))
       {
@@ -43,8 +59,16 @@ if(gflag == 0)
    else
       (*rlon) = 0.0;
 
+   /*
+   RWG 05/08/08
+   This is incorrect.  Replaced with following conditional on 'xg'.
    if(yg < (double)(0.0))
+   */
+   if(xg < (double)(0.0))
       (*rlon) = (*rlon) - 180.0;
+
+   while((*rlon) < (double)(-180.0))
+      (*rlon) = (*rlon) + 360.0;
    }
 else
    {

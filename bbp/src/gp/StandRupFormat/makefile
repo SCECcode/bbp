@@ -9,8 +9,17 @@ GEOPROJ_OBJS = ../ModelCords/geoproj_subs.o ../ModelCords/geo_utm.o
 GETPAR = ../getpar/lib
 INCPAR = -I ../getpar/include
 
+# if Proj4 libraries ARE NOT available, use the following:
+#
+PROJ4_FLAGS = -D_NO_PROJ4
+PROJ4_LIB_PATHS =
+# if Proj4 libraries ARE available, use the following:
+#
+### PROJ4_FLAGS =
+### PROJ4_LIB_PATHS = -lproj -L${PROJ4_LIBDIR} -I ${PROJ4_INCDIR}
+
 LIBS = -lm ${GETPAR}/libget.a
-LDLIBS = ${OBJS} ${LIBS}
+LDLIBS = ${OBJS} ${LIBS} ${PROJ4_LIB_PATHS}
 
 #LF_FLAGS = -D_FILE_OFFSET_BITS=32
 #
@@ -22,7 +31,7 @@ UFLAGS = -O3
 FC = gfortran
 CC = gcc
 
-CFLAGS = ${UFLAGS} ${LF_FLAGS}
+CFLAGS = ${UFLAGS} ${LF_FLAGS} ${PROJ4_FLAGS}
 FFLAGS = ${UFLAGS} -ffixed-line-length-132
 
 ##### make options

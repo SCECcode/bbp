@@ -1,10 +1,18 @@
 #!/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-Generate BBP acceptance test suite.
-$Id: gen_accept_tests.py 1807 2017-02-17 23:22:46Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -26,11 +34,11 @@ class Methods(object):
     """
     Defines available models on the platform
     """
-    gp, gp_seis, ucsb, sdsu, sdsu_seis, exsim, csm, song, irikura = range(9)
-    labels = ["GP", "GP_seis", "UCSB", "SDSU",
-              "SDSU_seis", "EXSIM", "CSM", "SONG", "IRIKURA_RECIPE_M1"]
-    options = ["gp", "gp seis", "ucsb", "sdsu",
-               "sdsu seis", "exsim", "csm", "song", "irikura"]
+    gp, ucsb, sdsu, exsim, song, irikura1, irikura2, csm = range(8)
+    labels = ["GP", "UCSB", "SDSU", "EXSIM", "SONG", "IRIKURA_RECIPE_M1", "IRIKURA_RECIPE_M2"]
+    options = ["gp", "ucsb", "sdsu", "exsim", "song", "irikura1", "irikura2"]
+    #labels = ["GP", "UCSB", "SDSU", "EXSIM", "SONG", "IRIKURA_RECIPE_M1", "IRIKURA_RECIPE_M2", "CSM"]
+    #options = ["gp", "ucsb", "sdsu", "exsim", "song", "irikura1", "irikura2", "csm"]
 
 class GenAcceptTests(object):
     def __init__(self, resume=True):
@@ -114,34 +122,25 @@ class GenAcceptTests(object):
             # Select validation run
             opts.append('y')
             # Select the validation event
-            opts.append("Northridge")
+            opts.append("NR")
             # Select method
             opts.append(Methods.options[method])
-#            opts.append(str(method + 1))
-            # For GP, UCSB, and SDSU, we want to run the rupture
-            # generator
-            if method == 0 or method == 2 or method == 3 or method == 7 or method == 8:
+            # We don't need a custom source file
+            opts.append('n')
+            # For GP, UCSB, and SDSU, SONG, Irikura1, Irikura2
+            # we want to run the rupture generator
+            if method in [Methods.gp, Methods.ucsb, Methods.sdsu, Methods.song, Methods.irikura1, Methods.irikura2]:
                 opts.append('y')
-            if method == 1 or method == 4:
-                # Don't use rupture generator
-                opts.append('n')
-            # GPSeis and SDSUSeis don't ask for the source file
-            if method != 1 and method != 4:
-                # But we don't want a custom source file
-                opts.append('n')
             opts.append('2')
             opts.append('1')
             opts.append("%d" %
                         (stafiles.index("northridge_3_sta.stl") + 1))
-            # GPSeis and SDSUSeis want LF seismogrmas, pick from validation dir
-            if method == 1 or method == 4:
-                opts.append('y')
-            if method != 6:
-                # Skip site response (CSM does not ask this question)
-                opts.append('n')
-            if method == 5:
+            if method == Methods.exsim:
                 # No custom EXSIM template file
                 opts.append('n')
+            if method != Methods.csm:
+                # Run site response (CSM does not ask this question)
+                opts.append('y')
             # Skip plots
             opts.append('n')
             opts.append('n')
@@ -160,39 +159,35 @@ class GenAcceptTests(object):
         # User simulations
         mode = "user"
         for method in xrange(0, len(Methods.labels)):
-            if method == 1 or method == 4:
-                # No user cases for gp_seis and sdsu_seis, skipping...
-                continue
             optfile = "%s-%s.txt" % (mode, Methods.labels[method])
             print("Generating %s" % (optfile))
             opts = []
             opts.append('n')
             # Select the velocity model, use LABasin
-            opts.append('LABasin')
+            opts.append('LABasin500')
             # Select method
             opts.append(Methods.options[method])
-#            opts.append(str(method + 1))
-            if method != 5 and method != 6:
-                # Use rupture generator
-                opts.append('y')
             # Source file
             opts.append('1')
-            if method == 2:
+            if method == Methods.ucsb:
                 opts.append('northridge_eq_ucsb.src')
-            elif method == 7:
+            elif method == Methods.song:
                 opts.append('northridge_eq_song.src')
             else:
                 opts.append('northridge_eq_gp.src')
+            if method != Methods.exsim and method != Methods.csm:
+                # Use rupture generator
+                opts.append('y')
             # Select station from run directory
             opts.append('1')
             opts.append("%d" %
                         (stafiles.index("northridge_3_sta.stl") + 1))
-            if method == 5:
+            if method == Methods.exsim:
                 # No custom template for ExSIM
                 opts.append('n')
-            if method != 6:
-                # No to site response
-                opts.append('n')
+            if method != Methods.csm:
+                # Run site response (CSM doesn't ask this question)
+                opts.append('y')
             # No plots
             opts.append('n')
             opts.append('n')
@@ -231,8 +226,9 @@ class GenAcceptTests(object):
             # Generate xml
             print("Generating xml for %s" % (key))
             print("\t %s" % (str(optfiles[key])))
-            cmd = ("%s/run_bbp.py --expert -s %d -g -o %s" %
-                   (install.A_COMP_DIR, sim_id, optfile))
+            cmd = ("%s --expert -s %d -g -o %s" %
+                   (os.path.join(install.A_COMP_DIR, "run_bbp.py"),
+                   sim_id, optfile))
             print("Running: %s" % (cmd))
             rc = bband_utils.runprog(cmd, False)
             if rc != 0:
@@ -260,15 +256,16 @@ class GenAcceptTests(object):
                 continue
 
             # Execute each test
-            cmd = ("%s/run_bbp.py -s %d -x %s" %
-                   (install.A_COMP_DIR, test[0], test[1]))
+            cmd = ("%s -s %d -x %s" %
+                   (os.path.join(install.A_COMP_DIR, "run_bbp.py"),
+                   test[0], test[1]))
             rc = bband_utils.runprog(cmd, False)
             if rc != 0:
                 print("Failed to run acceptance test %d-%s, aborting." %
                       (test[0], test[1]))
                 return 1
 
-            # Save the bbp and rsp files
+            # Save the bbp and rd50 files
             test_name = os.path.basename(test[1]).split('.')[0]
             cmd = "mkdir -p %s" % (os.path.join(self.ref_dir, test_name))
             bband_utils.runprog(cmd)

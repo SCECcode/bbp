@@ -1,10 +1,23 @@
 #!/usr/bin/env python
 """
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
 Python program to generate PSAs using the various NGA methods for any
 simulation. This code uses Pynga to calculate the PSAs using the SRC
 file and a station list. It then compares the generated results
 against PSAs from synthetic seismograms.
-$Id: gmpe_comparison_gen.py 1413 2015-02-06 16:30:11Z fsilva $
 """
 
 # Import Python modules
@@ -164,7 +177,7 @@ def create_gmpe_data_file(indata_dir, tmpdir,
 
     # Get periods
     gmpe_group = gmpe_config.GMPES[gmpe_group_name]
-    
+
     # Write label file
     out_labels = open(gmpe_label_file, 'w')
     # Write labels
@@ -189,7 +202,7 @@ def create_gmpe_data_file(indata_dir, tmpdir,
     for station in stations:
         # Start empty
         gmpe_ri50 = []
-        
+
         input_file = open(station, 'r')
         for line in input_file:
             line = line.strip()
@@ -340,7 +353,7 @@ create_sim_data_file(outdata_dir, tmp_sim_file)
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 bband_utils.runprog('export MATLABPATH=%s; ' % (SCRIPT_PATH) +
                     'matlab -nodisplay -r ' +
-                    '"SimsFile=\'%s\';' % (tmp_sim_file) + 
+                    '"SimsFile=\'%s\';' % (tmp_sim_file) +
                     'GMPEFile=\'%s\';' % (tmp_gmpe_file) +
                     'GMPELabels=\'%s\';' % (tmp_gmpe_label_file) +
                     'OUTFile=\'%s\';' % (output_file) +

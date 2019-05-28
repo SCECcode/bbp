@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-These are acceptance tests for the jbsim.py
-$Id: test_uc_fault_utils.py 1734 2016-09-13 17:38:17Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -29,21 +37,27 @@ class TestUCFaultUtils(unittest.TestCase):
         self.install = InstallCfg()
         self.r_srcfile = "test_wh_ucsb.src"
         self.r_faultfile = "ffsp.inp"
-        self.r_velmodel = "labasin.vel"
-        self.vmodel_name = "LABasin"
+        self.r_velmodel = "nr02-vs500_lf.vel"
+        self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
-        cmd = "mkdir -p %s/%d" % (self.install.A_IN_DATA_DIR, self.sim_id)
+
+        # Create directories
+        a_refdir = os.path.join(self.install.A_TEST_REF_DIR, "ucsb")
+        a_indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
+        a_tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
+        a_outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
+        a_logdir = os.path.join(self.install.A_OUT_LOG_DIR, str(self.sim_id))
+        cmd = "mkdir -p %s" % (a_indir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_TMP_DATA_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_tmpdir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_OUT_DATA_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_outdir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_OUT_LOG_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_logdir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/ucsb/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.r_srcfile,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+
+        # Copy SRC file
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_srcfile), a_indir)
         bband_utils.runprog(cmd)
 
     def test_uc_fault_utils(self):

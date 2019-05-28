@@ -1,10 +1,20 @@
 #!/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-Broadband Platform Version of Martin Mai's BBcoda2.csh
-$Id: bbtoolbox.py 1730 2016-09-06 20:26:43Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Broadband Platform Version of Martin Mai BBcoda2.csh
 """
 from __future__ import division, print_function
 
@@ -51,6 +61,8 @@ class BBToolbox(object):
         self.afac = None
         self.bfac = None
         self.str_fac = None
+        self.correlation_file = None
+        self.infcorr_flag = None
 
     def create_bbtoolbox_files(self, stat_file):
         """
@@ -79,6 +91,22 @@ class BBToolbox(object):
         # Look for the source function parameter
         if 'SOURCE_FUNC' in vmodel_params:
             self.source_func = vmodel_params['SOURCE_FUNC']
+
+        # Look for correlation file parameter
+        if "CORRELATION_FILE" in vmodel_params:
+            # Set flag
+            self.infcorr_flag = 1
+            # Find correlation file
+            self.correlation_file = os.path.join(vel_obj.base_dir,
+                                                 vmodel_params['CORRELATION_FILE'])
+            # Also copy file to bbtoolbox directory
+            shutil.copy2(self.correlation_file,
+                         os.path.join(a_tmpdir_mod,
+                                      os.path.basename(self.correlation_file)))
+        else:
+            # Disable flag
+            self.infcorr_flag = 0
+            self.correlation_file = "correlation_file_not_used.txt"
 
         # Take care of scattering file
         if not self.r_scattering:
@@ -187,6 +215,18 @@ class BBToolbox(object):
                     pos = line.find(r"\* str_fac - Brune stress")
                     scat_out.write("%.2e %s" %
                                    (self.str_fac,
+                                    line[pos:]))
+                elif line.find(r"\* cseed - seed number") >= 0:
+                    # This is the line, insert here
+                    pos = line.find(r"\* cseed - seed number")
+                    scat_out.write("%d   %s" %
+                                   (self.config.SEED,
+                                   line[pos:]))
+                elif line.find(r"\* infcorr_flag") >= 0:
+                    # This is the line, insert here
+                    pos = line.find(r"\* infcorr_flag")
+                    scat_out.write("%d    %s" %
+                                   (int(self.infcorr_flag),
                                     line[pos:]))
                 else:
                     scat_out.write(line)
@@ -352,6 +392,11 @@ class BBToolbox(object):
         parfile_fp.write("/* SRF FILE */\n")
         parfile_fp.write('"%s"\n' %
                          (os.path.join(a_indir, self.r_xyz_srffile)))
+        parfile_fp.write("/* CORRELATION FILE */\n")
+        parfile_fp.write("%s\n" %
+                         (os.path.basename(self.correlation_file)))
+        parfile_fp.write("/* RAKE */\n")
+        parfile_fp.write("%.2f\n" % (self.config.RAKE))
         parfile_fp.flush()
         parfile_fp.close()
 
@@ -467,6 +512,13 @@ class BBToolbox(object):
         for i in range(0, len(stat_names)):
             shutil.copy2("%s/BB.%s.hyb" % (a_tmpdir_mod, stat_names[i]),
                          "%s/%d.%s.bbp" % (a_tmpdir, sim_id, stat_names[i]))
+
+        if config.copy_lf_seismograms:
+            a_param_outdir = os.path.join(a_outdir, "param_files")
+            for i in range(0, len(stat_names)):
+                # Keep copy of lf seismogram files in outdata
+                shutil.copy2("%s/%s.%s-lf.bbp" % (a_tmpdir, sim_id, stat_names[i]),
+                             "%s/%s.%s-lf.bbp" % (a_param_outdir, sim_id, stat_names[i]))
 
         # Change to tmpdir so run.log file is put in tmpdir
         os.chdir(a_tmpdir)

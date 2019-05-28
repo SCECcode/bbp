@@ -1,10 +1,20 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 These are acceptance tests for the SONG RMG module
-$Id: test_rmg.py 1734 2016-09-13 17:38:17Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -17,8 +27,7 @@ import seqnum
 import bband_utils
 import cmp_bbp
 from install_cfg import InstallCfg
-from rmg_cfg import RMGCfg
-from rmg import RMG
+from song_rmg_single_seg import SongRMGSS
 
 class TestRMG(unittest.TestCase):
     """
@@ -27,7 +36,6 @@ class TestRMG(unittest.TestCase):
 
     def setUp(self):
         self.install = InstallCfg()
-        self.cfg = RMGCfg()
         os.chdir(self.install.A_COMP_DIR)
         self.sim_id = int(seqnum.get_seq_num())
         self.srcfile = "test_whittier_song.src"
@@ -55,7 +63,7 @@ class TestRMG(unittest.TestCase):
         a_ref_dir = os.path.join(self.install.A_TEST_REF_DIR, "song")
         a_res_dir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
 
-        rmg = RMG(None, self.srcfile, self.outsrf, None, sim_id=self.sim_id)
+        rmg = SongRMGSS(None, self.srcfile, self.outsrf, None, sim_id=self.sim_id)
         rmg.run()
         #
         # Test conversion from RMG to srf file

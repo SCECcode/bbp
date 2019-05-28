@@ -1,10 +1,18 @@
 #!/usr/bin/env python
-
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2014 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-$Id: report_bbp_data.py 1526 2015-03-31 22:17:19Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 
 # Import Python modules
@@ -26,19 +34,21 @@ DIST = [[0.0, 5.0],
         [70.0, 300.0]]
 
 # Mechanism dictionary
-MECH = [("REV", ["Niigata", "NR", "WHITTIER", "RDL1K",
-                 "Mineral", "Saguenay1k"]),
-        ("ROBL", ["NORTHPS", "LOMAP", "CHINOH"]),
-        ("SS", ["Tottori", "Landers", "ALUMR"]),
+MECH = [("REV", ["Niigata", "NR", "WHITTIER",
+                 "SanSimeon", "Iwate",
+                 "RDL1K", "Mineral", "Saguenay1k"]),
+        ("ROBL", ["NORTHPS", "LOMAP", "CHINOH", "Chuetsu"]),
+        ("SS", ["Tottori", "Landers", "ALUMR", "Parkfield"]),
         ("NM", [])]
 
 # Event list
-EVENTS = ["CHINOH", "ALUMR", "WHITTIER", "NORTHPS",
-          "Tottori", "Niigata", "NR", "LOMAP", "Landers",
+EVENTS = ["CHINOH", "ALUMR", "WHITTIER", "Parkfield",
+          "NORTHPS", "Tottori", "SanSimeon", "Niigata",
+          "Chuetsu", "NR", "Iwate", "LOMAP", "Landers",
           "RDL1K", "Mineral", "Saguenay1k"]
 
 EVENTS_CA = ["WHITTIER", "NORTHPS", "NR", "LOMAP", "Landers",
-             "CHINOH", "ALUMR"]
+             "CHINOH", "ALUMR", "SanSimeon", "Parkfield"]
 
 EVENTS_CENA = ["Mineral", "RDL1K", "Saguenay1k"]
 

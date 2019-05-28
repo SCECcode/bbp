@@ -80,15 +80,18 @@ SUBROUTINE log_init
 !
 ! Updated: October  2013 (v1.5.2)
 !   Add output decimation factor, time_step.
-!
+!   
 ! Updated: March 2014 (v1.5.4)
 !   time_step is set in scattering.dat.
 !
 ! Updated: July 2015 (v1.6.1)
 !   Change tmp_dt computation to use fixed lf_len.
 !
+! Updated: February 2019 (v2.0)
+!   Back to use the original tmp_dt computation, no use tmp_lf_len nor tmp_npts.
+
 use def_kind; use earthquake; use flags; use geometry; use matching
-use scattering; use source_receiver; use stf_data; use waveform
+use scattering; use source_receiver; use stf_data; use waveform   
 use tmp_para
    
 implicit none
@@ -99,16 +102,17 @@ character(len=8)      :: d
 character(len=10)     :: t
 ! flag
 integer(kind=i_single):: ierr
+
+! add for output decimation factor
+!integer(kind=i_single),parameter              :: time_step = 1
 ! decimated npts
-integer(kind=i_single)                          :: d_npts
+integer(kind=i_single)                        :: d_npts
 ! adjusted dt
-real(kind=r_single)                             :: tmp_dt
+real(kind=r_single)                           :: tmp_dt
 !--------------------------------------------------------------------
 
 d_npts=npts/time_step
-!tmp_dt = lf_len/(npts-1)*time_step
-if (npts == tmp_npts) tmp_dt = lf_len/(npts-1)*time_step
-if (npts .gt. tmp_npts) tmp_dt = tmp_lf_len/(tmp_npts-1)*time_step
+tmp_dt = lf_len/(v_npts-1)*time_step
 
 ! Formats
 80 format(a30,f0.3,T42,a30,f0.3)
@@ -206,12 +210,9 @@ write(5,*) '------------------------ TIME-SERIES PROPERTIES --------------------
 !write(5,81) 'Npts in time-series         : ',  npts
 !write(5,80) 'Time length                 : ',lf_len,'Time-step                   : ',lf_len/(npts-1) 
 write(5,81) 'Npts in time-series         : ',  d_npts
-write(5,80) 'Time length                 : ',d_npts*tmp_dt,'Time-step                   : ',tmp_dt
+write(5,80) 'Time length                 : ',d_npts*tmp_dt,'Time-step                   : ',tmp_dt 
 
 write(5,*)
-
-! check whether computed correct npts, dt and output length
-print*, 'output npts, dt, and time-length', d_npts,tmp_dt,d_npts*tmp_dt
 
 ! initialize stations section (continues on "write_log" subroutine)
 write(5,*) '------------------------- STATIONS PROPERTIES ----------------------------'
@@ -306,7 +307,8 @@ if (vel_flag == 1) then
  
    ! allocate arrays 
    if(.not.allocated(vp)) then
-      allocate(thk(n_lay),fre(n_lay),depth(n_lay),vp(n_lay),vs(n_lay),rh(n_lay))
+      allocate(thk(n_lay),fre(0:n_lay),depth(n_lay),vp(n_lay),vs(n_lay),rh(n_lay)) ! fix for fre
+      !allocate(thk(n_lay),fre(n_lay),depth(n_lay),vp(n_lay),vs(n_lay),rh(n_lay))
       allocate(Qp(n_lay),Qs(n_lay))
    endif
 
@@ -314,7 +316,7 @@ if (vel_flag == 1) then
    do i=1,n_lay
       read(1,*) depth(i),vp(i),vs(i),rh(i),Qp(i),Qs(i)
    enddo   
-   close(1) 
+   close(1)
 
 !compute layer thicknesses
    do i=2,n_lay
@@ -560,7 +562,7 @@ CONTAINS
    !
    ! Updated: December 2014 (v1.5.5.2)
    !   Clear to open file1d when verbose_flag = 'on'.
-   !  
+   !
 
    use interfaces, only: polint
 
@@ -581,18 +583,18 @@ CONTAINS
 
    ! open log-file for structure 
    !if (trim(verbose_flag) == 'on') open(4,file=file1d,status='unknown',iostat=ierr)
-   
+
    ! check-point for file opening
    !if (ierr /= 0) call error_handling(1,file1d,'vel1d (io.f90)')
-
-   ! open log-file for structure (v1552)
+   
+   ! open log-file for structure (v1552) 
    if (trim(verbose_flag) == 'on') then
       open(4,file=file1d,status='unknown',iostat=ierr)
-      
+
       ! check-point for file opening
       if (ierr /= 0) call error_handling(1,file1d,'vel1d (io.f90)')
    endif
-   
+
    ! loop over z-nodes   
    do i=1,nz
    
@@ -702,7 +704,8 @@ CONTAINS
    nrecvs=0
    
    print*,'reading media file'
-   open(177,file='vs3d',access='direct',recl=1)
+   !open(177,file='vs3d',access='direct',recl=1)
+   open(177,file='vs3d',access='direct',recl=4)
    print*,nx,ny,nz
    do k=1,nz
    vpmax=0.
@@ -812,6 +815,15 @@ SUBROUTINE read_inputfile(in_file)
 !   Target frequency and the bandwidth are removed from main input file.
 !   The targ_fr is computed as a function of Mw.
 !
+! Updated: December 2016 (v1.6.2)
+!   Target frequency is computed in source.f90 with Mw from srf file.
+!
+! Updated: February 2019 (v2.0)
+!   Add reading Kemp_*.bin file name for the correlation.
+!
+! Updated: March 2019 (v2.1)
+!   Add rake for alt computation in source.f90.
+!
 use def_kind; use earthquake; use flags; use geometry; use io_file
 use matching; use stf_data, only: stf_name,srf_name
 
@@ -885,15 +897,9 @@ read(1,*); read(1,*) stf_name                    !STF to be convolved with scatt
 read(1,*); read(1,*) verbose_flag                !flag for verbose output
 read(1,*); read(1,*) srf_name                    !SRF file name
 
-if (Mw > 5.25) then
-   targ_fr = 1.
-elseif (4.75 < Mw .and. Mw <= 5.25) then
-   targ_fr = 11.5-2*Mw
-else
-   targ_fr = 2.
-endif
-print*,'Mw, targ_fr, band_wid= ',Mw,targ_fr,band_wid
+read(1,*); read(1,*) k_file                      !correlation matrix file
 
+read(1,*); read(1,*) rake                        ! read rake for alt factor
 
 close(1)
 
@@ -967,14 +973,19 @@ SUBROUTINE read_seis(station,freq_flag)
 !
 ! Updated: February 2015 (v1.5.5.3)
 !    Make clear which parameters are used for each low frequency
-!    file format.
+!    file format.  
 !
 ! Updated: July 2015 (v1.6.1)
 !    Change character length from 4 to 10 for cp_x, cp_y and cp_z
 !
+! Updated: February 2019 (v2.0)
+!   Change to decide lf_length based of tmp_lf_len (102.3750 sec), and dt using v_npts
+!   only for 3SF and BIN cases for now,
+!   to keep the same dt even though from different/changed lf_length in an event.
+!
 use def_kind; use flags; use io_file
 use source_receiver, only: n_stat,stat_name,opt_stat_name
-use waveform; use tmp_para, only: tmp_lf_len
+use waveform; use tmp_para
 
 implicit none
 
@@ -987,7 +998,7 @@ character(len=4)                              :: loc_flag
 ! local filenames
 character(len=256)                            :: name,name_bin
 ! local time-series
-real(kind=r_single),allocatable,dimension(:,:):: timeseries, tmp_timeseries
+real(kind=r_single),allocatable,dimension(:,:):: timeseries,tmp_timeseries
 ! local time-series length (seconds)
 real(kind=r_single)                           :: ts_len
 ! local time-series number of points
@@ -999,6 +1010,7 @@ character(len=256)                            :: x_name,y_name,z_name,loc_dir,du
 integer(kind=i_single)                        :: k,j,remainder,read_nline
 integer(kind=i_single)                        :: pts_count,ierr,i,n,head_lines,wts_npts
 real(kind=r_single)                           :: dummy,ts_dt,cm2m,wts_len
+!real(kind=r_single),parameter                 :: tmp_lf_len=102.3750
 
 !----------------------------------------------------------------------
 
@@ -1031,10 +1043,10 @@ if (freq_flag == 'LF') then
          cp_x = lf_x; cp_y = lf_y; cp_z = lf_z
       endif
    endif
-else if (freq_flag == 'HF') then
+elseif (freq_flag == 'HF') then
    name = opt_stat_name(station)
    name_bin = hf_bin_file
-   loc_flag = hf_kind_flag  
+   loc_flag = hf_kind_flag
    cp_x = hf_x; cp_y = hf_y; cp_z = hf_z
    loc_dir = opt_dir
 endif
@@ -1152,13 +1164,13 @@ case('3SF')           !single ASCII files with 4 columns (time vector and 3 comp
    do j=1,head_lines
       read(1,*)
    enddo
-
+   
    ! find number of points of time-series
    pts_count=0    
    do
       read(1,*,iostat=ierr)
       if (ierr == -1) exit
-      pts_count=pts_count+1   
+      pts_count=pts_count+1
    enddo   
    rewind(1)
 
@@ -1181,25 +1193,29 @@ case('3SF')           !single ASCII files with 4 columns (time vector and 3 comp
       tmp_timeseries(j,3) = cm2m*tmp_timeseries(j,3)
       if (j == 2) ts_dt=dummy
    enddo
-   
+
    wts_len=(wts_npts-1)*ts_dt  !compute time-series length
 
    ! adjust ts_npts and ts_len
    print*,'wts_npts,ts_dt,wts_len',wts_npts,ts_dt,wts_len
+   n = ceiling(wts_len/tmp_lf_len)
    if (mod(wts_len, tmp_lf_len) == 0) then
       ts_npts=wts_npts
       ts_len=wts_len
    elseif (mod(wts_len, tmp_lf_len) .gt. 0) then
-      n = ceiling(wts_len/tmp_lf_len)
+      ! n = ceiling(wts_len/tmp_lf_len)
       ts_len=tmp_lf_len*n
-      ts_npts=nint(ts_len/ts_dt)+1
+      ts_npts=(tmp_lf_len*n/ts_dt) + 1
    endif
+
+   ! compute virtual npts for BBsynthetics used later on to keep the same dt
+   ! even LF length changes in an event
+   v_npts = (tmp_npts-1)*n+1
 
    allocate(timeseries(ts_npts,3))
    timeseries(:,:)=0
    timeseries(1:wts_npts,:)=tmp_timeseries(1:wts_npts,:)
 
-   print*,'new ts_npts, new_ts_len',ts_npts,ts_len
    deallocate(tmp_timeseries)
 
    close(1)   !close file
@@ -1210,47 +1226,51 @@ case('BIN')              !BINARY file format
    x_name=trim(loc_dir)//trim(name_bin)
    
    ! open binary file
-   open(1,file=x_name,status='old',access='direct',form='unformatted',recl=3)
+   !open(1,file=x_name,status='old',access='direct',form='unformatted',recl=3)
+   open(1,file=x_name,status='old',access='direct',form='unformatted',recl=12)
    
    ! first line is reserved to: number of points, time-step, dummy
    ! Note: these quantities are assumed to be the same for all the stations
-   !read(1,rec=1) ts_npts, ts_dt, dummy
+   ! read(1,rec=1) ts_npts, ts_dt, dummy
    read(1,rec=1) wts_npts, ts_dt, dummy
    
    ! allocate array for LF waveforms
-   !allocate(timeseries(ts_npts,3))
+   ! allocate(timeseries(ts_npts,3))
    allocate(tmp_timeseries(wts_npts,3))
    
-   !ts_len=(ts_npts-1)*ts_dt  !compute time-series length
+   ! ts_len=(ts_npts-1)*ts_dt  !compute time-series length
    wts_len=(wts_npts-1)*ts_dt  !compute time-series length
    
    ! reading file... (3 components at the same record line -- each record line is a time-step)
-   !do k=2,ts_npts+1  
-   !   read(1,rec= (station-1) * ts_npts + k) timeseries(k-1,1),timeseries(k-1,2),timeseries(k-1,3)
-   !enddo
-   do k=2,wts_npts+1  
+   ! do k=2,ts_npts+1  
+   !    read(1,rec= (station-1) * ts_npts + k) timeseries(k-1,1),timeseries(k-1,2),timeseries(k-1,3)
+   ! enddo
+   do k=2,wts_npts+1
       read(1,rec= (station-1) * wts_npts + k) tmp_timeseries(k-1,1), &
-           tmp_timeseries(k-1,2),tmp_timeseries(k-1,3)
+                                tmp_timeseries(k-1,2),tmp_timeseries(k-1,3)
    enddo
 
    ! adjust ts_npts and ts_len
-   print*,'wts_npts,ts_dt,wts_len',wts_npts,ts_dt,wts_len
+   print*,'wts_npts,ts_dt,wts_len in Bin file',wts_npts,ts_dt,wts_len
+   n = ceiling(wts_len/tmp_lf_len)
    if (mod(wts_len, tmp_lf_len) == 0) then
       ts_npts=wts_npts
       ts_len=wts_len
    elseif (mod(wts_len, tmp_lf_len) .gt. 0) then
-      n = ceiling(wts_len/tmp_lf_len)
+      ! n = ceiling(wts_len/tmp_lf_len)
       ts_len=tmp_lf_len*n
-      ts_npts=nint(ts_len/ts_dt)+1
+      ts_npts=(tmp_lf_len*n/ts_dt) + 1
    endif
+
+   ! compute virtual npts for BBsynthetics used later on
+   v_npts = (tmp_npts-1)*n+1
 
    allocate(timeseries(ts_npts,3))
    timeseries(:,:)=0
    timeseries(1:wts_npts,:)=tmp_timeseries(1:wts_npts,:)
 
-   print*,'new ts_npts, new_ts_len',ts_npts,ts_len
    deallocate(tmp_timeseries)
-
+   
    close(1)  !close file
 
 end select
@@ -1259,9 +1279,14 @@ end select
 if (freq_flag == 'LF') then
    lf_len = ts_len
    lf_npts = ts_npts
-   print*,'lf_len,lf_npts',lf_len,lf_npts
+   lf_dt = ts_dt
+
+   print*,'lf_len,lf_npts,lf_dt,v_npts',lf_len,lf_npts,lf_dt,v_npts
+
    if (.not.allocated(lf_seis)) allocate (lf_seis(lf_npts,3))
+
    lf_seis(:,:) = timeseries
+
 else if (freq_flag == 'HF') then
    !hf_len = ts_len
    !hf_npts = ts_npts
@@ -1313,9 +1338,13 @@ SUBROUTINE write_disk(station,type_flag,in_arr)
 !    The d_npts is used for case('BIN').
 !    Use d_npts and tmp_dt for the header line in ocd and ccd output files.
 !
+! Updated: February 2019 (v2.0)
+!   Add to use v_npts for dt computation.
+
+!
 use def_kind; use flags; use io_file, only: output_dir
 use scattering, only: npts,time_step; use source_receiver, only: stat_name
-use stf_data, only: npts_stf,total; use waveform, only: lf_len,lf_npts
+use stf_data, only: npts_stf,total; use waveform, only: lf_len,lf_npts,v_npts
 use tmp_para
 
 implicit none
@@ -1334,10 +1363,17 @@ character(len=256)                           :: out_name
 real(kind=r_single)                          :: dt,time,m2cm
 ! counter
 integer(kind=i_single)                       :: i,scratch
+
+! add
+!real(kind=r_single),parameter                 :: tmp_lf_len = 102.3750
+!integer(kind=i_single),parameter              :: tmp_npts = 32768
+
+! add for output decimation factor
+!integer(kind=i_single),parameter              :: time_step = 1
 ! decimated npts for output
-integer(kind=i_single)                        :: d_npts
+integer(kind=i_single)                       :: d_npts
 ! adjusted dt for output, by d_npts
-real(kind=r_single)                           :: tmp_dt
+real(kind=r_single)                          :: tmp_dt
 !-------------------------------------------------------------------
 
 ! select kind of output
@@ -1361,13 +1397,11 @@ select case(type_flag)
 case('stf')
    dt = total/(npts_stf-1)     
 case default
-
-   dt = lf_len/(npts-1)
-   if (npts .gt. tmp_npts) dt = tmp_lf_len/(tmp_npts-1)
-
+   !dt = lf_len/(npts-1)
+   dt = lf_len/(v_npts-1)
+   print*,'lf_len,npts,dt in write_dist=',lf_len,npts,dt
    d_npts=npts/time_step
    tmp_dt = dt*time_step
-
 end select
 
 ! binary output (only for broad-band)
@@ -1376,17 +1410,16 @@ if (suffix == '.bin') then
    out_name=trim(output_dir)//'/BBhyb.bin'
    
    inquire(iolength=scratch) in_arr(1,1),in_arr(1,2),in_arr(1,3)
-   
    if(station == 1) then
       open(1,file=out_name,status='unknown',access='direct',form='unformatted',recl=scratch)
       !write(1,rec=1) npts,dt,1.0
       write(1,rec=1) d_npts,tmp_dt,1.0
    else
       open(1,file=out_name,status='old',access='direct',form='unformatted',recl=scratch)
-   endif    
-
+   endif      
+  
    print*,'npts & d_npts in write_disk in .bin file',npts,d_npts
-   
+ 
    !do i=2,npts+1
    do i=2,d_npts+1
       !write(1,rec=(station-1)*npts +i) in_arr(i-1,1),in_arr(i-1,2),in_arr(i-1,3)
@@ -1394,23 +1427,23 @@ if (suffix == '.bin') then
    enddo
    
 ! ASCII output   
-else   
+else
    out_name=trim(output_dir)//'/BB.'//trim(stat_name(station))//suffix
    
    open(1,file=trim(out_name),form='formatted',status='unknown')
  
    ! write HEADERS (8 lines)
-   write(1,102) '% --------------------------------------------------'
+   write(1,102) '% -----------------------------------------------'
 
    select case(type_flag)
    case('hyb')
-      write(1,102) '% synthetic broadband seismogram (Mai&Olsen 2008)   '
+      write(1,102) '% synthetic broadband seismogram (Mai&Olsen 2008) '
    case('ccd')
-      write(1,102) '% scatterogram after convolution (Mai&Olsen 2008)   '
+      write(1,102) '% scatterogram after convolution (Mai&Olsen 2008) '
    case('ocd')
-      write(1,102) '% scatterogram before convolution (Mai&Olsen 2008)  '
+      write(1,102) '% scatterogram before convolution (Mai&Olsen 2008)'
    case('stf')
-      write(1,102) '% source-time function (Mai&Olsen 2008)             '
+      write(1,102) '% source-time function (Mai&Olsen 2008)           '
    end select   
 
    write(1,103) '% N = 8 header lines'
@@ -1423,28 +1456,30 @@ else
       write(1,101) '% NPTS, DT: ',npts_stf,dt
    case('ocd')
       write(1,101) '% NPTS, DT: ',npts,dt
+      !!!write(1,101) '% NPTS, DT: ',d_npts,tmp_dt
    case('ccd')
       write(1,101) '% NPTS, DT: ',npts,dt
+      !!!write(1,101) '% NPTS, DT: ',d_npts,tmp_dt
    end select
 
    write(1,104) '%'
    select case(type_flag)
    case default
       !write(1,102) '% time(s)      NS (m/s)      EW(m/s)     UP (m/s)'
-      write(1,102) '% time(s)    NS (cm/s)      EW(cm/s)       UP (cm/s)'
+      write(1,102) '% time(s)      NS (cm/s)      EW(cm/s)     UP (cm/s)'
    case('stf')
       write(1,105) '% time(s)     Slip-rate(m/s)'
    end select
-   write(1,102) '% --------------------------------------------------'
+   write(1,102) '% -----------------------------------------------'
    m2cm = 100.0
+           
    ! write all the time-series into a single file
    select case(type_flag)
    case default
-      ! do i=1,npts
-      !    time = (i-1)*dt
-      !    !write(1,200) time,in_arr(i,1),in_arr(i,2),in_arr(i,3)
-      !    write(1,200) time,m2cm*in_arr(i,1),m2cm*in_arr(i,2),m2cm*in_arr(i,3)
-      ! enddo
+     ! do i=1,npts
+     !    time = (i-1)*dt
+     !    write(1,200) time,in_arr(i,1),in_arr(i,2),in_arr(i,3)
+     ! enddo
       do i=1,d_npts
          time = (i-1)*tmp_dt
          write(1,200) time,m2cm*in_arr(i,1),m2cm*in_arr(i,2),m2cm*in_arr(i,3)
@@ -1460,7 +1495,7 @@ endif
 ! Formats
 100   format(A8,A11)
 101   format(A12,I6,F15.12)
-102   format(A52)
+102   format(A50)
 103   format(A20)
 104   format(A1)
 105   format(A28)
@@ -1493,7 +1528,9 @@ SUBROUTINE write_log(station)
 !
 ! Modified: January 2009 (v1.3)
 !
-
+! Updated: December 2016 (v1.6.2)
+!   Change output aveVs to loc_aveVs(station) in run.log
+!
 use def_kind; use flags; use geometry; use matching; use scattering
 use source_receiver
 
@@ -1518,8 +1555,10 @@ write(5,82) 'Matching frequencies [P N V]: ',match_fr(1,station),match_fr(2,stat
 if (modality_flag /= 0) then
    write(5,80) 'Site density                : ',siteR(station), 'Site S-wave speed           : ',&
                                                 siteVs(station)
-   write(5,80) 'Average S-wave speed        : ', aveVs, 'Hypocenter distance         : ',        &
+   write(5,80) 'Average S-wave speed        : ',loc_aveVs(station), 'Hypocenter distance         : ', &
                                                  sr_hypo(station)
+   !write(5,80) 'Average S-wave speed        : ', aveVs, 'Hypocenter distance         : ',        &
+   !                                              sr_hypo(station)
 endif
 
 write(5,80) 'P-wave traveltime           : ',time_p(station), 'S-wave traveltime           : ',  &
@@ -1536,4 +1575,38 @@ END SUBROUTINE write_log
 
 !===================================================================================================
 
+SUBROUTINE read_KL
+!-----------------------------------------------------------------------
+!
+! Description:
+!
+!   Read empirical correlation matrx
+!
+! Author: N. Wang
+!
+! Modified: February 2019 (v2.0)
+!
+use read_Kemp
+use io_file, only: k_file
 
+implicit none
+! indexes
+integer(kind=i_single)                      :: i,j,k,ierr
+
+!! Read input Kemp, Cholesky factor of inter-frequency correlation matrix, lower triangular matrix
+!print*,'nk,nks in io.f90,before',nk,nks
+open(unit=3331,file=trim(k_file),access='direct',form='unformatted', recl=4,status='old')
+read(3331,rec=1,iostat=ierr) nk
+read(3331,rec=2,iostat=ierr) nks
+!print*,'nk,nks in io.f90',nk,nks
+if (.not.allocated(Kemp)) allocate(Kemp(nk,nk))
+k = 2
+do j = 1,nk
+   do i = 1,nk
+      k = k+1
+      read(3331,rec=k,iostat=ierr) Kemp(i,j)
+   enddo
+enddo
+close(unit=3331)
+
+END SUBROUTINE read_KL

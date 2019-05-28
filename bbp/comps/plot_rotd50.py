@@ -1,10 +1,20 @@
 #!/usr/bin/python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 This module contains functions to plot rotD50 output files
-$Id: plot_rotd50.py 1781 2017-01-23 17:08:18Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -105,56 +115,63 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
     else:
         pylab.suptitle('PSA for station %s' % (stat), size=14)
 
-    pylab.subplots_adjust(top=0.8)
+    pylab.subplots_adjust(top=0.85)
     pylab.subplots_adjust(bottom=0.15)
     pylab.subplots_adjust(left=0.075)
-    pylab.subplots_adjust(right=0.925)
+    pylab.subplots_adjust(right=0.975)
     pylab.subplots_adjust(hspace=0.3)
     pylab.subplots_adjust(wspace=0.3)
+
     # First plot
-    pylab.subplot(131, title='%s, N/S' % label1)
+    ax1 = pylab.subplot(131)
     pylab.plot(periods1, pseudo_aa_ns1, label=str(label1))
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_horiz_y, max_horiz_y)
     pylab.ylabel("PSA (g)")
+    ax1.set_title('%s, N/S' % (label1), fontsize='small')
     if rotd50_file2 != "-":
         pylab.plot(periods2, pseudo_aa_ns2, label=str(label2))
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,
-                     color='violet', linestyles='solid')
+                     color='violet', linestyles='--')
     if pmax is not None:
         pylab.vlines(pmax, min_horiz_y, max_horiz_y, color='r', linestyles='--')
-    #pylab.ylabel("Pseudo AA (cm/s/s)")
     pylab.legend(prop=mpl.font_manager.FontProperties(size=8))
+
     # Second plot
-    pylab.subplot(132, title='%s, E/W' % label1)
+    ax2 = pylab.subplot(132)
     pylab.plot(periods1, pseudo_aa_ew1, label=str(label1))
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_horiz_y, max_horiz_y)
+    pylab.ylabel("PSA (g)")
+    ax2.set_title('%s, E/W' % (label1), fontsize='small')
     if rotd50_file2 != "-":
         pylab.plot(periods2, pseudo_aa_ew2, label=str(label2))
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,
-                     color='violet', linestyles='solid')
+                     color='violet', linestyles='--')
     if pmax is not None:
         pylab.vlines(pmax, min_horiz_y, max_horiz_y, color='r', linestyles='--')
     pylab.legend(prop=mpl.font_manager.FontProperties(size=8))
+
     # Third plot
-    pylab.subplot(133, title='%s, rotd50' % label1)
+    ax3 = pylab.subplot(133)
     pylab.plot(periods1, rd50_aa1, label=str(label1))
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_vert_y, max_vert_y)
+    pylab.ylabel("PSA (g)")
+    ax3.set_title('%s, RotD50' % (label1), fontsize='small')
     if rotd50_file2 != "-":
         pylab.plot(periods2, rd50_aa2, label=str(label2))
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,
-                     color='violet', linestyles='solid')
+                     color='violet', linestyles='--')
     if pmax is not None:
         pylab.vlines(pmax, min_horiz_y, max_horiz_y, color='r', linestyles='--')
     pylab.legend(prop=mpl.font_manager.FontProperties(size=8))

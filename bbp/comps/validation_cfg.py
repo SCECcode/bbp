@@ -1,11 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 This module defines validation events and their associated input files
-(for each stage)
-$Id: validation_cfg.py 1728 2016-09-01 20:06:43Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -27,7 +36,6 @@ PACKAGE_VERSION_PROP = "package_version"
 EVENT_TYPE_PROP = "event_type"
 EVENT_NAME_PROP = "event_name"
 EVENT_PRINTNAME_PROP = "event_printname"
-EVENT_MAGNITUDE_PROP = "event_magnitude"
 EVENT_CUTOFF_PROP = "event_cutoff"
 EVENT_OBS_PATH_PROP = "event_obs_path"
 EVENT_OBS_FORMAT_PROP = "event_obs_format"
@@ -194,18 +202,6 @@ class ValidationEvent(object):
         """
         return self.vmodel_name
 
-    def set_magnitude(self, mag):
-        """
-        This function sets an event magnitude
-        """
-        self.mag = mag
-
-    def get_magnitude(self):
-        """
-        Returns the magnitude for this event
-        """
-        return self.mag
-
     def set_obs_format(self, obs_format):
         """
         This function sets the format of the observation files
@@ -305,10 +301,10 @@ def init_validation_events(install_obj):
 
         # Check for the required event properties
         req_props = [EVENT_NAME_PROP, EVENT_PRINTNAME_PROP,
-                     EVENT_MAGNITUDE_PROP, EVENT_CUTOFF_PROP,
-                     EVENT_OBS_PATH_PROP, EVENT_OBS_FORMAT_PROP,
-                     EVENT_OBS_CORR_PROP, EVENT_VELOCITY_MODEL_PROP,
-                     PACKAGE_VERSION_PROP, EVENT_GMPE_SET_PROP]
+                     EVENT_CUTOFF_PROP, EVENT_OBS_PATH_PROP,
+                     EVENT_OBS_FORMAT_PROP, EVENT_OBS_CORR_PROP,
+                     EVENT_VELOCITY_MODEL_PROP, PACKAGE_VERSION_PROP,
+                     EVENT_GMPE_SET_PROP]
         all_properties = True
         for prop in req_props:
             if prop not in file_props:
@@ -331,7 +327,6 @@ def init_validation_events(install_obj):
                                     file_props[PACKAGE_VERSION_PROP])
         # Set basic event parameters
         val_event.set_cutoff(int(file_props[EVENT_CUTOFF_PROP]))
-        val_event.set_magnitude(float(file_props[EVENT_MAGNITUDE_PROP]))
         val_event.set_obs_path(file_props[EVENT_OBS_PATH_PROP])
         val_event.set_obs_format(file_props[EVENT_OBS_FORMAT_PROP])
         val_event.set_obs_corrections(file_props[EVENT_OBS_CORR_PROP])

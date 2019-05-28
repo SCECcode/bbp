@@ -1,11 +1,21 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Broadband Platform Version of Rob Graves jbsim script
 Outputs acceleration (cm/s/s)
-$Id: wcc_siteamp.py 1768 2016-10-10 16:23:49Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -25,20 +35,19 @@ class WccSiteamp(object):
     Implement Rob Graves siteamp.csh as a python component
     """
 
-    def __init__(self, i_r_stations, method, sim_id=0, stations_3d=None):
+    def __init__(self, i_r_stations, method, i_vmodel_name, sim_id=0):
         """
         Initialize WccSiteamp parameters
         """
         self.sim_id = sim_id
         self.r_stations = i_r_stations
         self.method = method
-        self.stat_3d = stations_3d
+        self.vmodel_name = i_vmodel_name
         self.config = None
         self.install = None
         self.log = None
 
-    def process_separate_seismograms(self, site, sta_base, vs30,
-                                     a_indir, a_tmpdir):
+    def process_separate_seismograms(self, site, sta_base, vs30, a_tmpdir):
         """
         Runs the site response module for separate low and high
         frequency seismograms
@@ -46,11 +55,6 @@ class WccSiteamp(object):
         sim_id = self.sim_id
         config = self.config
         install = self.install
-
-        flowcap = config.FLOWCAP
-
-        if self.stat_3d is not None:
-            flowcap = 1.0
 
         # Run HF and LF components
         for freq in ['hf', 'lf']:
@@ -118,18 +122,10 @@ class WccSiteamp(object):
                 data = pga_file.readlines()
                 pga_file.close()
                 pga = float(data[0].split()[1]) / 981.0
-                vref = config.GEN_ROCK_VS
-
-                if freq == 'lf' and self.stat_3d is not None:
-                    vref = config.VREF_MAX
-                    input_file = open(os.path.join(a_indir,
-                                                   self.stat_3d), 'r')
-                    stat_3d_data = input_file.readlines()
-                    input_file.close()
-                    for line in stat_3d_data:
-                        if line.split()[2] == site:
-                            vref = min([vref, float(line.split()[3])])
-                            break
+                if freq == 'lf':
+                    vref = config.LF_VREF
+                else:
+                    vref = config.HF_VREF
 
                 # Create path names and check if their sizes
                 # are within bounds
@@ -143,11 +139,7 @@ class WccSiteamp(object):
                                                bband_utils.GP_MAX_FILENAME)
 
                 # Pick the right model to use
-                if freq == 'lf' and self.stat_3d is not None:
-                    # Only use this for LF 3D seismograms
-                    site_amp_model = config.SITEAMP_MODEL3D
-                else:
-                    site_amp_model = config.SITEAMP_MODEL
+                site_amp_model = config.SITEAMP_MODEL
 
                 # Now, run site amplification
                 progstring = ("%s pga=%f vref=%d " %
@@ -155,9 +147,11 @@ class WccSiteamp(object):
                                             "wcc_siteamp14"), pga, vref) +
                               'vsite=%d model="%s" vpga=%d ' %
                               (vs30, site_amp_model,
-                               config.GEN_ROCK_VS) +
+                               config.HF_VREF) +
                               'flowcap=%f infile=%s outfile=%s ' %
-                              (flowcap, filein, fileout) +
+                              (config.FLOWCAP, filein, fileout) +
+                              'fmax=%f fhightop=%f ' %
+                              (config.FMAX, config.FHIGHTOP) +
                               "fmidbot=%s fmin=%s >> %s 2>&1" %
                               (config.FMIDBOT, config.FMIN, self.log))
                 bband_utils.runprog(progstring, abort_on_error=True)
@@ -250,6 +244,10 @@ class WccSiteamp(object):
         # 4) filter LF
         # 5) recombine HF and LF
 
+        # Figure out vref to use in hybrid scenarios
+        vref = config.LF_VREF
+        vpga = config.HF_VREF
+
         # Figure out where the input seismogram is located
         if self.method == "SDSU" or self.method == "UCSB":
             bbpfile = os.path.join(a_tmpdir,
@@ -331,12 +329,14 @@ class WccSiteamp(object):
             progstring = ("%s pga=%f vref=%d vsite=%d " %
                           (os.path.join(install.A_GP_BIN_DIR,
                                         "wcc_siteamp14"),
-                           pga, config.GEN_ROCK_VS, vs30) +
+                           pga, vref, vs30) +
                           'model="%s" vpga=%d flowcap=%f ' %
                           (site_amp_model,
-                           config.GEN_ROCK_VS, config.FLOWCAP) +
+                           vpga, config.FLOWCAP) +
                           'infile=%s outfile=%s ' %
                           (filein, fileout) +
+                          'fmax=%f fhightop=%f ' %
+                          (config.FMAX, config.FHIGHTOP) +
                           "fmidbot=%s fmin=%s >> %s 2>&1" %
                           (config.FMIDBOT, config.FMIN, self.log))
             bband_utils.runprog(progstring, abort_on_error=True)
@@ -411,7 +411,7 @@ class WccSiteamp(object):
 
         self.install = InstallCfg.getInstance()
         install = self.install
-        self.config = WccSiteampCfg()
+        self.config = WccSiteampCfg(self.vmodel_name, self.method)
         config = self.config
 
         sim_id = self.sim_id
@@ -426,7 +426,6 @@ class WccSiteamp(object):
 
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
-        a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
 
         progstring = "mkdir -p %s" % (a_tmpdir)
         bband_utils.runprog(progstring, abort_on_error=True, print_cmd=False)
@@ -446,8 +445,8 @@ class WccSiteamp(object):
             print("*** WccSiteamp Processing station %s..." % (site))
 
             if self.method == "GP":
-                self.process_separate_seismograms(site, sta_base, vs30,
-                                                  a_indir, a_tmpdir)
+                self.process_separate_seismograms(site, sta_base,
+                                                  vs30, a_tmpdir)
             elif self.method == "SDSU" or self.method == "EXSIM" or self.method == "UCSB":
                 self.process_hybrid_seismogram(site, sta_base, vs30,
                                                a_tmpdir, a_outdir)
@@ -456,5 +455,6 @@ class WccSiteamp(object):
 
 if __name__ == "__main__":
     print("Testing Module: %s" % (os.path.basename((sys.argv[0]))))
-    ME = WccSiteamp(sys.argv[1], sys.argv[2], sim_id=int(sys.argv[3]))
+    ME = WccSiteamp(sys.argv[1], sys.argv[2],
+                    sys.argv[3], sim_id=int(sys.argv[4]))
     ME.run()

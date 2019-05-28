@@ -1,12 +1,24 @@
 #!/usr/bin/env python
 """
-Python version of Ronnie Kamai's Matlab scripts to generate a combined
+Copyright 2010-2017 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Python version of Ronnie Kamai Matlab scripts to generate a combined
 bias plot. It compiles information from the rd50-resid.txt files from
 all realizations, writes a single temporary file with all the data and
 uses the same resid2uncer_varN program used in single bias plots to
 generate data for the combined plot.
-
-$Id: combine_biasplot_gen.py 1197 2013-07-25 21:28:05Z fsilva $
 """
 
 # Import Python modules
@@ -50,7 +62,7 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
         bband_utils.check_path_lengths([combined_resid_file, fileroot],
                                        bband_utils.GP_MAX_FILENAME)
 
-        cmd = ("%s/resid2uncer_varN " % (gp_bin_dir) + 
+        cmd = ("%s/resid2uncer_varN " % (gp_bin_dir) +
                "residfile=%s fileroot=%s " % (combined_resid_file, fileroot) +
                "comp=%s nstat=%d nper=63 " % (comp, num_stations) +
                " >> %s 2>&1" % (logfile))
@@ -76,7 +88,7 @@ def create_resid_data_file(input_dir, combined_file):
 
     # Open output file, write header
     outfile = open(combined_file, 'w')
-    
+
     realizations = sorted(os.listdir(input_dir))
     for realization in realizations:
         basedir = os.path.join(input_dir, realization)

@@ -54,9 +54,18 @@ SUBROUTINE set_stf(station)
 ! Updated: September 2014 (v1.5.5.1)
 !   Change SUBROUTINE set_stf to SUBROUTINE set_stf(station)
 !
+! Updated: December 2016 (v1.6.2)
+!   Change call srf_read for only station = 1.
+!
+! Updated: February 2019 (v2.0)
+!   Change call srf_read only if (station = 1) and (ext_flag = 1).
+!   Add targ_fr, alt, tinit for point source (ext_flag = 0) without reading SRF.  
+!
 use constants; use def_kind; use earthquake; use flags
 use stf_data; use scattering, only: npts,fmax
-use waveform; use fault_area; use tmp_para
+use waveform; use fault_area;
+use matching, only: targ_fr
+use vel_model, only: alt,tinit
 
 implicit none
 
@@ -73,7 +82,20 @@ real(kind=r_single),allocatable,dimension(:):: stf_dreg_t,stf_liu_t
 ! rupture area, seismic moment and rise-time (for internal subroutines)
 real(kind=r_single)                         :: Mo,Tr
 
+! add
+!real(kind=r_single),parameter               :: tmp_lf_len = 102.3750
+!integer(kind=i_single),parameter            :: tmp_npts =  32768 
 !----------------------------------------------------------------------------
+
+! set targ_fr, alt and tinit for point source scenario
+if (ext_flag == 0) then
+   targ_fr = 2
+   alt = 1
+   tinit = 0
+endif
+
+! read srf file
+if (station == 1 .and. ext_flag == 1) call srf_read
 
 ! returns Ar (rupture Area [km^2]) from Mw and mechanism
 call CalcAfrM
@@ -97,7 +119,6 @@ D=Mo/(mu*Ar*(10**6))
 ! Amp [m/sec] (i.e. velocity)
 Amp=D/Tr
 
-
 ! now create the moment-rate function; for simplicity we fix it here to be 15 sec. long
 
 ! total length of source time function (total) = 15 sec (may change for user-defined stf)
@@ -106,16 +127,15 @@ total = 15.0
 ton = 0.0
 
 ! time-step for STF, assuming maximum frequency for coda waves as Nyquist frequency
-if (npts == tmp_npts) dt = lf_len/(npts-1)
-if (npts .gt. tmp_npts) dt = tmp_lf_len/(tmp_npts-1)   
 !dt = 1 / (2 * fmax)   !it's the same as for coda waves time-series
+dt = lf_len/(v_npts-1)
 
 ! number of points of the stf. 
 ! NOTE: it can be changed if user-defined stf is selected
 npts_stf = nint(total/dt) + 1     ! +1 is due to include 0
 
 ! read srf file
-call srf_read
+!call srf_read ! move to the top, v162
 
 ! allocate arrays for stf amplitudes and its time vector 
 if(.not.allocated(t_stf)) allocate(t_stf(npts_stf))
@@ -726,7 +746,10 @@ use fault_area
    ! Updated: June 2015 (v1.6)
    !   Merge NGA-west1 and NGA-west2 (v1.5.5.3 and v1.5.5.4).
    !   Move alt computation into srf_read subroutine.
-   !  
+   !
+   ! Updated: February 2019 (v2.0)
+   !   Add tapering length check if shorter than npts_stf.
+   !
    use vel_model, only: dip, alt
    use source_receiver, only: sr_rrup
    use flags, only: gs_flag, ngaw_flag
@@ -844,20 +867,22 @@ use fault_area
    taper_sec = nint(Tr/dt)
    taper_len = nint(1/dt)
 
-   ! compute taper
-   if (.not.allocated(taper)) allocate(taper(taper_len))
-   do i=1,taper_len
-      taper(i) = 0.5 * (1 + (cos(pi*i/taper_len)) )
-   enddo
+   if (taper_sec+taper_len+1 < npts_stf) then ! tapering length check
+      ! compute taper
+      if (.not.allocated(taper)) allocate(taper(taper_len))
+      do i=1,taper_len
+         taper(i) = 0.5 * (1 + (cos(pi*i/taper_len)) )
+      enddo
 
-   ! apply tapering from Tr to Tr+1sec
-   stf(taper_sec+1 : taper_sec+taper_len)=                                &
-        stf(taper_sec+1 : taper_sec+taper_len) * taper
+      ! apply tapering from Tr to Tr+1sec
+      stf(taper_sec+1 : taper_sec+taper_len)=                                &
+          stf(taper_sec+1 : taper_sec+taper_len) * taper
 
-   ! zeroing later part
-   stf(taper_sec+taper_len+1:npts_stf) = 0
+      ! zeroing later part
+      stf(taper_sec+taper_len+1:npts_stf) = 0
 
-   if (allocated(taper)) deallocate(taper)
+      if (allocated(taper)) deallocate(taper)
+   endif
 
    END SUBROUTINE stf_new
 
@@ -1104,10 +1129,24 @@ SUBROUTINE srf_read
 !    Move alt computation from source.f90 and composition.f90
 !    into this subroutine.
 !
+! Updated: December 2016 (v1.6.2)
+!    Add to obtain minimum initiation time in srf file.
+!    Set Mw from srf file.
+!
+! Updated: February 2019 (v2.0)
+!    dtop becomes a global-parameter in module_bbtoolbox.f90
+!    Avoid negative depth in fz.
+!
+! Updated: March 2019 (v2.1)
+!    Change alt computation for NGA-W2 then WNA events/scenarios,
+!    accepting Graves and Pitarka (2015) in equations 3-5.
+!
 use stf_data
 use geometry, only: n_lay; use vel_model
 use scattering, only: str_fac
 use flags, only: gs_flag, ngaw_flag
+use earthquake
+use matching, only: targ_fr
 
 implicit none
 
@@ -1118,9 +1157,10 @@ character(len=80)                              :: s_dum
 real(kind=r_single),allocatable,dimension(:)   :: dt,sv,tony
 real(kind=r_single)                            :: ave_slip,mw_test
 real(kind=r_single)                            :: arcu
-real(kind=r_single)                            :: dtop
+!real(kind=r_single)                            :: dtop
 real(kind=r_single),allocatable,dimension(:)   :: slip1
 real(kind=r_single),allocatable,dimension(:)   :: slip1cu,mu_tmp,mo_tmp
+real(kind=r_single)                            :: Ca,Fd,Fr ! from Graves and Pitarka 2015 (eqn. 3-5) 
 !-------------------------------------------------------------------------------
 
 !open file with srf and read values
@@ -1140,8 +1180,8 @@ if (str_fac == 0.0) then
 endif
 if (str_fac < 10**6) then
    print*,'check str_fac should be in bars'
-else
-   print*,'str_fac = ',str_fac
+!else
+!   print*,'str_fac = ',str_fac
 endif
 
 !compute alt
@@ -1154,7 +1194,41 @@ if (ngaw_flag == 1 .or. gs_flag == 2) then
       alt=1.
    endif
 elseif (ngaw_flag == 2) then
-   if (gs_flag == 1 .or. gs_flag == 3) then
+   !! original alt computation for both WNA and Japan
+   !if (gs_flag == 1 .or. gs_flag == 3) then
+   !   if (dip <= 45.) then
+   !      alt=0.785
+   !   elseif (dip > 45. .and. dip < 70.) then
+   !      alt=0.0086*dip+0.3980
+   !   elseif (dip >= 70.) then
+   !      alt=1.
+   !   endif
+   !endif
+
+   ! new alt (alt2015) for only WNA events
+   if (gs_flag == 1) then
+      Ca=0.1
+
+      ! with the dip (Fd) factor
+      if (dip <= 45.0) then
+         Fd=1
+      elseif (dip > 45.0 .and. dip <= 90.0) then
+         Fd=1-(dip-45.0)/45.0
+      endif
+
+      ! with the rake (Fr) factor
+      if (rake >= 0.0 .and. rake <= 180.0) then
+         Fr=1-abs(rake-90.0)/90.0
+      else
+         Fr=0
+      endif
+
+      ! alt
+      alt=(1+Fd*Fr*Ca)**(-1)
+      
+   ! Japan uses original alt computation
+   elseif (gs_flag == 3) then
+   !if (gs_flag == 1 .or. gs_flag == 3) then
       if (dip <= 45.) then
          alt=0.785
       elseif (dip > 45. .and. dip < 70.) then
@@ -1164,6 +1238,10 @@ elseif (ngaw_flag == 2) then
       endif
    endif
 endif
+print*,'Ca,Fd,Fr,alt for WNA=',Ca,Fd,Fr,alt
+
+! initiation time would be 0 for 1 segment for multi-segments
+tinit=0
 
 if(.not.allocated(dt)) then
    allocate(dt(nsub),tony(nsub),slip1(nsub))
@@ -1174,6 +1252,9 @@ if(.not.allocated(fx)) allocate(fx(nsub),fy(nsub),fz(nsub),areas(nsub))
 do i = 1, nsub
    read(1,*) fx(i),fy(i),fz(i),i_dum,i_dum,areas(i),tony(i),dt(i)
    read(1,*) i_dum,slip1(i),nt_loc,r_dum,i_dum,r_dum,i_dum
+
+   ! avoid negative number of depth
+   if(fz(i) < 0.0) fz(i)=0.0
 
    if(.not.allocated(sv)) allocate(sv(nt_loc))
 
@@ -1187,6 +1268,8 @@ enddo
 
 sum_area=sum(areas)
 ave_slip=sum(slip1)/nsub
+tinit=minval(tony) ! add v162
+print*,'minimum initiation time = ',tinit
 
 close(1)
 
@@ -1221,6 +1304,19 @@ enddo
 total_Mo=sum(mo_tmp)
 mw_test=(log10(total_Mo) - 9.05)/1.5
 
+print*,'Mw from SOcomp.par= ',Mw
+! Mw is from srf file, v162
+Mw=mw_test
+
+if (Mw > 5.25) then
+   targ_fr = 1.
+elseif (4.75 < Mw .and. Mw <= 5.25) then
+   targ_fr = 11.5-2*Mw
+else
+   targ_fr = 2.
+endif
+print*,'Mw and targ_fr from srf= ',Mw,targ_fr
+
 ! for acc_spec
 sum_area=sum_area/10000  ! cm2 -> m2
 do i = 1, nsub
@@ -1238,6 +1334,5 @@ rhcu=rhcu/1000.          ! kg/m3 -> g/cm3
 
 ! deallocate memory
 if(allocated(mo_tmp)) deallocate(mu_tmp,slip1cu,mo_tmp)
-!
 
 END SUBROUTINE srf_read

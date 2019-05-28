@@ -1,11 +1,21 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Broadband Platform script to generate GMPE data for stations in the
 station list.
-$Id: calculate_gmpe.py 1719 2016-08-18 21:44:13Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -28,12 +38,12 @@ class CalculateGMPE(object):
     for a list of stations.
     """
 
-    def __init__(self, i_r_stations, i_r_src_file, i_comp_label,
-                 i_data_corrected, i_gmpe_group_name, sim_id=0):
+    def __init__(self, i_r_stations, i_r_src_file,
+                 i_data_corrected, i_gmpe_group_name,
+                 sim_id=0):
         self.sim_id = sim_id
         self.r_stations = i_r_stations
         self.r_src_file = i_r_src_file
-        self.comp_label = i_comp_label
         self.data_corrected = i_data_corrected
         self.gmpe_group_name = i_gmpe_group_name
         self.src_keys = None

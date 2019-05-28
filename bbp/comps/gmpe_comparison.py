@@ -1,11 +1,21 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Broadband Platform script to generate GMPE comparison plot
 against ground observations for stations in the station list.
-$Id: gmpe_comparison.py 1719 2016-08-18 21:44:13Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -266,7 +276,8 @@ class GMPEComparison(object):
             fileroot = os.path.join(a_outdir, "%s-GMPE-%d_r%d-all-rd50-%s" %
                                     (self.comp_label, sim_id,
                                      0, gmpe_model.lower()))
-            cmd = ("%s/resid2uncer_varN " % (install.A_GP_BIN_DIR) +
+            cmd = ("%s " % os.path.join(install.A_GP_BIN_DIR,
+                                        "resid2uncer_varN") +
                    "residfile=%s fileroot=%s " % (resid_file, fileroot) +
                    "comp=%s nstat=%d nper=%d " % (gmpe_model.lower(),
                                                   len(site_list),

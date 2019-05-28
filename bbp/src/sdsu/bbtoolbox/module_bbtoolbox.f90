@@ -74,7 +74,9 @@ MODULE earthquake
 !
 ! Modified: January 2009 (v1.3)
 !
-
+! Updated: March 2019 (v2.1)
+!   Add rake for alt computation in source.f90.
+!
 use def_kind
 
 implicit none
@@ -85,6 +87,8 @@ save
 real(kind=r_single):: Mw
 ! Mechanism of the event (assigned via main input file)
 character(len=2)   :: mech
+! Rake of the event
+real(kind=r_single):: rake
 
 
 END MODULE earthquake
@@ -111,6 +115,10 @@ MODULE flags
 ! Updated: June 2015 (v1.6)
 !   Add ngaw_flag.
 !
+! Updated: February 2019 (v2.0)
+!   Add merging_flag, merging LFs and HFs in the frequency/time domain.
+!   Add infcorr_flag for inter-frequency correlation.
+!
 use def_kind
 
 implicit none
@@ -123,9 +131,12 @@ integer(kind=i_single):: vel_flag,ext_flag,modality_flag
 character(len=4)      :: verbose_flag,lf_kind_flag,hf_kind_flag
 ! Flag to determine tectonically active/stable region
 integer(kind=i_single):: gs_flag
-! Flag to determine NGA-west1 or NGA-west2
+! Flag to determine NGA-west1 or NGA-west2 
 integer(kind=i_single):: ngaw_flag
-
+! Flag for merging LFs and HFs in the frequency or time domain
+integer(kind=i_single):: merging_flag
+! Flag for including inter-frequency correlation, or no
+integer(kind=i_single):: infcorr_flag
 
 END MODULE flags
 
@@ -216,7 +227,11 @@ MODULE io_file
 !
 ! Updated: July 2015 (v1.6.1)
 !   Change character length from 4 to 10 for lf_ and hf_x, y, and z.
-!  
+!
+! Updated: February 2019 (v2.0)
+!   Change character length from 90 to 256.
+!   Add k_file to read Kemp_*.bin file name.
+!
 use def_kind
 
 implicit none
@@ -228,11 +243,11 @@ character(len=256):: vel_file,stat_file,ext_file,scat_file
 ! Optional: 2nd station file and binary input file for HF/LF waveforms
 character(len=256):: opt_stat_file,lf_bin_file,hf_bin_file   
 ! time-series file extensions 
-character(len=10) :: hf_x,hf_y,hf_z
-! time-series lengthened for use with BBP 
-character(len=10) :: lf_x,lf_y,lf_z
+character(len=10) :: lf_x,lf_y,lf_z,hf_x,hf_y,hf_z
 ! input LF directory and optional (HF) directory for already computed HF files
-character(len=256):: lf_in_dir,opt_dir,output_dir 
+character(len=256):: lf_in_dir,opt_dir,output_dir
+! files for correlation
+character(len=256):: k_file
 
 END MODULE io_file
 
@@ -301,6 +316,15 @@ MODULE scattering
 !   fac, ncoda, nfcoda, nscat, merr, abscoeff and trans are fixed parameters,
 !   and removed from scattering.dat.
 !   time_step is read from scattering.dat.
+!
+! Updated: December 2016 (v1.6.2)
+!   Add aveVp for coda computation.
+!   Add loc_aveVs for output in run.log.
+!
+! Update: March 2019 (v2.1)
+! Author: N. Wang
+!   Add cseed, for inter-frequency correlation random seed
+!
 
 use def_kind
 
@@ -309,12 +333,16 @@ implicit none
 save
 
 ! The following parameters MAY change for every receiver
-! Average S-wave speed
-real(kind=r_scat)                         :: aveVs
+! Average S-wave and P-wave speed
+real(kind=r_scat)                         :: aveVs,aveVp
 ! Site-specific rho, Vs and kappa
-real(kind=r_scat),allocatable,dimension(:):: siteR,siteVs,kappa  
+real(kind=r_scat),allocatable,dimension(:):: siteR,siteVs,kappa
+! Output aveVs in run.log
+real(kind=r_scat),allocatable,dimension(:):: loc_aveVs  
 ! Seed number used to compute scattered wavelets
 integer(kind=i_single)                    :: iseed 
+! Seed number used to add inter-frequency correlarion
+integer(kind=i_single)                    :: cseed
 
 !--------add----------------------------------------------------------------
 ! Flag to determine stle of combining LF and HF, old merging, new with 1 or more subfaults
@@ -328,7 +356,7 @@ real(kind=r_single)                       :: str_fac
 ! Qk factor 'a' and 'b' (G&P 2010 eqn. 15)
 real(kind=r_single)                       :: afac,bfac
 ! Output decimation factor
-integer(kind=i_single)                    :: time_step
+integer(kind=i_single)                    :: time_step 
 !--------END add-------------------------------------------------------------
 
 ! The following parameters DON'T change between receivers and can be changed by the user
@@ -339,8 +367,8 @@ real(kind=r_scat)                         :: srcR,srcVs
 ! Seed number used to (optionally) compute some medium scattering properties
 integer(kind=i_single)                    :: s_seed
 ! Highpass corner, transition bandwidth, coda envelope tolerance, absorption coefficient 
-!real(kind=r_scat)                         :: hpass,trans,merr,abscoeff
-real(kind=r_scat)                         :: hpass
+!real(kind=r_scat)                         :: hpass,trans,merr,abscoeff               
+real(kind=r_scat)                         :: hpass               
 ! Scattering coefficient, frequency decay, attenuation at f0
 real(kind=r_scat)                         :: scatcoeff,fdec,Q                  
 
@@ -356,10 +384,10 @@ real(kind=r_single)                       :: fac=1.4
 integer(kind=i_single)                    :: ncoda=500
 integer(kind=i_single)                    :: nfcoda=512
 integer(kind=i_single)                    :: nscat=1500
-! transition bandwidth, coda envelope tolerance, absorption coefficient
-real(kind=r_scat)                         :: merr=0.001
-real(kind=r_scat)                         :: abscoeff=0.01
-real(kind=r_scat)                         :: trans=0.1
+! transition bandwidth, coda envelope tolerance, absorption coefficient 
+real(kind=r_scat)                         :: merr=0.001               
+real(kind=r_scat)                         :: abscoeff=0.01               
+real(kind=r_scat)                         :: trans=0.1               
 
 ! Random numbers array, necessary to guarantee the same results 
 ! between serial and parallelized executions
@@ -389,6 +417,9 @@ MODULE source_receiver
 ! Updated: September 2014 (v1.5.5.1)
 !   Add sr_rrup for CENA Tr_fac calculation in source.f90
 !
+! Updated: March 2019 (v2.1)
+!   Change stat_name and opt_stat_name length from 90 to 128.
+!
 use def_kind
 
 implicit none
@@ -396,7 +427,7 @@ implicit none
 save
 
 ! Contains mandatory and optional stations names
-character(len=128),allocatable,dimension(:)   :: stat_name, opt_stat_name 
+character(len=128),allocatable,dimension(:)    :: stat_name, opt_stat_name 
 ! Number of stations and extended-source cells
 integer(kind=i_single)                        :: n_stat,n_cell
 ! Stations coordinates               
@@ -408,7 +439,7 @@ real(kind=r_single),allocatable,dimension(:)  :: time_s,time_p,sr_hypo
 ! Source-receiver distances for each subfault 
 real(kind=r_single),allocatable,dimension(:,:):: sr_cell      
 ! Rrup distances
-real(kind=r_single),allocatable,dimension(:)  :: sr_rrup
+real(kind=r_single),allocatable,dimension(:)  :: sr_rrup   
 
 END MODULE source_receiver
 
@@ -432,7 +463,10 @@ MODULE stf_data
 !   Change character length for stf_name from len=5 to 25.
 !   Add srf_name and Tr_sca.
 !
-
+! Updated: February 2019 (v2.0)
+!   Change character length from 50 to 256 for srf_name.
+!
+!
 use def_kind
 
 implicit none
@@ -442,7 +476,7 @@ save
 ! Kind of source-time-function selected (from main input file)
 character(len=25)                            :: stf_name
 ! srf file name
-character(len=256)                           :: srf_name
+character(len=256)                            :: srf_name
 ! Number of time-points for the source-time-function 
 integer(kind=i_single)                      :: npts_stf
 ! Source-time-function (amplitude values) and its time vector
@@ -472,7 +506,10 @@ MODULE waveform
 !
 ! Modified: January 2009 (v1.3)
 !
-
+!
+! Updated: February 2019 (v2.0)
+!   Add lf_dt and v_npts.
+!
 use def_kind
 
 implicit none
@@ -500,9 +537,14 @@ integer(kind=i_single)                          :: hf_npts
 ! HF time-series length 
 real(kind=r_single)                             :: hf_len 
     
-
 !$OMP THREADPRIVATE(lf_int)
 
+! dt for LFs 
+real(kind=r_single)                             :: lf_dt 
+
+! virtual npts for BBsynthetics to keep the same dt
+! v_npts = 2^15-1 * n + 1, where n = ceiling(lf_len/tmp_lf_len)
+integer(kind=i_single)                          :: v_npts                                         
 
 
 END MODULE waveform
@@ -526,8 +568,13 @@ MODULE vel_model
 ! Modified: March 2013 (v1.4.2)
 !
 ! Updated: June 2015 (v1.6)
-!   Add alt used in source.f90 and composition.f90  
+!   Add alt used in source.f90 and composition.f90
 !
+! Updated: December 2016 (v1.6.2)
+!   Add tinit obtained from source.f90
+!
+! Updated: February 2019 (v2.0)
+!   Add dtop obtained from source.f90
 
 use def_kind
 
@@ -540,14 +587,16 @@ save
 integer(kind=i_single)                        :: nsub 
 ! Mo calculated from srf file in [Nm] 
 real(kind=r_single)                           :: total_Mo
-! fault dip from srf file
-real(kind=r_single)                           :: dip
+! fault dip and dtop from srf file
+real(kind=r_single)                           :: dip,dtop
 ! total area of subfaults from srf [cm2]
 real(kind=r_single)                           :: sum_area
 ! ave_vs * ave_d
 real(kind=r_single)                           :: vsd_ave,d_avef,vs_avef
 ! facter alpha_T, scaling the rise time as a function of dip, eqn (9) in G&P(2010)
 real(kind=r_single)                           :: alt
+! minimum initiation time in srf file
+real(kind=r_single)                           :: tinit
 ! x,y,and depth of each subfault [km] from srf
 real(kind=r_single),allocatable,dimension(:)  :: fx,fy,fz
 ! Vs [cm/s] & density [g/cm3] from velocity model file, for each subfault
@@ -572,11 +621,11 @@ MODULE tmp_para
 !   Most PlanA and all PlanB events have lf-length=102.375 sec.
 !   Lf-lengths for all events are stored based on the lf-length=102.375 sec.
 !
-! Dependencies:
+! Dependencies: 
 !
-!   Module def_kind
+!   Module def_kind   
 !
-! Author: R. Takedatsu
+! Author: R. Takedatsu 
 !
 ! Modified: April 2014 (v1.5.5)
 !
@@ -595,5 +644,39 @@ integer(kind=i_single),parameter              :: tmp_npts=32768
 real(kind=r_single),parameter                 :: tmp_lf_len=102.3750
 
 END MODULE tmp_para
+
+!===================================================================================================
+
+MODULE read_Kemp
+!
+! Description:
+!
+!   These parameters are used to read Kemp.txt, Cholesky factor of frequency
+!   correlation matrix, lower triangular matrix.
+!
+! Dependencies: 
+!
+!   Module def_kind   
+!
+! Author: N. Wang 
+!
+! Modified: February 2019 (v2.0)
+!
+!
+
+use def_kind
+
+implicit none
+
+save
+
+! length (number of elements in each dimension) of matrix K (lower triangular)
+integer(kind=i_single)               :: nk
+! starting point of corresponding frequency of Kemp
+integer(kind=i_single)               :: nks
+! Cholesky factor of frequency correlation matrix, lower triangular matrix
+real(kind=r_single),allocatable,dimension(:,:) :: Kemp
+
+END MODULE read_Kemp
 
 !===================================================================================================

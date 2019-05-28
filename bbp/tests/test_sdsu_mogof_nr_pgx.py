@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
 
-These are unit tests for the sdsu_mogof.py
-$Id: test_sdsu_mogof_nr_pgx.py 1734 2016-09-13 17:38:17Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 from __future__ import division, print_function
 
@@ -18,7 +26,6 @@ import seqnum
 import cmp_bbp
 import bband_utils
 from install_cfg import InstallCfg
-from sdsu_mogof_cfg import SDSUMOGofCfg
 from sdsu_mogof import SDSU_MOGof
 
 class Test_SDSU_MOGof_PGX(unittest.TestCase):
@@ -27,9 +34,7 @@ class Test_SDSU_MOGof_PGX(unittest.TestCase):
     """
 
     def setUp(self):
-        #i_r_stations,i_r_metadata,i_a_datadir,i_format,i_mag,i_comparison_label, cutoff=None, sim_id=0):
         self.install = InstallCfg()
-        self.cfg = SDSUMOGofCfg()
         os.chdir(self.install.A_INSTALL_ROOT)
         self.r_velocity = ""
         self.gof_weights = dict()

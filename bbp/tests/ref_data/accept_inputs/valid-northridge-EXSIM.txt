@@ -1,12 +1,12 @@
 y
-Northridge
+NR
 exsim
 n
 2
 1
 1
 n
-n
+y
 n
 n
 n

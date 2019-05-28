@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Keeps track of the velocity models available for use in the platform
-$Id: velocity_models.py 1730 2016-09-06 20:26:43Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -23,7 +33,12 @@ VELMODEL_METAFILE_SUFFIX = "_velmodel_config.txt"
 VELMODEL_NAME_PROP = "velmodel_name"
 VELMODEL_CODE_PROP = "velmodel_code_"
 VELMODEL_VERSION_PROP = "velmodel_version"
+VELMODEL_FORMAT_PROP = "velmodel_format"
+VELMODEL_ACTIVE_REGION_PROP = "velmodel_active_region"
 CODE_PROP = "codebase_"
+
+# Velocity model version needed by this version of the BBP
+VELMODEL_FORMAT = "2"
 
 class MissingVelocityModel(Exception):
     """
@@ -36,12 +51,14 @@ class VelocityModel(object):
     """
     This class stores the needed information for a given velocity model
     """
-    def __init__(self, name, version, base_dir):
+    def __init__(self, name, version,
+                 active_region, base_dir):
         """
         This function initializes the velocity model with its name
         """
         self.name = name
         self.version = version
+        self.active_region = active_region
         self.base_dir = base_dir
         self.velmodels = {}
         self.codes = []
@@ -51,6 +68,8 @@ class VelocityModel(object):
         """
         Sets the velocity model file for code codebase
         """
+        codebase = codebase.upper()
+
         if codebase in self.velmodels:
             print("velocity model for codebase %s already set, ignoring %s" %
                   (codebase, vel_file))
@@ -61,7 +80,7 @@ class VelocityModel(object):
         """
         Return the velocity model file for a certain codebase
         """
-        return os.path.join(self.base_dir, self.velmodels[codebase])
+        return os.path.join(self.base_dir, self.velmodels[codebase.upper()])
 
     def get_name(self):
         """
@@ -75,10 +94,18 @@ class VelocityModel(object):
         """
         return self.version
 
+    def is_active_region(self):
+        """
+        Returns True if this is an active tectonic region
+        """
+        return self.active_region
+
     def add_code(self, codebase):
         """
         Adds a codebase to this velocity model
         """
+        codebase = codebase.upper()
+
         if codebase in self.codes:
             print("codebase %s already defined, ignoring duplicate" %
                   (codebase))
@@ -103,7 +130,7 @@ class VelocityModel(object):
         """
         Adds a param=value to a certain codebase
         """
-        self.params[codebase][param] = value
+        self.params[codebase.upper()][param] = value
 
 def init_velocity_models(install_obj):
     """
@@ -139,12 +166,43 @@ def init_velocity_models(install_obj):
         file_props = bband_utils.parse_properties(metafile)
         if VELMODEL_NAME_PROP not in file_props:
             # Doesn't have name key
+            print("Cannot find velocity model name attribute!")
+            print("Skipping: %s" % (base_dir))
+            continue
+        if VELMODEL_FORMAT_PROP not in file_props:
+            # Doesn't have a format key
+            print("Cannot find velocity model format attribute!")
+            print("Skipping: %s" % (base_dir))
             continue
         if VELMODEL_VERSION_PROP not in file_props:
             # Doesn't have version key
+            print("Cannot find velocity model version attribute!")
+            print("Skipping: %s" % (base_dir))
+            continue
+        if VELMODEL_ACTIVE_REGION_PROP not in file_props:
+            # Missing active region flag
+            print("Cannot find active region attribute!")
+            print("Skipping: %s" % (base_dir))
+            continue
+        # Check if velocity model format matching this version of the BBP
+        velmodel_format = file_props[VELMODEL_FORMAT_PROP]
+        if velmodel_format.split(".")[0] != VELMODEL_FORMAT:
+            # Major velocity model format version has to match
+            print("Cannot use velocity model format %s!" % (velmodel_format))
+            print("Skipping: %s" % (base_dir))
+            continue
+        if file_props[VELMODEL_ACTIVE_REGION_PROP].lower() in ["1", "true"]:
+            active_region = True
+        elif file_props[VELMODEL_ACTIVE_REGION_PROP].lower() in ["0", "false"]:
+            active_region = False
+        else:
+            # Cannot parse active region flag
+            print("Cannot parse velocity model active region flag!")
+            print("Skipping: %s" % (base_dir))
             continue
         ve_model = VelocityModel(file_props[VELMODEL_NAME_PROP],
                                  file_props[VELMODEL_VERSION_PROP],
+                                 active_region,
                                  base_dir)
          # Dictionaries are not ordered, so we have to go over them
         # twice to first collect the available codebases and their

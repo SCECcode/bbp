@@ -4,9 +4,48 @@ If you experience trouble building the platform or successfully running test and
 
 The instruction for installing Broadband Platform are listed in Section 1: "Installing the Second-Generation Broadband Platform" of the User guide. If after following all steps listed in the Broadband Platform Installation page the build fails, check if the failure is listed in this section and try the solution to fix the issue you are facing.
 
+#### hfsims
+
+Recent versions of gfortran (e.g. version 8.1.1) will stop with an error while compiling the hb_high_v5.4.1.f file with a message similar to this:
+
+```
+  Error: Actual argument contains too few elements for dummy argument ‘ace’ (1/30000) at (1) hb_high_v5.4.3.f:1367:19:
+```
+
+This problem is solved by adding the flag '-std=legacy' to the makefile located in bbp/src/gp/StochSim/V5.4 so that it reads:
+
+```
+  FFLAGS = ${UFLAGS} -ffixed-line-length-132 -std=legacy
+```
+
+Then, in the src directory, users can type:
+
+```
+  $ make clean
+  $ make
+```
+
 ### Unit/Acceptance Test Warnings and Errors
 
 Unit and Acceptance tests are provided to verify the Broadband platform and it's supporting modules built by the user are functioning as designed. Under certain circumstances, some of these test might fail or print a warning message. While some of these failures might indicate serious problems that will have to be addressed before the platform can used, it is acceptable to ignore some of the warnings. This section lists some issues and their solutions.
+
+#### UnitTests.py
+
+When running UnitTests.py, it will fail with a message similar to:
+
+```
+ $ ./UnitTests.py
+ Traceback (most recent call last):
+   File "./UnitTests.py", line 29, in <module>
+     from test_genslip import TestGenslip
+   File "/mnt/c/scratch/username/bbp/bbp-19.4.0/bbp/tests/test_genslip.py", line 26, in <module>
+     import cmp_bbp
+   File "/mnt/c/scratch/username/bbp/bbp-19.4.0/bbp/tests/cmp_bbp.py", line 25, in <module>
+     from itertools import izip
+ ImportError: cannot import name 'izip'
+```
+
+This message usually appears when users try to run the Broadband Platform with Python 3. At this time, the BBP is not compatible with Python 3, but we expect to migrate BBP to Python 3 as part of our next BBP release. For now, users will need to run the BBP with Python 2.7. 
 
 #### test_bbtoolbox
 
@@ -25,11 +64,54 @@ In certain environments, the test_gof unit test will display a series of warning
 
 These messages do not indicate a failure of the unit test. At the end of this test you will still see the "ok" status, indicating that the test was successful.
 
+#### test_genslip
+
+In some configurations, some tests will print warning messages similar to the one below (for test_genslip). We have observed this with older combinations of NumPy/SciPy/Matplotlib Python package versions. Updating these three packages will often make them go away (for example, they do not appear with NumPy 1.14.5, SciPy 1.1.0, Matplotlib 2.2.2).
+
+```
+ test_genslip (test_genslip.TestGenslip) ... /usr/lib64/python2.7/site-packages/numpy/ma/core.py:6442: MaskedArrayFutureWarning: In the future the default for ma.maximum.reduce will be axis=0, not the current None, to match np.maximum.reduce. Explicitly pass 0 or None to silence this warning.
+ return self.reduce(a)
+ /usr/lib64/python2.7/site-packages/numpy/ma/core.py:6442: MaskedArrayFutureWarning: In the future the default for ma.minimum.reduce will be axis=0, not the current None, to match np.minimum.reduce. Explicitly pass 0 or None to silence this warning.
+ return self.reduce(a)
+ /usr/lib64/python2.7/site-packages/matplotlib/collections.py:650: FutureWarning: elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison
+ if self._edgecolors_original != str('face'):
+ /usr/lib64/python2.7/site-packages/matplotlib/collections.py:590: FutureWarning: elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison
+ if self._edgecolors == str('face'):
+ ok
+```
+
+These messages do not indicate a failure of the unit test. At the end of this test you will still see the "ok" status, indicating that the test was successful.
+
 #### test_user-SDSU
 #### test_valid-northridge-SDSU
-#### test_valid-northridge-SDSU_seis
 
 All acceptance tests for the SDSU method will fail on Mac OS X due to the raytracing code in the SDSU method. This is a known issue and we hope to have this resolved in an upcoming version of the Broadband Platform.
+
+#### test_rmg
+
+The Song RMG module fails the unit test with a message similar to the one shown below. This is due to a newer version of Python/Numpy where array indexes need to be of type int. This issue has been already fixed in the dev branch and will be included in the next release of the Broadband Platform. Users having this problem can replace the bbp/comps/rmg.py file with the one available in the dev branch.
+
+```
+======================================================================
+ERROR: test_rmg (__main__.TestRMG)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "./test_rmg.py", line 59, in test_rmg
+    rmg.run()
+  File "/home/song/proj/GM_Sim/SCEC_BBP/bbp_17.3.0/bbp-17.3.0/bbp/comps/rmg.py", line 1284, in run
+    self.gen_rup()
+  File "/home/song/proj/GM_Sim/SCEC_BBP/bbp_17.3.0/bbp-17.3.0/bbp/comps/rmg.py", line 994, in gen_rup
+    self.gen_dist()
+  File "/home/song/proj/GM_Sim/SCEC_BBP/bbp_17.3.0/bbp-17.3.0/bbp/comps/rmg.py", line 816, in gen_dist
+    (rup["nz1"], rup["nx1"]), order='F')
+  File "/usr/local/lib/python-2.7.13/lib/python2.7/site-packages/numpy/core/fromnumeric.py", line 232, in reshape
+    return _wrapfunc(a, 'reshape', newshape, order=order)
+  File "/usr/local/lib/python-2.7.13/lib/python2.7/site-packages/numpy/core/fromnumeric.py", line 67, in _wrapfunc
+    return _wrapit(obj, method, *args, **kwds)
+  File "/usr/local/lib/python-2.7.13/lib/python2.7/site-packages/numpy/core/fromnumeric.py", line 47, in _wrapit
+    result = getattr(asarray(obj), method)(*args, **kwds)
+TypeError: 'float' object cannot be interpreted as an index
+```
 
 ### Runtime Warnings and Errors
 
@@ -41,7 +123,7 @@ The current version of SDSU's BBToolbox code can sometimes fail with an exit cod
 
 ```
  *** Welcome to the Broad-Band Toolbox (v1.6) ***
- 
+
  Initialising the code, please type input filename ...
  rl=          131
  rl=          131
@@ -61,7 +143,7 @@ The current version of SDSU's BBToolbox code can sometimes fail with an exit cod
  Completed radius = 90
  Completed radius = 100
  Completed radius = 110
- wavefront done 
+ wavefront done
  Starting slug3d: by J. Vidale, 1988, UCSC
  Starting punch: by J. Hole, 1993, UBC-Stanford
  -- travel-times written to :time3d_S.out

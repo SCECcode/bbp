@@ -1,11 +1,21 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Module to prepare observation data files for processing by the
 Broadband Platform
-$Id: obs_seismograms.py 1730 2016-09-06 20:26:43Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -20,6 +30,7 @@ from install_cfg import InstallCfg
 from station_list import StationList
 import bbp_formatter
 import gmpe_config
+import rotd100
 from rotd50 import RotD50
 from correct_psa import CorrectPSA
 
@@ -28,8 +39,8 @@ SUPPORTED_OBS_FORMATS = ["acc_bbp", "acc_peer", "gmpe"]
 class ObsSeismograms(object):
 
     def __init__(self, i_r_stations,
-                 i_a_obsdir, i_obs_format, i_obs_corr,
-                 sim_id=0):
+                 i_a_obsdir, i_obs_format,
+                 i_obs_corr, sim_id=0):
         """
         Initialize basic parameters for the ObsSeismograms class
         """
@@ -71,11 +82,14 @@ class ObsSeismograms(object):
                                      "obs_seis_%s" % (sta_base))
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_outdir_seis = os.path.join(a_outdir, "obs_seis_%s" % (sta_base))
+        a_outdir_gmpe = os.path.join(a_outdir,
+                                     "gmpe_data_%s" % (sta_base))
 
         #
         # Make sure the output and tmp directories exist
         #
-        dirs = [a_tmpdir, a_tmpdir_seis, a_outdir, a_outdir_seis]
+        dirs = [a_tmpdir, a_tmpdir_seis, a_outdir,
+                a_outdir_seis, a_outdir_gmpe]
         bband_utils.mkdirs(dirs, print_cmd=False)
 
         # Station file
@@ -88,12 +102,10 @@ class ObsSeismograms(object):
 
         # Inialize the CorrectPSA module
         if self.obs_corrections:
-            corr_psa = CorrectPSA(self.r_stations,
-                                  "rd50",
+            corr_psa = CorrectPSA(self.r_stations, "rd100",
                                   os.path.join(a_indir,
                                                self.obs_corrections),
-                                  a_tmpdir_seis,
-                                  self.sim_id)
+                                  a_tmpdir_seis, sim_id)
         else:
             corr_psa = None
 
@@ -103,10 +115,8 @@ class ObsSeismograms(object):
             slat = float(site.lat)
             stat = site.scode
             print("==> Processing data for station: %s" % (stat))
-            # Since we're using the GP station list, make sure the
-            # .rd50 for the station exists.  It might not if we ran the
-            # validation with a different station list (like UCSB for
-            # Landers)
+
+            # Look for the files we need
             expected_rd50_file = os.path.join(a_outdir,
                                               "%d.%s.rd50" %
                                               (sim_id, stat))
@@ -119,7 +129,7 @@ class ObsSeismograms(object):
                       "with available stations.")
                 continue
 
-            # Ok, we have a calculated rd50 file for this station,
+            # Ok, we have a calculated rd50/rd100 files for this station,
             # let's look for the observed file
             r_e_peer_file = None
             r_n_peer_file = None
@@ -187,17 +197,10 @@ class ObsSeismograms(object):
             elif self.obs_format == "gmpe":
                 # GMPE verification packages don't have actual
                 # seismograms, so there's nothing we need to do here!
-                r_gmpe_file = "%s-gmpe.ri50" % (stat)
-                if r_gmpe_file not in filelist:
-                    # No gmpe file for this station
-                    continue
-                # Copy gmpe file to the tmp obs directory and rename
-                # it so that it has a rd50 extension
-                a_src_gmpe_file = os.path.join(self.a_obsdir, r_gmpe_file)
-                a_dst_rd50_file = os.path.join(a_tmpdir_seis, "%s.rd50" %
-                                               (stat))
-                shutil.copy2(a_src_gmpe_file, a_dst_rd50_file)
-                # Create a copy in outdata that averages all gmpes
+                a_src_gmpe_file = os.path.join(a_outdir_gmpe,
+                                               "%s-gmpe.ri50" % (stat))
+
+                # Create a copy in outdata averaging all gmpes
                 a_avg_rd50_file = os.path.join(a_outdir_seis,
                                                "%s.rd50" % (stat))
                 gmpe_config.average_gmpe(stat,
@@ -211,28 +214,49 @@ class ObsSeismograms(object):
                                                  "observed seismograms "
                                                  "not supported")
 
-            # Run RotD50 on this file
-            if corr_psa is not None:
-                # First calculate rd50 and psa5 files
-                print("===> Calculating RotD50 for station: %s" % (stat))
-                RotD50.do_rotd50(a_tmpdir_seis, r_e_peer_file,
-                                 r_n_peer_file, r_z_peer_file,
-                                 "%s-orig.rd50" % (stat),
-                                 self.log)
+            out_rotd100_base = "%s.rd100" % (stat)
+            out_rotd100v_base = "%s.rd100.vertical" % (stat)
+            out_rotd50_base = "%s.rd50" % (stat)
+            out_rotd50v_base = "%s.rd50.vertical" % (stat)
 
-                # Now we need to correct the RotD50 output using the
+            # Run RotDXX on this file
+            if corr_psa is not None:
+                # First calculate rdXX
+                print("===> Calculating RotDXX for station: %s" % (stat))
+                rotd100.do_rotd100(a_tmpdir_seis, r_e_peer_file,
+                                   r_n_peer_file,
+                                   "%s-orig.rd100" % (stat), self.log)
+                #rotd100.do_rotd100(a_tmpdir_seis, r_z_peer_file,
+                #                   r_z_peer_file,
+                #                   "%s-orig.rd100.vertical" % (stat), self.log)
+
+                # Now we need to correct the RotD100 outputs using the
                 # user-supplied correction factors
                 print("===> Correcting PSA for station: %s" % (stat))
-                corr_psa.correct_station(stat, "rd50")
+                corr_psa.correct_station(stat, "rd100")
+                #corr_psa.correct_station(stat, "rd100.vertical")
             else:
                 # Use final names for output files
-                print("===> Calculating RotD50 for station: %s" % (stat))
-                RotD50.do_rotd50(a_tmpdir_seis, r_e_peer_file,
-                                 r_n_peer_file, r_z_peer_file,
-                                 "%s.rd50" % (stat),
-                                 self.log)
-            shutil.copy2(os.path.join(a_tmpdir_seis, "%s.rd50" % (stat)),
-                         os.path.join(a_outdir_seis, "%s.rd50" % (stat)))
+                print("===> Calculating RotDXX for station: %s" % (stat))
+                rotd100.do_rotd100(a_tmpdir_seis, r_e_peer_file,
+                                   r_n_peer_file,
+                                   out_rotd100_base, self.log)
+                #rotd100.do_rotd100(a_tmpdir_seis, r_z_peer_file,
+                #                   r_z_peer_file,
+                #                   out_rotd100v_base % (stat), self.log)
+            # Create rotd50 files as well
+            rotd100.do_split_rotd50(a_tmpdir_seis, out_rotd100_base,
+                                    out_rotd50_base, self.log)
+            #rotd100.do_split_rotd50(a_tmpdir_seis, out_rotd100v_base,
+            #                        out_rotd50v_base, self.log)
+            shutil.copy2(os.path.join(a_tmpdir_seis, out_rotd100_base),
+                         os.path.join(a_outdir_seis, out_rotd100_base))
+            #shutil.copy2(os.path.join(a_tmpdir_seis, out_rotd100v_base),
+            #             os.path.join(a_outdir_seis, out_rotd100v_base))
+            shutil.copy2(os.path.join(a_tmpdir_seis, out_rotd50_base),
+                         os.path.join(a_outdir_seis, out_rotd50_base))
+            #shutil.copy2(os.path.join(a_tmpdir_seis, out_rotd50v_base),
+            #             os.path.join(a_outdir_seis, out_rotd50v_base))
 
         print("ObsSeismograms Completed".center(80, '-'))
 

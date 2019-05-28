@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Broadband Platform Version of SDSU MO-GOF
-$Id: sdsu_mogof.py 1730 2016-09-06 20:26:43Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -31,14 +41,13 @@ class SDSUMOGoF(object):
     """
 
     def __init__(self, i_r_stations, i_weights, plot_map,
-                 i_a_datadir, i_format, i_mag,
+                 i_a_datadir, i_format,
                  i_comparison_label, sim_id=0):
         self.sim_id = sim_id
         self.r_stations = i_r_stations
         self.gof_weights = i_weights
         self.a_datadir = i_a_datadir
         self.format = i_format
-        self.mag = i_mag
         self.comp_label = i_comparison_label
 
         # Compute GOF, one station at a time

@@ -948,7 +948,7 @@ for(iseg=0;iseg<nseg;iseg++)
    }
 }
 
-void load_slip_srf_dd4(struct standrupformat *srf,struct stfpar2 *spar,struct pointsource *ps,float *rtime1_r,float *rtime2_r,struct velmodel *vmod)
+void load_slip_srf_dd4_vsden(struct standrupformat *srf,struct stfpar2 *spar,struct pointsource *ps,float *rtime1_r,float *rtime2_r)
 {
 struct srf_allpoints *apnts_ptr;
 struct srf_apointvalues *apval_ptr;
@@ -985,6 +985,189 @@ srf[0].srf_hcmnt.nline = 0;
 srf[0].nseg = 1;
 srf[0].np_seg = (int *)check_malloc((srf[0].nseg)*sizeof(int));
 srf[0].np_seg[0] = srf[0].srf_apnts.np;
+
+/* end version 2.0 stuff, just in case */
+
+ntot = 0;
+for(iseg=0;iseg<nseg;iseg++)
+   ntot = ntot + prseg_ptr[iseg].nstk;
+
+slip_max = -1.0e+15;
+slip_min = 1.0e+15;
+slip_avg = 0.0;
+for(ip0=0;ip0<ntot*prseg_ptr[0].ndip;ip0++)
+   {
+   sabs = sqrt(ps[ip0].slip*ps[ip0].slip);
+   slip_avg = slip_avg + sabs;
+   if(sabs > slip_max)
+      slip_max = sabs;
+   if(sabs < slip_min)
+      slip_min = sabs;
+   }
+slip_min = 1.001*slip_min;
+slip_avg = slip_avg/(ntot*prseg_ptr[0].ndip);
+fprintf(stderr,"SLIP_AVG= %f\n",slip_avg);
+
+ioff = 0;
+noff = 0;
+for(iseg=0;iseg<nseg;iseg++)
+   {
+   for(j=0;j<prseg_ptr[iseg].ndip;j++)
+      {
+      for(i=0;i<prseg_ptr[iseg].nstk;i++)
+         {
+	 ip = noff + i + j*prseg_ptr[iseg].nstk;
+	 ip0 = i + ioff + j*ntot;
+
+         apval_ptr[ip].stf1 = (float *)check_malloc(spar->nt*sizeof(float));
+         stf = apval_ptr[ip].stf1;
+
+         apval_ptr[ip].dt = spar->dt;
+
+	 sabs = sqrt(ps[ip0].slip*ps[ip0].slip);
+         if(sabs > MINSLIP)
+	    {
+            if(ps[ip0].dep <= dmin1)
+               rtfac = 1.0 + rtfac1;
+            else if(ps[ip0].dep < dmax1 && ps[ip0].dep > dmin1)
+               rtfac = 1.0 + rtfac1*(dmax1-(ps[ip0].dep))/(dmax1-dmin1);
+            else if(ps[ip0].dep >= dmax1 && ps[ip0].dep <= dmin2)
+               rtfac = 1.0;
+            else if(ps[ip0].dep < dmax2 && ps[ip0].dep > dmin2)
+               rtfac = 1.0 + rtfac2*((ps[ip0].dep)-dmin2)/(dmax2-dmin2);
+            else
+               rtfac = 1.0 + rtfac2;
+
+/* 20150324 RWG:
+    New way using array of gaussian values roughly correlated with slip
+    Note that rtime1_r is already normalized to have average of 1
+*/
+            if(spar->rt_scalefac > 0.0)
+               rtfac = rtfac*sqrt(rtime1_r[ip0])/spar->rt_scalefac;
+
+	    /*
+            rtfac = rtfac*exp(rtime2_r[ip0]);
+	    */
+            rtfac = rtfac*(1.0+rtime2_r[ip0]);
+
+            if(rtfac < rtfac_min)
+               rtfac = rtfac_min;
+
+            if(strcmp(spar->stype,"brune") == 0)
+               {
+               tzero = 0.1*exp(-1.0)*sqrt(ps[ip0].slip)/(1.2); /* assume slip in cm */     
+               tzero = tzero*rtfac;
+
+               apval_ptr[ip].nt1 = gen_brune_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+	    else if(strcmp(spar->stype,"urs") == 0)
+               {
+	       tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_2tri_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt,&ps[ip0].dep);
+               }
+            else if(strcmp(spar->stype,"ucsb") == 0)
+               {
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_ucsb_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"Mliu") == 0)
+               {
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_Mliu_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"tri") == 0)
+               {
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_tri_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+	    }
+         else
+            apval_ptr[ip].nt1 = 0;
+
+         if(apval_ptr[ip].nt1)
+            apval_ptr[ip].stf1 = (float *)check_realloc(apval_ptr[ip].stf1,(apval_ptr[ip].nt1)*sizeof(float));
+         else
+            {
+            free(apval_ptr[ip].stf1);
+            apval_ptr[ip].stf1 = NULL;
+            }
+
+         apval_ptr[ip].lon = ps[ip0].lon;
+         apval_ptr[ip].lat = ps[ip0].lat;
+         apval_ptr[ip].dep = ps[ip0].dep;
+         apval_ptr[ip].stk = ps[ip0].stk;
+         apval_ptr[ip].dip = ps[ip0].dip;
+         apval_ptr[ip].area = ps[ip0].area;
+
+         apval_ptr[ip].vs = 1.0e+05*ps[ip0].vs;
+         apval_ptr[ip].den = ps[ip0].den;
+
+         apval_ptr[ip].rake = ps[ip0].rak;
+         apval_ptr[ip].slip1 = ps[ip0].slip;
+
+         apval_ptr[ip].slip2 = 0.0;
+         apval_ptr[ip].nt2 = 0;
+         apval_ptr[ip].stf2 = NULL;
+         apval_ptr[ip].slip3 = 0.0;
+         apval_ptr[ip].nt3 = 0;
+         apval_ptr[ip].stf3 = NULL;
+         }
+      }
+   ioff = ioff + prseg_ptr[iseg].nstk;
+   noff = noff + prseg_ptr[iseg].nstk*prseg_ptr[iseg].ndip;
+   }
+}
+
+void load_slip_srf_dd4(struct standrupformat *srf,struct stfpar2 *spar,struct pointsource *ps,float *rtime1_r,float *rtime2_r,struct velmodel *vmod)
+{
+struct srf_allpoints *apnts_ptr;
+struct srf_apointvalues *apval_ptr;
+struct srf_prectsegments *prseg_ptr;
+float area;
+float *stf;
+int i, j, ip, ip0, iseg, nseg, ioff, noff, ntot, k;
+
+float dmin1, dmax1;
+float dmin2, dmax2;
+float rtfac, tzero;
+float rtfac1, rtfac2, sabs, slip_max, slip_avg, slip_min;
+float rtfac_min = 0.05;
+
+rtfac_min = spar->dt/spar->trise;
+
+dmin1 = spar->risetimedep - spar->risetimedep_range;
+dmax1 = spar->risetimedep + spar->risetimedep_range;
+rtfac1 = spar->risetimefac - 1.0;
+
+dmin2 = spar->deep_risetimedep - spar->deep_risetimedep_range;
+dmax2 = spar->deep_risetimedep + spar->deep_risetimedep_range;
+rtfac2 = spar->deep_risetimefac - 1.0;
+
+apnts_ptr = &(srf->srf_apnts);
+apval_ptr = apnts_ptr->apntvals;
+
+nseg = srf[0].srf_prect.nseg;
+prseg_ptr = srf[0].srf_prect.prectseg;
+
+/* version 2.0 stuff, just in case */
+
+srf[0].srf_hcmnt.nline = 0;
+/*
+srf[0].nseg = 1;
+srf[0].np_seg = (int *)check_malloc((srf[0].nseg)*sizeof(int));
+srf[0].np_seg[0] = srf[0].srf_apnts.np;
+*/
+
+/* 2018-04-02 updated for multiple segs */
+srf[0].nseg = srf[0].srf_prect.nseg;
+srf[0].np_seg = (int *)check_malloc((srf[0].nseg)*sizeof(int));
+
+for(iseg=0;iseg<nseg;iseg++)
+   srf[0].np_seg[iseg] = prseg_ptr[iseg].nstk*prseg_ptr[0].ndip;
 
 /* end version 2.0 stuff, just in case */
 

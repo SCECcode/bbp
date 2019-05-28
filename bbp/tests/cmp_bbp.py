@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 This module is used to compare certain files types
-$Id: cmp_bbp.py 1734 2016-09-13 17:38:17Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -15,7 +25,8 @@ import sys
 from itertools import izip
 
 # Boolean flag for enforcing tolerance checks
-ENFORCE_TOLERANCE = False
+#ENFORCE_TOLERANCE = False
+ENFORCE_TOLERANCE = True
 
 def cmp_ffsp(filename1, filename2, tolerance=0.01):
     """
@@ -73,7 +84,6 @@ def cmp_ffsp(filename1, filename2, tolerance=0.01):
 
     # All good!
     return 0
-
 
 def cmp_srf(filename1, filename2, tolerance=0.0011):
     """
@@ -233,7 +243,7 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
                         print("Line %d/%d: mismatch in entries in line." %
                               (i1 + 3 + k, i2 + 3 + k))
                         continue
-                    if ENFORCE_TOLERANCE == False:
+                    if not ENFORCE_TOLERANCE:
                         continue
                     for p in range(0, len(pieces1)):
                         p1 = float(pieces1[p])
@@ -300,7 +310,7 @@ def cmp_resid(filename1, filename2, tolerance=0.0015):
                 print("Line %d: %s and %s don't agree." %
                       ((i + 1), pieces1[j], pieces2[j]))
                 continue
-        if ENFORCE_TOLERANCE == False:
+        if not ENFORCE_TOLERANCE:
             continue
         for j in range(13, len(pieces1)):
             f1 = float(pieces1[j])
@@ -346,7 +356,7 @@ def cmp_bbp(filename1, filename2, tolerance=0.0015):
         pieces1 = line1.split()
         line2 = data2[i + file2_offset]
         pieces2 = line2.split()
-        if ENFORCE_TOLERANCE == False:
+        if not ENFORCE_TOLERANCE:
             continue
         for j in range(0, 4):
             f1 = float(pieces1[j])
@@ -391,7 +401,7 @@ def cmp_bias(filename1, filename2, tolerance=0.0015):
             print("Line %d: periods %f and %f don't agree." %
                   ((i + 1), float(pieces1[0]), float(pieces2[0])))
             returncode = 1
-        if ENFORCE_TOLERANCE == False:
+        if not ENFORCE_TOLERANCE:
             continue
         if math.fabs(f1) < 1.0:
             if math.fabs(f1 - f2) > tolerance:
@@ -434,7 +444,7 @@ def cmp_gof(filename1, filename2, col_start=0, col_end=1, tolerance=0.0015):
         pieces1 = line1.split()
         line2 = data2[i + file2_offset]
         pieces2 = line2.split()
-        if ENFORCE_TOLERANCE == False:
+        if not ENFORCE_TOLERANCE:
             continue
         for j in range(col_start, col_end):
             f1 = float(pieces1[j])
@@ -453,10 +463,10 @@ def cmp_gof(filename1, filename2, col_start=0, col_end=1, tolerance=0.0015):
             return returncode
     return returncode
 
-def cmp_anderson_gof(filename1, filename2, tolerance=0.0015,
-                     start_col=0, sep=None):
+def cmp_files_generic(filename1, filename2, tolerance=0.0015,
+                      start_col=0, sep=None):
     """
-    This function compares two output files from the Anderson GOF
+    This function compares tokens from two output files
     """
     # Start with zero return code
     return_code = 0

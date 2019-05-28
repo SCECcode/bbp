@@ -1,11 +1,20 @@
 #! /usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-This is the unit test for the as16.py BBP module
-$Id: test_as16.py 1795 2017-02-09 16:23:34Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -28,7 +37,7 @@ class TestAS16(unittest.TestCase):
     def setUp(self):
         self.install = InstallCfg()
         self.stations = "nr_v13_3_1.stl"
-        self.source = "nr_v14_02_1.src"        
+        self.source = "nr_v14_02_1.src"
         self.eventname = "NR"
         self.sim_id = int(seqnum.get_seq_num())
         sta_base = os.path.basename(os.path.splitext(self.stations)[0])
@@ -77,16 +86,16 @@ class TestAS16(unittest.TestCase):
                                     "stewart_duration_gmpe",
                                     "%d.as16.%s.txt" %
                                     (self.sim_id, self.eventname))
-        self.failIf(cmp_bbp.cmp_anderson_gof(ref_sum_file, cal_sum_file,
-                                             tolerance=0.005,
-                                             start_col=1,
-                                             sep=",") != 0,
+        self.failIf(cmp_bbp.cmp_files_generic(ref_sum_file, cal_sum_file,
+                                              tolerance=0.005,
+                                              start_col=1,
+                                              sep=",") != 0,
                     "AS16 Summary file does not match reference file!")
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         sim_id = int(sys.argv[1])
-        print "Will test with sim_id: %d" % (sim_id)
+        print("Will test with sim_id: %d" % (sim_id))
     else:
         sim_id = None
     suite = unittest.TestLoader().loadTestsFromTestCase(TestAS16)

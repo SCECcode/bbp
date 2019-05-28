@@ -202,6 +202,13 @@ SUBROUTINE time_distance
 !
 ! Updated: September 2014 (v1.5.5.1)
 !   Add sr_rrup calculation, finding Rrup distance for each station.
+!
+! Updated: December 2016 (v1.6.2)
+!   Avoid sr_cell = 0, for stf_ext computation in convolution.f90.
+!
+! Updated: February 2019 (v2.0)
+!   Change opening of time3d_P.out and time3d_S.out.
+!   Back to the original reading for tp and ts.
 
 use def_kind; use flags; use geometry; use interfaces, only: poly_interp
 use source_receiver
@@ -236,9 +243,17 @@ if (ext_flag == 1) then
    ! allocate array for cells-receivers distances
    allocate(sr_cell(n_cell,n_stat))
    ! compute distances   
-   forall (i=1:n_cell,k=1:n_stat)
-      sr_cell(i,k) = sqrt( (xp(k) - x_cell(i))**2 + (yp(k) - y_cell(i))**2 + (z_cell(i))**2 ) 
-   end forall
+   !forall (i=1:n_cell,k=1:n_stat)
+   !   sr_cell(i,k) = sqrt( (xp(k) - x_cell(i))**2 + (yp(k) - y_cell(i))**2 + (z_cell(i))**2 ) 
+   !end forall
+
+   ! compute distances, but avoid zero distances, v162
+   do k=1,n_stat
+      do i=1,n_cell
+         sr_cell(i,k) = sqrt( (xp(k) - x_cell(i))**2 + (yp(k) - y_cell(i))**2 + (z_cell(i))**2 )
+         if (sr_cell(i,k) == 0) sr_cell(i,k) = 0.1
+      enddo
+   enddo
 
    ! compute Rrup
    do k=1,n_stat
@@ -253,30 +268,18 @@ endif
 ! open binary files that contain the travel-times
 !open(1,file='time3d_P.out',access='direct',recl=nx)
 !open(2,file='time3d_S.out',access='direct',recl=nx)
-open(1,file='time3d_P.out',access='direct',recl=4)
-open(2,file='time3d_S.out',access='direct',recl=4)
-
-!open(3,file='tp.out',status='unknown')
-!open(4,file='ts.out',status='unknown')
-
+!open(1,file='time3d_P.out',access='direct',recl=4)
+!open(2,file='time3d_S.out',access='direct',recl=4)
+open(1,file='time3d_P.out',access='direct',recl=nx*4)
+open(2,file='time3d_S.out',access='direct',recl=nx*4)
 
 ! read travel times into a potentially large ny x nx array
 ! using only the information for nz=1, i.e. the surface layer
 nrec=0
-!do j=1,ny
-!   nrec=nrec+1
-!   read(1,rec=nrec) (tp(i,j),i=1,nx)
-!   read(2,rec=nrec) (ts(i,j),i=1,nx)
-!enddo
 do j=1,ny
-   do i=1,nx
-      nrec=nrec+1
-      read(1,rec=nrec) tp(i,j)
-      read(2,rec=nrec) ts(i,j)
-!      print*,'nrec= ',nrec
-!      write(3,*) tp(i,j)
-!      write(4,*) ts(i,j)
-   enddo
+   nrec=nrec+1
+   read(1,rec=nrec) (tp(i,j),i=1,nx)
+   read(2,rec=nrec) (ts(i,j),i=1,nx)
 enddo
 
 ! extract travel-time values
@@ -294,7 +297,6 @@ enddo
 
 ! close input files
 close(1);close(2)
-!close(3);close(4)
 
 ! deallocate memory
 deallocate(tp,ts)

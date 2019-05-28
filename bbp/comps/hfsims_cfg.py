@@ -1,12 +1,22 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 This config class will encapsulate the configuration parameters
 needed to run a simulation. Programs can derive specific
 configuration sets from this base class to suppor their own programs.
-$Id: hfsims_cfg.py 1744 2016-09-13 22:25:41Z fsilva $
 """
 from __future__ import division, print_function
 
@@ -44,7 +54,7 @@ class HfsimsCfg(object):
         #
         # Name of executable
         #
-        self.HFSIM = "hb_high_v5.4.3"
+        self.HFSIM = "hb_high_v6.0.3"
 
         #
         # Seismic Parameters
@@ -80,23 +90,29 @@ class HfsimsCfg(object):
         self.KAPPA = 0.04
 
         # These are default values for the WUS region
-        self.DEFAULT_DX = 2.0
-        self.DEFAULT_DY = 2.0
+        self.DEFAULT_DX = 1.0
+        self.DEFAULT_DY = 1.0
 
         self.RUPV = -1.0
         self.MEAN_RVFAC = 0.8
         self.RANGE_RVFAC = 0.05
-        self.SHAL_RVFAC = 0.7
+        self.SHAL_RVFAC = 0.6
         self.DEFAULT_EXTRA_FCFAC = 0.0
         self.UNITS = -1
         self.DEFAULT_VSMOHO = 999.9
-        self.PATH_DUR_MODEL = 0
-        self.DEEP_RVFAC = 1.0
-        self.RVSIG = 0.0
+        self.PATH_DUR_MODEL = 11
+        self.DEEP_RVFAC = 0.6
+        self.RVSIG = 0.1
+        self.C_ZERO = 2.0
 
         # Extra parameters required by hfsims V5.4
-        self.C_ALPHA = 0.1
+        self.C_ALPHA = -99
         self.FA_SIG1 = 0.0
+
+        # Extra parameter required by hfsims V6.0.3
+        # ISPAR_ADJUST = 1 for Western US/Japan
+        # ISPAR_ADJUST = 2 for CEUS
+        self.ISPAR_ADJUST = 1
 
 if __name__ == "__main__":
     print("Test Config Class: %s" % (__file__))

@@ -64,6 +64,14 @@ else
    fpw = fopfile(outfile,"w");
 
 fprintf(fpw,"%d\n",srf.srf_prect.nseg);
+fflush(fpw);
+
+slip = NULL;
+trise = NULL;
+tinit = NULL;
+sp = NULL;
+tr = NULL;
+ti = NULL;
 
 noff = 0;
 for(i=0;i<srf.srf_prect.nseg;i++)
@@ -130,12 +138,12 @@ for(i=0;i<srf.srf_prect.nseg;i++)
    fprintf(stderr,"nstk= %d nx= %d nxdiv= %d nxsum= %d\n",nstk,nx,nxdiv,nxsum);
    fprintf(stderr,"ndip= %d ny= %d nydiv= %d nysum= %d\n",ndip,ny,nydiv,nysum);
 
-   slip = (float *) check_malloc (nxdiv*nydiv*nstk*ndip*sizeof(float));
-   trise = (float *) check_malloc (nxdiv*nydiv*nstk*ndip*sizeof(float));
-   tinit = (float *) check_malloc (nxdiv*nydiv*nstk*ndip*sizeof(float));
-   sp = (float *) check_malloc (nx*ny*sizeof(float));
-   tr = (float *) check_malloc (nx*ny*sizeof(float));
-   ti = (float *) check_malloc (nx*ny*sizeof(float));
+   slip = (float *) check_realloc (slip,nxdiv*nydiv*nstk*ndip*sizeof(float));
+   trise = (float *) check_realloc (trise,nxdiv*nydiv*nstk*ndip*sizeof(float));
+   tinit = (float *) check_realloc (tinit,nxdiv*nydiv*nstk*ndip*sizeof(float));
+   sp = (float *) check_realloc (sp,nx*ny*sizeof(float));
+   tr = (float *) check_realloc (tr,nx*ny*sizeof(float));
+   ti = (float *) check_realloc (ti,nx*ny*sizeof(float));
 
    savg = 0.0;
    ravg = 0.0;
@@ -144,6 +152,10 @@ for(i=0;i<srf.srf_prect.nseg;i++)
       for(is=0;is<nstk;is++)
          {
 	 kp = noff + is + id*nstk;
+
+/*
+fprintf(stderr,"id= %d is= %d kp= %d noff= %d\n",id,is,kp,noff);
+*/
 
 	 tt = srf.srf_apnts.apntvals[kp].tinit;
 	 s1 = srf.srf_apnts.apntvals[kp].slip1;
@@ -175,9 +187,9 @@ for(i=0;i<srf.srf_prect.nseg;i++)
 	 while(rr > 360.0)
 	    rr = rr - 360.0;
 
-	 tl = (srf.srf_apnts.apntvals[kp].dt)*(srf.srf_apnts.apntvals[kp].nt1 - 1);
+	 tl = (srf.srf_apnts.apntvals[kp].dt)*(srf.srf_apnts.apntvals[kp].nt1);
 	 if(srf.srf_apnts.apntvals[kp].nt2 > srf.srf_apnts.apntvals[kp].nt1)
-	    tl = (srf.srf_apnts.apntvals[kp].dt)*(srf.srf_apnts.apntvals[kp].nt2 - 1);
+	    tl = (srf.srf_apnts.apntvals[kp].dt)*(srf.srf_apnts.apntvals[kp].nt2);
 	 if(tl < 0.0)
 	    tl = 0.0;
 	 for(k=0;k<nydiv;k++)
@@ -237,6 +249,7 @@ for(i=0;i<srf.srf_prect.nseg;i++)
 
    fprintf(fpw,"%10.4f %10.4f %5d %5d %8.2f %8.2f\n",elon,elat,nx,ny,dx,dy);
    fprintf(fpw,"%4.0f %4.0f %4.0f %8.2f %8.2f %8.2f\n",strike,dip,ravg,dtop,shypo,dhypo);
+   fflush(fpw);
 
    revstk = 0;
    if(avgstk > -1.0e+14 && (strike > avgstk + 90.0 || strike < avgstk - 90.0))
@@ -247,12 +260,12 @@ for(i=0;i<srf.srf_prect.nseg;i++)
       if(revstk)
          {
          for(ix=nx-1;ix>=0;ix--)
-            fprintf(fpw," %5.0f",sp[ix + iy*nx]);
+            fprintf(fpw,"%13.5e",sp[ix + iy*nx]);
 	 }
       else
          {
          for(ix=0;ix<nx;ix++)
-            fprintf(fpw," %5.0f",sp[ix + iy*nx]);
+            fprintf(fpw,"%13.5e",sp[ix + iy*nx]);
 	 }
 
       fprintf(fpw,"\n");
@@ -263,12 +276,12 @@ for(i=0;i<srf.srf_prect.nseg;i++)
       if(revstk)
          {
          for(ix=nx-1;ix>=0;ix--)
-            fprintf(fpw," %5.2f",tr[ix + iy*nx]);
+            fprintf(fpw,"%13.5e",tr[ix + iy*nx]);
 	 }
       else
          {
          for(ix=0;ix<nx;ix++)
-            fprintf(fpw," %5.2f",tr[ix + iy*nx]);
+            fprintf(fpw,"%13.5e",tr[ix + iy*nx]);
 	 }
 
       fprintf(fpw,"\n");
@@ -279,23 +292,17 @@ for(i=0;i<srf.srf_prect.nseg;i++)
       if(revstk)
          {
          for(ix=nx-1;ix>=0;ix--)
-            fprintf(fpw," %5.2f",ti[ix + iy*nx]);
+            fprintf(fpw,"%13.5e",ti[ix + iy*nx]);
 	 }
       else
          {
          for(ix=0;ix<nx;ix++)
-            fprintf(fpw," %5.2f",ti[ix + iy*nx]);
+            fprintf(fpw,"%13.5e",ti[ix + iy*nx]);
 	 }
 
       fprintf(fpw,"\n");
       }
-
-   free(slip);
-   free(trise);
-   free(tinit);
-   free(sp);
-   free(tr);
-   free(ti);
+   fflush(fpw);
 
    noff = noff + nstk*ndip;
    }

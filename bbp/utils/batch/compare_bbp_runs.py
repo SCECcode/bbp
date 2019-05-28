@@ -1,9 +1,23 @@
 #!/usr/bin/env python
 """
+Copyright 2010-2018 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
 Tool to compare bias plots from Broadband simulations done with the
 bbp parallel scripts on a cluster
-$Id: compare_bbp_runs.py 1024 2012-11-07 19:34:50Z fsilva $
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -48,7 +62,7 @@ def compare_runs(top_dir, output_file=None):
     """
     # Start with an empty list
     results = {}
-    
+
     for item in os.listdir(top_dir):
         sim_dir = os.path.join(top_dir, item)
 
@@ -65,10 +79,10 @@ def compare_runs(top_dir, output_file=None):
         results[item] = compute_avg_bias(files[0])
 
     # All done, print the results
-    print "Simulation    Average Bias"
+    print("Simulation    Average Bias")
     for key, val in sorted(results.iteritems(),
                            key=operator.itemgetter(1)):
-        print "%10s    %8f" % (key, val)
+        print("%10s    %8f" % (key, val))
 
 
 #----------------------------------------------------------------------------
@@ -76,7 +90,7 @@ def compare_runs(top_dir, output_file=None):
 #----------------------------------------------------------------------------
 
 if len(sys.argv) != 2:
-    print "Usage: %s top_simulation_dir" % (os.path.basename(sys.argv[0]))
+    print("Usage: %s top_simulation_dir" % (os.path.basename(sys.argv[0])))
     sys.exit(1)
 
-compare_runs(sys.argv[1])
+compare_runs(os.path.join(sys.argv[1], "Sims", "outdata"))
