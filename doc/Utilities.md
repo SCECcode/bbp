@@ -4,7 +4,7 @@ This page contains a brief description of the utilities included in the Broadban
 
 ### Plotting velocity models
 
-The 'plot_velocity_model.py' tool included in the 'utils/misc' directory can be used to create 1D velocity profile plots of the velocity models included with the Broadband Platform. It uses as input a velocity model profile in the format specified in the [File Formats](https://github.com/SCECcode/BBP/wiki/File-Format-Guide). In addition to the output plot file (in PNG format), users can also specify a title for the plot. For example:
+The 'plot_velocity_model.py' tool included in the 'utils/misc' directory can be used to create 1D velocity profile plots of the velocity models included with the Broadband Platform. It uses as input a velocity model profile in the format specified in the [File Formats](./File-Format-Guide.md). In addition to the output plot file (in PNG format), users can also specify a title for the plot. For example:
 
 ```
  $ plot_velocity_model.py -v nr02-vs500.fk1d -o labasin500.png -t "LA Basin 500"
