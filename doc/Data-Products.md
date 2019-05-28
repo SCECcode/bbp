@@ -64,23 +64,23 @@ Validation simulations can be used to calculate seismograms from historical even
 
 Plots showing calculated data (in red) along with observation data (in black). The two bottom plots show a comparison of the arias duration between simulations and recorded data.
 
-[[/images/NR_10000000_2001-SCE_overlay.png|Seismogram Comparison]]
+![Seismogram Comparison](images/NR_10000000_2001-SCE_overlay.png)
 
 #### PSA Comparison Plots
 
-[[/images/NR_10000000_2032-LBR_rotd50.png|RotD50 Comparison]]
+![RotD50 Comparison](images/NR_10000000_2032-LBR_rotd50.png)
 
 #### Goodness-of-Fit Plot
 
-[[/images/gof-NR-10000000_r0-120-rd50.png|GoF Plot]]
+![GoF Plot](images/gof-NR-10000000_r0-120-rd50.png)
 
 #### Map Goodness-of-Fit Plot
 
-[[/images/gof-map-NR-10000000-rotd50.png|Map GoF Plot]]
+![Map GoF Plot](images/gof-map-NR-10000000-rotd50.png)
 
 #### Distance Goodness-of-Fit Plot
 
-[[/images/gof-dist-log-NR-10000000-rotd50.png|Distance GoF Plot]]
+![Distance GoF Plot](images/gof-dist-log-NR-10000000-rotd50.png)
 
 #### Anderson GOF
 
@@ -101,18 +101,18 @@ C10 | Cross Correlation
 
 ##### Per Station Plots
 
-[[/images/gof-NR-10000000-anderson-2004-JGB.png|Anderson Station]]
+![Anderson Station](images/gof-NR-10000000-anderson-2004-JGB.png)
 
 ##### Summary Plots
 
-[[/images/gof-NR-10000000-anderson-summary.png|Anderson Summary]]
+![Anderson Summary](images/gof-NR-10000000-anderson-summary.png)
 
 #### RotD100/RotD50 Ratio Plot
 
-[[/images/gof-NR-10000000_r0-120-rd100.png|RotD100 Plot]]
+![RotD100 Plot](images/gof-NR-10000000_r0-120-rd100.png)
 
 #### RZZ2015 Plots
 
 The Broadband Platform will generate one RZZ2015 plot per component, per station. In these plots, simulated data is presented in red while observed data is shown in black.
 
-[[/images/10000000.rzz2015.2001-SCE.001.png|RZZ2015 Plot]]
+![RZZ2015 Plot](images/10000000.rzz2015.2001-SCE.001.png)

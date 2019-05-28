@@ -522,7 +522,7 @@ This simulation should take about 60-90 minutes, once it completes, the platform
 
 We will now inspect the results. The html file is helpful to display all the results in an organized way. There should be a goodness-of-fit plot, a station map plot, and a rupture plot showing the slip distribution, followed by per-station results with acceleration and velocity seismograms and other comparison plots. Please take a look at the goodness-of-fit plot. It should be similar to the one available in the `$BBP_DIR/../doc/examples/chino_hills_larger_mag/results` directory for the default 5.39 magnitude used in Chino Hills, and also shown below:
 
-[[/images/gof-CHINOH-6917077_r0-180-rd50.png|Goodness-of-Fit Plot for Mag 5.39 Chino Hills event]]
+![Goodness-of-Fit Plot for Mag 5.39 Chino Hills event](images/gof-CHINOH-6917077_r0-180-rd50.png)
 
 As an exercise (and for no scientific purpose whatsoever), we will modify the magnitude used for Chino Hills and see what happens to the results. We will increase the magnitude from 5.39 to 5.60. There is already a simple source description file with this modification in the `$BBP_DIR/../doc/examples/chino_hills_larger_mag` directory:
 
@@ -694,6 +694,6 @@ This simulation should again take about 60-90 minutes, once it completes, the pl
 
 Now that the simulation is finishes, we can go to the 'outdata' directory printed at the end of the run and look at the results. As before, we can open the html file for a more organized display of the results. Open the goodness of fit plot for this second simulation and compare it against the one we obtained before using the unmodified source description file. The new goodness of fit plot should be similar to the one available in the `$BBP_DIR/../doc/examples/chino_hills_larger_mag/results` directory for the modified Chino Hills event with magnitude 5.60, also shown below:
 
-[[/images/gof-CHINOH-6916980_r0-180-rd50.png|Goodness-of-Fit Plot for Mag 5.60 Chino Hills event]]
+![Goodness-of-Fit Plot for Mag 5.60 Chino Hills event](images/gof-CHINOH-6916980_r0-180-rd50.png)
 
 When comparing the results for the 5.39 and 5.60 magnitudes against each other we can see the the changes to the goodness of fit plot. The red line appears lower for the higher magnitude simulation as a result of the higher ground motion intensity.  

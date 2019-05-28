@@ -21,4 +21,4 @@ Additional information describing how to cite specific methods implemented in th
 
 ### Broadband Platform Diagram
 
-[[/images/SRL_Cover_v8.png|BBP Diagram used in SRL cover]]
+![BBP Diagram used in SRL cover](images/SRL_Cover_v8.png)

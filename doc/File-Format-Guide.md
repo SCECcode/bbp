@@ -179,7 +179,7 @@ Currently available 1D velocity models are:
 999.000000   7.800000   4.500000   3.300000     450.00     225.00
 ```
 
-[[/images/labasin500.png|Velocity Profile for LA Basin]]
+![Velocity Profile for LA Basin](images/labasin500.png)
 
 #### Mojave
 
@@ -203,7 +203,7 @@ Currently available 1D velocity models are:
 999.000000   7.800000   4.500000   3.200000     450.00     225.00
 ```
 
-[[/images/mojave500.png|Velocity Profile for the Mojave Region]]
+![Velocity Profile for the Mojave Region](images/mojave500.png)
 
 #### Northern California
 
@@ -226,7 +226,7 @@ Currently available 1D velocity models are:
 999.000000   7.800000   4.400000   3.300000     440.00     220.00
 ```
 
-[[/images/nocal500.png|Velocity Profile for Northern California]]
+![Velocity Profile for Northern California](images/nocal500.png)
 
 #### Central California
 
@@ -249,7 +249,7 @@ Currently available 1D velocity models are:
 999.000000   7.600000   4.300000   3.300000     430.00     215.00
 ```
 
-[[/images/centralcal500.png|Velocity Profile for Central California]]
+![Velocity Profile for Central California](images/centralcal500.png)
 
 #### Eastern United States
 
@@ -280,7 +280,7 @@ Currently available 1D velocity models are:
    999.0000     8.4300     4.8700     3.5193    2900.00    2900.00
 ```
 
-[[/images/ceus1000.png|Velocity Profile for the Eastern United States]]
+![Velocity Profile for the Eastern United States](images/ceus1000.png)
 
 #### Eastern Canada
 
@@ -312,7 +312,7 @@ Currently available 1D velocity models are:
    999.0000     8.4300     4.8700     3.5193    2900.00    2900.00
 ```
 
-[[/images/canada1000.png|Velocity Profile for Eastern Canada]]
+![Velocity Profile for Eastern Canada](images/canada1000.png)
 
 #### Central Japan
 
@@ -331,7 +331,7 @@ Currently available 1D velocity models are:
 999.000000   7.800000   4.500000   3.300000     450.00     225.00
 ```
 
-[[/images/centraljapan500.png|Velocity Profile for Central Japan]]
+![Velocity Profile for Central Japan](images/centraljapan500.png)
 
 #### Western Japan
 
@@ -348,7 +348,7 @@ Currently available 1D velocity models are:
 999.000000   7.800000   4.500000   3.300000     450.00     225.00
 ```
 
-[[/images/westernjapan500.png|Velocity Profile for Western Japan]]
+![Velocity Profile for Western Japan](images/westernjapan500.png)
 
 ### Broadband Platform Workflow Description (XML) File
 
