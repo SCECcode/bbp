@@ -78,4 +78,4 @@ export PATH=/home/sarah/bbp/bbp-19.4.0/bbp/comps:/home/sarah/bbp/bbp-19.4.0/bbp/
 ulimit -s unlimited
 ```
 
-After installing the Broadband Platform on their systems, users should confirm the code is built correctly by [running Unit and Acceptance Tests](https://github.com/SCECcode/BBP/wiki/Running-Tests) before starting to use the code for research purposes.
+After installing the Broadband Platform on their systems, users should confirm the code is built correctly by [running Unit and Acceptance Tests](./Running-Tests.md) before starting to use the code for research purposes.

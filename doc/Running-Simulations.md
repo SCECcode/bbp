@@ -10,9 +10,9 @@ The platform can be run in multiple modes. The default is interactive mode, in w
 
 For a large number of runs, or if the user is repeating a specific run, this can be tedious. The platform provides two other ways to describe a run, with an option file or an XML description.
 
-An option file provides responses to all the questions that the platform poses. The format is described in [File Formats](https://github.com/SCECcode/BBP/wiki/File-Format-Guide), but it's basically a text file, 1 entry per line, with support for comments. It can be fed to the platform using the -o option.
+An option file provides responses to all the questions that the platform poses. The format is described in [File Formats](./File-Format-Guide.md), but it's basically a text file, 1 entry per line, with support for comments. It can be fed to the platform using the -o option.
 
-The platform will also accept XML files containing a full description of a run. The schema for these files is given in [File Formats](https://github.com/SCECcode/BBP/wiki/File-Format-Guide). These files are also produced by the platform after every simulation, and placed in xml/<simulation ID>.xml. So if you want to rerun a simulation, you can point the platform to the XML file from that simulation using the '-x' option. Note that a new simulation ID will be assigned to the run, so there is no risk of overwriting previous simulation results.
+The platform will also accept XML files containing a full description of a run. The schema for these files is given in [File Formats](./File-Format-Guide.md). These files are also produced by the platform after every simulation, and placed in xml/<simulation ID>.xml. So if you want to rerun a simulation, you can point the platform to the XML file from that simulation using the '-x' option. Note that a new simulation ID will be assigned to the run, so there is no risk of overwriting previous simulation results.
 
 ### Available Options
 
@@ -63,11 +63,11 @@ To run a validation simulation, go to the data/run directory and run run_bbp.py.
  ...
 ```
 
-No input files are required by the user. However, you may wish to customize the validation simulation by selecting an alternate source description (src file) or a reduced station list to speed up the computations. You can put your own source description and/or station list into the run directory (the format is described in [File Formats](https://github.com/SCECcode/BBP/wiki/File-Format-Guide)) or you can tell the platform where each file is located by using an absolute path. Note that any stations which do not have observed seismograms will not be included in the automatically generated goodness-of-fit comparison. To supply alternative source description and/or station list files, please run the Broadband Platform in 'expert' mode using the '--expert' command-line flag.
+No input files are required by the user. However, you may wish to customize the validation simulation by selecting an alternate source description (src file) or a reduced station list to speed up the computations. You can put your own source description and/or station list into the run directory (the format is described in [File Formats](./File-Format-Guide.md)) or you can tell the platform where each file is located by using an absolute path. Note that any stations which do not have observed seismograms will not be included in the automatically generated goodness-of-fit comparison. To supply alternative source description and/or station list files, please run the Broadband Platform in 'expert' mode using the '--expert' command-line flag.
 
 ### User-defined Simulations
 
-To run a user-defined simulation, two input files are required, a source description (src file) and a station list (stl file). A simple source description (src file) is always required, but, for certain methods, a source description in SRF format (the format is described in [File Formats](https://github.com/SCECcode/BBP/wiki/File-Format-Guide) can be supplied as well and will be used for the seismogram computation modules in the Broadband Platform. To run a user-defined simulation, run run_bbp.py:
+To run a user-defined simulation, two input files are required, a source description (src file) and a station list (stl file). A simple source description (src file) is always required, but, for certain methods, a source description in SRF format (the format is described in [File Formats](./File-Format-Guide.md) can be supplied as well and will be used for the seismogram computation modules in the Broadband Platform. To run a user-defined simulation, run run_bbp.py:
 
 ```
  $ run_bbp.py
@@ -135,7 +135,7 @@ To help visualize the stations in relationship to the fault, the platform produc
 
 When running the Broadband Platform, you have the option to generate plots of velocity and acceleration seismograms for each station. Plots of these files can be found in `outdata/<simulation ID>/<simulation ID>.<station>_<velocity or acceleration>_seis.png`.
 
-The raw seismogram data is available in `outdata/<simulation ID>/<simulation ID>.<station>.vel.bbp` (velocity) and `outdata/<simulation ID>.<station>.acc.bbp` (acceleration).  Its format is described in [File Formats](https://github.com/SCECcode/BBP/wiki/File-Format-Guide).
+The raw seismogram data is available in `outdata/<simulation ID>/<simulation ID>.<station>.vel.bbp` (velocity) and `outdata/<simulation ID>.<station>.acc.bbp` (acceleration).  Its format is described in [File Formats](./File-Format-Guide.md).
 
 #### Response Spectra
 
@@ -145,7 +145,7 @@ The RotD50 code, run during each simulation, calculates the response spectra for
  outdata/<simulation ID>/<simulation ID>.<station>.rd50
 ```
 
-in the format described in [File Formats](https://github.com/SCECcode/BBP/wiki/File-Format-Guide).
+in the format described in [File Formats](./File-Format-Guide.md).
 
 #### Goodness-of-fit
 
@@ -385,7 +385,7 @@ Again, when the run completes, in about 30-45 minutes, you can find results in t
 
 #### Sample User-defined Southern California simulation with source description
 
-Next let's try running a user-defined event. Copy the files `$BBP_DIR/../doc/examples/scenario_1_station/nr_one_stat.stl` and `$BBP_DIR/../doc/examples/scenario_1_station/user_eq.src` to the `$BBP_DATA_DIR/run` directory. user_eq.src is a simple source description. Its format is outlined in [File Formats](https://github.com/SCECcode/BBP/wiki/File-Format-Guide).
+Next let's try running a user-defined event. Copy the files `$BBP_DIR/../doc/examples/scenario_1_station/nr_one_stat.stl` and `$BBP_DIR/../doc/examples/scenario_1_station/user_eq.src` to the `$BBP_DATA_DIR/run` directory. user_eq.src is a simple source description. Its format is outlined in [File Formats](./File-Format-Guide.md).
 
 ```
  $ run_bbp.py
