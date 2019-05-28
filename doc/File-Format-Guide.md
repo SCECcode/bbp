@@ -31,9 +31,18 @@ CORNER_FREQ = 0.15
 SEED = 2379646
 ```
 
-In the SRC file, lines starting with '#' are considered comments and are ignored by the Platform. The first few parameters are used to specify the event magnitude and describe the rupture. FAULT_LENGTH is used to specify the extent of the fault plane in the along strike direction, while FAULT_WIDTH specifies the dimension of the fault plane in the down dip direction. DEPTH_TO_TOP specifies how deep the fault plane is located (zero means a surface rupture). LAT_TOP_CENTER and LON_TOP_CENTER specify the location of the top center point of the fault plane. HYPO_ALONG_STK and HYPO_DOWN_DIP specify the hypocenter location within the fault plane, with the (0, 0) coordinate being the TOP_CENTER of the fault plane. Therefore, HYPO_ALONG_STK goes from -(FAULT_LENGTH / 2) to (FAULT_LENGTH / 2), with zero being the mid-point of the fault plane. HYPO_DOWN_DIP starts at zero (top of the plane) and goes down to FAULT_WIDTH. All distances should be provided in kilometers (km). STRIKE, RAKE, and DIP are used to describe the fault mechanism and should be provided in degrees.
+In the SRC file, lines starting with '#' are considered comments and are ignored by the Platform.
+* The first few parameters are used to specify the event magnitude and describe the rupture.
+* Magnitude (Mw) is the moment magnitude of the earthquake.
+* FAULT_LENGTH (km) is used to specify the extent of the fault plane in the along strike direction.
+* FAULT_WIDTH (km) specifies the dimension of the fault plane in the down dip direction.
+* DEPTH_TO_TOP (km, positive) specifies how deep the fault plane is located (zero means a surface rupture).
+* LAT_TOP_CENTER (decimal degrees) and LON_TOP_CENTER (decimal degrees) specify the location of the top center point of the fault plane.
+* HYPO_ALONG_STK (km positive or negative) and HYPO_DOWN_DIP (km positive) specify the hypocenter location within the fault plane, with the (0, 0) coordinate being the TOP_CENTER of the fault plane. Therefore, HYPO_ALONG_STK goes from -(FAULT_LENGTH / 2) to (FAULT_LENGTH / 2), with zero being the mid-point of the fault plane. HYPO_DOWN_DIP starts at zero (top of the plane) and goes down to FAULT_WIDTH. All distances should be provided in kilometers (km).
 
 ##### Strike and Rake
+
+STRIKE, RAKE, and DIP are used to describe the fault mechanism and should be provided in decimal degrees.
 
 As per Rob Graves, strike and rake are defined using Aki & Richards format:
 
@@ -58,48 +67,48 @@ Finally, the CORNER_FREQ parameter is only used by the UCSB method. This paramet
 Below is a sample STL file, with the stations used in the 1989 Loma Prieta earthquake:
 
 ```
-#BBP Station List for Loma Prieta
-#SLong    SLat     RSN   Vs30(m/s) LoPass_Freq(Hz) HiPass_Freq(Hz)
--121.803 37.050  8001-CLS  462 0.1866  111.1111
--122.010 37.172  8002-LGP  515 0.3012  111.1111
--121.991 37.202  8003-LEX  1070 0.0984  111.1111
--122.031 37.255  8004-STG  387 0.1422  111.1111
--122.009 37.262  8005-WVC  387 0.1263  111.1111
--121.572 36.973  8006-G01  1428 0.2584  111.1111
--121.568 36.973  8007-GIL  730 0.2732  111.1111
--121.984 37.047  8008-BRN  353 0.2611  111.1111
--121.569 37.009  8009-GOF  387 0.2268  111.1111
--121.536 36.987  8010-G03  350 0.1248  111.1111
--121.803 37.210  8011-SJTE 672 0.1085  111.1111
--121.995 36.972  8012-WAH  390 0.2174  111.1111
--121.484 37.026  8020-G06  663 0.3012  111.1111
--122.060 37.001  8016-LOB  714 0.2058  111.1111
--122.062 37.001  8014-UC2  714 0.4348  111.1111
--121.628 37.166  8021-ADL  489 0.1767  111.1111
--121.628 37.166  8022-AND  489 0.2674  111.1111
--121.550 37.118  8026-CYC  540 0.1639  111.1111
--121.434 37.033  8015-GMR  334 0.3077  111.1111
--121.397 36.848  8013-HSP  306 0.1439  111.1111
--121.446 36.765  8025-SGI  748 0.1263  111.1111
--122.210 37.420  8017-SLC  425 0.3077  111.1111
--121.642 36.671  8024-SJW  353 0.1277  111.1111
--122.258 37.429  8019-WDS  454 0.1222  111.1111
--121.395 36.753  8018-SG3  609 0.1263  111.1111
--121.807 37.452  8023-CLR  540 0.1453  111.1111
--122.308 37.512  8040-BES  628 0.2151  111.1111
--121.880 37.597  8032-SUF  401 0.1236  111.1111
--122.361 37.529  8028-XSP  782 0.3012  111.1111
--121.249 36.658  8036-BVW  331 0.1133  111.1111
--122.061 37.657  8030-A3E  517 0.3040  111.1111
--121.932 37.709  8037-DFS  353 0.1038  111.1111
--121.184 36.573  8027-BVF  353 0.3390  111.1111
--121.143 36.532  8038-BVR  304 0.1639  111.1111
--121.043 36.569  8033-BVU  390 0.2500  111.1111
--122.391 37.786  8029-RIN  873 0.2976  111.1111
--122.513 37.778  8031-CFH  782 0.2398  111.1111
--122.249 37.876  8034-BRK  609 0.2398  111.1111
--122.476 37.808  8035-GGB  653 0.2421  111.1111
--122.527 37.822  8039-PTB  1316 0.2941  111.1111
+# BBP Station List for Loma Prieta
+# Lon    Lat    StationId  Vs30(m/s)  LP_Freq(Hz)  HP_Freq(Hz)
+-121.803 37.050  8001-CLS   462 0.1875  32.0000
+-122.010 37.172  8002-LGP   515 0.1250  10.0000
+-121.991 37.202  8003-LEX  1070 0.1000  23.9998
+-122.031 37.255  8004-STG   387 0.1250  30.3998
+-122.009 37.262  8005-WVC   387 0.1250  30.3998
+-121.572 36.973  8006-G01  1428 0.0750  40.0000
+-121.568 36.973  8007-GIL   730 0.1250  28.0002
+-121.984 37.047  8008-BRN   353 0.1250  10.0000
+-121.569 37.009  8009-GOF   387 0.2250  30.3998
+-121.536 36.987  8010-G03   350 0.1250  26.3999
+-121.803 37.210  8011-SJTE  672 0.0375  23.9998
+-121.995 36.972  8012-WAH   390 0.1000  56.0004
+-121.397 36.848  8013-HSP   306 0.0875  18.3999
+-122.062 37.001  8014-UC2   714 0.1250  40.0000
+-121.434 37.033  8015-GMR   334 0.1625  28.0002
+-122.060 37.001  8016-LOB   714 0.1500  32.0000
+-122.210 37.420  8017-SLC   425 0.1250  22.3999
+-121.395 36.753  8018-SG3   609 0.0625  20.0000
+-122.258 37.429  8019-WDS   454 0.1000  20.0000
+-121.484 37.026  8020-G06   663 0.1625  24.7997
+-121.628 37.166  8021-ADL   489 0.1750  25.6003
+-121.628 37.166  8022-AND   489 0.1000  32.0000
+-121.807 37.452  8023-CLR   540 0.0875  20.0000
+-121.642 36.671  8024-SJW   353 0.1250  22.3999
+-121.446 36.765  8025-SGI   748 0.1250  24.7997
+-121.550 37.118  8026-CYC   540 0.1625  24.7997
+-121.184 36.573  8027-BVF   353 0.3750  16.0000
+-122.361 37.529  8028-XSP   782 0.1250  16.0000
+-122.391 37.786  8029-RIN   873 0.1250  32.0000
+-122.061 37.657  8030-A3E   517 0.1250  23.9998
+-122.513 37.778  8031-CFH   782 0.1375  17.6001
+-121.880 37.597  8032-SUF   401 0.1250  16.0000
+-121.043 36.569  8033-BVU   390 0.2500  16.0000
+-122.249 37.876  8034-BRK   609 0.1250  14.4001
+-122.476 37.808  8035-GGB   653 0.1625  17.6001
+-121.249 36.658  8036-BVW   331 0.1125  16.0000
+-121.932 37.709  8037-DFS   353 0.1000  10.4000
+-121.143 36.532  8038-BVR   304 0.1625  18.3999
+-122.527 37.822  8039-PTB  1316 0.0750  16.0000
+-122.308 37.512  8040-BES   628 0.1000  17.6001
 ```
 
 Each line in the station list (STL) file contains information about one station used in the simulation. Lines starting with '#' are comments and are ignored by the Broadband Platform. Each line should contain at least 3 parameters, but can also optionally include a total of 4 or 6 parameters. The first 3 parameters (required) are longitude, latitude, and station name. Latitude and longitude should be provided in decimal degrees (if converting from degrees, minutes, and seconds, the latitude of 37 degrees, 30 minutes, and 0 seconds should be specified as 37.5). The station name is an identifier for the station and should contain between 3 and 10 characters. These 3 parameters form the minimum set required for each of the stations. Optionally, a station can include a 4th parameter, the Vs30 (specified in meters per second) for the particular location where the station is located. Also optionally, each station can include 2 more parameters that specify the frequency range (in Hertz) where recordings for a specific station are valid. These 2 values, used only when the platform runs in validation mode, are used to filter untrusted data out of the Goodness of Fit (GoF) plots. Please note that it is not possible to include the frequency ranges without including the Vs30 parameter. If the frequency range is not specified, the Broadband Platform will use the entire 0.1Hz to 100Hz range for the GoF plots.
@@ -151,85 +160,98 @@ Currently available 1D velocity models are:
 
 #### LA Basin
 
-[Velocity Profile for LA Basin](https://scec.usc.edu/scecpedia/File:La_basin.png)
+```
+15
+  0.010000   1.500000   0.425000   2.000000      42.50      21.25
+  0.020000   1.600000   0.538000   2.050000      53.80      26.90
+  0.070000   1.800000   0.650000   2.100000      65.00      32.50
+  0.100000   2.000000   0.800000   2.200000      80.00      40.00
+  0.300000   3.100000   1.400000   2.300000     140.00      70.00
+  0.500000   3.700000   1.800000   2.450000     180.00      90.00
+  0.500000   4.200000   2.100000   2.575000     210.00     105.00
+  1.000000   4.750000   2.400000   2.600000     240.00     120.00
+  1.000000   5.100000   2.750000   2.620000     275.00     137.50
+  1.500000   5.400000   3.000000   2.650000     300.00     150.00
+  2.000000   5.800000   3.350000   2.700000     335.00     167.50
+  2.000000   6.200000   3.500000   2.720000     350.00     175.00
+  8.000000   6.350000   3.600000   2.750000     360.00     180.00
+ 13.000000   6.800000   3.800000   3.000000     380.00     190.00
+999.000000   7.800000   4.500000   3.300000     450.00     225.00
+```
 
-```
-18
-  0.0020   1.7000   0.4500   2.0000    45.00    22.50
-  0.0040   1.8000   0.6500   2.1000    65.00    32.50
-  0.0060   1.8000   0.8500   2.1000    85.00    42.50
-  0.0080   1.9000   0.9500   2.1000    95.00    47.50
-  0.0100   2.0000   1.1500   2.2000   115.00    57.50
-  0.0700   2.4000   1.2000   2.2000   120.00    60.00
-  0.2000   2.8000   1.4000   2.3000   140.00    70.00
-  0.2000   3.1000   1.6000   2.4000   160.00    80.00
-  0.2000   3.4000   1.8000   2.4500   180.00    90.00
-  0.3000   3.7000   2.1000   2.5000   210.00   105.00
-  2.0000   4.4000   2.4000   2.6000   240.00   120.00
-  2.0000   5.1000   2.8000   2.7000   280.00   140.00
-  1.0000   5.6000   3.1500   2.7500   315.00   157.50
-  5.0000   6.1500   3.6000   2.8250   360.00   180.00
-  5.0000   6.3200   3.6500   2.8500   365.00   182.50
-  5.0000   6.5500   3.7000   2.9000   370.00   185.00
- 10.0000   6.8000   3.8000   2.9500   380.00   190.00
-999.0000   7.8000   4.5000   3.2000   450.00   225.00
-```
+[[/images/labasin500.png|Velocity Profile for LA Basin]]
 
 #### Mojave
 
-[Velocity Profile for the Mojave Region](https://scec.usc.edu/scecpedia/File:Mojave.png)
+```
+16
+  0.010000   1.600000   0.425000   2.000000      42.50      21.25
+  0.020000   1.700000   0.550000   2.050000      55.00      27.50
+  0.070000   1.900000   0.650000   2.100000      65.00      32.50
+  0.100000   2.300000   0.900000   2.200000      90.00      45.00
+  0.300000   2.900000   1.400000   2.300000     140.00      70.00
+  0.500000   3.700000   1.900000   2.450000     190.00      95.00
+  0.500000   4.500000   2.300000   2.575000     230.00     115.00
+  0.500000   4.900000   2.800000   2.600000     280.00     140.00
+  1.000000   5.300000   3.000000   2.650000     300.00     150.00
+  1.000000   5.600000   3.200000   2.700000     320.00     160.00
+  1.000000   5.800000   3.300000   2.750000     330.00     165.00
+  1.000000   6.100000   3.500000   2.800000     350.00     175.00
+ 10.000000   6.320000   3.650000   2.850000     365.00     182.50
+  5.000000   6.550000   3.700000   2.900000     370.00     185.00
+ 10.000000   6.800000   3.800000   2.950000     380.00     190.00
+999.000000   7.800000   4.500000   3.200000     450.00     225.00
+```
 
-```
-18
-     0.0020     1.7000     0.4500     2.0000      45.00      22.50
-     0.0040     1.8000     0.6500     2.1000      65.00      32.50
-     0.0060     1.8000     0.8500     2.1000      85.00      42.50
-     0.0080     1.9000     0.9500     2.1000      95.00      47.50
-     0.0100     2.0000     1.1500     2.2000     115.00      57.50
-     0.0700     2.8000     1.4000     2.3000     140.00      70.00
-     0.2000     3.4000     1.7000     2.4000     170.00      85.00
-     0.2000     3.9000     2.0000     2.5000     200.00     100.00
-     0.2000     4.3000     2.3000     2.6000     230.00     115.00
-     0.3000     4.4000     2.5000     2.6500     250.00     125.00
-     2.0000     5.1000     2.8000     2.7000     280.00     140.00
-     2.0000     6.0000     3.3000     2.7500     330.00     165.00
-     1.0000     6.1000     3.4500     2.8000     345.00     172.50
-     5.0000     6.1500     3.6000     2.8250     360.00     180.00
-     5.0000     6.3200     3.6500     2.8500     365.00     182.50
-     5.0000     6.5500     3.7000     2.9000     370.00     185.00
-    10.0000     6.8000     3.8000     2.9500     380.00     190.00
-   999.0000     7.8000     4.5000     3.2000     450.00     225.00
-```
+[[/images/mojave500.png|Velocity Profile for the Mojave Region]]
 
 #### Northern California
 
-[Velocity Profile for Northern California](https://scec.usc.edu/scecpedia/File:Nocal.png)
+```
+15
+  0.010000   1.600000   0.425000   2.000000      42.50      21.25
+  0.020000   1.700000   0.538000   2.050000      53.80      26.90
+  0.070000   1.900000   0.650000   2.100000      65.00      32.50
+  0.100000   2.100000   0.800000   2.200000      80.00      40.00
+  0.300000   2.500000   1.200000   2.300000     120.00      60.00
+  0.500000   3.600000   1.900000   2.450000     190.00      95.00
+  0.500000   4.400000   2.500000   2.575000     250.00     125.00
+  1.000000   4.800000   2.800000   2.600000     280.00     140.00
+  1.000000   5.250000   3.100000   2.620000     310.00     155.00
+  1.500000   5.500000   3.250000   2.650000     325.00     162.50
+  2.000000   5.600000   3.350000   2.700000     335.00     167.50
+  2.000000   5.750000   3.450000   2.720000     345.00     172.50
+  8.000000   6.100000   3.600000   2.750000     360.00     180.00
+  8.000000   6.500000   3.800000   3.000000     380.00     190.00
+999.000000   7.800000   4.400000   3.300000     440.00     220.00
+```
+
+[[/images/nocal500.png|Velocity Profile for Northern California]]
+
+#### Central California
 
 ```
-18
-  0.0020   1.7000   0.4500   2.0000    45.00    22.50
-  0.0040   1.8000   0.6500   2.1000    65.00    32.50
-  0.0060   1.8000   0.8500   2.1000    85.00    42.50
-  0.0080   1.9000   0.9500   2.1000    95.00    47.50
-  0.0100   2.0000   1.1500   2.2000   115.00    57.50
-  0.0700   2.4000   1.2000   2.2000   120.00    60.00
-  0.1000   2.6000   1.3000   2.4000   130.00    65.00
-  0.3000   3.0000   1.4000   2.4500   140.00    70.00
-  0.5000   3.6000   1.9500   2.5500   195.00    97.50
-  0.5000   4.4000   2.5000   2.6000   250.00   125.00
-  1.0000   4.8000   2.8000   2.6000   280.00   140.00
-  1.0000   5.2500   3.1000   2.6200   310.00   155.00
-  1.5000   5.5000   3.2500   2.6500   325.00   162.50
-  2.0000   5.6000   3.3500   2.7000   335.00   167.50
-  2.0000   5.7500   3.4500   2.7200   345.00   172.50
-  8.0000   6.1000   3.6000   2.7500   360.00   180.00
-  8.0000   6.5000   3.8000   3.0000   380.00   190.00
-999.0000   7.8000   4.4000   3.3000   440.00   220.00
+15
+  0.010000   1.600000   0.425000   2.000000      42.50      21.25
+  0.020000   1.700000   0.538000   2.050000      53.80      26.90
+  0.070000   1.900000   0.650000   2.100000      65.00      32.50
+  0.100000   2.100000   1.000000   2.200000     100.00      50.00
+  0.300000   3.600000   1.800000   2.300000     180.00      90.00
+  0.500000   4.150000   2.200000   2.450000     220.00     110.00
+  0.500000   4.300000   2.300000   2.575000     230.00     115.00
+  1.000000   4.400000   2.400000   2.600000     240.00     120.00
+  1.000000   4.500000   2.500000   2.620000     250.00     125.00
+  1.500000   4.600000   2.600000   2.650000     260.00     130.00
+  2.000000   5.000000   2.800000   2.700000     280.00     140.00
+  2.000000   5.400000   3.100000   2.720000     310.00     155.00
+  5.000000   6.100000   3.500000   2.750000     350.00     175.00
+ 14.000000   6.600000   3.700000   3.000000     370.00     185.00
+999.000000   7.600000   4.300000   3.300000     430.00     215.00
 ```
+
+[[/images/centralcal500.png|Velocity Profile for Central California]]
 
 #### Eastern United States
-
-[Velocity Profile for the Eastern United States](https://scec.usc.edu/scecpedia/File:Ceus_1k.png)
 
 ```
 23
@@ -258,9 +280,9 @@ Currently available 1D velocity models are:
    999.0000     8.4300     4.8700     3.5193    2900.00    2900.00
 ```
 
-#### Eastern Canada
+[[/images/ceus1000.png|Velocity Profile for the Eastern United States]]
 
-[Velocity Profile for Eastern Canada](https://scec.usc.edu/scecpedia/File:Canada_1k.png)
+#### Eastern Canada
 
 ```
 24
@@ -290,49 +312,43 @@ Currently available 1D velocity models are:
    999.0000     8.4300     4.8700     3.5193    2900.00    2900.00
 ```
 
+[[/images/canada1000.png|Velocity Profile for Eastern Canada]]
+
 #### Central Japan
 
-[Velocity Profile for Central Japan](https://scec.usc.edu/scecpedia/File:Central_japan.png)
+```
+11
+  0.010000   1.600000   0.425000   2.000000      42.50      21.25
+  0.020000   1.700000   0.550000   2.050000      55.00      27.50
+  0.070000   1.900000   0.650000   2.100000      65.00      32.50
+  0.100000   2.400000   1.000000   2.200000     100.00      50.00
+  0.160000   3.000000   1.400000   2.450000     140.00      70.00
+  0.100000   3.600000   2.000000   2.550000     200.00     100.00
+  0.440000   4.200000   2.400000   2.600000     240.00     120.00
+  5.900000   5.500000   3.200000   2.650000     320.00     160.00
+ 10.200000   6.100000   3.400000   2.750000     340.00     170.00
+ 14.630000   6.500000   3.800000   3.000000     380.00     190.00
+999.000000   7.800000   4.500000   3.300000     450.00     225.00
+```
 
-```
-14
-     0.0020     1.7000     0.4500     2.0000      45.00      22.50
-     0.0040     1.8000     0.6500     2.1000      65.00      32.50
-     0.0060     1.8000     0.8500     2.1000      85.00      42.50
-     0.0080     1.9000     0.9500     2.1000      95.00      47.50
-     0.0100     2.0000     1.1500     2.2000     115.00      57.50
-     0.0700     2.4000     1.2000     2.2000     120.00      60.00
-     0.1000     2.6000     1.3000     2.4000     130.00      65.00
-     0.1600     3.0000     1.4000     2.4500     140.00      70.00
-     0.1000     3.6000     2.0000     2.5500     200.00     100.00
-     0.4400     4.2000     2.4000     2.6000     240.00     120.00
-     5.9000     5.5000     3.2000     2.6500     320.00     160.00
-    10.2000     6.1000     3.4000     2.7500     340.00     170.00
-    14.6300     6.5000     3.8000     3.0000     380.00     190.00
-   999.0000     7.8000     4.5000     3.3000     450.00     225.00
-```
+[[/images/centraljapan500.png|Velocity Profile for Central Japan]]
 
 #### Western Japan
 
-[Velocity Profile for Western Japan](https://scec.usc.edu/scecpedia/File:Western_japan.png)
+```
+9
+  0.010000   1.600000   0.425000   2.000000      42.50      21.25
+  0.020000   1.700000   0.550000   2.100000      55.00      27.50
+  0.030000   2.400000   1.200000   2.200000     120.00      60.00
+  0.030000   2.800000   1.600000   2.450000     160.00      80.00
+  0.040000   4.200000   2.400000   2.600000     240.00     120.00
+  6.670000   5.500000   3.200000   2.650000     320.00     160.00
+ 10.200000   6.100000   3.400000   2.750000     340.00     170.00
+ 14.630000   6.500000   3.800000   3.000000     380.00     190.00
+999.000000   7.800000   4.500000   3.300000     450.00     225.00
+```
 
-```
-14
-     0.0020     1.7000     0.4500     2.0000      45.00      22.50
-     0.0040     1.8000     0.6500     2.1000      65.00      32.50
-     0.0060     1.8000     0.8500     2.1000      85.00      42.50
-     0.0080     1.9000     0.9500     2.1000      95.00      47.50
-     0.0100     2.0000     1.1500     2.2000     115.00      57.50
-     0.0200     2.4000     1.2000     2.2000     120.00      60.00
-     0.0200     2.6000     1.3000     2.4000     130.00      65.00
-     0.0200     3.0000     1.4000     2.4500     140.00      70.00
-     0.0200     3.6000     2.0000     2.5500     200.00     100.00
-     0.0200     4.2000     2.4000     2.6000     240.00     120.00
-     6.6700     5.5000     3.2000     2.6500     320.00     160.00
-    10.2000     6.1000     3.4000     2.7500     340.00     170.00
-    14.6300     6.5000     3.8000     3.0000     380.00     190.00
-   999.0000     7.8000     4.5000     3.3000     450.00     225.00
-```
+[[/images/westernjapan500.png|Velocity Profile for Western Japan]]
 
 ### Broadband Platform Workflow Description (XML) File
 
@@ -340,367 +356,147 @@ The Broadband Platform uses a XML file to describe the workflow, or processing s
 
 ```
 <BBP_Run_Specification>
-	<Validation_Run event="WHITTIER" input_station_file="$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl" subset="false"/>
+	<Validation_Run event="WHITTIER" input_station_file="$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl" version="19.4.0"/>
 	<BBP_Modules>
 		<BBP_Module>
-			<name>
-				Genslip
-			</name>
+			<name>Genslip</name>
 			<staged_files>
-				<file>
-					$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src
-				</file>
+				<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
+				<file>$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src</file>
 			</staged_files>
 			<arguments>
-				<argument type="str">
-					genslip_nr_generic1d-gp01.vmod
-				</argument>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.src
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.srf
-				</argument>
-				<argument type="str">
-					LABasin
-				</argument>
+				<argument type="str">nr02-vs500.fk1d</argument>
+				<argument type="str">whittier_v12_11_0_sdsu.src</argument>
+				<argument type="str">whittier_v12_11_0_sdsu.srf</argument>
+				<argument type="str">LABasin500</argument>
 			</arguments>
 		</BBP_Module>
 		<BBP_Module>
-			<name>
-				Jbsim
-			</name>
+			<name>Jbsim</name>
 			<staged_files>
-				<file>
-					$BBP_INSTALL_GF/LABasin/gp/genslip_nr_generic1d-gp01.vmod
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
+				<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
+				<file>$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src</file>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
 			</staged_files>
 			<arguments>
-				<argument type="str">
-					genslip_nr_generic1d-gp01.vmod
-				</argument>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.src
-				</argument>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.srf
-				</argument>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-				<argument type="str">
-					LABasin
-				</argument>
+				<argument type="str">nr02-vs500.fk1d</argument>
+				<argument type="str">whittier_v12_11_0_sdsu.src</argument>
+				<argument type="str">whittier_v12_11_0_sdsu.srf</argument>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+				<argument type="str">LABasin500</argument>
 			</arguments>
 		</BBP_Module>
 		<BBP_Module>
-			<name>
-				BBToolbox
-			</name>
+			<name>BBToolbox</name>
 			<staged_files>
-				<file>
-					$BBP_INSTALL_GF/LABasin/sdsu/sdsu-apr2013-labasin-vmod.txt
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
+				<file>$BBP_INSTALL_GF/LABasin500/sdsu/sdsu-aug2018-labasin-vmod.txt</file>
+				<file>$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src</file>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
 			</staged_files>
 			<arguments>
-				<argument type="str">
-					
-				</argument>
-				<argument type="str">
-					sdsu-apr2013-labasin-vmod.txt
-				</argument>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.src
-				</argument>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.srf
-				</argument>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-				<argument type="str">
-					LABasin
-				</argument>
+				<argument type="str"></argument>
+				<argument type="str">sdsu-aug2018-labasin-vmod.txt</argument>
+				<argument type="str">whittier_v12_11_0_sdsu.src</argument>
+				<argument type="str">whittier_v12_11_0_sdsu.srf</argument>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+				<argument type="str">LABasin500</argument>
 			</arguments>
 		</BBP_Module>
 		<BBP_Module>
-			<name>
-				CopySeismograms
-			</name>
+			<name>WccSiteamp</name>
 			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
 			</staged_files>
 			<arguments>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+				<argument type="str">SDSU</argument>
+				<argument type="str">LABasin500</argument>
+			</arguments>
+		</BBP_Module>
+		<BBP_Module>
+			<name>Plot_Map</name>
+			<staged_files>
+				<file>$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src</file>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
+			</staged_files>
+			<arguments>
+				<argument type="str">whittier_v12_11_0_sdsu.src</argument>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+			</arguments>
+		</BBP_Module>
+		<BBP_Module>
+			<name>PlotSeis</name>
+			<staged_files>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
+				<file>$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src</file>
+			</staged_files>
+			<arguments>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+				<argument type="str">whittier_v12_11_0_sdsu.src</argument>
+				<argument type="bool">True</argument>
+				<argument type="bool">True</argument>
+			</arguments>
+		</BBP_Module>
+		<BBP_Module>
+			<name>RotD100</name>
+			<staged_files>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
+			</staged_files>
+			<arguments>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+			</arguments>
+		</BBP_Module>
+		<BBP_Module>
+			<name>ObsSeismograms</name>
+			<staged_files>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
+			</staged_files>
+			<arguments>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+				<argument type="str">$BBP_INSTALL_VAL/Whittier/obs/Acc</argument>
+				<argument type="str">acc_peer</argument>
+				<argument type="str"></argument>
+			</arguments>
+		</BBP_Module>
+		<BBP_Module>
+			<name>GenPlots</name>
+			<staged_files>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
+			</staged_files>
+			<arguments>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+				<argument type="str">acc</argument>
+				<argument type="str">WHITTIER</argument>
+			</arguments>
+		</BBP_Module>
+		<BBP_Module>
+			<name>GPGof</name>
+			<staged_files>
+				<file>$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src</file>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
+			</staged_files>
+			<arguments>
+				<argument type="str">whittier_v12_11_0_sdsu.src</argument>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+				<argument type="str">WHITTIER</argument>
+				<argument type="int">100</argument>
 			</arguments>
 			<keyword_arguments>
-				<keyword_argument keyword="hybrid" type="bool">
-					True
-				</keyword_argument>
+				<keyword_argument keyword="single_component" type="bool">False</keyword_argument>
 			</keyword_arguments>
 		</BBP_Module>
 		<BBP_Module>
-			<name>
-				Plot_Map
-			</name>
+			<name>GenHTML</name>
 			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
+				<file>$BBP_INSTALL_VAL/Whittier/common/whittier_v19_02_1.stl</file>
+				<file>$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src</file>
 			</staged_files>
 			<arguments>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.src
-				</argument>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-			</arguments>
-		</BBP_Module>
-		<BBP_Module>
-			<name>
-				PlotSeis
-			</name>
-			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
-			</staged_files>
-			<arguments>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="bool">
-					True
-				</argument>
-				<argument type="bool">
-					True
-				</argument>
-			</arguments>
-		</BBP_Module>
-		<BBP_Module>
-			<name>
-				Respect
-			</name>
-			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
-			</staged_files>
-			<arguments>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-			</arguments>
-		</BBP_Module>
-		<BBP_Module>
-			<name>
-				RotD50
-			</name>
-			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
-			</staged_files>
-			<arguments>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-			</arguments>
-		</BBP_Module>
-		<BBP_Module>
-			<name>
-				ObsSeismograms
-			</name>
-			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/ucb/whittier_v13_3_1-corrections.txt
-				</file>
-			</staged_files>
-			<arguments>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-				<argument type="str">
-					$BBP_INSTALL_VAL/Whittier/ucb/AccPEER3
-				</argument>
-				<argument type="str">
-					acc_peer
-				</argument>
-				<argument type="str">
-					whittier_v13_3_1-corrections.txt
-				</argument>
-			</arguments>
-		</BBP_Module>
-		<BBP_Module>
-			<name>
-				GMPEComparison
-			</name>
-			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src
-				</file>
-			</staged_files>
-			<arguments>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.src
-				</argument>
-				<argument type="str">
-					WHITTIER
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-				<argument type="bool">
-					True
-				</argument>
-			</arguments>
-		</BBP_Module>
-		<BBP_Module>
-			<name>
-				GenPlots
-			</name>
-			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
-			</staged_files>
-			<arguments>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-				<argument type="str">
-					$BBP_INSTALL_VAL/Whittier/ucb/AccPEER3
-				</argument>
-				<argument type="str">
-					acc
-				</argument>
-				<argument type="str">
-					WHITTIER
-				</argument>
-			</arguments>
-		</BBP_Module>
-		<BBP_Module>
-			<name>
-				GPGof
-			</name>
-			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/sdsu/whittier_v12_11_0_sdsu.src
-				</file>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
-			</staged_files>
-			<arguments>
-				<argument type="str">
-					whittier_v12_11_0_sdsu.src
-				</argument>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
-				<argument type="str">
-					$BBP_INSTALL_VAL/Whittier/ucb/AccPEER3
-				</argument>
-				<argument type="str">
-					acc
-				</argument>
-				<argument type="float">
-					5.89
-				</argument>
-				<argument type="str">
-					WHITTIER
-				</argument>
-				<argument type="int">
-					50
-				</argument>
-			</arguments>
-			<keyword_arguments>
-				<keyword_argument keyword="single_component" type="bool">
-					False
-				</keyword_argument>
-			</keyword_arguments>
-		</BBP_Module>
-		<BBP_Module>
-			<name>
-				GenHTML
-			</name>
-			<staged_files>
-				<file>
-					$BBP_INSTALL_VAL/Whittier/gp/whittier_v13_3_1.stl
-				</file>
-			</staged_files>
-			<arguments>
-				<argument type="str">
-					whittier_v13_3_1.stl
-				</argument>
-				<argument type="str">
-					LABasin
-				</argument>
-				<argument type="str">
-					WHITTIER
-				</argument>
-				<argument type="str">
-					metadata.txt
-				</argument>
+				<argument type="str">whittier_v19_02_1.stl</argument>
+				<argument type="str">whittier_v12_11_0_sdsu.src</argument>
+				<argument type="str">LABasin500</argument>
+				<argument type="str">WHITTIER</argument>
+				<argument type="str">SDSU</argument>
 			</arguments>
 		</BBP_Module>
 	</BBP_Modules>

@@ -8,11 +8,11 @@ Scenario simulations are hypothetical simulations, what-if scenarios. Users prov
 
 A map showing the fault trace along with the stations for which ground motions are calculated. The yellow star shows the hypocenter location.
 
-![Station Map](http://scec.usc.edu/scecwiki/images/5/5b/Station_map_landers-cut.png)
+[[/images/station_map_landers-cut.png|Station Map]]
 
 #### Rupture Model
 
-![Rupture Model](http://scec.usc.edu/scecwiki/images/a/a0/Lomap-gp-srf-cut.png)
+[[/images/lomap-gp-srf-cut.png|Rupture Model]]
 
 #### Velocity and Acceleration Seismograms
 
@@ -64,23 +64,23 @@ Validation simulations can be used to calculate seismograms from historical even
 
 Plots showing calculated data (in red) along with observation data (in black). The two bottom plots show a comparison of the arias duration between simulations and recorded data.
 
-![Seismogram Comparison](http://scec.usc.edu/scecwiki/images/b/b0/NR_10000000_2001-SCE_overlay.png)
+[[/images/NR_10000000_2001-SCE_overlay.png|Seismogram Comparison]]
 
 #### PSA Comparison Plots
 
-![RotD50 Comparison](http://scec.usc.edu/scecwiki/images/0/00/NR_2032-LBR_rotd50.png)
+[[/images/NR_10000000_2032-LBR_rotd50.png|RotD50 Comparison]]
 
 #### Goodness-of-Fit Plot
 
-![GoF Plot](http://scec.usc.edu/scecwiki/images/8/82/Gof-NR-10000000_r0-120-rd50.png)
+[[/images/gof-NR-10000000_r0-120-rd50.png|GoF Plot]]
 
 #### Map Goodness-of-Fit Plot
 
-![Map GoF Plot](http://scec.usc.edu/scecwiki/images/b/b3/Gof-map-NR-10000000-rotd50.png)
+[[/images/gof-map-NR-10000000-rotd50.png|Map GoF Plot]]
 
 #### Distance Goodness-of-Fit Plot
 
-![Distance GoF Plot](http://scec.usc.edu/scecwiki/images/8/81/Gof-dist-log-NR-10000000-rotd50.png)
+[[/images/gof-dist-log-NR-10000000-rotd50.png|Distance GoF Plot]]
 
 #### Anderson GOF
 
@@ -101,18 +101,18 @@ C10 | Cross Correlation
 
 ##### Per Station Plots
 
-![Anderson Station](http://scec.usc.edu/scecwiki/images/a/a4/Gof-NR-10000000-anderson-2004-JGB.png)
+[[/images/gof-NR-10000000-anderson-2004-JGB.png|Anderson Station]]
 
 ##### Summary Plots
 
-![Anderson Summary](http://scec.usc.edu/scecwiki/images/b/bb/Gof-NR-10000000-anderson-summary.png)
+[[/images/gof-NR-10000000-anderson-summary.png|Anderson Summary]]
 
 #### RotD100/RotD50 Ratio Plot
 
-![RotD100 Plot](http://scec.usc.edu/scecwiki/images/5/54/Gof-NR-10000000_r0-120-rd100.png)
+[[/images/gof-NR-10000000_r0-120-rd100.png|RotD100 Plot]]
 
 #### RZZ2015 Plots
 
 The Broadband Platform will generate one RZZ2015 plot per component, per station. In these plots, simulated data is presented in red while observed data is shown in black.
 
-![RZZ2015 Plot](http://scec.usc.edu/scecwiki/images/1/1d/10000000.rzz2015.2001-SCE.001.png)
+[[/images/10000000.rzz2015.2001-SCE.001.png|RZZ2015 Plot]]

@@ -1,10 +1,14 @@
 Please support the Broadband Platform project by acknowledging the use of this software. Acknowledgements and citations help us obtain additional resources for continued development of the platform. If you use the Broadband Platform software for work resulting in an academic publication, we would appreciate it if one, or more, of the following paper is cited.
 
-The primary reference the describes the validation process developed by the Broadband Platform group to establish that the BBP platform software produces results suitable for use in engineering applications is:
+The primary reference for the Broadband Platform software system (v15.3.0 and later) is:
+
+* Maechling, P. J., F. Silva, S. Callaghan, and T. H. Jordan (2015). SCEC Broadband Platform: System Architecture and Software Implementation, Seismol. Res. Lett., 86, no. 1, doi: 10.1785/0220140125.
+
+The primary reference that describes the validation process developed by the Broadband Platform group to establish that the BBP platform software produces results suitable for use in engineering applications is:
 
 * Goulet, C.A., Abrahamson, N.A., Somerville, P.G. and K, E. Wooddell (2015) The SCEC Broadband Platform Validation Exercise: Methodology for Code Validation in the Context of Seismic-Hazard Analyses, Seismol. Res. Lett., 86, no. 1, doi: 10.1785/0220140104
 
-The primary reference the describes the results of this validation process in 2014 is:
+The primary reference that describes the results of the validation process in 2014 is:
 
 * Dreger, D. S., Beroza, G.C., Day, S. M., Goulet, C. A., Jordan, T. H., Spudich, P. A., and Stewart, J. P. (2015). Validation of the SCEC Broadband Platform V14.3 Simulation Methods Using Pseudospectral Acceleration Data, Seismol. Res. Lett., 86, no. 1, doi:10.1785/0220140118.
 
@@ -16,11 +20,6 @@ References for specific computational methods included in the Broadband Platform
 * Dreger, D. S., and Jordan, T. H. (2015) Introduction to the Focus Section on Validation of the SCEC Broadband Platform V14.3 Simulation Methods Seismological Research Letters, January/February 2015, v. 86, p. 15-16, doi:10.1785/0220140233
 * Graves, R., and Pitarka, A. (2015) Refinements to the Graves and Pitarka (2010) Broadband Ground‐Motion Simulation Method Seismological Research Letters, January/February 2015, v. 86, p. 75-80, First published on December 17, 2014, doi:10.1785/0220140101
 * Olsen, K. B., and Takedatsu, R. (2015) The SDSU Broadband Ground‐Motion Generation Module BBtoolbox Version 1.5 Seismological Research Letters, January/February 2015, v. 86, p. 81-88, First published on December 17, 2014, doi:10.1785/0220140102
-* Song, S.G., Dalguer, L.A. and Mai, P.M. (2014) Pseudo-dynamic source modeling with 1-point and 2-point statistics of earthquake source parameters, Geophysical Journal International, 196, 1770-1786. doi: 10.1093/gji/ggt479
-
-The primary reference for the Broadband Platform software system (v15.3.0 and later) is:
-
-* Maechling, P. J., F. Silva, S. Callaghan, and T. H. Jordan (2015). SCEC Broadband Platform: System Architecture and Software Implementation, Seismol. Res. Lett., 86, no. 1, doi: 10.1785/0220140125.
-
-Additional publications related to the BBP methods include:
 * Song, S.G. (2016) Developing a generalized pseudo-dynamic source model of Mw 6.5-7.0 to simulate strong ground motions, Geophysical Journal International, 204, 1254-1265. doi: 10.1093/gji/ggv521
+* Song, S.G., Dalguer, L.A. and Mai, P.M. (2014) Pseudo-dynamic source modeling with 1-point and 2-point statistics of earthquake source parameters, Geophysical Journal International, 196, 1770-1786. doi: 10.1093/gji/ggt479
+* Stewart, J. P., Boore, D.M., Seyhan, E., and Atkinson, G.M. (2016) NGA-West2 equations for predicting vertical-component PGA, PGV, and 5%-damped PSA from shallow crustal earthquakes. Earthq. Spectra, 32 (2): 1005–1031.
