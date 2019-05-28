@@ -1,30 +1,32 @@
 ### Broadband Platform 19.4.0
 
-This full release of the Broadband Platform includes the following features and bug fixes. Below is a summary of the improvements and modifications includes in this release of the Broadband Platform.
+This full release of the Broadband Platform includes several new features and bug fixes. Below is a summary of the improvements and modifications included in this release of the Broadband Platform.
 
 #### Method Updates
 
 * Added the Irikura Recipe Method 2 simulation method to the Broadband Platform. It uses the same rupture generator as the Irikura Recipe Method 1, developed by Arben Pitarka, followed by the GP low-frequency wave propagation code. It then uses a high-frequency module developed by NIED.
 
-* Both SONG and Irikura Recipe Method 1 methods now support multi-segment ruptures. These two methods create a version 2.0 SRF file that can be used directly by the GP wave propagation codes and allows a single Broadband Platform simulation to include all segments from a multi-plane rupture.
+* Both Song and Irikura Recipe Method 1 methods now support multi-segment ruptures. These two methods create a version 2.0 SRF file that can be used directly by the GP wave propagation codes and allows a single Broadband Platform simulation to include all segments from a multi-plane rupture.
 
-* The GP site response module is now used in all California and Japan validation events.
+* Used the GP site response module in all California and Japan validation events.
 
-* Re-calculated GFs for California and Japan using 500m/s as reference Vs, bringing the computed synthetic seismograms closer to site conditions and requiring smaller corrections by the site amplification module.
+* Upgraded the SDSU BBToolbox package to version 2.1, with time-domain merging of LF and HF seismograms.
+
+* Re-calculated Greens Functions for California and Japan using 500m/s as reference Vs, bringing the computed synthetic seismograms closer to site conditions and requiring smaller corrections by the site amplification module.
 
 #### Other Improvements
 
 * Updated the GP rupture generator to genslip-5.4.1 and the GP high-frequency code to hb_high_6.0.3.
 
-* Added a Central California simulation region with its own velocity model, GFs, and simulation parameters for all available methods.
+* Added a Central California simulation region covering the Central Coast of California.
 
-* GP site response module is now available for use with all 7 simulation methods.
+* Extended the GP site response module so it can work with all 7 simulation methods.
 
 * Upgraded cluster simulation scripts for use with the Slurm job scheduler. The original collection of scripts using PBS is still available for reference.
 
 ### Broadband Platform 17.3.0
 
-This full release of the Broadband Platform includes the following features and bug fixes. Below is a summary of the improvements and modifications includes in this release of the Broadband Platform.
+This full release of the Broadband Platform includes the following features and bug fixes. Below is a summary of the improvements and modifications included in this release of the Broadband Platform.
 
 #### Method Updates
 
