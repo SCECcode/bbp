@@ -1,1940 +1,1963 @@
 total 40
--rw-r--r--   1 fsilva    11K May  8 14:20 LICENSE
--rw-r--r--   1 fsilva   2.7K Jun 15 11:40 README.md
-drwxr-xr-x   9 fsilva   306B Feb 17 16:18 bbp
-drwxr-xr-x  15 fsilva   510B Jun 16 13:02 doc
-drwxr-xr-x   4 fsilva   136B Jun 16 13:04 setup
+-rw-r--r--   1 staff    13K May 14 10:37 LICENSE
+-rw-r--r--   1 staff   2.7K Jul 25  2017 README.md
+drwxr-xr-x   9 staff   288B Feb 17  2017 bbp
+drwxr-xr-x  18 staff   576B May 28 10:42 doc
+drwxr-xr-x   4 staff   128B May 16 14:39 setup
 
 ./bbp:
 total 8
-drwxr-xr-x  100 fsilva   3.3K May  8 11:31 comps
--rw-r--r--    1 fsilva    73B Feb 16 15:04 makefile
-drwxr-xr-x    4 fsilva   136B Feb 16 14:55 mod_data
-drwxr-xr-x    6 fsilva   204B Feb 17 16:18 plot
-drwxr-xr-x   11 fsilva   374B Feb 17 16:18 src
-drwxr-xr-x   41 fsilva   1.4K May  8 11:32 tests
-drwxr-xr-x    8 fsilva   272B Feb 17 16:18 utils
+drwxr-xr-x  102 staff   3.2K May 28 10:41 comps
+-rw-r--r--    1 staff    73B Feb 16  2017 makefile
+drwxr-xr-x    4 staff   128B Feb 16  2017 mod_data
+drwxr-xr-x    6 staff   192B Feb 17  2017 plot
+drwxr-xr-x   11 staff   352B Feb 17  2017 src
+drwxr-xr-x   44 staff   1.4K Apr  5 11:24 tests
+drwxr-xr-x    7 staff   224B May 15 09:37 utils
 
 ./bbp/comps:
-total 2480
--rwxr-xr-x   1 fsilva    14K Feb 17 16:17 PlotGOF.py
--rwxr-xr-x   1 fsilva   8.6K Feb 17 16:17 PlotMap.py
--rwxr-xr-x   1 fsilva   2.4K Feb 17 16:17 Projection.py
--rwxr-xr-x   1 fsilva    45K Feb 17 16:17 anderson_gof.py
--rw-r--r--   1 fsilva   6.2K Feb 17 16:17 arias_duration.py
--rwxr-xr-x   1 fsilva    12K Feb 17 16:17 as16.py
--rwxr-xr-x   1 fsilva   8.0K Feb 17 16:17 bband_utils.py
--rw-r--r--   1 fsilva    13K Feb 17 16:17 bbp_formatter.py
--rwxr-xr-x   1 fsilva   8.5K Feb 17 16:17 bbp_status.py
--rwxr-xr-x   1 fsilva   4.6K Feb 17 16:17 bbp_tools.py
--rwxr-xr-x   1 fsilva    21K May  8 11:31 bbtoolbox.py
--rwxr-xr-x   1 fsilva   4.6K May  8 11:31 bbtoolbox_cfg.py
--rw-r--r--   1 fsilva    95K Feb 17 16:17 build_workflow.py
--rw-r--r--   1 fsilva   6.5K Feb 17 16:17 calculate_gmpe.py
--rwxr-xr-x   1 fsilva   3.2K Feb 17 16:17 cc.py
--rwxr-xr-x   1 fsilva    10K Feb 17 16:17 cmpfiles.py
--rw-r--r--   1 fsilva   1.7K Feb 17 16:17 convert_pacc2bbpacc.py
--rw-r--r--   1 fsilva   5.9K Feb 17 16:17 copy_seismograms.py
--rwxr-xr-x   1 fsilva   7.7K Feb 17 16:17 correct_psa.py
--rw-r--r--   1 fsilva    17K Feb 17 16:17 csm.py
--rw-r--r--   1 fsilva    19K Feb 17 16:17 csm_cfg.py
--rwxr-xr-x   1 fsilva    20K Feb 17 16:17 exsim.py
--rwxr-xr-x   1 fsilva   3.8K Feb 17 16:17 exsim_cfg.py
--rwxr-xr-x   1 fsilva   5.1K Feb 17 16:17 extract_boundaries.py
--rwxr-xr-x   1 fsilva    22K Feb 17 16:17 fas.py
--rw-r--r--   1 fsilva   5.7K Feb 17 16:17 fault_utils.py
--rw-r--r--   1 fsilva    11K Feb 17 16:17 gen_plots.py
--rwxr-xr-x   1 fsilva   5.1K Feb 17 16:17 generate_gmpe_data.py
--rwxr-xr-x   1 fsilva    12K Feb 17 16:17 generate_station_list.py
--rwxr-xr-x   1 fsilva    18K Feb 17 16:17 genhtml.py
--rwxr-xr-x   1 fsilva   9.7K Feb 17 16:17 genslip.py
--rwxr-xr-x   1 fsilva   2.3K Feb 17 16:17 genslip_cfg.py
--rwxr-xr-x   1 fsilva    25K Feb 17 16:17 geobb_srf.py
--rw-r--r--   1 fsilva   2.9K Feb 17 16:17 gislib.py
--rw-r--r--   1 fsilva    12K Feb 17 16:17 gmpe_comparison.py
--rw-r--r--   1 fsilva   4.3K Feb 17 16:17 gmpe_config.py
--rwxr-xr-x   1 fsilva   4.5K Feb 17 16:17 gmpe_plot.py
--rwxr-xr-x   1 fsilva   9.3K Feb 17 16:17 gp_gof.py
--rwxr-xr-x   1 fsilva   728B Feb 17 16:17 gp_gof_cfg.py
--rwxr-xr-x   1 fsilva    13K Feb 17 16:17 hfsims.py
--rwxr-xr-x   1 fsilva   3.2K Feb 17 16:17 hfsims_cfg.py
--rwxr-xr-x   1 fsilva    12K Feb 17 16:17 install_cfg.py
--rw-r--r--   1 fsilva   4.0K Mar 15 14:32 irikura.py
--rw-r--r--   1 fsilva   891B Feb 17 16:17 irikura_cfg.py
--rwxr-xr-x   1 fsilva   5.9K Feb 17 16:17 jbsim.py
--rwxr-xr-x   1 fsilva   2.9K Feb 17 16:17 jbsim_cfg.py
--rw-r--r--   1 fsilva   2.7K Feb 17 16:17 lf_seismograms.py
--rwxr-xr-x   1 fsilva   2.5K Feb 17 16:17 logfile.py
--rwxr-xr-x   1 fsilva    29K Feb 17 16:17 match.py
--rwxr-xr-x   1 fsilva   1.1K Feb 17 16:17 match_cfg.py
--rwxr-xr-x   1 fsilva   1.8K Feb 17 16:17 metadata.py
--rw-r--r--   1 fsilva   3.4K Feb 17 16:17 module.py
--rwxr-xr-x   1 fsilva    11K Feb 17 16:17 obs_seismograms.py
--rw-r--r--   1 fsilva   1.3K Feb 17 16:17 optfile.py
--rw-r--r--   1 fsilva   982B Feb 17 16:17 plot_config.py
--rwxr-xr-x   1 fsilva    10K Feb 17 16:17 plot_dist_gof.py
--rwxr-xr-x   1 fsilva   4.2K Feb 17 16:17 plot_gmpe.py
--rwxr-xr-x   1 fsilva    10K Feb 17 16:17 plot_map.py
--rw-r--r--   1 fsilva    11K Feb 17 16:17 plot_map_gof.py
--rwxr-xr-x   1 fsilva   5.8K Feb 17 16:17 plot_rotd50.py
--rwxr-xr-x   1 fsilva   4.6K Feb 17 16:17 plot_seis.py
--rwxr-xr-x   1 fsilva    15K Feb 17 16:17 plot_seismograms.py
--rwxr-xr-x   1 fsilva    13K Feb 17 16:17 plot_srf.py
--rwxr-xr-x   1 fsilva    17K Feb 17 16:17 plot_value_map.py
-drwxr-xr-x  18 fsilva   612B Feb 17 16:17 pynga
--rwxr-xr-x   1 fsilva    51K Feb 17 16:17 rmg.py
--rwxr-xr-x   1 fsilva   980B Feb 17 16:17 rmg_cfg.py
--rw-r--r--   1 fsilva    25K Feb 17 16:17 rotd100.py
--rw-r--r--   1 fsilva   8.0K Feb 17 16:17 rotd50.py
--rwxr-xr-x   1 fsilva    10K Feb 17 16:17 run_bbp.py
--rwxr-xr-x   1 fsilva    32K Feb 17 16:17 rzz2015.py
--rw-r--r--   1 fsilva    21K Feb 17 16:17 rzz2015_gmpe.py
--rw-r--r--   1 fsilva    52K Feb 17 16:17 sdsu_mogof.py
--rw-r--r--   1 fsilva   5.0K Feb 17 16:17 sdsu_mogof_cfg.py
--rwxr-xr-x   1 fsilva   4.8K Feb 17 16:17 sdsu_seismograms.py
--rwxr-xr-x   1 fsilva   839B Feb 17 16:17 seqnum.py
-drwxr-xr-x  22 fsilva   748B Feb 17 16:17 simplekml
--rwxr-xr-x   1 fsilva   8.4K Feb 17 16:17 stas2files.py
--rwxr-xr-x   1 fsilva   831B Feb 17 16:17 station.py
--rwxr-xr-x   1 fsilva   4.1K Feb 17 16:17 station_list.py
--rwxr-xr-x   1 fsilva    13K Feb 17 16:17 syn1D.py
--rwxr-xr-x   1 fsilva   2.4K Feb 17 16:17 syn1D_args.py
--rwxr-xr-x   1 fsilva   4.7K Feb 17 16:17 syn1D_cfg.py
--rwxr-xr-x   1 fsilva   2.7K Feb 17 16:17 timeutils.py
--rwxr-xr-x   1 fsilva   8.2K Feb 17 16:17 uc_fault_utils.py
--rwxr-xr-x   1 fsilva    18K Feb 17 16:17 uc_site.py
--rwxr-xr-x   1 fsilva   1.7K Feb 17 16:17 uc_site_cfg.py
--rwxr-xr-x   1 fsilva    18K Feb 17 16:17 uc_stitch.py
--rwxr-xr-x   1 fsilva   3.4K Feb 17 16:17 ucrmg.py
--rwxr-xr-x   1 fsilva   2.7K Feb 17 16:17 ucrmg_cfg.py
--rw-r--r--   1 fsilva    11K Feb 17 16:17 validation_cfg.py
--rw-r--r--   1 fsilva   6.2K Feb 17 16:17 velocity_models.py
--rw-r--r--   1 fsilva     7B Mar  1 14:48 version.txt
--rwxr-xr-x   1 fsilva   5.1K Feb 17 16:17 vm2vm.py
--rwxr-xr-x   1 fsilva    20K Feb 17 16:17 wcc_siteamp.py
--rwxr-xr-x   1 fsilva   1.0K Feb 17 16:17 wcc_siteamp_cfg.py
--rwxr-xr-x   1 fsilva   2.2K Feb 17 16:17 wf_args.py
--rw-r--r--   1 fsilva    13K Feb 17 16:17 xml_handler.py
+total 2992
+-rwxr-xr-x   1 staff    21K Apr  9 23:18 PlotGOF.py
+-rwxr-xr-x   1 staff   8.8K May 22  2018 PlotMap.py
+-rwxr-xr-x   1 staff   2.8K Oct 13  2017 Projection.py
+-rwxr-xr-x   1 staff    45K Aug 16  2018 anderson_gof.py
+-rw-r--r--   1 staff   6.6K Aug 16  2018 arias_duration.py
+-rwxr-xr-x   1 staff    12K Aug 16  2018 as16.py
+-rwxr-xr-x   1 staff   8.4K Aug 16  2018 bband_utils.py
+-rw-r--r--   1 staff    14K Aug 16  2018 bbp_formatter.py
+-rwxr-xr-x   1 staff   8.9K Aug 16  2018 bbp_status.py
+-rwxr-xr-x   1 staff   5.0K Aug 16  2018 bbp_tools.py
+-rwxr-xr-x   1 staff    23K May  1 22:39 bbtoolbox.py
+-rwxr-xr-x   1 staff   5.1K Mar 12 17:10 bbtoolbox_cfg.py
+-rw-r--r--   1 staff    89K Apr  5 11:19 build_workflow.py
+-rw-r--r--   1 staff   6.9K Aug 16  2018 calculate_gmpe.py
+-rwxr-xr-x   1 staff   3.6K Aug 16  2018 cc.py
+-rwxr-xr-x   1 staff    11K Aug 16  2018 cmpfiles.py
+-rw-r--r--   1 staff   2.1K Aug 16  2018 convert_pacc2bbpacc.py
+-rw-r--r--   1 staff   6.3K Aug 16  2018 copy_seismograms.py
+-rwxr-xr-x   1 staff   8.1K Aug 16  2018 correct_psa.py
+-rw-r--r--   1 staff    17K Aug 16  2018 csm.py
+-rw-r--r--   1 staff    19K Aug 16  2018 csm_cfg.py
+-rwxr-xr-x   1 staff    21K Aug 16  2018 exsim.py
+-rwxr-xr-x   1 staff   4.2K Aug 16  2018 exsim_cfg.py
+-rwxr-xr-x   1 staff   5.5K Aug 16  2018 extract_boundaries.py
+-rwxr-xr-x   1 staff    22K Oct 18  2017 fas.py
+-rw-r--r--   1 staff   6.3K Aug 10  2017 fault_utils.py
+-rw-r--r--   1 staff    11K Dec 10 15:29 gen_plots.py
+-rwxr-xr-x   1 staff   5.5K Aug 16  2018 generate_gmpe_data.py
+-rwxr-xr-x   1 staff    12K Aug 16  2018 generate_station_list.py
+-rwxr-xr-x   1 staff    17K Oct 16  2018 genhtml.py
+-rwxr-xr-x   1 staff    10K Oct 16  2018 genslip.py
+-rwxr-xr-x   1 staff   2.7K Oct 16  2018 genslip_cfg.py
+-rwxr-xr-x   1 staff    25K Aug 16  2018 geobb_srf.py
+-rw-r--r--   1 staff   2.9K Feb 17  2017 gislib.py
+-rw-r--r--   1 staff    12K Aug 16  2018 gmpe_comparison.py
+-rw-r--r--   1 staff   4.7K Aug 16  2018 gmpe_config.py
+-rwxr-xr-x   1 staff   4.9K Aug 10  2018 gmpe_plot.py
+-rwxr-xr-x   1 staff   9.8K Oct  5  2018 gp_gof.py
+-rwxr-xr-x   1 staff   1.1K Aug 16  2018 gp_gof_cfg.py
+-rwxr-xr-x   1 staff    14K Dec 12 10:03 hfsims.py
+-rwxr-xr-x   1 staff   3.8K Dec 12 10:03 hfsims_cfg.py
+-rwxr-xr-x   1 staff    12K Nov 30 11:33 install_cfg.py
+-rw-r--r--   1 staff    11K Mar 25 16:46 irikura_gen_srf.py
+-rw-r--r--   1 staff   1.5K Feb  2 21:54 irikura_gen_srf_cfg.py
+-rw-r--r--   1 staff    28K Apr  5 11:19 irikura_hf.py
+-rw-r--r--   1 staff   3.9K Jul 25  2018 irikura_hf_cfg.py
+-rwxr-xr-x   1 staff   6.3K Oct 13  2017 jbsim.py
+-rwxr-xr-x   1 staff   3.3K Nov 20  2017 jbsim_cfg.py
+-rw-r--r--   1 staff   3.1K Oct 13  2017 lf_seismograms.py
+-rwxr-xr-x   1 staff   2.9K Oct 13  2017 logfile.py
+-rwxr-xr-x   1 staff    30K Jun 27  2018 match.py
+-rwxr-xr-x   1 staff   1.4K Mar 15 14:03 match_cfg.py
+-rwxr-xr-x   1 staff   2.3K Aug 16  2018 metadata.py
+-rw-r--r--   1 staff   3.9K Jan 10 14:43 module.py
+-rwxr-xr-x   1 staff    12K May  7  2018 obs_seismograms.py
+-rw-r--r--   1 staff   1.7K Oct 13  2017 optfile.py
+-rw-r--r--   1 staff   1.4K Oct 13  2017 plot_config.py
+-rwxr-xr-x   1 staff    11K Apr  9 11:53 plot_dist_gof.py
+-rwxr-xr-x   1 staff   4.2K Apr 22 22:51 plot_gmpe.py
+-rwxr-xr-x   1 staff   4.0K Oct 16  2018 plot_map.py
+-rw-r--r--   1 staff    11K Apr  9 14:09 plot_map_gof.py
+-rwxr-xr-x   1 staff   6.3K Apr  9 11:13 plot_rotd50.py
+-rwxr-xr-x   1 staff   5.0K Oct 13  2017 plot_seis.py
+-rwxr-xr-x   1 staff    14K Apr  9 11:29 plot_seismograms.py
+-rwxr-xr-x   1 staff    20K Apr 13 22:34 plot_srf.py
+-rwxr-xr-x   1 staff   7.1K May 22  2018 plot_utils.py
+-rwxr-xr-x   1 staff    17K Oct 13  2017 plot_value_map.py
+drwxr-xr-x  18 staff   576B May 28 10:36 pynga
+-rw-r--r--   1 staff    29K Oct  5  2018 rotd100.py
+-rw-r--r--   1 staff   8.4K Oct 13  2017 rotd50.py
+-rwxr-xr-x   1 staff    11K Apr 19 13:30 run_bbp.py
+-rwxr-xr-x   1 staff    33K Apr  1 13:56 rzz2015.py
+-rw-r--r--   1 staff    21K Oct  5  2018 rzz2015_gmpe.py
+-rw-r--r--   1 staff    52K Oct  5  2018 sdsu_mogof.py
+-rw-r--r--   1 staff   5.4K Oct  5  2018 sdsu_mogof_cfg.py
+-rwxr-xr-x   1 staff   5.1K Oct  5  2018 sdsu_seismograms.py
+-rwxr-xr-x   1 staff   1.2K Oct 13  2017 seqnum.py
+-rwxr-xr-x   1 staff    65K Oct  4  2018 song_rmg_multi_seg.py
+-rwxr-xr-x   1 staff   1.5K Sep 17  2018 song_rmg_multi_seg_cfg.py
+-rwxr-xr-x   1 staff    52K May 17 09:36 song_rmg_single_seg.py
+-rwxr-xr-x   1 staff   1.4K Sep 14  2018 song_rmg_single_seg_cfg.py
+-rwxr-xr-x   1 staff   8.8K Oct 13  2017 stas2files.py
+-rwxr-xr-x   1 staff   1.2K Oct 13  2017 station.py
+-rwxr-xr-x   1 staff   4.5K Feb  7 14:13 station_list.py
+-rwxr-xr-x   1 staff    13K Apr  4 21:16 syn1D.py
+-rwxr-xr-x   1 staff   2.8K Apr  4 10:26 syn1D_args.py
+-rwxr-xr-x   1 staff   5.1K Apr  4 10:26 syn1D_cfg.py
+-rwxr-xr-x   1 staff   8.6K Apr  8 15:47 uc_fault_utils.py
+-rwxr-xr-x   1 staff    19K Oct 13  2017 uc_site.py
+-rwxr-xr-x   1 staff   2.1K Oct 13  2017 uc_site_cfg.py
+-rwxr-xr-x   1 staff    18K Oct 13  2017 uc_stitch.py
+-rwxr-xr-x   1 staff   3.8K Apr  4 10:28 ucrmg.py
+-rwxr-xr-x   1 staff   3.1K Apr  4 10:28 ucrmg_cfg.py
+-rw-r--r--   1 staff    11K Oct  5  2018 validation_cfg.py
+-rw-r--r--   1 staff   8.6K Nov 30 11:08 velocity_models.py
+-rw-r--r--   1 staff     7B Apr 29 10:40 version.txt
+-rwxr-xr-x   1 staff   5.5K Oct 13  2017 vm2vm.py
+-rwxr-xr-x   1 staff    20K Dec 10 17:12 wcc_siteamp.py
+-rwxr-xr-x   1 staff   2.6K Dec 10 17:07 wcc_siteamp_cfg.py
+-rw-r--r--   1 staff    13K Oct 13  2017 xml_handler.py
 
 ./bbp/comps/pynga:
 total 536
--rw-r--r--  1 fsilva   9.0K Feb 17 16:17 A0811E.py
--rwxr-xr-x  1 fsilva    21K Feb 17 16:17 AS08.py
--rwxr-xr-x  1 fsilva    18K Feb 17 16:17 ASK14.py
--rwxr-xr-x  1 fsilva    14K Feb 17 16:17 BA08.py
--rwxr-xr-x  1 fsilva    12K Feb 17 16:17 BSSA14.py
--rwxr-xr-x  1 fsilva    15K Feb 17 16:17 CB08.py
--rwxr-xr-x  1 fsilva    18K Feb 17 16:17 CB14.py
--rwxr-xr-x  1 fsilva    17K Feb 17 16:17 CY08.py
--rwxr-xr-x  1 fsilva    12K Feb 17 16:17 CY14.py
-drwxr-xr-x  6 fsilva   204B Feb 17 16:17 NGA_west2
--rw-r--r--  1 fsilva   2.3K Feb 17 16:17 PZT11.py
--rw-r--r--  1 fsilva   6.4K Feb 17 16:17 README
--rw-r--r--  1 fsilva   1.7K Feb 17 16:17 S03SCVS.py
--rwxr-xr-x  1 fsilva   6.6K Feb 17 16:17 SC08.py
--rwxr-xr-x  1 fsilva    24K Feb 17 16:17 __init__.py
--rwxr-xr-x  1 fsilva    57K Feb 17 16:17 utils.py
+-rw-r--r--  1 staff   9.0K May 28 10:36 A0811E.py
+-rwxr-xr-x  1 staff    21K Feb 17  2017 AS08.py
+-rwxr-xr-x  1 staff    18K Aug  3  2018 ASK14.py
+-rwxr-xr-x  1 staff    14K Feb 17  2017 BA08.py
+-rwxr-xr-x  1 staff    12K Feb 17  2017 BSSA14.py
+-rwxr-xr-x  1 staff    15K Feb 17  2017 CB08.py
+-rwxr-xr-x  1 staff    18K Feb 17  2017 CB14.py
+-rwxr-xr-x  1 staff    17K Feb 17  2017 CY08.py
+-rwxr-xr-x  1 staff    12K Feb 17  2017 CY14.py
+drwxr-xr-x  6 staff   192B Feb 17  2017 NGA_west2
+-rw-r--r--  1 staff   2.3K May 28 10:35 PZT11.py
+-rw-r--r--  1 staff   6.4K Feb 17  2017 README
+-rw-r--r--  1 staff   1.7K May 28 10:35 S03SCVS.py
+-rwxr-xr-x  1 staff   6.5K Jul 30  2018 SC08.py
+-rwxr-xr-x  1 staff    24K Feb 17  2017 __init__.py
+-rwxr-xr-x  1 staff    57K Jul 31  2018 utils.py
 
 ./bbp/comps/pynga/NGA_west2:
 total 64
--rw-r--r--  1 fsilva   5.1K Feb 17 16:17 ASK14.csv
--rw-r--r--  1 fsilva   5.6K Feb 17 16:17 BSSA14.csv
--rw-r--r--  1 fsilva   6.3K Feb 17 16:17 CB14.csv
--rw-r--r--  1 fsilva   6.4K Feb 17 16:17 CY14.csv
-
-./bbp/comps/simplekml:
-total 488
--rwxr-xr-x  1 fsilva   2.0K Feb 17 16:17 PKG-INFO
--rwxr-xr-x  1 fsilva   919B Feb 17 16:17 README.txt
--rwxr-xr-x  1 fsilva   2.1K Feb 17 16:17 __init__.py
--rwxr-xr-x  1 fsilva   8.9K Feb 17 16:17 abstractview.py
--rwxr-xr-x  1 fsilva   9.6K Feb 17 16:17 base.py
--rwxr-xr-x  1 fsilva   8.5K Feb 17 16:17 constants.py
--rwxr-xr-x  1 fsilva   1.4K Feb 17 16:17 coordinates.py
--rwxr-xr-x  1 fsilva    73K Feb 17 16:17 featgeom.py
--rwxr-xr-x  1 fsilva   7.1K Feb 17 16:17 icon.py
--rwxr-xr-x  1 fsilva    16K Feb 17 16:17 kml.py
--rwxr-xr-x  1 fsilva   255B Feb 17 16:17 makeunicode.py
--rwxr-xr-x  1 fsilva   5.5K Feb 17 16:17 model.py
--rwxr-xr-x  1 fsilva   6.9K Feb 17 16:17 networklinkcontrol.py
--rwxr-xr-x  1 fsilva   3.9K Feb 17 16:17 overlay.py
--rwxr-xr-x  1 fsilva   8.0K Feb 17 16:17 region.py
--rwxr-xr-x  1 fsilva    11K Feb 17 16:17 schema.py
--rwxr-xr-x  1 fsilva   6.7K Feb 17 16:17 styleselector.py
--rwxr-xr-x  1 fsilva    12K Feb 17 16:17 substyle.py
--rwxr-xr-x  1 fsilva   5.3K Feb 17 16:17 timeprimitive.py
--rwxr-xr-x  1 fsilva    15K Feb 17 16:17 tour.py
+-rw-r--r--  1 staff   5.1K Feb 17  2017 ASK14.csv
+-rw-r--r--  1 staff   5.6K Feb 17  2017 BSSA14.csv
+-rw-r--r--  1 staff   6.3K Feb 17  2017 CB14.csv
+-rw-r--r--  1 staff   6.4K Feb 17  2017 CY14.csv
 
 ./bbp/mod_data:
 total 0
-drwxr-xr-x   3 fsilva   102B Feb 16 14:55 sdsu
-drwxr-xr-x  18 fsilva   612B Feb 16 14:55 ucsb
+drwxr-xr-x   3 staff    96B Feb 16  2017 sdsu
+drwxr-xr-x  18 staff   576B Feb 16  2017 ucsb
 
 ./bbp/mod_data/sdsu:
 total 8
--rwxr-xr-x  1 fsilva   2.1K Feb 16 14:55 scattering_generic.dat
+-rwxr-xr-x  1 staff   2.4K Apr  2 17:21 scattering_generic.dat
 
 ./bbp/mod_data/ucsb:
 total 192
--rwxr-xr-x  1 fsilva   521B Feb 16 14:55 QB.par
--rwxr-xr-x  1 fsilva   561B Feb 16 14:55 QBC.par
--rwxr-xr-x  1 fsilva   503B Feb 16 14:55 QC.par
--rwxr-xr-x  1 fsilva   956B Feb 16 14:55 QCD.par
--rwxr-xr-x  1 fsilva   1.0K Feb 16 14:55 QD.par
--rwxr-xr-x  1 fsilva   1.1K Feb 16 14:55 QE.par
--rwxr-xr-x  1 fsilva   3.4K Feb 16 14:55 inputB.iwan
--rwxr-xr-x  1 fsilva   3.9K Feb 16 14:55 inputBC.iwan
--rwxr-xr-x  1 fsilva   4.1K Feb 16 14:55 inputC.iwan
--rwxr-xr-x  1 fsilva   9.2K Feb 16 14:55 inputCD.iwan
--rwxr-xr-x  1 fsilva    11K Feb 16 14:55 inputD.iwan
--rwxr-xr-x  1 fsilva    12K Feb 16 14:55 inputE.iwan
--rwxr-xr-x  1 fsilva   139B Feb 16 14:55 intermed.par
--rwxr-xr-x  1 fsilva   3.0K Feb 16 14:55 tremorka.clay
--rwxr-xr-x  1 fsilva   3.9K Feb 16 14:55 tremorka.rock
--rwxr-xr-x  1 fsilva   3.0K Feb 16 14:55 tremorka.sand
+-rwxr-xr-x  1 staff   521B Feb 16  2017 QB.par
+-rwxr-xr-x  1 staff   561B Feb 16  2017 QBC.par
+-rwxr-xr-x  1 staff   503B Feb 16  2017 QC.par
+-rwxr-xr-x  1 staff   956B Feb 16  2017 QCD.par
+-rwxr-xr-x  1 staff   1.0K Feb 16  2017 QD.par
+-rwxr-xr-x  1 staff   1.1K Feb 16  2017 QE.par
+-rwxr-xr-x  1 staff   3.4K Feb 16  2017 inputB.iwan
+-rwxr-xr-x  1 staff   3.9K Feb 16  2017 inputBC.iwan
+-rwxr-xr-x  1 staff   4.1K Feb 16  2017 inputC.iwan
+-rwxr-xr-x  1 staff   9.2K Feb 16  2017 inputCD.iwan
+-rwxr-xr-x  1 staff    11K Feb 16  2017 inputD.iwan
+-rwxr-xr-x  1 staff    12K Feb 16  2017 inputE.iwan
+-rwxr-xr-x  1 staff   139B Feb 16  2017 intermed.par
+-rwxr-xr-x  1 staff   3.0K Feb 16  2017 tremorka.clay
+-rwxr-xr-x  1 staff   3.9K Feb 16  2017 tremorka.rock
+-rwxr-xr-x  1 staff   3.0K Feb 16  2017 tremorka.sand
 
 ./bbp/plot:
 total 159536
--rw-r--r--  1 fsilva    18M Feb 17 16:18 calTopo18.bf
--rw-r--r--  1 fsilva   693K Feb 17 16:18 cali_coastline.mapgen
--rw-r--r--  1 fsilva    56M Feb 17 16:18 gshhs_h.txt
--rw-r--r--  1 fsilva   2.8M Feb 17 16:18 wdb_borders_h.txt
+-rw-r--r--  1 staff    18M Feb 17  2017 calTopo18.bf
+-rw-r--r--  1 staff   693K Feb 17  2017 cali_coastline.mapgen
+-rw-r--r--  1 staff    56M Feb 17  2017 gshhs_h.txt
+-rw-r--r--  1 staff   2.8M Feb 17  2017 wdb_borders_h.txt
 
 ./bbp/src:
 total 8
-drwxr-xr-x  11 fsilva   374B Feb 17 16:18 gp
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 irikura
--rw-r--r--   1 fsilva   627B Feb 17 16:18 makefile
-drwxr-xr-x   6 fsilva   204B Feb 17 16:18 sdsu
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 ucb
-drwxr-xr-x  11 fsilva   374B Feb 17 16:18 ucsb
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 unr
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 usgs
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 uwo
+drwxr-xr-x  11 staff   352B Oct 16  2018 gp
+drwxr-xr-x   8 staff   256B Jan 10 14:26 irikura
+-rw-r--r--   1 staff   627B Feb 17  2017 makefile
+drwxr-xr-x   6 staff   192B Feb 17  2017 sdsu
+drwxr-xr-x   4 staff   128B Feb 17  2017 ucb
+drwxr-xr-x  11 staff   352B Feb 17  2017 ucsb
+drwxr-xr-x   4 staff   128B Feb 17  2017 unr
+drwxr-xr-x   4 staff   128B Feb 17  2017 usgs
+drwxr-xr-x   4 staff   128B Feb 17  2017 uwo
 
 ./bbp/src/gp:
 total 8
-drwxr-xr-x  30 fsilva   1.0K Feb 27 15:21 GenRandV5.0
-drwxr-xr-x  19 fsilva   646B Feb 27 15:21 GoodFit
-drwxr-xr-x  31 fsilva   1.0K Feb 27 15:21 JordanBailey
-drwxr-xr-x  35 fsilva   1.2K Feb 27 15:21 ModelCords
-drwxr-xr-x  41 fsilva   1.4K Feb 27 15:21 StandRupFormat
-drwxr-xr-x   3 fsilva   102B Feb 17 16:18 StochSim
-drwxr-xr-x   3 fsilva   102B Feb 17 16:18 WccFormat
-drwxr-xr-x   6 fsilva   204B Feb 17 16:18 getpar
--rw-r--r--   1 fsilva   657B Feb 17 16:18 makefile
+drwxr-xr-x  31 staff   992B Oct 16  2018 GenRandV5.0
+drwxr-xr-x  19 staff   608B Feb 27  2017 GoodFit
+drwxr-xr-x  31 staff   992B Feb 27  2017 JordanBailey
+drwxr-xr-x  35 staff   1.1K Feb 27  2017 ModelCords
+drwxr-xr-x  41 staff   1.3K Feb 27  2017 StandRupFormat
+drwxr-xr-x   3 staff    96B Dec 12 10:10 StochSim
+drwxr-xr-x   3 staff    96B Feb 17  2017 WccFormat
+drwxr-xr-x   6 staff   192B Feb 17  2017 getpar
+-rw-r--r--   1 staff   657B Dec 12 10:05 makefile
 
 ./bbp/src/gp/GenRandV5.0:
-total 768
--rw-r--r--  1 fsilva    48B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   4.4K Feb 17 16:18 README
--rw-r--r--  1 fsilva   1.8K Feb 17 16:18 defs.h
--rw-r--r--  1 fsilva   4.8K Feb 17 16:18 fourg.f
--rw-r--r--  1 fsilva   5.2K Feb 17 16:18 function.h
--rw-r--r--  1 fsilva    59K Feb 17 16:18 genslip-v5.0.1.c
--rw-r--r--  1 fsilva    64K Feb 17 16:18 genslip-v5.2.2.c
--rw-r--r--  1 fsilva   3.7K Feb 17 16:18 geoproj_subs.c
--rw-r--r--  1 fsilva   558B Feb 17 16:18 get_rvfrac-gaus.c
--rw-r--r--  1 fsilva   523B Feb 17 16:18 get_rvfrac-unif.c
--rw-r--r--  1 fsilva   735B Feb 17 16:18 get_rvfrac.c
--rw-r--r--  1 fsilva   4.8K Feb 17 16:18 gslip_sliprate_subs.c
--rw-r--r--  1 fsilva    34K Feb 17 16:18 gslip_srf_subs.c
--rw-r--r--  1 fsilva   320B Feb 17 16:18 include.h
--rw-r--r--  1 fsilva   8.6K Feb 17 16:18 iofunc.c
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 makefile
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 misc.c
--rw-r--r--  1 fsilva    20K Feb 17 16:18 ruptime.c
--rw-r--r--  1 fsilva    27K Feb 17 16:18 slip.c
--rw-r--r--  1 fsilva   4.8K Feb 17 16:18 sliprate_subs.c
--rw-r--r--  1 fsilva   773B Feb 17 16:18 srf_gethypo.c
--rw-r--r--  1 fsilva    34K Feb 17 16:18 srf_subs.c
--rw-r--r--  1 fsilva   1.0K Feb 17 16:18 structure.h
--rw-r--r--  1 fsilva   709B Feb 17 16:18 test_gausrand.c
--rw-r--r--  1 fsilva   340B Feb 17 16:18 test_loop.c
--rw-r--r--  1 fsilva   741B Feb 17 16:18 test_rhypo.c
--rw-r--r--  1 fsilva   380B Feb 17 16:18 test_seed.c
--rw-r--r--  1 fsilva    26K Feb 17 16:18 wafront2d-rwg.f
+total 952
+-rw-r--r--  1 staff   4.4K Feb 17  2017 README
+-rw-r--r--  1 staff   1.8K Feb 17  2017 defs.h
+-rw-r--r--  1 staff   4.8K Feb 17  2017 fourg.f
+-rw-r--r--  1 staff   6.3K Oct 16  2018 function.h
+-rw-r--r--  1 staff    59K Feb 17  2017 genslip-v5.0.1.c
+-rw-r--r--  1 staff    64K Oct 16  2018 genslip-v5.2.2.c
+-rw-r--r--  1 staff    70K Oct 16  2018 genslip-v5.4.1.c
+-rw-r--r--  1 staff   3.7K Feb 17  2017 geoproj_subs.c
+-rw-r--r--  1 staff   558B Feb 17  2017 get_rvfrac-gaus.c
+-rw-r--r--  1 staff   523B Feb 17  2017 get_rvfrac-unif.c
+-rw-r--r--  1 staff   777B Oct 16  2018 get_rvfrac.c
+-rw-r--r--  1 staff   4.8K Feb 17  2017 gslip_sliprate_subs.c
+-rw-r--r--  1 staff    40K Oct 16  2018 gslip_srf_subs.c
+-rw-r--r--  1 staff   320B Feb 17  2017 include.h
+-rw-r--r--  1 staff    12K Oct 16  2018 iofunc.c
+-rw-r--r--  1 staff   1.4K Oct 16  2018 makefile
+-rw-r--r--  1 staff   4.4K Oct 16  2018 misc.c
+-rw-r--r--  1 staff    23K Oct 16  2018 ruptime.c
+-rw-r--r--  1 staff    39K Oct 16  2018 slip.c
+-rw-r--r--  1 staff   4.8K Feb 17  2017 sliprate_subs.c
+-rw-r--r--  1 staff   838B Oct 16  2018 srf_gethypo.c
+-rw-r--r--  1 staff    34K Feb 17  2017 srf_subs.c
+-rw-r--r--  1 staff   1.0K Feb 17  2017 structure.h
+-rw-r--r--  1 staff   709B Feb 17  2017 test_gausrand.c
+-rw-r--r--  1 staff   340B Feb 17  2017 test_loop.c
+-rw-r--r--  1 staff   741B Feb 17  2017 test_rhypo.c
+-rw-r--r--  1 staff   380B Feb 17  2017 test_seed.c
+-rw-r--r--  1 staff    27K Oct 16  2018 wafront2d-rwg.f
 
 ./bbp/src/gp/GoodFit:
-total 280
--rw-r--r--  1 fsilva    69B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   425B Feb 17 16:18 function.h
--rw-r--r--  1 fsilva   9.1K Feb 17 16:18 gen_resid_tbl.c
--rw-r--r--  1 fsilva   5.4K Feb 17 16:18 gen_resid_tbl030405.c
--rw-r--r--  1 fsilva   7.3K Feb 17 16:18 gen_resid_tbl052506.c
--rw-r--r--  1 fsilva   9.3K Feb 17 16:18 gen_resid_tbl_3comp.c
--rw-r--r--  1 fsilva   307B Feb 17 16:18 include.h
--rw-r--r--  1 fsilva   267B Feb 17 16:18 inserts
--rw-r--r--  1 fsilva   819B Feb 17 16:18 makefile
--rw-r--r--  1 fsilva   8.3K Feb 17 16:18 model_unc_plt.f
--rw-r--r--  1 fsilva   9.1K Feb 17 16:18 model_unc_plt_varN.f
--rwxr-xr-x  1 fsilva    18K Feb 17 16:18 pseudo.f
--rw-r--r--  1 fsilva   6.1K Feb 17 16:18 resid2uncer.c
--rw-r--r--  1 fsilva   6.9K Feb 17 16:18 resid2uncer_varN.c
--rwxr-xr-x  1 fsilva   7.5K Feb 17 16:18 respect.f
--rw-r--r--  1 fsilva   5.8K Feb 17 16:18 rspresid_varN.f
--rw-r--r--  1 fsilva   4.0K Feb 17 16:18 structure.h
+total 272
+-rw-r--r--  1 staff   425B Feb 17  2017 function.h
+-rw-r--r--  1 staff   9.1K Feb 17  2017 gen_resid_tbl.c
+-rw-r--r--  1 staff   5.4K Feb 17  2017 gen_resid_tbl030405.c
+-rw-r--r--  1 staff   7.3K Feb 17  2017 gen_resid_tbl052506.c
+-rw-r--r--  1 staff   9.3K Feb 17  2017 gen_resid_tbl_3comp.c
+-rw-r--r--  1 staff   307B Feb 17  2017 include.h
+-rw-r--r--  1 staff   267B Feb 17  2017 inserts
+-rw-r--r--  1 staff   819B Feb 17  2017 makefile
+-rw-r--r--  1 staff   8.3K Feb 17  2017 model_unc_plt.f
+-rw-r--r--  1 staff   9.1K Feb 17  2017 model_unc_plt_varN.f
+-rwxr-xr-x  1 staff    18K Feb 17  2017 pseudo.f
+-rw-r--r--  1 staff   6.1K Feb 17  2017 resid2uncer.c
+-rw-r--r--  1 staff   6.9K Feb 17  2017 resid2uncer_varN.c
+-rwxr-xr-x  1 staff   7.5K Feb 17  2017 respect.f
+-rw-r--r--  1 staff   5.8K Feb 17  2017 rspresid_varN.f
+-rw-r--r--  1 staff   4.0K Feb 17  2017 structure.h
 
 ./bbp/src/gp/JordanBailey:
-total 536
--rw-r--r--  1 fsilva    35B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   6.4K Feb 17 16:18 bailey2srfOLD.c
--rw-r--r--  1 fsilva   6.0K Feb 17 16:18 beroza_rupm.c
--rw-r--r--  1 fsilva   967B Feb 17 16:18 defs.h
--rw-r--r--  1 fsilva   4.8K Feb 17 16:18 fourg.f
--rw-r--r--  1 fsilva   4.5K Feb 17 16:18 function.h
--rw-r--r--  1 fsilva   5.0K Feb 17 16:18 gen_gflist.c
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 gene_rupm.c
--rw-r--r--  1 fsilva   4.9K Feb 17 16:18 geoproj_subs.c
--rw-r--r--  1 fsilva   6.8K Feb 17 16:18 get_ruptime.c
--rw-r--r--  1 fsilva    27K Feb 17 16:18 greenfunc.c
--rw-r--r--  1 fsilva   420B Feb 17 16:18 include.h
--rw-r--r--  1 fsilva   5.9K Feb 17 16:18 iofunc.c
--rw-r--r--  1 fsilva    23K Feb 17 16:18 jbsim.c
--rw-r--r--  1 fsilva    17K Feb 17 16:18 jbsim032906.c
--rw-r--r--  1 fsilva   6.8K Feb 17 16:18 jbsim3d.c
--rw-r--r--  1 fsilva   1.4K Feb 17 16:18 makefile
--rw-r--r--  1 fsilva    13K Feb 17 16:18 misc_subs.c
--rw-r--r--  1 fsilva   4.4K Feb 17 16:18 okumura_rupm.c
--rw-r--r--  1 fsilva   2.3K Feb 17 16:18 ray_stimes.c
--rw-r--r--  1 fsilva   5.7K Feb 17 16:18 rob_rupm.c
--rw-r--r--  1 fsilva   7.5K Feb 17 16:18 ruptime.c
--rw-r--r--  1 fsilva    29K Feb 17 16:18 sgt3d_subs.c
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 srf_rupm.c
--rw-r--r--  1 fsilva   2.3K Feb 17 16:18 srf_rupmOLD.c
--rw-r--r--  1 fsilva   970B Feb 17 16:18 stf_subs.c
--rw-r--r--  1 fsilva   6.0K Feb 17 16:18 structure.h
--rw-r--r--  1 fsilva   2.1K Feb 17 16:18 structureOLD.h
--rw-r--r--  1 fsilva   3.4K Feb 17 16:18 structureOLD2.h
+total 528
+-rw-r--r--  1 staff   6.4K Feb 17  2017 bailey2srfOLD.c
+-rw-r--r--  1 staff   6.0K Feb 17  2017 beroza_rupm.c
+-rw-r--r--  1 staff   967B Feb 17  2017 defs.h
+-rw-r--r--  1 staff   4.8K Feb 17  2017 fourg.f
+-rw-r--r--  1 staff   4.5K Feb 17  2017 function.h
+-rw-r--r--  1 staff   5.0K Feb 17  2017 gen_gflist.c
+-rw-r--r--  1 staff   3.8K Feb 17  2017 gene_rupm.c
+-rw-r--r--  1 staff   4.9K Feb 17  2017 geoproj_subs.c
+-rw-r--r--  1 staff   6.8K Feb 17  2017 get_ruptime.c
+-rw-r--r--  1 staff    27K Feb 17  2017 greenfunc.c
+-rw-r--r--  1 staff   420B Feb 17  2017 include.h
+-rw-r--r--  1 staff   5.9K Feb 17  2017 iofunc.c
+-rw-r--r--  1 staff    23K Feb 17  2017 jbsim.c
+-rw-r--r--  1 staff    17K Feb 17  2017 jbsim032906.c
+-rw-r--r--  1 staff   6.8K Feb 17  2017 jbsim3d.c
+-rw-r--r--  1 staff   1.4K Feb 17  2017 makefile
+-rw-r--r--  1 staff    13K Feb 17  2017 misc_subs.c
+-rw-r--r--  1 staff   4.4K Feb 17  2017 okumura_rupm.c
+-rw-r--r--  1 staff   2.3K Feb 17  2017 ray_stimes.c
+-rw-r--r--  1 staff   5.7K Feb 17  2017 rob_rupm.c
+-rw-r--r--  1 staff   7.5K Feb 17  2017 ruptime.c
+-rw-r--r--  1 staff    29K Feb 17  2017 sgt3d_subs.c
+-rw-r--r--  1 staff   3.6K Feb 17  2017 srf_rupm.c
+-rw-r--r--  1 staff   2.3K Feb 17  2017 srf_rupmOLD.c
+-rw-r--r--  1 staff   970B Feb 17  2017 stf_subs.c
+-rw-r--r--  1 staff   6.0K Feb 17  2017 structure.h
+-rw-r--r--  1 staff   2.1K Feb 17  2017 structureOLD.h
+-rw-r--r--  1 staff   3.4K Feb 17  2017 structureOLD2.h
 
 ./bbp/src/gp/ModelCords:
-total 424
--rw-r--r--  1 fsilva    22B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   2.7K Feb 17 16:18 cart2geo.c
--rw-r--r--  1 fsilva   1.0K Feb 17 16:18 da.ll
--rw-r--r--  1 fsilva   478B Feb 17 16:18 da2.ll
--rw-r--r--  1 fsilva   3.5K Feb 17 16:18 fault_seg2lonlat.c
--rw-r--r--  1 fsilva   2.6K Feb 17 16:18 faultcords.c
--rw-r--r--  1 fsilva   1.9K Feb 17 16:18 fd2close-dist.c
--rw-r--r--  1 fsilva   2.8K Feb 17 16:18 fdcords2latlon.c
--rw-r--r--  1 fsilva   273B Feb 17 16:18 function.h
--rw-r--r--  1 fsilva   2.5K Feb 17 16:18 gcproj.c
--rw-r--r--  1 fsilva   3.9K Feb 17 16:18 gen_latlon_cords.c
--rw-r--r--  1 fsilva    14K Feb 17 16:18 gen_model_cords-UTM.c
--rw-r--r--  1 fsilva    18K Feb 17 16:18 gen_model_cords.c
--rw-r--r--  1 fsilva    16K Feb 17 16:18 geo2cart.c
--rw-r--r--  1 fsilva   4.4K Feb 17 16:18 geo_utm.f
--rw-r--r--  1 fsilva   3.7K Feb 17 16:18 geoproj_subs.c
--rw-r--r--  1 fsilva   482B Feb 17 16:18 include.h
--rw-r--r--  1 fsilva   2.0K Feb 17 16:18 latlon2distaz.c
--rw-r--r--  1 fsilva   6.1K Feb 17 16:18 latlon2statgrid.c
--rw-r--r--  1 fsilva   1.0K Feb 17 16:18 latlon2topcenter.c
--rw-r--r--  1 fsilva   4.6K Feb 17 16:18 latlon2xyz.c
--rw-r--r--  1 fsilva   3.0K Feb 17 16:18 ll2delaz.c
--rw-r--r--  1 fsilva   4.4K Feb 17 16:18 ll2xy.c
--rw-r--r--  1 fsilva   4.3K Feb 17 16:18 lld2xyz.c
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 llmask.c
--rw-r--r--  1 fsilva   4.2K Feb 17 16:18 lonlat2xyz.c
--rw-r--r--  1 fsilva   766B Feb 17 16:18 makefile
--rw-r--r--  1 fsilva   1.6K Feb 17 16:18 stat_prof_cords.c
--rw-r--r--  1 fsilva   2.1K Feb 17 16:18 statgrid2latlon.c
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 stats20.ll
--rw-r--r--  1 fsilva   4.4K Feb 17 16:18 xy2ll.c
--rw-r--r--  1 fsilva   4.3K Feb 17 16:18 xyz2lld.c
--rw-r--r--  1 fsilva   4.3K Feb 17 16:18 xyz2lonlat.c
+total 416
+-rw-r--r--  1 staff   2.7K Feb 17  2017 cart2geo.c
+-rw-r--r--  1 staff   1.0K Feb 17  2017 da.ll
+-rw-r--r--  1 staff   478B Feb 17  2017 da2.ll
+-rw-r--r--  1 staff   3.5K Feb 17  2017 fault_seg2lonlat.c
+-rw-r--r--  1 staff   2.6K Feb 17  2017 faultcords.c
+-rw-r--r--  1 staff   1.9K Feb 17  2017 fd2close-dist.c
+-rw-r--r--  1 staff   2.8K Feb 17  2017 fdcords2latlon.c
+-rw-r--r--  1 staff   273B Feb 17  2017 function.h
+-rw-r--r--  1 staff   2.5K Feb 17  2017 gcproj.c
+-rw-r--r--  1 staff   3.9K Feb 17  2017 gen_latlon_cords.c
+-rw-r--r--  1 staff    14K Feb 17  2017 gen_model_cords-UTM.c
+-rw-r--r--  1 staff    18K Feb 17  2017 gen_model_cords.c
+-rw-r--r--  1 staff    16K Feb 17  2017 geo2cart.c
+-rw-r--r--  1 staff   4.4K Feb 17  2017 geo_utm.f
+-rw-r--r--  1 staff   3.7K Feb 17  2017 geoproj_subs.c
+-rw-r--r--  1 staff   482B Feb 17  2017 include.h
+-rw-r--r--  1 staff   2.0K Feb 17  2017 latlon2distaz.c
+-rw-r--r--  1 staff   6.1K Feb 17  2017 latlon2statgrid.c
+-rw-r--r--  1 staff   1.0K Feb 17  2017 latlon2topcenter.c
+-rw-r--r--  1 staff   4.6K Feb 17  2017 latlon2xyz.c
+-rw-r--r--  1 staff   3.0K Feb 17  2017 ll2delaz.c
+-rw-r--r--  1 staff   4.8K Oct 16  2018 ll2xy.c
+-rw-r--r--  1 staff   4.3K Feb 17  2017 lld2xyz.c
+-rw-r--r--  1 staff   1.7K Feb 17  2017 llmask.c
+-rw-r--r--  1 staff   4.2K Feb 17  2017 lonlat2xyz.c
+-rw-r--r--  1 staff   766B Feb 17  2017 makefile
+-rw-r--r--  1 staff   1.6K Feb 17  2017 stat_prof_cords.c
+-rw-r--r--  1 staff   2.1K Feb 17  2017 statgrid2latlon.c
+-rw-r--r--  1 staff   1.7K Feb 17  2017 stats20.ll
+-rw-r--r--  1 staff   4.6K Oct 16  2018 xy2ll.c
+-rw-r--r--  1 staff   4.3K Feb 17  2017 xyz2lld.c
+-rw-r--r--  1 staff   4.3K Feb 17  2017 xyz2lonlat.c
 
 ./bbp/src/gp/StandRupFormat:
-total 576
--rw-r--r--  1 fsilva    70B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   5.8K Feb 17 16:18 bailey2srf.c
--rw-r--r--  1 fsilva   1.1K Feb 17 16:18 defs.h
--rw-r--r--  1 fsilva   7.9K Feb 17 16:18 fault_seg2gsf.c
--rw-r--r--  1 fsilva   1.8K Feb 17 16:18 fault_seg2savg.c
--rw-r--r--  1 fsilva   2.7K Feb 17 16:18 function.h
--rw-r--r--  1 fsilva   4.5K Feb 17 16:18 gene2gsf.c
--rw-r--r--  1 fsilva    14K Feb 17 16:18 generic_slip2srf.c
--rw-r--r--  1 fsilva   4.2K Feb 17 16:18 generic_slip2srfGOOD.c
--rw-r--r--  1 fsilva   320B Feb 17 16:18 include.h
--rw-r--r--  1 fsilva   684B Feb 17 16:18 inv2_5x4.stoch
--rw-r--r--  1 fsilva   1.3K Feb 17 16:18 inv2xyz.c
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 iofunc.c
--rw-r--r--  1 fsilva   1.9K Feb 17 16:18 makefile
--rw-r--r--  1 fsilva    33K Feb 17 16:18 misc.c
--rw-r--r--  1 fsilva   494B Feb 17 16:18 scale_srf.c
--rw-r--r--  1 fsilva   9.5K Feb 17 16:18 sliprate_subs.c
--rw-r--r--  1 fsilva   5.1K Feb 17 16:18 srf2cdist.c
--rw-r--r--  1 fsilva   583B Feb 17 16:18 srf2moment.c
--rw-r--r--  1 fsilva   6.4K Feb 17 16:18 srf2stoch.c
--rw-r--r--  1 fsilva   804B Feb 17 16:18 srf2svf.c
--rw-r--r--  1 fsilva   1.3K Feb 17 16:18 srf2xyz.c
--rw-r--r--  1 fsilva   1.0K Feb 17 16:18 srf_change-version.c
--rw-r--r--  1 fsilva   3.4K Feb 17 16:18 srf_const-rv.c
--rw-r--r--  1 fsilva   5.1K Feb 17 16:18 srf_decimate.c
--rw-r--r--  1 fsilva   760B Feb 17 16:18 srf_gethypo.c
--rw-r--r--  1 fsilva   509B Feb 17 16:18 srf_join-segs.c
--rw-r--r--  1 fsilva   5.4K Feb 17 16:18 srf_resamp.c
--rw-r--r--  1 fsilva   2.1K Feb 17 16:18 srf_rotate-rake.c
--rw-r--r--  1 fsilva   494B Feb 17 16:18 srf_scale-slip.c
--rw-r--r--  1 fsilva   573B Feb 17 16:18 srf_select_depths.c
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 srf_split-nprange.c
--rw-r--r--  1 fsilva    44K Feb 17 16:18 srf_subs.c
--rw-r--r--  1 fsilva   1.5K Feb 17 16:18 stoch2xyz.c
--rw-r--r--  1 fsilva   2.4K Feb 17 16:18 structure.h
--rw-r--r--  1 fsilva   1.0K Feb 17 16:18 test_gaus.c
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 test_header.c
--rw-r--r--  1 fsilva   719B Feb 17 16:18 testget.c
--rw-r--r--  1 fsilva   8.3K Feb 17 16:18 wei2gsf.c
+total 608
+-rw-r--r--  1 staff   5.8K Feb 17  2017 bailey2srf.c
+-rw-r--r--  1 staff   1.1K Feb 17  2017 defs.h
+-rw-r--r--  1 staff   7.9K Feb 17  2017 fault_seg2gsf.c
+-rw-r--r--  1 staff   1.8K Feb 17  2017 fault_seg2savg.c
+-rw-r--r--  1 staff   2.8K Oct 16  2018 function.h
+-rw-r--r--  1 staff   4.5K Feb 17  2017 gene2gsf.c
+-rw-r--r--  1 staff    14K Feb 17  2017 generic_slip2srf.c
+-rw-r--r--  1 staff   4.2K Feb 17  2017 generic_slip2srfGOOD.c
+-rw-r--r--  1 staff   320B Feb 17  2017 include.h
+-rw-r--r--  1 staff   684B Feb 17  2017 inv2_5x4.stoch
+-rw-r--r--  1 staff   1.3K Feb 17  2017 inv2xyz.c
+-rw-r--r--  1 staff   1.2K Feb 17  2017 iofunc.c
+-rw-r--r--  1 staff   2.1K Oct 16  2018 makefile
+-rw-r--r--  1 staff    44K Oct 16  2018 misc.c
+-rw-r--r--  1 staff   494B Feb 17  2017 scale_srf.c
+-rw-r--r--  1 staff   9.5K Feb 17  2017 sliprate_subs.c
+-rw-r--r--  1 staff   5.1K Feb 17  2017 srf2cdist.c
+-rw-r--r--  1 staff   651B Oct 16  2018 srf2moment.c
+-rw-r--r--  1 staff   6.5K Oct 16  2018 srf2stoch.c
+-rw-r--r--  1 staff   804B Feb 17  2017 srf2svf.c
+-rw-r--r--  1 staff   1.3K Oct 16  2018 srf2xyz.c
+-rw-r--r--  1 staff   1.0K Feb 17  2017 srf_change-version.c
+-rw-r--r--  1 staff   3.4K Feb 17  2017 srf_const-rv.c
+-rw-r--r--  1 staff   5.1K Feb 17  2017 srf_decimate.c
+-rw-r--r--  1 staff   760B Feb 17  2017 srf_gethypo.c
+-rw-r--r--  1 staff   509B Feb 17  2017 srf_join-segs.c
+-rw-r--r--  1 staff   5.4K Feb 17  2017 srf_resamp.c
+-rw-r--r--  1 staff   2.1K Feb 17  2017 srf_rotate-rake.c
+-rw-r--r--  1 staff   494B Feb 17  2017 srf_scale-slip.c
+-rw-r--r--  1 staff   573B Feb 17  2017 srf_select_depths.c
+-rw-r--r--  1 staff   3.6K Feb 17  2017 srf_split-nprange.c
+-rw-r--r--  1 staff    49K Oct 16  2018 srf_subs.c
+-rw-r--r--  1 staff   1.5K Feb 17  2017 stoch2xyz.c
+-rw-r--r--  1 staff   2.8K Oct 16  2018 structure.h
+-rw-r--r--  1 staff   1.0K Feb 17  2017 test_gaus.c
+-rw-r--r--  1 staff   1.7K Feb 17  2017 test_header.c
+-rw-r--r--  1 staff   719B Feb 17  2017 testget.c
+-rw-r--r--  1 staff   8.3K Feb 17  2017 wei2gsf.c
 
 ./bbp/src/gp/StochSim:
 total 0
-drwxr-xr-x  8 fsilva   272B Feb 27 15:21 V5.4
+drwxr-xr-x  6 staff   192B Dec 12 10:21 V6.0
 
-./bbp/src/gp/StochSim/V5.4:
-total 648
--rw-r--r--  1 fsilva    25B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   100K Feb 17 16:18 hb_high_v5.4.1.f
--rw-r--r--  1 fsilva   105K Feb 17 16:18 hb_high_v5.4.3.f
--rw-r--r--  1 fsilva   100K Feb 17 16:18 hb_high_v5.4.f
--rw-r--r--  1 fsilva   488B Feb 17 16:18 makefile
--rw-r--r--  1 fsilva    95B Feb 17 16:18 params.h
+./bbp/src/gp/StochSim/V6.0:
+total 272
+-rw-r--r--  1 staff    93K Feb  7 14:13 hb_high_v6.0.3.f
+-rw-r--r--  1 staff   491B Dec 12 10:08 makefile
+-rw-r--r--  1 staff   266B Dec 12 10:08 params.h
 
 ./bbp/src/gp/WccFormat:
 total 0
-drwxr-xr-x  57 fsilva   1.9K Feb 27 15:21 Progs
+drwxr-xr-x  57 staff   1.8K Feb 27  2017 Progs
 
 ./bbp/src/gp/WccFormat/Progs:
-total 808
--rw-r--r--  1 fsilva   129B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   1.4K Feb 17 16:18 bgf_swapbytes.c
--rw-r--r--  1 fsilva   1.8K Feb 17 16:18 borch_siteamp.c
--rw-r--r--  1 fsilva   3.9K Feb 17 16:18 choi_siteamp.c
--rw-r--r--  1 fsilva   1.9K Feb 17 16:18 cmp_statlist.c
--rw-r--r--  1 fsilva   370B Feb 17 16:18 defs.h
--rw-r--r--  1 fsilva   2.5K Feb 17 16:18 dump_fdbin.c
--rw-r--r--  1 fsilva   9.2K Feb 17 16:18 fdbin2wcc.c
--rw-r--r--  1 fsilva   7.6K Feb 17 16:18 fft1d.c
--rw-r--r--  1 fsilva   4.8K Feb 17 16:18 fourg.f
--rw-r--r--  1 fsilva   953B Feb 17 16:18 function.h
--rwxr-xr-x  1 fsilva   452B Feb 17 16:18 genstf.csh
--rw-r--r--  1 fsilva   2.4K Feb 17 16:18 get_tsheader.c
--rw-r--r--  1 fsilva   366B Feb 17 16:18 iii.h
--rw-r--r--  1 fsilva   501B Feb 17 16:18 include.h
--rw-r--r--  1 fsilva    15K Feb 17 16:18 integ_diff.c
--rw-r--r--  1 fsilva   5.0K Feb 17 16:18 iofunc.c
--rw-r--r--  1 fsilva   5.0K Feb 17 16:18 leastsquares.c
--rw-r--r--  1 fsilva   2.0K Feb 17 16:18 makefile
--rw-r--r--  1 fsilva   6.0K Feb 17 16:18 mccamy.f
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 merge_ts.c
--rw-r--r--  1 fsilva   2.0K Feb 17 16:18 read_tsheader.c
--rw-r--r--  1 fsilva   3.0K Feb 17 16:18 respect2bbp.c
--rw-r--r--  1 fsilva    14K Feb 17 16:18 sac.h
--rw-r--r--  1 fsilva   2.2K Feb 17 16:18 sac2wcc_rob.c
--rw-r--r--  1 fsilva   7.5K Feb 17 16:18 sacio.c
--rw-r--r--  1 fsilva   4.0K Feb 17 16:18 structure.h
--rw-r--r--  1 fsilva   603B Feb 17 16:18 structure_v1.6.h
--rw-r--r--  1 fsilva   2.0K Feb 17 16:18 subgf2wcc.c
--rw-r--r--  1 fsilva    11K Feb 17 16:18 ts2xyz.c
--rw-r--r--  1 fsilva    20K Feb 17 16:18 vango_wcc.c
--rw-r--r--  1 fsilva   4.7K Feb 17 16:18 wcc2bbp.c
--rw-r--r--  1 fsilva   1.1K Feb 17 16:18 wcc2gmt.c
--rw-r--r--  1 fsilva   1.4K Feb 17 16:18 wcc2kp.c
--rw-r--r--  1 fsilva   4.5K Feb 17 16:18 wcc_2ampspec.c
--rw-r--r--  1 fsilva   3.4K Feb 17 16:18 wcc_Xcor.c
--rw-r--r--  1 fsilva   3.1K Feb 17 16:18 wcc_add.c
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 wcc_addrand.c
--rw-r--r--  1 fsilva   9.8K Feb 17 16:18 wcc_cnvlv.c
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 wcc_duration.c
--rw-r--r--  1 fsilva    14K Feb 17 16:18 wcc_genstf.c
--rw-r--r--  1 fsilva   1.0K Feb 17 16:18 wcc_getpeak.c
--rw-r--r--  1 fsilva   1.5K Feb 17 16:18 wcc_getstatic.c
--rw-r--r--  1 fsilva   1.8K Feb 17 16:18 wcc_header.c
--rw-r--r--  1 fsilva   8.5K Feb 17 16:18 wcc_insert_ts-list.c
--rw-r--r--  1 fsilva   4.9K Feb 17 16:18 wcc_insert_ts.c
--rw-r--r--  1 fsilva   5.2K Feb 17 16:18 wcc_resamp_arbdt.c
--rw-r--r--  1 fsilva   3.9K Feb 17 16:18 wcc_rotate.c
--rw-r--r--  1 fsilva   9.3K Feb 17 16:18 wcc_siteamp.c
--rw-r--r--  1 fsilva    10K Feb 17 16:18 wcc_siteamp09.c
--rw-r--r--  1 fsilva    35K Feb 17 16:18 wcc_siteamp14.c
--rw-r--r--  1 fsilva   3.3K Feb 17 16:18 wcc_specmod.c
--rw-r--r--  1 fsilva   8.5K Feb 17 16:18 wcc_tfilter.c
--rw-r--r--  1 fsilva   2.8K Feb 17 16:18 write_tsheader.c
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 zpass.f
+total 800
+-rw-r--r--  1 staff   1.4K Feb 17  2017 bgf_swapbytes.c
+-rw-r--r--  1 staff   1.8K Feb 17  2017 borch_siteamp.c
+-rw-r--r--  1 staff   3.9K Feb 17  2017 choi_siteamp.c
+-rw-r--r--  1 staff   1.9K Feb 17  2017 cmp_statlist.c
+-rw-r--r--  1 staff   370B Feb 17  2017 defs.h
+-rw-r--r--  1 staff   2.5K Feb 17  2017 dump_fdbin.c
+-rw-r--r--  1 staff   9.2K Feb 17  2017 fdbin2wcc.c
+-rw-r--r--  1 staff   7.6K Feb 17  2017 fft1d.c
+-rw-r--r--  1 staff   4.8K Feb 17  2017 fourg.f
+-rw-r--r--  1 staff   953B Feb 17  2017 function.h
+-rwxr-xr-x  1 staff   452B Feb 17  2017 genstf.csh
+-rw-r--r--  1 staff   2.4K Feb 17  2017 get_tsheader.c
+-rw-r--r--  1 staff   366B Feb 17  2017 iii.h
+-rw-r--r--  1 staff   501B Feb 17  2017 include.h
+-rw-r--r--  1 staff    15K Feb 17  2017 integ_diff.c
+-rw-r--r--  1 staff   5.0K Feb 17  2017 iofunc.c
+-rw-r--r--  1 staff   5.0K Feb 17  2017 leastsquares.c
+-rw-r--r--  1 staff   2.0K Feb 17  2017 makefile
+-rw-r--r--  1 staff   6.0K Feb 17  2017 mccamy.f
+-rw-r--r--  1 staff   3.8K Feb 17  2017 merge_ts.c
+-rw-r--r--  1 staff   2.0K Feb 17  2017 read_tsheader.c
+-rw-r--r--  1 staff   3.0K Feb 17  2017 respect2bbp.c
+-rw-r--r--  1 staff    14K Feb 17  2017 sac.h
+-rw-r--r--  1 staff   2.2K Feb 17  2017 sac2wcc_rob.c
+-rw-r--r--  1 staff   7.5K Feb 17  2017 sacio.c
+-rw-r--r--  1 staff   4.0K Feb 17  2017 structure.h
+-rw-r--r--  1 staff   603B Feb 17  2017 structure_v1.6.h
+-rw-r--r--  1 staff   2.0K Feb 17  2017 subgf2wcc.c
+-rw-r--r--  1 staff    11K Feb 17  2017 ts2xyz.c
+-rw-r--r--  1 staff    20K Feb 17  2017 vango_wcc.c
+-rw-r--r--  1 staff   4.7K Feb 17  2017 wcc2bbp.c
+-rw-r--r--  1 staff   1.1K Feb 17  2017 wcc2gmt.c
+-rw-r--r--  1 staff   1.4K Feb 17  2017 wcc2kp.c
+-rw-r--r--  1 staff   4.5K Feb 17  2017 wcc_2ampspec.c
+-rw-r--r--  1 staff   3.4K Feb 17  2017 wcc_Xcor.c
+-rw-r--r--  1 staff   3.1K Feb 17  2017 wcc_add.c
+-rw-r--r--  1 staff   1.2K Feb 17  2017 wcc_addrand.c
+-rw-r--r--  1 staff   9.8K Feb 17  2017 wcc_cnvlv.c
+-rw-r--r--  1 staff   1.2K Feb 17  2017 wcc_duration.c
+-rw-r--r--  1 staff    14K Feb 17  2017 wcc_genstf.c
+-rw-r--r--  1 staff   1.0K Feb 17  2017 wcc_getpeak.c
+-rw-r--r--  1 staff   1.5K Feb 17  2017 wcc_getstatic.c
+-rw-r--r--  1 staff   1.8K Feb 17  2017 wcc_header.c
+-rw-r--r--  1 staff   8.5K Feb 17  2017 wcc_insert_ts-list.c
+-rw-r--r--  1 staff   4.9K Feb 17  2017 wcc_insert_ts.c
+-rw-r--r--  1 staff   5.2K Feb 17  2017 wcc_resamp_arbdt.c
+-rw-r--r--  1 staff   3.9K Feb 17  2017 wcc_rotate.c
+-rw-r--r--  1 staff   9.3K Feb 17  2017 wcc_siteamp.c
+-rw-r--r--  1 staff    10K Feb 17  2017 wcc_siteamp09.c
+-rw-r--r--  1 staff    35K Feb 17  2017 wcc_siteamp14.c
+-rw-r--r--  1 staff   3.3K Feb 17  2017 wcc_specmod.c
+-rw-r--r--  1 staff   8.5K Feb 17  2017 wcc_tfilter.c
+-rw-r--r--  1 staff   2.8K Feb 17  2017 write_tsheader.c
+-rw-r--r--  1 staff   2.9K Feb 17  2017 zpass.f
 
 ./bbp/src/gp/getpar:
 total 0
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 include
-drwxr-xr-x   3 fsilva   102B Feb 27 14:17 lib
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 man
-drwxr-xr-x  11 fsilva   374B Feb 17 16:18 src
+drwxr-xr-x   4 staff   128B Feb 17  2017 include
+drwxr-xr-x   3 staff    96B Feb 27  2017 lib
+drwxr-xr-x   4 staff   128B Feb 17  2017 man
+drwxr-xr-x  11 staff   352B Feb 17  2017 src
 
 ./bbp/src/gp/getpar/include:
 total 16
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 getpar.h
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 libget.h
+-rw-r--r--  1 staff   1.2K Feb 17  2017 getpar.h
+-rw-r--r--  1 staff   1.2K Feb 17  2017 libget.h
 
 ./bbp/src/gp/getpar/lib:
 total 8
--rw-r--r--  1 fsilva    50B Feb 27 14:17 readme.txt
+-rw-r--r--  1 staff    50B Feb 27  2017 readme.txt
 
 ./bbp/src/gp/getpar/man:
 total 8
-drwxr-xr-x  4 fsilva   136B Feb 17 16:18 man3
--rw-r--r--  1 fsilva   125B Feb 17 16:18 windex
+drwxr-xr-x  4 staff   128B Feb 17  2017 man3
+-rw-r--r--  1 staff   125B Feb 17  2017 windex
 
 ./bbp/src/gp/getpar/man/man3:
 total 48
--rw-r--r--  1 fsilva   9.4K Feb 17 16:18 getarg.3
--rw-r--r--  1 fsilva    10K Feb 17 16:18 getpar.3
+-rw-r--r--  1 staff   9.4K Feb 17  2017 getarg.3
+-rw-r--r--  1 staff    10K Feb 17  2017 getpar.3
 
 ./bbp/src/gp/getpar/src:
 total 160
--rw-r--r--  1 fsilva   3.3K Feb 17 16:18 Makefile
--rw-r--r--  1 fsilva   923B Feb 17 16:18 defpar.c
--rw-r--r--  1 fsilva   9.4K Feb 17 16:18 getarg.3
--rw-r--r--  1 fsilva    15K Feb 17 16:18 getarg.c
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 getlocation.c
--rw-r--r--  1 fsilva   1.1K Feb 17 16:18 getlocation.c.save
--rw-r--r--  1 fsilva    10K Feb 17 16:18 getpar.3
--rw-r--r--  1 fsilva    20K Feb 17 16:18 getpar.c
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 libget.h
+-rw-r--r--  1 staff   3.3K Feb 17  2017 Makefile
+-rw-r--r--  1 staff   923B Feb 17  2017 defpar.c
+-rw-r--r--  1 staff   9.4K Feb 17  2017 getarg.3
+-rw-r--r--  1 staff    15K Feb 17  2017 getarg.c
+-rw-r--r--  1 staff   1.2K Feb 17  2017 getlocation.c
+-rw-r--r--  1 staff   1.1K Feb 17  2017 getlocation.c.save
+-rw-r--r--  1 staff    10K Feb 17  2017 getpar.3
+-rw-r--r--  1 staff    20K Feb 17  2017 getpar.c
+-rw-r--r--  1 staff   1.2K Feb 17  2017 libget.h
 
 ./bbp/src/irikura:
 total 8
-drwxr-xr-x  5 fsilva   170B Mar 31 11:21 gen_srf
--rw-r--r--  1 fsilva   107B Feb 17 16:18 makefile
+drwxr-xr-x   7 staff   224B Mar 25 18:49 gen_srf
+drwxr-xr-x  25 staff   800B Apr  5 15:00 greenscale
+-rw-r--r--   1 staff   393B Jan 10 14:36 makefile
+drwxr-xr-x  11 staff   352B Feb  6 12:16 srf2grns
+drwxr-xr-x  23 staff   736B Feb  6 12:14 statgreen
+drwxr-xr-x  23 staff   736B Apr  5 15:09 statgreen2
 
 ./bbp/src/irikura/gen_srf:
+total 80
+-rw-r--r--  1 staff    23K Mar 25 18:48 gen_srf_4.9.1.f
+-rwxr-xr-x  1 staff   5.5K Feb  6 12:20 gen_srf_segment4.f
+-rw-r--r--  1 staff   362B Mar 25 18:49 makefile
+-rwxr-xr-x  1 staff   2.6K Feb  6 12:21 sum_seg.f
+
+./bbp/src/irikura/greenscale:
+total 256
+-rw-r--r--  1 staff   2.3K Jan 10 14:33 COPYRIGHT
+-rw-r--r--  1 staff   1.5K Jan 10 14:26 FastFourierTransform.cpp
+-rw-r--r--  1 staff   652B Jan 10 14:26 FastFourierTransform.h
+-rw-r--r--  1 staff   1.1K Jan 10 14:26 calcdistance.cpp
+-rw-r--r--  1 staff   272B Jan 10 14:26 calcdistance.h
+-rw-r--r--  1 staff   3.3K Jan 10 14:26 filter.cpp
+-rw-r--r--  1 staff   122B Jan 10 14:26 filter.h
+-rw-r--r--  1 staff   990B Jan 10 14:26 format.h
+-rw-r--r--  1 staff   465B Jan 10 14:26 gosei.cpp
+-rw-r--r--  1 staff   4.6K Jan 10 14:26 greenintensity.cpp
+-rw-r--r--  1 staff    21K Apr  5 14:53 greenscale.cpp
+-rw-r--r--  1 staff   2.2K Jan 10 14:26 greenscale.h
+-rw-r--r--  1 staff   8.0K Jan 10 14:26 knetascii.cpp
+-rw-r--r--  1 staff   4.6K Jan 10 14:26 knetascii.h
+-rw-r--r--  1 staff   7.7K Jan 10 14:26 knetout.cpp
+-rw-r--r--  1 staff   991B Jan 10 14:26 knetout.h
+-rw-r--r--  1 staff   461B Jan 10 14:26 makefile
+-rw-r--r--  1 staff   7.9K Jan 10 14:26 saitofilt.cpp
+-rw-r--r--  1 staff   700B Jan 10 14:26 saitofilt.h
+-rw-r--r--  1 staff   3.5K Jan 10 14:26 scaleparam.cpp
+-rw-r--r--  1 staff   1.0K Jan 10 14:26 sekibun.cpp
+-rw-r--r--  1 staff   273B Jan 10 14:26 sekibun.h
+
+./bbp/src/irikura/srf2grns:
 total 64
--rw-r--r--  1 fsilva    18B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva    22K Mar 31 11:21 gen_srf_4.7.f
--rw-r--r--  1 fsilva   124B Feb 17 16:18 makefile
+-rw-r--r--  1 staff   2.3K Jan 10 14:34 COPYRIGHT
+-rw-r--r--  1 staff   435B Jan 10 14:26 makefile
+-rw-r--r--  1 staff   313B Jan 10 14:26 params_2.1.f90
+-rw-r--r--  1 staff   1.6K Jan 10 14:26 readsrf_2.1.f90
+-rw-r--r--  1 staff   990B Jan 10 14:26 resample_2.1.f90
+-rw-r--r--  1 staff   2.6K Jan 10 14:26 sdrop_2.1.f90
+-rw-r--r--  1 staff   973B Jan 10 14:26 sort3.f90
+-rw-r--r--  1 staff   1.0K Jan 10 14:26 srf2grns_2.1.f90
+
+./bbp/src/irikura/statgreen:
+total 256
+-rw-r--r--  1 staff    10K Jan 10 14:26 BasenSpectrum.cpp
+-rw-r--r--  1 staff   4.0K Jan 10 14:26 BasenSpectrum.h
+-rw-r--r--  1 staff   2.3K Jan 10 14:33 COPYRIGHT
+-rw-r--r--  1 staff   1.6K Jan 10 14:26 FastFourierTransform.cpp
+-rw-r--r--  1 staff   1.0K Jan 10 14:26 FastFourierTransform.h
+-rw-r--r--  1 staff   3.2K Jan 10 14:26 VerticalSHResponse.cpp
+-rw-r--r--  1 staff   2.7K Jan 10 14:26 VerticalSHResponse.h
+-rw-r--r--  1 staff   1.1K Jan 10 14:26 calcdistance.cpp
+-rw-r--r--  1 staff   274B Jan 10 14:26 calcdistance.h
+-rw-r--r--  1 staff   8.1K Jan 10 14:26 complex.h
+-rw-r--r--  1 staff   5.6K Jan 10 14:26 csvread.cpp
+-rw-r--r--  1 staff   531B Jan 10 14:26 csvread.h
+-rw-r--r--  1 staff   1.0K Jan 10 14:26 format.h
+-rw-r--r--  1 staff   7.7K Jan 10 14:26 knetascii.cpp
+-rw-r--r--  1 staff   4.3K Jan 10 14:26 knetascii.h
+-rw-r--r--  1 staff   1.5K Jan 10 14:26 knetout.cpp
+-rw-r--r--  1 staff   328B Jan 10 14:26 knetout.h
+-rw-r--r--  1 staff   470B Jan 10 14:26 makefile
+-rw-r--r--  1 staff    18K Jan 10 14:31 statgreen.cpp
+-rw-r--r--  1 staff   357B Jan 10 14:26 statgreen.h
+
+./bbp/src/irikura/statgreen2:
+total 248
+-rw-r--r--  1 staff    10K Jan 10 14:26 BasenSpectrum.cpp
+-rw-r--r--  1 staff   3.8K Jan 10 14:26 BasenSpectrum.h
+-rw-r--r--  1 staff   2.3K Jan 10 14:33 COPYRIGHT
+-rw-r--r--  1 staff   1.6K Jan 10 14:26 FastFourierTransform.cpp
+-rw-r--r--  1 staff   1.0K Jan 10 14:26 FastFourierTransform.h
+-rw-r--r--  1 staff   3.1K Jan 10 14:26 VerticalSHResponse.cpp
+-rw-r--r--  1 staff   2.4K Jan 10 14:26 VerticalSHResponse.h
+-rw-r--r--  1 staff   1.1K Jan 10 14:26 calcdistance.cpp
+-rw-r--r--  1 staff   274B Jan 10 14:26 calcdistance.h
+-rw-r--r--  1 staff   8.0K Jan 10 14:26 complex.h
+-rw-r--r--  1 staff   5.3K Jan 10 14:26 csvread.cpp
+-rw-r--r--  1 staff   531B Jan 10 14:26 csvread.h
+-rw-r--r--  1 staff   990B Jan 10 14:26 format.h
+-rw-r--r--  1 staff   7.6K Jan 10 14:26 knetascii.cpp
+-rw-r--r--  1 staff   4.3K Jan 10 14:26 knetascii.h
+-rw-r--r--  1 staff   1.5K Jan 10 14:26 knetout.cpp
+-rw-r--r--  1 staff   328B Jan 10 14:26 knetout.h
+-rw-r--r--  1 staff   475B Jan 10 14:26 makefile
+-rw-r--r--  1 staff    16K Apr  5 15:05 statgreen.cpp
+-rw-r--r--  1 staff   357B Jan 10 14:26 statgreen.h
 
 ./bbp/src/sdsu:
 total 8
-drwxr-xr-x   6 fsilva   204B Feb 27 15:21 Convert
-drwxr-xr-x  25 fsilva   850B Feb 27 15:21 MOGof
-drwxr-xr-x  21 fsilva   714B May  8 11:31 bbtoolbox
--rw-r--r--   1 fsilva   244B Feb 17 16:18 makefile
+drwxr-xr-x   6 staff   192B Feb 27  2017 Convert
+drwxr-xr-x  25 staff   800B Feb 27  2017 MOGof
+drwxr-xr-x  24 staff   768B Mar 21 13:22 bbtoolbox
+-rw-r--r--   1 staff   244B Feb 17  2017 makefile
 
 ./bbp/src/sdsu/Convert:
-total 32
--rw-r--r--  1 fsilva    26B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   2.7K Feb 17 16:18 bbp2bin.f90
--rw-r--r--  1 fsilva   2.3K Feb 17 16:18 bin2bbp.f90
--rw-r--r--  1 fsilva   191B Feb 17 16:18 makefile
+total 24
+-rw-r--r--  1 staff   2.7K Feb 17  2017 bbp2bin.f90
+-rw-r--r--  1 staff   2.3K Feb 17  2017 bin2bbp.f90
+-rw-r--r--  1 staff   191B Feb 17  2017 makefile
 
 ./bbp/src/sdsu/MOGof:
-total 1392
--rw-r--r--  1 fsilva   117B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva    18K Feb 17 16:18 BAnga08.f
--rw-r--r--  1 fsilva   5.7K Feb 17 16:18 BBanalyze.m
--rw-r--r--  1 fsilva    94K Feb 17 16:18 BWfilt.f
--rw-r--r--  1 fsilva    17K Feb 17 16:18 CBnga08.f
--rw-r--r--  1 fsilva    29K Feb 17 16:18 FileRead.f
--rw-r--r--  1 fsilva    34K Feb 17 16:18 FileRead_NGA.f
--rw-r--r--  1 fsilva   7.6K Feb 17 16:18 GMRotI50.f
--rw-r--r--  1 fsilva    29K Feb 17 16:18 GOF_CCFit.f
--rw-r--r--  1 fsilva    31K Feb 17 16:18 GOF_DCumEn.f
--rw-r--r--  1 fsilva    27K Feb 17 16:18 GOF_FSComp.f
--rw-r--r--  1 fsilva    33K Feb 17 16:18 GOF_InElFit.f
--rw-r--r--  1 fsilva    62K Feb 17 16:18 GOF_MO.f
--rw-r--r--  1 fsilva    68K Feb 17 16:18 GOF_MO_NGA.f
--rw-r--r--  1 fsilva    42K Feb 17 16:18 GOF_PGX.f
--rw-r--r--  1 fsilva    36K Feb 17 16:18 GOF_SAFit16.f
--rw-r--r--  1 fsilva    37K Feb 17 16:18 GOF_SpFit.f
--rw-r--r--  1 fsilva    36K Feb 17 16:18 GOF_SpecDurFit.f
--rw-r--r--  1 fsilva   4.0K Feb 17 16:18 InElastic.f
--rw-r--r--  1 fsilva    29K Feb 17 16:18 IntDiffFFT.f
--rw-r--r--  1 fsilva   2.0K Feb 17 16:18 README.txt
--rw-r--r--  1 fsilva   6.9K Feb 17 16:18 SpecResp.f
--rw-r--r--  1 fsilva   2.5K Feb 17 16:18 makefile
+total 1384
+-rw-r--r--  1 staff    18K Feb 17  2017 BAnga08.f
+-rw-r--r--  1 staff   5.7K Feb 17  2017 BBanalyze.m
+-rw-r--r--  1 staff    94K Feb 17  2017 BWfilt.f
+-rw-r--r--  1 staff    17K Feb 17  2017 CBnga08.f
+-rw-r--r--  1 staff    29K Feb 17  2017 FileRead.f
+-rw-r--r--  1 staff    34K Feb 17  2017 FileRead_NGA.f
+-rw-r--r--  1 staff   7.6K Feb 17  2017 GMRotI50.f
+-rw-r--r--  1 staff    29K Feb 17  2017 GOF_CCFit.f
+-rw-r--r--  1 staff    31K Feb 17  2017 GOF_DCumEn.f
+-rw-r--r--  1 staff    27K Feb 17  2017 GOF_FSComp.f
+-rw-r--r--  1 staff    33K Feb 17  2017 GOF_InElFit.f
+-rw-r--r--  1 staff    62K Feb 17  2017 GOF_MO.f
+-rw-r--r--  1 staff    68K Feb 17  2017 GOF_MO_NGA.f
+-rw-r--r--  1 staff    42K Feb 17  2017 GOF_PGX.f
+-rw-r--r--  1 staff    36K Feb 17  2017 GOF_SAFit16.f
+-rw-r--r--  1 staff    37K Feb 17  2017 GOF_SpFit.f
+-rw-r--r--  1 staff    36K Feb 17  2017 GOF_SpecDurFit.f
+-rw-r--r--  1 staff   4.0K Feb 17  2017 InElastic.f
+-rw-r--r--  1 staff    29K Feb 17  2017 IntDiffFFT.f
+-rw-r--r--  1 staff   2.0K Feb 17  2017 README.txt
+-rw-r--r--  1 staff   6.9K Feb 17  2017 SpecResp.f
+-rw-r--r--  1 staff   2.5K Feb 17  2017 makefile
 
 ./bbp/src/sdsu/bbtoolbox:
-total 680
--rw-r--r--  1 fsilva    24B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva    20K Feb 17 16:18 README-BBtoolbox
--rw-r--r--  1 fsilva    14K May  8 11:31 coda.f90
--rw-r--r--  1 fsilva   511B Feb 17 16:18 compile.csh
--rw-r--r--  1 fsilva    25K May  8 11:31 composition.f90
--rw-r--r--  1 fsilva   3.0K Feb 17 16:18 convolution.f90
--rw-r--r--  1 fsilva   3.7K Feb 17 16:18 error.f90
--rw-r--r--  1 fsilva    14K Feb 17 16:18 fourier.f90
--rw-r--r--  1 fsilva   8.8K May  8 11:31 geometry.f90
--rw-r--r--  1 fsilva    11K Feb 17 16:18 interpolation.f90
--rw-r--r--  1 fsilva    47K May  8 11:31 io.f90
--rw-r--r--  1 fsilva    11K May  8 11:31 main_bbtoolbox.f90
--rwxr-xr-x  1 fsilva   520B Feb 17 16:18 makefile
--rw-r--r--  1 fsilva    16K May  8 11:31 module_bbtoolbox.f90
--rw-r--r--  1 fsilva   5.6K Feb 17 16:18 module_interface.f90
--rw-r--r--  1 fsilva   5.7K Feb 17 16:18 random.f90
--rw-r--r--  1 fsilva    64K Feb 17 16:18 ray3DJHfor.c
--rw-r--r--  1 fsilva    11K Feb 17 16:18 scattering.f90
--rw-r--r--  1 fsilva    32K May  8 11:31 source.f90
+total 856
+-rw-r--r--  1 staff    20K Feb 17  2017 README-BBtoolbox
+-rw-r--r--  1 staff    14K Mar 21 13:20 coda.f90
+-rw-r--r--  1 staff   511B Feb 17  2017 compile.csh
+-rw-r--r--  1 staff    27K Mar 21 13:20 composition.f90
+-rw-r--r--  1 staff   2.6K Mar 21 13:21 convolution.f90
+-rw-r--r--  1 staff   8.0K Apr  2 17:19 correlation_readnk.f90
+-rw-r--r--  1 staff   3.7K Mar 21 13:21 error.f90
+-rw-r--r--  1 staff    72K Mar 21 13:22 filtering.f90
+-rw-r--r--  1 staff    14K Mar 21 13:22 fourier.f90
+-rw-r--r--  1 staff   9.1K Mar 21 13:22 geometry.f90
+-rw-r--r--  1 staff   2.3K Mar 21 13:22 integ_diff.f90
+-rw-r--r--  1 staff    11K Mar 21 13:22 interpolation.f90
+-rw-r--r--  1 staff    50K Mar 21 13:23 io.f90
+-rw-r--r--  1 staff    12K Mar 21 13:23 main_bbtoolbox.f90
+-rwxr-xr-x  1 staff   572B Mar 21 13:23 makefile
+-rw-r--r--  1 staff    19K Apr  2 17:19 module_bbtoolbox.f90
+-rw-r--r--  1 staff   6.1K Mar 21 13:24 module_interface.f90
+-rw-r--r--  1 staff   5.7K Mar 21 13:24 random.f90
+-rw-r--r--  1 staff    64K Mar 21 13:24 ray3DJHfor.c
+-rw-r--r--  1 staff    12K Apr  2 17:19 scattering.f90
+-rw-r--r--  1 staff    35K Mar 21 13:25 source.f90
 
 ./bbp/src/ucb:
 total 8
--rw-r--r--   1 fsilva    77B Feb 17 16:18 makefile
-drwxr-xr-x  13 fsilva   442B Feb 27 15:21 rotd50
+-rw-r--r--   1 staff    77B Feb 17  2017 makefile
+drwxr-xr-x  13 staff   416B Feb 27  2017 rotd50
 
 ./bbp/src/ucb/rotd50:
-total 136
--rw-r--r--  1 fsilva    25B Feb 27 15:21 .gitignore
--rwxr-xr-x  1 fsilva    93B Feb 17 16:18 baseline.h
--rwxr-xr-x  1 fsilva   4.6K Feb 17 16:18 calcrsp.f
--rwxr-xr-x  1 fsilva   2.5K Feb 17 16:18 fftsub.f
--rwxr-xr-x  1 fsilva   1.3K Feb 17 16:18 ft_th.f
--rw-r--r--  1 fsilva   453B Feb 17 16:18 makefile
--rw-r--r--  1 fsilva    13K Feb 17 16:18 rotd100.f
--rwxr-xr-x  1 fsilva    11K Feb 17 16:18 rotd50.f
--rwxr-xr-x  1 fsilva   2.1K Feb 17 16:18 sort.f
--rwxr-xr-x  1 fsilva   888B Feb 17 16:18 spline.f
--rwxr-xr-x  1 fsilva   566B Feb 17 16:18 splint.f
+total 128
+-rwxr-xr-x  1 staff    93B Feb 17  2017 baseline.h
+-rwxr-xr-x  1 staff   4.6K Feb 17  2017 calcrsp.f
+-rwxr-xr-x  1 staff   2.5K Feb 17  2017 fftsub.f
+-rwxr-xr-x  1 staff   1.3K Feb 17  2017 ft_th.f
+-rw-r--r--  1 staff   453B Feb 17  2017 makefile
+-rw-r--r--  1 staff    13K Feb 17  2017 rotd100.f
+-rwxr-xr-x  1 staff    11K Feb 17  2017 rotd50.f
+-rwxr-xr-x  1 staff   2.1K Feb 17  2017 sort.f
+-rwxr-xr-x  1 staff   888B Feb 17  2017 spline.f
+-rwxr-xr-x  1 staff   566B Feb 17  2017 splint.f
 
 ./bbp/src/ucsb:
 total 8
-drwxr-xr-x  25 fsilva   850B Feb 27 15:21 Converter
-drwxr-xr-x  16 fsilva   544B Feb 27 15:21 DeconvStitch
-drwxr-xr-x   9 fsilva   306B Feb 27 15:21 FFSP
-drwxr-xr-x  28 fsilva   952B Feb 17 16:18 GreenBank
-drwxr-xr-x   8 fsilva   272B Feb 27 15:21 Syn1D
-drwxr-xr-x   6 fsilva   204B Feb 27 15:21 getInFile
--rw-r--r--   1 fsilva   530B Feb 17 16:18 makefile
-drwxr-xr-x  17 fsilva   578B Feb 27 15:21 noah_code
-drwxr-xr-x   8 fsilva   272B Feb 27 15:21 timeHist
+drwxr-xr-x  25 staff   800B Apr  8 16:52 Converter
+drwxr-xr-x  16 staff   512B Feb 27  2017 DeconvStitch
+drwxr-xr-x   9 staff   288B Feb 27  2017 FFSP
+drwxr-xr-x  28 staff   896B Feb 17  2017 GreenBank
+drwxr-xr-x   8 staff   256B Feb 27  2017 Syn1D
+drwxr-xr-x   6 staff   192B Feb 27  2017 getInFile
+-rw-r--r--   1 staff   530B Feb 17  2017 makefile
+drwxr-xr-x  17 staff   544B Feb 27  2017 noah_code
+drwxr-xr-x   8 staff   256B Feb 27  2017 timeHist
 
 ./bbp/src/ucsb/Converter:
-total 192
--rw-r--r--  1 fsilva   133B Feb 27 15:21 .gitignore
--rwxr-xr-x  1 fsilva   1.7K Feb 17 16:18 Makefile
--rw-r--r--  1 fsilva   346B Feb 17 16:18 conv3Comp.c
--rwxr-xr-x  1 fsilva   297B Feb 17 16:18 conv3Comp2.c
--rwxr-xr-x  1 fsilva   348B Feb 17 16:18 conv3CompBB.c
--rw-r--r--  1 fsilva   261B Feb 17 16:18 convertFaultInput.c
--rwxr-xr-x  1 fsilva   261B Feb 17 16:18 convertFaultInputKM.c
--rw-r--r--  1 fsilva   100B Feb 17 16:18 faultGlobal.in
--rw-r--r--  1 fsilva   273B Feb 17 16:18 function.h
--rw-r--r--  1 fsilva   3.1K Feb 17 16:18 geoproj_subs.c
--rw-r--r--  1 fsilva   433B Feb 17 16:18 include.h
--rw-r--r--  1 fsilva   2.7K Feb 17 16:18 srfLL2XY.c
--rwxr-xr-x  1 fsilva   2.7K Feb 17 16:18 srfLL2XYKM.c
--rwxr-xr-x  1 fsilva   2.8K Feb 17 16:18 srfLL2XYnf.c
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 srfXY2LL.c
--rwxr-xr-x  1 fsilva   2.9K Feb 17 16:18 srfXY2LLKM.c
--rw-r--r--  1 fsilva   2.1K Feb 17 16:18 statLL2XY.c
--rwxr-xr-x  1 fsilva   1.9K Feb 17 16:18 statLLXY.c
--rw-r--r--  1 fsilva   5.1K Feb 17 16:18 utl3Comp.c
--rw-r--r--  1 fsilva   457B Feb 17 16:18 utl3Comp.h
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 utlFault.c
--rw-r--r--  1 fsilva   826B Feb 17 16:18 utlFault.h
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 utl_orig.c
+total 184
+-rwxr-xr-x  1 staff   1.7K Feb 17  2017 Makefile
+-rw-r--r--  1 staff   346B Feb 17  2017 conv3Comp.c
+-rwxr-xr-x  1 staff   297B Feb 17  2017 conv3Comp2.c
+-rwxr-xr-x  1 staff   348B Feb 17  2017 conv3CompBB.c
+-rw-r--r--  1 staff   261B Feb 17  2017 convertFaultInput.c
+-rwxr-xr-x  1 staff   261B Feb 17  2017 convertFaultInputKM.c
+-rw-r--r--  1 staff   100B Feb 17  2017 faultGlobal.in
+-rw-r--r--  1 staff   273B Feb 17  2017 function.h
+-rw-r--r--  1 staff   3.7K Apr  8 16:51 geoproj_subs.c
+-rw-r--r--  1 staff   433B Feb 17  2017 include.h
+-rw-r--r--  1 staff   2.7K Feb 17  2017 srfLL2XY.c
+-rwxr-xr-x  1 staff   2.7K Feb 17  2017 srfLL2XYKM.c
+-rwxr-xr-x  1 staff   2.8K Feb 17  2017 srfLL2XYnf.c
+-rw-r--r--  1 staff   2.9K Feb 17  2017 srfXY2LL.c
+-rwxr-xr-x  1 staff   2.9K Feb 17  2017 srfXY2LLKM.c
+-rw-r--r--  1 staff   2.1K Feb 17  2017 statLL2XY.c
+-rwxr-xr-x  1 staff   1.9K Feb 17  2017 statLLXY.c
+-rw-r--r--  1 staff   5.1K Feb 17  2017 utl3Comp.c
+-rw-r--r--  1 staff   457B Feb 17  2017 utl3Comp.h
+-rw-r--r--  1 staff   3.8K Feb 17  2017 utlFault.c
+-rw-r--r--  1 staff   826B Feb 17  2017 utlFault.h
+-rw-r--r--  1 staff   2.9K Feb 17  2017 utl_orig.c
 
 ./bbp/src/ucsb/DeconvStitch:
-total 288
--rw-r--r--  1 fsilva    44B Feb 27 15:21 .gitignore
--rwxr-xr-x  1 fsilva   4.3K Feb 17 16:18 BB
--rwxr-xr-x  1 fsilva   420B Feb 17 16:18 VMname.list
--rwxr-xr-x  1 fsilva   4.9K Feb 17 16:18 deconv.f90
--rwxr-xr-x  1 fsilva    30B Feb 17 16:18 deconv.inp
--rwxr-xr-x  1 fsilva   7.0K Feb 17 16:18 deconvBBP.f90
--rwxr-xr-x  1 fsilva   506B Feb 17 16:18 makefile
--rwxr-xr-x  1 fsilva    38K Feb 17 16:18 proc_tool.f90
--rwxr-xr-x  1 fsilva   2.3K Feb 17 16:18 stations.list
--rwxr-xr-x  1 fsilva    20K Feb 17 16:18 stitch.f90
--rwxr-xr-x  1 fsilva    66B Feb 17 16:18 stitch.inp
--rwxr-xr-x  1 fsilva    20K Feb 17 16:18 stitchBBP.f90
--rwxr-xr-x  1 fsilva   1.5K Feb 17 16:18 velocity.rock
--rwxr-xr-x  1 fsilva   1.4K Feb 17 16:18 velocity.soil
+total 280
+-rwxr-xr-x  1 staff   4.3K Feb 17  2017 BB
+-rwxr-xr-x  1 staff   420B Feb 17  2017 VMname.list
+-rwxr-xr-x  1 staff   4.9K Feb 17  2017 deconv.f90
+-rwxr-xr-x  1 staff    30B Feb 17  2017 deconv.inp
+-rwxr-xr-x  1 staff   7.0K Feb 17  2017 deconvBBP.f90
+-rwxr-xr-x  1 staff   506B Feb 17  2017 makefile
+-rwxr-xr-x  1 staff    38K Feb 17  2017 proc_tool.f90
+-rwxr-xr-x  1 staff   2.3K Feb 17  2017 stations.list
+-rwxr-xr-x  1 staff    20K Feb 17  2017 stitch.f90
+-rwxr-xr-x  1 staff    66B Feb 17  2017 stitch.inp
+-rwxr-xr-x  1 staff    20K Feb 17  2017 stitchBBP.f90
+-rwxr-xr-x  1 staff   1.5K Feb 17  2017 velocity.rock
+-rwxr-xr-x  1 staff   1.4K Feb 17  2017 velocity.soil
 
 ./bbp/src/ucsb/FFSP:
-total 264
--rw-r--r--  1 fsilva    18B Feb 27 15:21 .gitignore
--rwxr-xr-x  1 fsilva   1.3K Feb 17 16:18 ffsp_comm.f90
--rwxr-xr-x  1 fsilva    75K Feb 17 16:18 ffsp_tool.f
--rwxr-xr-x  1 fsilva   6.5K Feb 17 16:18 ffsp_v2.f90
--rwxr-xr-x  1 fsilva   479B Feb 17 16:18 makefile
--rwxr-xr-x  1 fsilva   8.4K Feb 17 16:18 slip_rate.f90
--rwxr-xr-x  1 fsilva    20K Feb 17 16:18 spfield.f90
+total 256
+-rwxr-xr-x  1 staff   1.3K Feb 17  2017 ffsp_comm.f90
+-rwxr-xr-x  1 staff    75K Feb 17  2017 ffsp_tool.f
+-rwxr-xr-x  1 staff   6.5K Feb 17  2017 ffsp_v2.f90
+-rwxr-xr-x  1 staff   479B Feb 17  2017 makefile
+-rwxr-xr-x  1 staff   8.4K Feb 17  2017 slip_rate.f90
+-rwxr-xr-x  1 staff    20K Feb 17  2017 spfield.f90
 
 ./bbp/src/ucsb/GreenBank:
 total 312
--rw-r--r--  1 fsilva   1.1K Feb 17 16:18 Complex.c
--rw-r--r--  1 fsilva   1.8K Feb 17 16:18 Complex.h
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 bessel.f
--rw-r--r--  1 fsilva   7.0K Feb 17 16:18 cmodel.f
--rw-r--r--  1 fsilva   4.7K Feb 17 16:18 compound.f
--rw-r--r--  1 fsilva   259B Feb 17 16:18 config.h
--rw-r--r--  1 fsilva   373B Feb 17 16:18 constants.h
--rw-r--r--  1 fsilva    10K Feb 17 16:18 fft.c
--rw-r--r--  1 fsilva   8.9K Feb 17 16:18 fk.f
--rw-r--r--  1 fsilva   8.9K Feb 17 16:18 fkFar.f
--rw-r--r--  1 fsilva   539B Feb 17 16:18 getDuration.c
--rw-r--r--  1 fsilva   3.3K Feb 17 16:18 green_bank.f
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 green_bankF.f
--rw-r--r--  1 fsilva   6.7K Feb 17 16:18 green_bankFar.f
--rw-r--r--  1 fsilva   5.9K Feb 17 16:18 green_bankFar1.f
--rw-r--r--  1 fsilva   5.9K Feb 17 16:18 green_bankFarv1.f
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 haskell.f
--rw-r--r--  1 fsilva   2.0K Feb 17 16:18 kernel.f
--rw-r--r--  1 fsilva   530B Feb 17 16:18 layer.h
--rw-r--r--  1 fsilva   1.3K Feb 17 16:18 makefile
--rw-r--r--  1 fsilva   900B Feb 17 16:18 model.h
--rw-r--r--  1 fsilva    10K Feb 17 16:18 oldfft.c
--rw-r--r--  1 fsilva   1.5K Feb 17 16:18 source.f
--rw-r--r--  1 fsilva   2.0K Feb 17 16:18 test.f
--rw-r--r--  1 fsilva   2.0K Feb 17 16:18 utlDuration.c
--rw-r--r--  1 fsilva   661B Feb 17 16:18 utlDuration.h
+-rw-r--r--  1 staff   1.1K Feb 17  2017 Complex.c
+-rw-r--r--  1 staff   1.8K Feb 17  2017 Complex.h
+-rw-r--r--  1 staff   3.6K Feb 17  2017 bessel.f
+-rw-r--r--  1 staff   7.0K Feb 17  2017 cmodel.f
+-rw-r--r--  1 staff   4.7K Feb 17  2017 compound.f
+-rw-r--r--  1 staff   259B Feb 17  2017 config.h
+-rw-r--r--  1 staff   373B Feb 17  2017 constants.h
+-rw-r--r--  1 staff    10K Feb 17  2017 fft.c
+-rw-r--r--  1 staff   8.9K Feb 17  2017 fk.f
+-rw-r--r--  1 staff   8.9K Feb 17  2017 fkFar.f
+-rw-r--r--  1 staff   539B Feb 17  2017 getDuration.c
+-rw-r--r--  1 staff   3.3K Feb 17  2017 green_bank.f
+-rw-r--r--  1 staff   3.8K Feb 17  2017 green_bankF.f
+-rw-r--r--  1 staff   6.7K Feb 17  2017 green_bankFar.f
+-rw-r--r--  1 staff   5.9K Feb 17  2017 green_bankFar1.f
+-rw-r--r--  1 staff   5.9K Feb 17  2017 green_bankFarv1.f
+-rw-r--r--  1 staff   3.8K Feb 17  2017 haskell.f
+-rw-r--r--  1 staff   2.0K Feb 17  2017 kernel.f
+-rw-r--r--  1 staff   530B Feb 17  2017 layer.h
+-rw-r--r--  1 staff   1.3K Feb 17  2017 makefile
+-rw-r--r--  1 staff   900B Feb 17  2017 model.h
+-rw-r--r--  1 staff    10K Feb 17  2017 oldfft.c
+-rw-r--r--  1 staff   1.5K Feb 17  2017 source.f
+-rw-r--r--  1 staff   2.0K Feb 17  2017 test.f
+-rw-r--r--  1 staff   2.0K Feb 17  2017 utlDuration.c
+-rw-r--r--  1 staff   661B Feb 17  2017 utlDuration.h
 
 ./bbp/src/ucsb/Syn1D:
-total 152
--rw-r--r--  1 fsilva    17B Feb 27 15:21 .gitignore
--rwxr-xr-x  1 fsilva   291B Feb 17 16:18 makefile
--rwxr-xr-x  1 fsilva    14K Feb 17 16:18 sac.h
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 sacio.c
--rwxr-xr-x  1 fsilva   1.6K Feb 17 16:18 syn1d_comm.f90
--rwxr-xr-x  1 fsilva    33K Feb 17 16:18 syn_1d.f90
+total 144
+-rwxr-xr-x  1 staff   291B Feb 17  2017 makefile
+-rwxr-xr-x  1 staff    14K Feb 17  2017 sac.h
+-rwxr-xr-x  1 staff    12K Feb 17  2017 sacio.c
+-rwxr-xr-x  1 staff   1.6K Feb 17  2017 syn1d_comm.f90
+-rwxr-xr-x  1 staff    33K Feb 17  2017 syn_1d.f90
 
 ./bbp/src/ucsb/getInFile:
-total 32
--rw-r--r--  1 fsilva    25B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   506B Feb 17 16:18 README
--rw-r--r--  1 fsilva   1.3K Feb 17 16:18 getfaultGlobal.c
--rw-r--r--  1 fsilva   131B Feb 17 16:18 makefile
+total 24
+-rw-r--r--  1 staff   506B Feb 17  2017 README
+-rw-r--r--  1 staff   1.3K Feb 17  2017 getfaultGlobal.c
+-rw-r--r--  1 staff   131B Feb 17  2017 makefile
 
 ./bbp/src/ucsb/noah_code:
-total 400
--rw-r--r--   1 fsilva    17B Feb 27 15:21 .gitignore
-drwxr-xr-x  10 fsilva   340B Feb 17 16:18 B
-drwxr-xr-x  10 fsilva   340B Feb 17 16:18 BC
-drwxr-xr-x  10 fsilva   340B Feb 17 16:18 C
-drwxr-xr-x   9 fsilva   306B Feb 17 16:18 CD
-drwxr-xr-x   9 fsilva   306B Feb 17 16:18 D
-drwxr-xr-x   9 fsilva   306B Feb 17 16:18 E
--rwxr-xr-x   1 fsilva   207B Feb 17 16:18 makefile
--rwxr-xr-x   1 fsilva   147K Feb 17 16:18 noah_w.f
--rwxr-xr-x   1 fsilva    41B Feb 17 16:18 params.dec
--rwxr-xr-x   1 fsilva    14K Feb 17 16:18 sac.h
--rwxr-xr-x   1 fsilva    12K Feb 17 16:18 sacio.c
--rwxr-xr-x   1 fsilva   3.0K Feb 17 16:18 tremorka.clay
--rwxr-xr-x   1 fsilva   3.9K Feb 17 16:18 tremorka.rock
--rwxr-xr-x   1 fsilva   3.0K Feb 17 16:18 tremorka.sand
+total 392
+drwxr-xr-x  10 staff   320B Feb 17  2017 B
+drwxr-xr-x  10 staff   320B Feb 17  2017 BC
+drwxr-xr-x  10 staff   320B Feb 17  2017 C
+drwxr-xr-x   9 staff   288B Feb 17  2017 CD
+drwxr-xr-x   9 staff   288B Feb 17  2017 D
+drwxr-xr-x   9 staff   288B Feb 17  2017 E
+-rwxr-xr-x   1 staff   207B Feb 17  2017 makefile
+-rwxr-xr-x   1 staff   147K Feb 17  2017 noah_w.f
+-rwxr-xr-x   1 staff    41B Feb 17  2017 params.dec
+-rwxr-xr-x   1 staff    14K Feb 17  2017 sac.h
+-rwxr-xr-x   1 staff    12K Feb 17  2017 sacio.c
+-rwxr-xr-x   1 staff   3.0K Feb 17  2017 tremorka.clay
+-rwxr-xr-x   1 staff   3.9K Feb 17  2017 tremorka.rock
+-rwxr-xr-x   1 staff   3.0K Feb 17  2017 tremorka.sand
 
 ./bbp/src/ucsb/noah_code/B:
 total 64
--rwxr-xr-x  1 fsilva   521B Feb 17 16:18 Q.par
--rwxr-xr-x  1 fsilva   521B Feb 17 16:18 QB.par
--rwxr-xr-x  1 fsilva   3.4K Feb 17 16:18 input.iwan
--rwxr-xr-x  1 fsilva   3.4K Feb 17 16:18 inputB.iwan
--rwxr-xr-x  1 fsilva   139B Feb 17 16:18 intermed.par
--rwxr-xr-x  1 fsilva   238B Feb 17 16:18 noahwBshell
--rwxr-xr-x  1 fsilva   3.9K Feb 17 16:18 tremorka.rock
--rwxr-xr-x  1 fsilva   3.0K Feb 17 16:18 tremorka.sand
+-rwxr-xr-x  1 staff   521B Feb 17  2017 Q.par
+-rwxr-xr-x  1 staff   521B Feb 17  2017 QB.par
+-rwxr-xr-x  1 staff   3.4K Feb 17  2017 input.iwan
+-rwxr-xr-x  1 staff   3.4K Feb 17  2017 inputB.iwan
+-rwxr-xr-x  1 staff   139B Feb 17  2017 intermed.par
+-rwxr-xr-x  1 staff   238B Feb 17  2017 noahwBshell
+-rwxr-xr-x  1 staff   3.9K Feb 17  2017 tremorka.rock
+-rwxr-xr-x  1 staff   3.0K Feb 17  2017 tremorka.sand
 
 ./bbp/src/ucsb/noah_code/BC:
 total 64
--rwxr-xr-x  1 fsilva   561B Feb 17 16:18 Q.par
--rwxr-xr-x  1 fsilva   561B Feb 17 16:18 QBC.par
--rwxr-xr-x  1 fsilva   3.9K Feb 17 16:18 input.iwan
--rwxr-xr-x  1 fsilva   3.9K Feb 17 16:18 inputBC.iwan
--rwxr-xr-x  1 fsilva   139B Feb 17 16:18 intermed.par
--rwxr-xr-x  1 fsilva   139B Feb 17 16:18 intermed.par.lm
--rwxr-xr-x  1 fsilva   717B Feb 17 16:18 noahwBCshell
--rwxr-xr-x  1 fsilva   3.9K Feb 17 16:18 tremorka.rock
+-rwxr-xr-x  1 staff   561B Feb 17  2017 Q.par
+-rwxr-xr-x  1 staff   561B Feb 17  2017 QBC.par
+-rwxr-xr-x  1 staff   3.9K Feb 17  2017 input.iwan
+-rwxr-xr-x  1 staff   3.9K Feb 17  2017 inputBC.iwan
+-rwxr-xr-x  1 staff   139B Feb 17  2017 intermed.par
+-rwxr-xr-x  1 staff   139B Feb 17  2017 intermed.par.lm
+-rwxr-xr-x  1 staff   717B Feb 17  2017 noahwBCshell
+-rwxr-xr-x  1 staff   3.9K Feb 17  2017 tremorka.rock
 
 ./bbp/src/ucsb/noah_code/C:
 total 80
--rwxr-xr-x  1 fsilva   503B Feb 17 16:18 Q.par
--rwxr-xr-x  1 fsilva   503B Feb 17 16:18 QC.par
--rwxr-xr-x  1 fsilva   4.1K Feb 17 16:18 input.iwan
--rwxr-xr-x  1 fsilva   4.1K Feb 17 16:18 inputC.iwan
--rwxr-xr-x  1 fsilva   139B Feb 17 16:18 intermed.par
--rwxr-xr-x  1 fsilva   139B Feb 17 16:18 intermed.par.lm
--rwxr-xr-x  1 fsilva   2.2K Feb 17 16:18 noahwCshell
--rwxr-xr-x  1 fsilva   3.0K Feb 17 16:18 tremorka.sand
+-rwxr-xr-x  1 staff   503B Feb 17  2017 Q.par
+-rwxr-xr-x  1 staff   503B Feb 17  2017 QC.par
+-rwxr-xr-x  1 staff   4.1K Feb 17  2017 input.iwan
+-rwxr-xr-x  1 staff   4.1K Feb 17  2017 inputC.iwan
+-rwxr-xr-x  1 staff   139B Feb 17  2017 intermed.par
+-rwxr-xr-x  1 staff   139B Feb 17  2017 intermed.par.lm
+-rwxr-xr-x  1 staff   2.2K Feb 17  2017 noahwCshell
+-rwxr-xr-x  1 staff   3.0K Feb 17  2017 tremorka.sand
 
 ./bbp/src/ucsb/noah_code/CD:
 total 88
--rwxr-xr-x  1 fsilva   956B Feb 17 16:18 Q.par
--rwxr-xr-x  1 fsilva   956B Feb 17 16:18 QCD.par
--rwxr-xr-x  1 fsilva   9.2K Feb 17 16:18 input.iwan
--rwxr-xr-x  1 fsilva   9.2K Feb 17 16:18 inputCD.iwan
--rwxr-xr-x  1 fsilva   133B Feb 17 16:18 intermed.par
--rwxr-xr-x  1 fsilva   1.5K Feb 17 16:18 noahwCDshell
--rwxr-xr-x  1 fsilva   3.0K Feb 17 16:18 tremorka.sand
+-rwxr-xr-x  1 staff   956B Feb 17  2017 Q.par
+-rwxr-xr-x  1 staff   956B Feb 17  2017 QCD.par
+-rwxr-xr-x  1 staff   9.2K Feb 17  2017 input.iwan
+-rwxr-xr-x  1 staff   9.2K Feb 17  2017 inputCD.iwan
+-rwxr-xr-x  1 staff   133B Feb 17  2017 intermed.par
+-rwxr-xr-x  1 staff   1.5K Feb 17  2017 noahwCDshell
+-rwxr-xr-x  1 staff   3.0K Feb 17  2017 tremorka.sand
 
 ./bbp/src/ucsb/noah_code/D:
 total 88
--rwxr-xr-x  1 fsilva   1.0K Feb 17 16:18 Q.par
--rwxr-xr-x  1 fsilva   1.0K Feb 17 16:18 QD.par
--rwxr-xr-x  1 fsilva    11K Feb 17 16:18 input.iwan
--rwxr-xr-x  1 fsilva    11K Feb 17 16:18 inputD.iwan
--rwxr-xr-x  1 fsilva   133B Feb 17 16:18 intermed.par
--rwxr-xr-x  1 fsilva   2.2K Feb 17 16:18 noahwDshell
--rwxr-xr-x  1 fsilva   3.0K Feb 17 16:18 tremorka.sand
+-rwxr-xr-x  1 staff   1.0K Feb 17  2017 Q.par
+-rwxr-xr-x  1 staff   1.0K Feb 17  2017 QD.par
+-rwxr-xr-x  1 staff    11K Feb 17  2017 input.iwan
+-rwxr-xr-x  1 staff    11K Feb 17  2017 inputD.iwan
+-rwxr-xr-x  1 staff   133B Feb 17  2017 intermed.par
+-rwxr-xr-x  1 staff   2.2K Feb 17  2017 noahwDshell
+-rwxr-xr-x  1 staff   3.0K Feb 17  2017 tremorka.sand
 
 ./bbp/src/ucsb/noah_code/E:
 total 104
--rwxr-xr-x  1 fsilva   1.1K Feb 17 16:18 Q.par
--rwxr-xr-x  1 fsilva   1.1K Feb 17 16:18 QE.par
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 input.iwan
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 inputE.iwan
--rwxr-xr-x  1 fsilva   139B Feb 17 16:18 intermed.par
--rwxr-xr-x  1 fsilva   1.0K Feb 17 16:18 noahwEshell
--rwxr-xr-x  1 fsilva   3.0K Feb 17 16:18 tremorka.sand
+-rwxr-xr-x  1 staff   1.1K Feb 17  2017 Q.par
+-rwxr-xr-x  1 staff   1.1K Feb 17  2017 QE.par
+-rwxr-xr-x  1 staff    12K Feb 17  2017 input.iwan
+-rwxr-xr-x  1 staff    12K Feb 17  2017 inputE.iwan
+-rwxr-xr-x  1 staff   139B Feb 17  2017 intermed.par
+-rwxr-xr-x  1 staff   1.0K Feb 17  2017 noahwEshell
+-rwxr-xr-x  1 staff   3.0K Feb 17  2017 tremorka.sand
 
 ./bbp/src/ucsb/timeHist:
-total 88
--rw-r--r--  1 fsilva    25B Feb 27 15:21 .gitignore
--rwxr-xr-x  1 fsilva   455B Feb 17 16:18 BBPtoSAC.f
--rwxr-xr-x  1 fsilva   280B Feb 17 16:18 Makefile
--rwxr-xr-x  1 fsilva    14K Feb 17 16:18 sac.h
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 sacio.c
--rwxr-xr-x  1 fsilva   595B Feb 17 16:18 toSAC.f
+total 80
+-rwxr-xr-x  1 staff   455B Feb 17  2017 BBPtoSAC.f
+-rwxr-xr-x  1 staff   280B Feb 17  2017 Makefile
+-rwxr-xr-x  1 staff    14K Feb 17  2017 sac.h
+-rwxr-xr-x  1 staff    12K Feb 17  2017 sacio.c
+-rwxr-xr-x  1 staff   595B Feb 17  2017 toSAC.f
 
 ./bbp/src/unr:
 total 8
-drwxr-xr-x  7 fsilva   238B Feb 27 15:21 csm
--rw-r--r--  1 fsilva    99B Feb 17 16:18 makefile
+drwxr-xr-x  7 staff   224B Feb 27  2017 csm
+-rw-r--r--  1 staff    99B Feb 17  2017 makefile
 
 ./bbp/src/unr/csm:
-total 240
--rw-r--r--  1 fsilva    28B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva    43K Feb 17 16:18 B_green_99v8.f
--rw-r--r--  1 fsilva    29K Feb 17 16:18 C_simula_v12.f
--rw-r--r--  1 fsilva    34K Feb 17 16:18 C_simula_v15.f
--rw-r--r--  1 fsilva   236B Feb 17 16:18 makefile
+total 232
+-rw-r--r--  1 staff    43K Feb 17  2017 B_green_99v8.f
+-rw-r--r--  1 staff    29K Feb 17  2017 C_simula_v12.f
+-rw-r--r--  1 staff    34K Feb 17  2017 C_simula_v15.f
+-rw-r--r--  1 staff   236B Feb 17  2017 makefile
 
 ./bbp/src/usgs:
 total 8
-drwxr-xr-x  36 fsilva   1.2K Feb 27 15:21 fas
--rw-r--r--   1 fsilva    99B Feb 17 16:18 makefile
+drwxr-xr-x  36 staff   1.1K Feb 27  2017 fas
+-rw-r--r--   1 staff    99B Feb 17  2017 makefile
 
 ./bbp/src/usgs/fas:
-total 408
--rw-r--r--  1 fsilva    26B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 abs_spectra.for
--rw-r--r--  1 fsilva    13K Feb 17 16:18 asc2smc.for
--rw-r--r--  1 fsilva   1.6K Feb 17 16:18 dcdt.for
--rw-r--r--  1 fsilva   1.9K Feb 17 16:18 distaz.for
--rw-r--r--  1 fsilva   6.6K Feb 17 16:18 fork.for
--rw-r--r--  1 fsilva   5.8K Feb 17 16:18 fs2write.for
--rw-r--r--  1 fsilva   7.9K Feb 17 16:18 get_abs_fas.for
--rw-r--r--  1 fsilva   1.1K Feb 17 16:18 get_date.for
--rw-r--r--  1 fsilva   665B Feb 17 16:18 get_lun.for
--rw-r--r--  1 fsilva   830B Feb 17 16:18 get_npw2.for
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 get_time.for
--rw-r--r--  1 fsilva   671B Feb 17 16:18 imnmax.for
--rw-r--r--  1 fsilva   1.1K Feb 17 16:18 locate.for
--rw-r--r--  1 fsilva   209B Feb 17 16:18 makefile
--rw-r--r--  1 fsilva   897B Feb 17 16:18 mnmaxidx.for
--rw-r--r--  1 fsilva   523B Feb 17 16:18 rc_subs.for
--rw-r--r--  1 fsilva   3.9K Feb 17 16:18 rcc.for
--rw-r--r--  1 fsilva   4.0K Feb 17 16:18 rcf.for
--rw-r--r--  1 fsilva   4.0K Feb 17 16:18 rci.for
--rw-r--r--  1 fsilva   335B Feb 17 16:18 skip.for
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 skipcmnt.for
--rw-r--r--  1 fsilva    28K Feb 17 16:18 smc2fs2.for
--rw-r--r--  1 fsilva   890B Feb 17 16:18 smc_npts.for
--rw-r--r--  1 fsilva   4.9K Feb 17 16:18 smcread.for
--rw-r--r--  1 fsilva   6.7K Feb 17 16:18 smcwrite.for
--rw-r--r--  1 fsilva    10K Feb 17 16:18 smooth_interpolate.for
--rw-r--r--  1 fsilva   623B Feb 17 16:18 tabs_rmv.for
--rw-r--r--  1 fsilva   1.0K Feb 17 16:18 time_diff.for
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 tprfrctn.for
--rw-r--r--  1 fsilva   2.3K Feb 17 16:18 trim_c.for
--rw-r--r--  1 fsilva   705B Feb 17 16:18 upstr.for
--rw-r--r--  1 fsilva   1.5K Feb 17 16:18 yintrf.for
--rw-r--r--  1 fsilva   910B Feb 17 16:18 zeropad.for
+total 400
+-rw-r--r--  1 staff   3.6K Feb 17  2017 abs_spectra.for
+-rw-r--r--  1 staff    13K Feb 17  2017 asc2smc.for
+-rw-r--r--  1 staff   1.6K Feb 17  2017 dcdt.for
+-rw-r--r--  1 staff   1.9K Feb 17  2017 distaz.for
+-rw-r--r--  1 staff   6.6K Feb 17  2017 fork.for
+-rw-r--r--  1 staff   5.8K Feb 17  2017 fs2write.for
+-rw-r--r--  1 staff   7.9K Feb 17  2017 get_abs_fas.for
+-rw-r--r--  1 staff   1.1K Feb 17  2017 get_date.for
+-rw-r--r--  1 staff   665B Feb 17  2017 get_lun.for
+-rw-r--r--  1 staff   830B Feb 17  2017 get_npw2.for
+-rw-r--r--  1 staff   1.2K Feb 17  2017 get_time.for
+-rw-r--r--  1 staff   671B Feb 17  2017 imnmax.for
+-rw-r--r--  1 staff   1.1K Feb 17  2017 locate.for
+-rw-r--r--  1 staff   209B Feb 17  2017 makefile
+-rw-r--r--  1 staff   897B Feb 17  2017 mnmaxidx.for
+-rw-r--r--  1 staff   523B Feb 17  2017 rc_subs.for
+-rw-r--r--  1 staff   3.9K Feb 17  2017 rcc.for
+-rw-r--r--  1 staff   4.0K Feb 17  2017 rcf.for
+-rw-r--r--  1 staff   4.0K Feb 17  2017 rci.for
+-rw-r--r--  1 staff   335B Feb 17  2017 skip.for
+-rw-r--r--  1 staff   1.2K Feb 17  2017 skipcmnt.for
+-rw-r--r--  1 staff    28K Feb 17  2017 smc2fs2.for
+-rw-r--r--  1 staff   890B Feb 17  2017 smc_npts.for
+-rw-r--r--  1 staff   4.9K Feb 17  2017 smcread.for
+-rw-r--r--  1 staff   6.7K Feb 17  2017 smcwrite.for
+-rw-r--r--  1 staff    10K Feb 17  2017 smooth_interpolate.for
+-rw-r--r--  1 staff   623B Feb 17  2017 tabs_rmv.for
+-rw-r--r--  1 staff   1.0K Feb 17  2017 time_diff.for
+-rw-r--r--  1 staff   1.2K Feb 17  2017 tprfrctn.for
+-rw-r--r--  1 staff   2.3K Feb 17  2017 trim_c.for
+-rw-r--r--  1 staff   705B Feb 17  2017 upstr.for
+-rw-r--r--  1 staff   1.5K Feb 17  2017 yintrf.for
+-rw-r--r--  1 staff   910B Feb 17  2017 zeropad.for
 
 ./bbp/src/uwo:
 total 8
-drwxr-xr-x  5 fsilva   170B Feb 27 15:21 exsim
--rw-r--r--  1 fsilva   103B Feb 17 16:18 makefile
+drwxr-xr-x  5 staff   160B Feb 27  2017 exsim
+-rw-r--r--  1 staff   103B Feb 17  2017 makefile
 
 ./bbp/src/uwo/exsim:
-total 416
--rw-r--r--  1 fsilva    18B Feb 27 15:21 .gitignore
--rw-r--r--  1 fsilva   197K Feb 17 16:18 EXSIM14_SCEC.for
--rw-r--r--  1 fsilva   131B Feb 17 16:18 makefile
+total 408
+-rw-r--r--  1 staff   197K Feb 17  2017 EXSIM14_SCEC.for
+-rw-r--r--  1 staff   131B Feb 17  2017 makefile
 
 ./bbp/tests:
-total 488
--rwxr-xr-x   1 fsilva   8.8K May  8 11:32 AcceptTests.py
--rwxr-xr-x   1 fsilva   2.9K Feb 17 16:18 UnitTests.py
--rw-r--r--   1 fsilva    18K Feb 17 16:18 cmp_bbp.py
--rwxr-xr-x   1 fsilva   2.8K Feb 17 16:18 cmp_refs.py
--rwxr-xr-x   1 fsilva    12K Feb 17 16:18 gen_accept_tests.py
-drwxr-xr-x  14 fsilva   476B Feb 17 16:18 ref_data
--rwxr-xr-x   1 fsilva   6.5K Feb 17 16:18 test_anderson_gof.py
--rwxr-xr-x   1 fsilva   2.0K Feb 17 16:18 test_arias.py
--rwxr-xr-x   1 fsilva   3.4K Feb 17 16:18 test_as16.py
--rw-r--r--   1 fsilva   1.1K Feb 17 16:18 test_bband_core.py
--rwxr-xr-x   1 fsilva   1.6K Feb 17 16:18 test_bband_utils.py
--rwxr-xr-x   1 fsilva   5.9K Feb 17 16:18 test_bbp_format.py
--rwxr-xr-x   1 fsilva   3.8K Feb 17 16:18 test_bbtoolbox.py
--rwxr-xr-x   1 fsilva   2.2K Feb 17 16:18 test_cc.py
--rwxr-xr-x   1 fsilva   3.4K Feb 17 16:18 test_exsim.py
--rw-r--r--   1 fsilva    21K Feb 17 16:18 test_full_validations.py
--rwxr-xr-x   1 fsilva   3.0K Feb 17 16:18 test_genslip.py
--rwxr-xr-x   1 fsilva   1.3K Feb 17 16:18 test_gp.py
--rwxr-xr-x   1 fsilva   6.5K Feb 17 16:18 test_gp_gof.py
--rwxr-xr-x   1 fsilva   3.2K Feb 17 16:18 test_hfsims.py
--rwxr-xr-x   1 fsilva   3.3K Feb 17 16:18 test_jbsim.py
--rwxr-xr-x   1 fsilva   2.8K Feb 17 16:18 test_match.py
--rw-r--r--   1 fsilva   1.9K Feb 17 16:18 test_python_code.py
--rwxr-xr-x   1 fsilva   2.5K Feb 17 16:18 test_rmg.py
--rwxr-xr-x   1 fsilva   2.4K Feb 17 16:18 test_rotd50.py
--rwxr-xr-x   1 fsilva   4.1K Feb 17 16:18 test_rzz2015.py
--rwxr-xr-x   1 fsilva   1.6K Feb 17 16:18 test_s2f.py
--rwxr-xr-x   1 fsilva   1.1K Feb 17 16:18 test_sdsu.py
--rwxr-xr-x   1 fsilva    11K Feb 17 16:18 test_sdsu_mogof.py
--rwxr-xr-x   1 fsilva   7.8K Feb 17 16:18 test_sdsu_mogof_nr_pgx.py
--rwxr-xr-x   1 fsilva   7.5K Feb 17 16:18 test_sdsu_mogof_pgx.py
--rwxr-xr-x   1 fsilva   4.1K Feb 17 16:18 test_syn1d.py
--rwxr-xr-x   1 fsilva   2.4K Feb 17 16:18 test_uc_fault_utils.py
--rwxr-xr-x   1 fsilva   4.3K Feb 17 16:18 test_uc_site.py
--rwxr-xr-x   1 fsilva   3.9K Feb 17 16:18 test_uc_stitch.py
--rwxr-xr-x   1 fsilva   3.0K Feb 17 16:18 test_ucrmg.py
--rwxr-xr-x   1 fsilva   1.2K Feb 17 16:18 test_ucsb.py
--rwxr-xr-x   1 fsilva   3.2K Feb 17 16:18 test_vm2vm.py
--rwxr-xr-x   1 fsilva   3.0K Feb 17 16:18 test_wcc_siteamp.py
+total 512
+-rwxr-xr-x   1 staff   9.2K Feb  8 10:34 AcceptTests.py
+-rwxr-xr-x   1 staff   3.6K Apr  5 12:31 UnitTests.py
+-rw-r--r--   1 staff    18K Apr  2 10:33 cmp_bbp.py
+-rwxr-xr-x   1 staff   3.2K Apr  2 10:28 cmp_refs.py
+-rwxr-xr-x   1 staff    12K Apr  2 21:27 gen_accept_tests.py
+drwxr-xr-x  15 staff   480B Apr  2 13:36 ref_data
+-rwxr-xr-x   1 staff   6.8K Apr  2 10:36 test_anderson_gof.py
+-rwxr-xr-x   1 staff   2.3K Aug 15  2018 test_arias.py
+-rwxr-xr-x   1 staff   3.8K Apr  2 10:36 test_as16.py
+-rw-r--r--   1 staff   1.5K Aug 15  2018 test_bband_core.py
+-rwxr-xr-x   1 staff   2.0K Aug 15  2018 test_bband_utils.py
+-rwxr-xr-x   1 staff   6.3K Aug 15  2018 test_bbp_format.py
+-rwxr-xr-x   1 staff   3.7K Apr  4 13:51 test_bbtoolbox.py
+-rwxr-xr-x   1 staff   2.6K Aug 15  2018 test_cc.py
+-rwxr-xr-x   1 staff   3.8K Mar 29 15:16 test_exsim.py
+-rw-r--r--   1 staff    22K Aug 15  2018 test_full_validations.py
+-rwxr-xr-x   1 staff   3.3K Mar 28 13:19 test_genslip.py
+-rwxr-xr-x   1 staff   3.0K Apr  2 13:41 test_gensrf.py
+-rwxr-xr-x   1 staff   1.6K Apr  5 10:20 test_gp.py
+-rwxr-xr-x   1 staff   7.1K Apr  5 10:31 test_gp_gof.py
+-rwxr-xr-x   1 staff   3.5K Apr  5 12:46 test_hfsims.py
+-rwxr-xr-x   1 staff   3.4K Apr  5 12:16 test_irikura_hf.py
+-rwxr-xr-x   1 staff   3.0K Apr  5 12:47 test_jbsim.py
+-rwxr-xr-x   1 staff   3.3K Apr  5 10:15 test_match.py
+-rw-r--r--   1 staff   2.3K Aug 15  2018 test_python_code.py
+-rwxr-xr-x   1 staff   2.9K May 17 09:35 test_rmg.py
+-rwxr-xr-x   1 staff   3.8K Apr  2 11:15 test_rotd100.py
+-rwxr-xr-x   1 staff   3.3K Apr  2 10:41 test_rotd50.py
+-rwxr-xr-x   1 staff   4.4K Apr  2 10:34 test_rzz2015.py
+-rwxr-xr-x   1 staff   2.0K Aug 15  2018 test_s2f.py
+-rwxr-xr-x   1 staff   1.5K Aug 15  2018 test_sdsu.py
+-rwxr-xr-x   1 staff    12K Oct  5  2018 test_sdsu_mogof.py
+-rwxr-xr-x   1 staff   7.9K Apr  5 12:49 test_sdsu_mogof_nr_pgx.py
+-rwxr-xr-x   1 staff   7.8K Apr  5 12:50 test_sdsu_mogof_pgx.py
+-rwxr-xr-x   1 staff   3.7K Apr  5 12:48 test_syn1d.py
+-rwxr-xr-x   1 staff   2.9K Mar 28 23:16 test_uc_fault_utils.py
+-rwxr-xr-x   1 staff   4.8K Mar 28 22:24 test_uc_site.py
+-rwxr-xr-x   1 staff   4.1K Mar 28 23:09 test_uc_stitch.py
+-rwxr-xr-x   1 staff   3.2K Apr  4 21:43 test_ucrmg.py
+-rwxr-xr-x   1 staff   1.6K Aug 15  2018 test_ucsb.py
+-rwxr-xr-x   1 staff   3.7K Aug 15  2018 test_vm2vm.py
+-rwxr-xr-x   1 staff   3.5K Apr  5 09:55 test_wcc_siteamp.py
 
 ./bbp/tests/ref_data:
 total 0
-drwxr-xr-x  40 fsilva   1.3K Feb 17 16:18 accept_inputs
-drwxr-xr-x  18 fsilva   612B Feb 17 16:18 accept_refs
-drwxr-xr-x   6 fsilva   204B Feb 17 16:18 anderson_gof
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 arias
-drwxr-xr-x   5 fsilva   170B Feb 17 16:18 as16
-drwxr-xr-x  46 fsilva   1.5K Feb 17 16:18 gp
-drwxr-xr-x   6 fsilva   204B Feb 17 16:18 rzz2015
-drwxr-xr-x  47 fsilva   1.6K Feb 17 16:18 sdsu
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 song
-drwxr-xr-x  12 fsilva   408B Feb 17 16:18 ucb
-drwxr-xr-x  34 fsilva   1.1K Feb 17 16:18 ucsb
-drwxr-xr-x   9 fsilva   306B Feb 17 16:18 uwo
+drwxr-xr-x  36 staff   1.1K Apr  3 21:46 accept_inputs
+drwxr-xr-x  16 staff   512B Apr  3 22:12 accept_refs
+drwxr-xr-x   6 staff   192B Apr  5 09:27 anderson_gof
+drwxr-xr-x   4 staff   128B Feb 17  2017 arias
+drwxr-xr-x   5 staff   160B Feb 17  2017 as16
+drwxr-xr-x  41 staff   1.3K Apr  5 09:38 gp
+drwxr-xr-x  11 staff   352B Apr  5 12:29 irikura
+drwxr-xr-x   6 staff   192B Apr  5 09:31 rzz2015
+drwxr-xr-x  18 staff   576B Apr 18 21:49 sdsu
+drwxr-xr-x   4 staff   128B Feb 17  2017 song
+drwxr-xr-x  27 staff   864B Apr  2 11:14 ucb
+drwxr-xr-x  31 staff   992B Apr  4 22:02 ucsb
+drwxr-xr-x   9 staff   288B Mar 29 15:22 uwo
 
 ./bbp/tests/ref_data/accept_inputs:
-total 360
--rw-r--r--  1 fsilva   120B Feb 17 16:18 northridge_3_sta.stl
--rw-r--r--  1 fsilva   355B Feb 17 16:18 northridge_eq_gp.src
--rw-r--r--  1 fsilva   355B Feb 17 16:18 northridge_eq_song.src
--rw-r--r--  1 fsilva   376B Feb 17 16:18 northridge_eq_ucsb.src
--rw-r--r--  1 fsilva    45B Feb 17 16:18 user-CSM.txt
--rw-r--r--  1 fsilva   2.2K Feb 17 16:18 user-CSM.xml
--rw-r--r--  1 fsilva    51B Feb 17 16:18 user-EXSIM.txt
--rw-r--r--  1 fsilva   2.2K Feb 17 16:18 user-EXSIM.xml
--rw-r--r--  1 fsilva    48B Feb 17 16:18 user-GP.txt
--rw-r--r--  1 fsilva   3.7K Feb 17 16:18 user-GP.xml
--rw-r--r--  1 fsilva    53B Feb 17 16:18 user-IRIKURA_RECIPE_M1.txt
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 user-IRIKURA_RECIPE_M1.xml
--rw-r--r--  1 fsilva    50B Feb 17 16:18 user-SDSU.txt
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 user-SDSU.xml
--rw-r--r--  1 fsilva    52B Feb 17 16:18 user-SONG.txt
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 user-SONG.xml
--rw-r--r--  1 fsilva    52B Feb 17 16:18 user-UCSB.txt
--rw-r--r--  1 fsilva   3.1K Feb 17 16:18 user-UCSB.xml
--rw-r--r--  1 fsilva   267B Feb 17 16:18 user_eq.src
--rw-r--r--  1 fsilva    37B Feb 17 16:18 valid-northridge-CSM.txt
--rw-r--r--  1 fsilva   3.8K Feb 17 16:18 valid-northridge-CSM.xml
--rw-r--r--  1 fsilva    43B Feb 17 16:18 valid-northridge-EXSIM.txt
--rw-r--r--  1 fsilva   3.7K Feb 17 16:18 valid-northridge-EXSIM.xml
--rw-r--r--  1 fsilva    40B Feb 17 16:18 valid-northridge-GP.txt
--rw-r--r--  1 fsilva   5.4K Feb 17 16:18 valid-northridge-GP.xml
--rw-r--r--  1 fsilva    45B Feb 17 16:18 valid-northridge-GP_seis.txt
--rw-r--r--  1 fsilva   4.7K Feb 17 16:18 valid-northridge-GP_seis.xml
--rw-r--r--  1 fsilva    45B Feb 17 16:18 valid-northridge-IRIKURA_RECIPE_M1.txt
--rw-r--r--  1 fsilva   5.4K Feb 17 16:18 valid-northridge-IRIKURA_RECIPE_M1.xml
--rw-r--r--  1 fsilva    42B Feb 17 16:18 valid-northridge-SDSU.txt
--rw-r--r--  1 fsilva   5.2K Feb 17 16:18 valid-northridge-SDSU.xml
--rw-r--r--  1 fsilva    47B Feb 17 16:18 valid-northridge-SDSU_seis.txt
--rw-r--r--  1 fsilva   4.6K Feb 17 16:18 valid-northridge-SDSU_seis.xml
--rw-r--r--  1 fsilva    42B Feb 17 16:18 valid-northridge-SONG.txt
--rw-r--r--  1 fsilva   5.3K Feb 17 16:18 valid-northridge-SONG.xml
--rw-r--r--  1 fsilva    42B Feb 17 16:18 valid-northridge-UCSB.txt
--rw-r--r--  1 fsilva   4.6K Feb 17 16:18 valid-northridge-UCSB.xml
--rw-r--r--  1 fsilva   276B Feb 17 16:18 valid_test_stat.stl
+total 352
+-rw-r--r--  1 staff   237B Apr  3 21:47 northridge_3_sta.stl
+-rw-r--r--  1 staff   374B Apr  3 21:48 northridge_eq_gp.src
+-rw-r--r--  1 staff   355B Feb 17  2017 northridge_eq_song.src
+-rw-r--r--  1 staff   394B Apr  3 21:48 northridge_eq_ucsb.src
+-rw-r--r--  1 staff    54B Apr 30 10:06 user-EXSIM.txt
+-rw-r--r--  1 staff   2.5K Apr 30 10:06 user-EXSIM.xml
+-rw-r--r--  1 staff    51B Apr 30 10:06 user-GP.txt
+-rw-r--r--  1 staff   4.0K Apr 30 10:06 user-GP.xml
+-rw-r--r--  1 staff    57B Apr 30 10:06 user-IRIKURA_RECIPE_M1.txt
+-rw-r--r--  1 staff   4.0K Apr 30 10:06 user-IRIKURA_RECIPE_M1.xml
+-rw-r--r--  1 staff    57B Apr 30 10:06 user-IRIKURA_RECIPE_M2.txt
+-rw-r--r--  1 staff   4.0K Apr 30 10:06 user-IRIKURA_RECIPE_M2.xml
+-rw-r--r--  1 staff    53B Apr 30 10:06 user-SDSU.txt
+-rw-r--r--  1 staff   3.7K Apr 30 10:06 user-SDSU.xml
+-rw-r--r--  1 staff    55B Apr 30 10:06 user-SONG.txt
+-rw-r--r--  1 staff   4.0K Apr 30 10:06 user-SONG.xml
+-rw-r--r--  1 staff    55B Apr 30 10:06 user-UCSB.txt
+-rw-r--r--  1 staff   3.1K Apr 30 10:06 user-UCSB.xml
+-rw-r--r--  1 staff   267B Feb 17  2017 user_eq.src
+-rw-r--r--  1 staff    35B Apr 30 10:06 valid-northridge-EXSIM.txt
+-rw-r--r--  1 staff   3.8K Apr 30 10:06 valid-northridge-EXSIM.xml
+-rw-r--r--  1 staff    32B Apr 30 10:06 valid-northridge-GP.txt
+-rw-r--r--  1 staff   5.4K Apr 30 10:06 valid-northridge-GP.xml
+-rw-r--r--  1 staff    38B Apr 30 10:06 valid-northridge-IRIKURA_RECIPE_M1.txt
+-rw-r--r--  1 staff   5.4K Apr 30 10:06 valid-northridge-IRIKURA_RECIPE_M1.xml
+-rw-r--r--  1 staff    38B Apr 30 10:06 valid-northridge-IRIKURA_RECIPE_M2.txt
+-rw-r--r--  1 staff   5.3K Apr 30 10:06 valid-northridge-IRIKURA_RECIPE_M2.xml
+-rw-r--r--  1 staff    34B Apr 30 10:06 valid-northridge-SDSU.txt
+-rw-r--r--  1 staff   4.9K Apr 30 10:06 valid-northridge-SDSU.xml
+-rw-r--r--  1 staff    34B Apr 30 10:06 valid-northridge-SONG.txt
+-rw-r--r--  1 staff   5.4K Apr 30 10:06 valid-northridge-SONG.xml
+-rw-r--r--  1 staff    34B Apr 30 10:06 valid-northridge-UCSB.txt
+-rw-r--r--  1 staff   4.4K Apr 30 10:06 valid-northridge-UCSB.xml
+-rw-r--r--  1 staff   251B Feb  8 12:07 valid_test_stat.stl
 
 ./bbp/tests/ref_data/accept_refs:
 total 0
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 user-CSM
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 user-EXSIM
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 user-GP
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 user-IRIKURA_RECIPE_M1
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 user-SDSU
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 user-SONG
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 user-UCSB
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-CSM
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-EXSIM
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-GP
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-GP_seis
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-IRIKURA_RECIPE_M1
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-SDSU
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-SDSU_seis
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-SONG
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 valid-northridge-UCSB
-
-./bbp/tests/ref_data/accept_refs/user-CSM:
-total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+drwxr-xr-x  5 staff   160B Apr  3 21:57 user-EXSIM
+drwxr-xr-x  5 staff   160B Apr  3 21:58 user-GP
+drwxr-xr-x  5 staff   160B Apr  3 22:00 user-IRIKURA_RECIPE_M1
+drwxr-xr-x  5 staff   160B Apr  3 22:00 user-IRIKURA_RECIPE_M2
+drwxr-xr-x  5 staff   160B Apr  3 22:01 user-SDSU
+drwxr-xr-x  5 staff   160B Apr  3 22:02 user-SONG
+drwxr-xr-x  5 staff   160B Apr  3 22:02 user-UCSB
+drwxr-xr-x  5 staff   160B Apr  3 22:06 valid-northridge-EXSIM
+drwxr-xr-x  5 staff   160B Apr  3 22:07 valid-northridge-GP
+drwxr-xr-x  5 staff   160B Apr  3 22:07 valid-northridge-IRIKURA_RECIPE_M1
+drwxr-xr-x  5 staff   160B Apr  3 22:08 valid-northridge-IRIKURA_RECIPE_M2
+drwxr-xr-x  5 staff   160B Apr  3 22:08 valid-northridge-SDSU
+drwxr-xr-x  5 staff   160B Apr  3 22:09 valid-northridge-SONG
+drwxr-xr-x  5 staff   160B Apr  3 22:09 valid-northridge-UCSB
 
 ./bbp/tests/ref_data/accept_refs/user-EXSIM:
 total 24
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 21:57 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 21:57 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 21:57 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/user-GP:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 21:58 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 21:58 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 21:58 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/user-IRIKURA_RECIPE_M1:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:00 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:00 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:00 2028-FIG.rd50
+
+./bbp/tests/ref_data/accept_refs/user-IRIKURA_RECIPE_M2:
+total 24
+-rw-r--r--  1 staff   2.7K Apr  3 22:00 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:00 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:00 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/user-SDSU:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr 19 12:25 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr 19 12:25 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr 19 12:25 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/user-SONG:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:02 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:02 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:02 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/user-UCSB:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
-
-./bbp/tests/ref_data/accept_refs/valid-northridge-CSM:
-total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:02 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:02 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:02 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/valid-northridge-EXSIM:
 total 24
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:06 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:06 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:06 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/valid-northridge-GP:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
-
-./bbp/tests/ref_data/accept_refs/valid-northridge-GP_seis:
-total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:07 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:07 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:07 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/valid-northridge-IRIKURA_RECIPE_M1:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:07 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:07 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:07 2028-FIG.rd50
+
+./bbp/tests/ref_data/accept_refs/valid-northridge-IRIKURA_RECIPE_M2:
+total 24
+-rw-r--r--  1 staff   2.7K Apr  3 22:08 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:08 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:08 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/valid-northridge-SDSU:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
-
-./bbp/tests/ref_data/accept_refs/valid-northridge-SDSU_seis:
-total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr 19 12:26 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr 19 12:26 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr 19 12:26 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/valid-northridge-SONG:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:09 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:09 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr  3 22:09 2028-FIG.rd50
 
 ./bbp/tests/ref_data/accept_refs/valid-northridge-UCSB:
 total 24
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 balp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 nwhp.rd50
--rw-r--r--  1 fsilva   2.9K Feb 17 16:18 vasq.rd50
+-rw-r--r--  1 staff   2.7K Apr 30 14:03 2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K Apr 30 14:03 2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K Apr 30 14:03 2028-FIG.rd50
 
 ./bbp/tests/ref_data/anderson_gof:
 total 8
--rw-r--r--   1 fsilva   486B Feb 17 16:18 nr_v13_3_1.stl
-drwxr-xr-x  12 fsilva   408B Feb 17 16:18 obs_seis
-drwxr-xr-x   8 fsilva   272B Feb 17 16:18 ref_files
-drwxr-xr-x  12 fsilva   408B Feb 17 16:18 syn_seis
+-rw-r--r--   1 staff   342B Apr  5 09:27 nr_v13_3_1.stl
+drwxr-xr-x  12 staff   384B Feb 17  2017 obs_seis
+drwxr-xr-x   8 staff   256B Feb 17  2017 ref_files
+drwxr-xr-x  12 staff   384B Feb 17  2017 syn_seis
 
 ./bbp/tests/ref_data/anderson_gof/obs_seis:
 total 2688
--rw-r--r--  1 fsilva   477K Feb 17 16:18 2001-SCE.bbp
--rw-r--r--  1 fsilva   3.2K Feb 17 16:18 2001-SCE.rd50
--rw-r--r--  1 fsilva   119K Feb 17 16:18 2002-SYL.bbp
--rw-r--r--  1 fsilva   3.2K Feb 17 16:18 2002-SYL.rd50
--rw-r--r--  1 fsilva   341K Feb 17 16:18 2004-JGB.bbp
--rw-r--r--  1 fsilva   3.2K Feb 17 16:18 2004-JGB.rd50
--rw-r--r--  1 fsilva   317K Feb 17 16:18 2005-LDM.bbp
--rw-r--r--  1 fsilva   3.2K Feb 17 16:18 2005-LDM.rd50
--rw-r--r--  1 fsilva    60K Feb 17 16:18 2006-PAC.bbp
--rw-r--r--  1 fsilva   3.2K Feb 17 16:18 2006-PAC.rd50
+-rw-r--r--  1 staff   477K Feb 17  2017 2001-SCE.bbp
+-rw-r--r--  1 staff   3.2K Feb 17  2017 2001-SCE.rd50
+-rw-r--r--  1 staff   119K Feb 17  2017 2002-SYL.bbp
+-rw-r--r--  1 staff   3.2K Feb 17  2017 2002-SYL.rd50
+-rw-r--r--  1 staff   341K Feb 17  2017 2004-JGB.bbp
+-rw-r--r--  1 staff   3.2K Feb 17  2017 2004-JGB.rd50
+-rw-r--r--  1 staff   317K Feb 17  2017 2005-LDM.bbp
+-rw-r--r--  1 staff   3.2K Feb 17  2017 2005-LDM.rd50
+-rw-r--r--  1 staff    60K Feb 17  2017 2006-PAC.bbp
+-rw-r--r--  1 staff   3.2K Feb 17  2017 2006-PAC.rd50
 
 ./bbp/tests/ref_data/anderson_gof/ref_files:
 total 48
--rw-r--r--  1 fsilva   479B Feb 17 16:18 gof-NR-anderson-2001-SCE.txt
--rw-r--r--  1 fsilva   478B Feb 17 16:18 gof-NR-anderson-2002-SYL.txt
--rw-r--r--  1 fsilva   479B Feb 17 16:18 gof-NR-anderson-2004-JGB.txt
--rw-r--r--  1 fsilva   480B Feb 17 16:18 gof-NR-anderson-2005-LDM.txt
--rw-r--r--  1 fsilva   478B Feb 17 16:18 gof-NR-anderson-2006-PAC.txt
--rw-r--r--  1 fsilva   478B Feb 17 16:18 gof_anderson.NR.txt
+-rw-r--r--  1 staff   479B Feb 17  2017 gof-NR-anderson-2001-SCE.txt
+-rw-r--r--  1 staff   478B Feb 17  2017 gof-NR-anderson-2002-SYL.txt
+-rw-r--r--  1 staff   479B Feb 17  2017 gof-NR-anderson-2004-JGB.txt
+-rw-r--r--  1 staff   480B Feb 17  2017 gof-NR-anderson-2005-LDM.txt
+-rw-r--r--  1 staff   478B Feb 17  2017 gof-NR-anderson-2006-PAC.txt
+-rw-r--r--  1 staff   478B Feb 17  2017 gof_anderson.NR.txt
 
 ./bbp/tests/ref_data/anderson_gof/syn_seis:
 total 2184
--rw-r--r--  1 fsilva   214K Feb 17 16:18 2001-SCE.acc.bbp
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 2001-SCE.rd50
--rw-r--r--  1 fsilva   215K Feb 17 16:18 2002-SYL.acc.bbp
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 2002-SYL.rd50
--rw-r--r--  1 fsilva   214K Feb 17 16:18 2004-JGB.acc.bbp
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 2004-JGB.rd50
--rw-r--r--  1 fsilva   211K Feb 17 16:18 2005-LDM.acc.bbp
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 2005-LDM.rd50
--rw-r--r--  1 fsilva   212K Feb 17 16:18 2006-PAC.acc.bbp
--rw-r--r--  1 fsilva   3.6K Feb 17 16:18 2006-PAC.rd50
+-rw-r--r--  1 staff   214K Feb 17  2017 2001-SCE.acc.bbp
+-rw-r--r--  1 staff   3.6K Feb 17  2017 2001-SCE.rd50
+-rw-r--r--  1 staff   215K Feb 17  2017 2002-SYL.acc.bbp
+-rw-r--r--  1 staff   3.6K Feb 17  2017 2002-SYL.rd50
+-rw-r--r--  1 staff   214K Feb 17  2017 2004-JGB.acc.bbp
+-rw-r--r--  1 staff   3.6K Feb 17  2017 2004-JGB.rd50
+-rw-r--r--  1 staff   211K Feb 17  2017 2005-LDM.acc.bbp
+-rw-r--r--  1 staff   3.6K Feb 17  2017 2005-LDM.rd50
+-rw-r--r--  1 staff   212K Feb 17  2017 2006-PAC.acc.bbp
+-rw-r--r--  1 staff   3.6K Feb 17  2017 2006-PAC.rd50
 
 ./bbp/tests/ref_data/arias:
 total 0
-drwxr-xr-x  3 fsilva   102B Feb 17 16:18 inputs
-drwxr-xr-x  3 fsilva   102B Feb 17 16:18 reference
+drwxr-xr-x  3 staff    96B Feb 17  2017 inputs
+drwxr-xr-x  3 staff    96B Feb 17  2017 reference
 
 ./bbp/tests/ref_data/arias/inputs:
 total 64
--rw-r--r--  1 fsilva    30K Feb 17 16:18 NGA_no_1063_RRS228.AT2
+-rw-r--r--  1 staff    30K Feb 17  2017 NGA_no_1063_RRS228.AT2
 
 ./bbp/tests/ref_data/arias/reference:
 total 176
--rw-r--r--  1 fsilva    84K Feb 17 16:18 NGA_no_1063_RRS228.AT2.AD.bbp.ref
+-rw-r--r--  1 staff    84K Feb 17  2017 NGA_no_1063_RRS228.AT2.AD.bbp.ref
 
 ./bbp/tests/ref_data/as16:
 total 32
--rw-r--r--  1 fsilva   4.0K Feb 17 16:18 as16.NR.txt
--rw-r--r--  1 fsilva   2.8K Feb 17 16:18 nr_v13_3_1.stl
--rw-r--r--  1 fsilva   355B Feb 17 16:18 nr_v14_02_1.src
+-rw-r--r--  1 staff   4.0K Feb 17  2017 as16.NR.txt
+-rw-r--r--  1 staff   1.9K Apr  5 09:25 nr_v13_3_1.stl
+-rw-r--r--  1 staff   355B Feb 17  2017 nr_v14_02_1.src
 
 ./bbp/tests/ref_data/gp:
-total 11888
-drwxr-xr-x  18 fsilva   612B Feb 17 16:18 GoF
-drwxr-xr-x  12 fsilva   408B Feb 17 16:18 NorthridgeData
--rw-r--r--   1 fsilva    45B Feb 17 16:18 decoded_stations
--rw-r--r--   1 fsilva   975B Feb 17 16:18 genslip_nr_generic1d-gp01.vmod
--rw-r--r--   1 fsilva   975B Feb 17 16:18 hf.vmod
--rw-r--r--   1 fsilva   503K Feb 17 16:18 m5.89-0.20x0.20_s2379646.srf
--rw-r--r--   1 fsilva   227B Feb 17 16:18 nga_rock1.v1d
--rw-r--r--   1 fsilva   975B Feb 17 16:18 nr_generic1d-urs01.vmod
--rw-r--r--   1 fsilva    62B Feb 17 16:18 one_stat.txt
--rw-r--r--   1 fsilva   215K Feb 17 16:18 s01-hf-site.bbp
--rw-r--r--   1 fsilva   528K Feb 17 16:18 s01-hf.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s01-lf-site.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s01-lf.bbp
--rw-r--r--   1 fsilva   212K Feb 17 16:18 s01.merged.bbp
--rw-r--r--   1 fsilva   2.7K Feb 17 16:18 s01.rd50
--rw-r--r--   1 fsilva   214K Feb 17 16:18 s02-hf-site.bbp
--rw-r--r--   1 fsilva   521K Feb 17 16:18 s02-hf.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s02-lf-site.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s02-lf.bbp
--rw-r--r--   1 fsilva   213K Feb 17 16:18 s02.merged.bbp
--rw-r--r--   1 fsilva   2.7K Feb 17 16:18 s02.rd50
--rw-r--r--   1 fsilva   214K Feb 17 16:18 s03-hf-site.bbp
--rw-r--r--   1 fsilva   528K Feb 17 16:18 s03-hf.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s03-lf-site.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s03-lf.bbp
--rw-r--r--   1 fsilva   212K Feb 17 16:18 s03.merged.bbp
--rw-r--r--   1 fsilva   2.7K Feb 17 16:18 s03.rd50
--rw-r--r--   1 fsilva   214K Feb 17 16:18 s04-hf-site.bbp
--rw-r--r--   1 fsilva   529K Feb 17 16:18 s04-hf.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s04-lf-site.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s04-lf.bbp
--rw-r--r--   1 fsilva   216K Feb 17 16:18 s04.merged.bbp
--rw-r--r--   1 fsilva   2.7K Feb 17 16:18 s04.rd50
--rw-r--r--   1 fsilva   214K Feb 17 16:18 s05-hf-site.bbp
--rw-r--r--   1 fsilva   529K Feb 17 16:18 s05-hf.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s05-lf-site.bbp
--rw-r--r--   1 fsilva    52K Feb 17 16:18 s05-lf.bbp
--rw-r--r--   1 fsilva   214K Feb 17 16:18 s05.merged.bbp
--rw-r--r--   1 fsilva   2.7K Feb 17 16:18 s05.rd50
--rw-r--r--   1 fsilva   288B Feb 17 16:18 test_eq.src
--rw-r--r--   1 fsilva   541B Feb 17 16:18 test_nr.src
--rw-r--r--   1 fsilva   320B Feb 17 16:18 test_stat.txt
--rw-r--r--   1 fsilva   516B Feb 17 16:18 test_wh.src
--rw-r--r--   1 fsilva   717B Feb 17 16:18 vs865-generic_nocal.1d
+total 18992
+drwxr-xr-x  18 staff   576B Feb 17  2017 GoF
+-rw-r--r--   1 staff    45B Feb 17  2017 decoded_stations
+-rw-r--r--   1 staff   975B Feb 17  2017 hf.vmod
+-rw-r--r--   1 staff   514K Mar 28 13:11 m5.89-0.20x0.20_s2379646.srf
+-rw-r--r--   1 staff   227B Feb 17  2017 nga_rock1.v1d
+-rw-r--r--   1 staff   1.0K Mar 28 13:11 nr02-vs500.fk1d
+-rw-r--r--   1 staff    54B Apr  5 09:38 one_stat.txt
+-rw-r--r--   1 staff   535K Apr  5 10:09 s01-hf-site.bbp
+-rw-r--r--   1 staff   529K Mar 28 13:09 s01-hf.bbp
+-rw-r--r--   1 staff    52K Apr  5 10:09 s01-lf-site.bbp
+-rw-r--r--   1 staff    52K Mar 28 13:09 s01-lf.bbp
+-rw-r--r--   1 staff   533K Apr  5 10:17 s01.merged.bbp
+-rw-r--r--   1 staff   2.7K Feb 17  2017 s01.rd50
+-rw-r--r--   1 staff   535K Apr  5 10:09 s02-hf-site.bbp
+-rw-r--r--   1 staff   538K Mar 28 13:09 s02-hf.bbp
+-rw-r--r--   1 staff    52K Apr  5 10:09 s02-lf-site.bbp
+-rw-r--r--   1 staff    52K Mar 28 13:09 s02-lf.bbp
+-rw-r--r--   1 staff   538K Apr  5 10:17 s02.merged.bbp
+-rw-r--r--   1 staff   2.7K Feb 17  2017 s02.rd50
+-rw-r--r--   1 staff   534K Apr  5 10:09 s03-hf-site.bbp
+-rw-r--r--   1 staff   529K Mar 28 13:09 s03-hf.bbp
+-rw-r--r--   1 staff    52K Apr  5 10:09 s03-lf-site.bbp
+-rw-r--r--   1 staff    52K Mar 28 13:09 s03-lf.bbp
+-rw-r--r--   1 staff   533K Apr  5 10:17 s03.merged.bbp
+-rw-r--r--   1 staff   2.7K Feb 17  2017 s03.rd50
+-rw-r--r--   1 staff   535K Apr  5 10:09 s04-hf-site.bbp
+-rw-r--r--   1 staff   536K Mar 28 13:10 s04-hf.bbp
+-rw-r--r--   1 staff    52K Apr  5 10:09 s04-lf-site.bbp
+-rw-r--r--   1 staff    52K Mar 28 13:10 s04-lf.bbp
+-rw-r--r--   1 staff   532K Apr  5 10:17 s04.merged.bbp
+-rw-r--r--   1 staff   2.7K Feb 17  2017 s04.rd50
+-rw-r--r--   1 staff   535K Apr  5 10:09 s05-hf-site.bbp
+-rw-r--r--   1 staff   545K Mar 28 13:10 s05-hf.bbp
+-rw-r--r--   1 staff    52K Apr  5 10:09 s05-lf-site.bbp
+-rw-r--r--   1 staff    52K Mar 28 13:10 s05-lf.bbp
+-rw-r--r--   1 staff   532K Apr  5 10:17 s05.merged.bbp
+-rw-r--r--   1 staff   2.7K Feb 17  2017 s05.rd50
+-rw-r--r--   1 staff   280B Apr  5 09:37 test_stat.txt
+-rw-r--r--   1 staff   371B Apr  2 13:07 test_wh.src
 
 ./bbp/tests/ref_data/gp/GoF:
 total 152
--rw-r--r--  1 fsilva    13K Feb 17 16:18 nr-rd50-resid.txt
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5e.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5e.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5e.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5e.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5e.sigma0
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5n.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5n.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5n.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5n.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-psa5n.sigma0
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-rotd50.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-rotd50.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-rotd50.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-rotd50.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:18 nr_r0-25-rd50-rotd50.sigma0
+-rw-r--r--  1 staff    13K Apr  5 10:43 nr-rd50-resid.txt
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5e.bias
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5e.m90
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5e.p90
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5e.sigma
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5e.sigma0
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5n.bias
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5n.m90
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5n.p90
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5n.sigma
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-psa5n.sigma0
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-rotd50.bias
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-rotd50.m90
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-rotd50.p90
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-rotd50.sigma
+-rw-r--r--  1 staff   1.7K Feb 17  2017 nr_r0-25-rd50-rotd50.sigma0
 
-./bbp/tests/ref_data/gp/NorthridgeData:
-total 2248
--rw-r--r--  1 fsilva   105K Feb 17 16:18 s01.bbp
--rw-r--r--  1 fsilva   5.7K Feb 17 16:18 s01.rsp
--rw-r--r--  1 fsilva   105K Feb 17 16:18 s02.bbp
--rw-r--r--  1 fsilva   5.7K Feb 17 16:18 s02.rsp
--rw-r--r--  1 fsilva   105K Feb 17 16:18 s03.bbp
--rw-r--r--  1 fsilva   5.7K Feb 17 16:18 s03.rsp
--rw-r--r--  1 fsilva   598K Feb 17 16:18 s04.bbp
--rw-r--r--  1 fsilva   5.7K Feb 17 16:18 s04.rsp
--rw-r--r--  1 fsilva   157K Feb 17 16:18 s05.bbp
--rw-r--r--  1 fsilva   5.7K Feb 17 16:18 s05.rsp
+./bbp/tests/ref_data/irikura:
+total 14640
+-rw-r--r--  1 staff   1.0K Apr  2 13:36 nr02-vs500.fk1d
+-rw-r--r--  1 staff   733K Apr  5 12:29 s01-hf.bbp
+-rw-r--r--  1 staff   733K Apr  5 12:29 s02-hf.bbp
+-rw-r--r--  1 staff   756K Apr  5 12:29 s03-hf.bbp
+-rw-r--r--  1 staff   766K Apr  5 12:29 s04-hf.bbp
+-rw-r--r--  1 staff   751K Apr  5 12:29 s05-hf.bbp
+-rw-r--r--  1 staff   352B Apr  2 13:36 whittier_v12_11_0_fs.src
+-rw-r--r--  1 staff   3.5M Apr  2 13:36 whittier_v12_11_0_fs.srf
+-rw-r--r--  1 staff   313B Apr  5 12:29 whittier_v19_02_1_short.stl
 
 ./bbp/tests/ref_data/rzz2015:
 total 8
--rw-r--r--  1 fsilva   486B Feb 17 16:18 nr_v13_3_1.stl
-drwxr-xr-x  7 fsilva   238B Feb 17 16:18 obs_seis
-drwxr-xr-x  3 fsilva   102B Feb 17 16:18 ref_files
-drwxr-xr-x  7 fsilva   238B Feb 17 16:18 syn_seis
+-rw-r--r--  1 staff   342B Apr  5 09:30 nr_v13_3_1.stl
+drwxr-xr-x  7 staff   224B Feb 17  2017 obs_seis
+drwxr-xr-x  3 staff    96B Feb 17  2017 ref_files
+drwxr-xr-x  7 staff   224B Feb 17  2017 syn_seis
 
 ./bbp/tests/ref_data/rzz2015/obs_seis:
 total 2648
--rw-r--r--  1 fsilva   477K Feb 17 16:18 2001-SCE.bbp
--rw-r--r--  1 fsilva   119K Feb 17 16:18 2002-SYL.bbp
--rw-r--r--  1 fsilva   341K Feb 17 16:18 2004-JGB.bbp
--rw-r--r--  1 fsilva   317K Feb 17 16:18 2005-LDM.bbp
--rw-r--r--  1 fsilva    60K Feb 17 16:18 2006-PAC.bbp
+-rw-r--r--  1 staff   477K Feb 17  2017 2001-SCE.bbp
+-rw-r--r--  1 staff   119K Feb 17  2017 2002-SYL.bbp
+-rw-r--r--  1 staff   341K Feb 17  2017 2004-JGB.bbp
+-rw-r--r--  1 staff   317K Feb 17  2017 2005-LDM.bbp
+-rw-r--r--  1 staff    60K Feb 17  2017 2006-PAC.bbp
 
 ./bbp/tests/ref_data/rzz2015/ref_files:
 total 8
--rw-r--r--  1 fsilva   1.9K Feb 17 16:18 rzz2015.NR.txt
+-rw-r--r--  1 staff   1.9K Mar 29 15:09 rzz2015.NR.txt
 
 ./bbp/tests/ref_data/rzz2015/syn_seis:
 total 2144
--rw-r--r--  1 fsilva   214K Feb 17 16:18 2001-SCE.acc.bbp
--rw-r--r--  1 fsilva   215K Feb 17 16:18 2002-SYL.acc.bbp
--rw-r--r--  1 fsilva   214K Feb 17 16:18 2004-JGB.acc.bbp
--rw-r--r--  1 fsilva   211K Feb 17 16:18 2005-LDM.acc.bbp
--rw-r--r--  1 fsilva   212K Feb 17 16:18 2006-PAC.acc.bbp
+-rw-r--r--  1 staff   214K Feb 17  2017 2001-SCE.acc.bbp
+-rw-r--r--  1 staff   215K Feb 17  2017 2002-SYL.acc.bbp
+-rw-r--r--  1 staff   214K Feb 17  2017 2004-JGB.acc.bbp
+-rw-r--r--  1 staff   211K Feb 17  2017 2005-LDM.acc.bbp
+-rw-r--r--  1 staff   212K Feb 17  2017 2006-PAC.acc.bbp
 
 ./bbp/tests/ref_data/sdsu:
-total 15120
-drwxr-xr-x  72 fsilva   2.4K Feb 17 16:18 100
--rw-r--r--   1 fsilva   111B Feb 17 16:18 100.bob.xy
--rw-r--r--   1 fsilva   110K Feb 17 16:18 BB.s01.hyb
--rw-r--r--   1 fsilva   110K Feb 17 16:18 BB.s02.hyb
--rw-r--r--   1 fsilva   110K Feb 17 16:18 BB.s03.hyb
--rw-r--r--   1 fsilva   110K Feb 17 16:18 BB.s04.hyb
--rw-r--r--   1 fsilva   110K Feb 17 16:18 BB.s05.hyb
--rwxr-xr-x   1 fsilva   240K Feb 17 16:18 BBhyb.bin
-drwxr-xr-x   6 fsilva   204B Feb 17 16:18 MOGof
--rw-r--r--   1 fsilva    20B Feb 17 16:18 VSREAL.small
--rwxr-xr-x   1 fsilva    35B Feb 17 16:18 VSSYNTH.small
--rw-r--r--   1 fsilva   240K Feb 17 16:18 ampBBhyb.bin
--rw-r--r--   1 fsilva   185B Feb 17 16:18 gof_summary_nr_one_stat.txt
--rw-r--r--   1 fsilva   313B Feb 17 16:18 gof_summary_test_three_stat.txt
--rw-r--r--   1 fsilva   332B Feb 17 16:18 gp_velmodel.sdsu
--rw-r--r--   1 fsilva   134B Feb 17 16:18 gp_velmodel.v1d
--rwxr-xr-x   1 fsilva   1.1K Feb 17 16:18 loma_prieta.par
--rw-r--r--   1 fsilva   503K Feb 17 16:18 m589-s2379646.srf
--rwxr-xr-x   1 fsilva   1.1K Feb 17 16:18 northridge_extended.par
--rwxr-xr-x   1 fsilva    15K Feb 17 16:18 northridge_fault.txt
--rw-r--r--   1 fsilva   208B Feb 17 16:18 nr_one_stat.txt
--rw-r--r--   1 fsilva   440K Feb 17 16:18 s01.bbp
--rw-r--r--   1 fsilva   488K Feb 17 16:18 s01.site.bbp
--rw-r--r--   1 fsilva   440K Feb 17 16:18 s02.bbp
--rw-r--r--   1 fsilva   488K Feb 17 16:18 s02.site.bbp
--rw-r--r--   1 fsilva   440K Feb 17 16:18 s03.bbp
--rw-r--r--   1 fsilva   488K Feb 17 16:18 s03.site.bbp
--rw-r--r--   1 fsilva   440K Feb 17 16:18 s04.bbp
--rw-r--r--   1 fsilva   488K Feb 17 16:18 s04.site.bbp
--rw-r--r--   1 fsilva   440K Feb 17 16:18 s05.bbp
--rw-r--r--   1 fsilva   488K Feb 17 16:18 s05.site.bbp
--rwxr-xr-x   1 fsilva   2.6K Feb 17 16:18 scattering.dat
--rw-r--r--   1 fsilva   418K Feb 17 16:18 scse.bbp
--rw-r--r--   1 fsilva   2.3K Feb 17 16:18 sdsu-apr2013-labasin-vmod.txt
--rw-r--r--   1 fsilva   983B Feb 17 16:18 sdsu_nga_rock1.v1d
--rw-r--r--   1 fsilva   600B Feb 17 16:18 sdsu_velmodel.ref
--rwxr-xr-x   1 fsilva   578B Feb 17 16:18 small_stations_kappa.dat
--rw-r--r--   1 fsilva    65K Feb 17 16:18 test01.bbp
--rw-r--r--   1 fsilva    63K Feb 17 16:18 test02.bbp
--rw-r--r--   1 fsilva    66K Feb 17 16:18 test03.bbp
--rw-r--r--   1 fsilva   425B Feb 17 16:18 test_stat.txt
--rw-r--r--   1 fsilva   319B Feb 17 16:18 test_three_stat.txt
--rwxr-xr-x   1 fsilva   604B Feb 17 16:18 vmod2.txt
--rw-r--r--   1 fsilva   615K Feb 17 16:18 wh-gp02.srf
--rw-r--r--   1 fsilva   337B Feb 17 16:18 wh_test.src
-
-./bbp/tests/ref_data/sdsu/100:
-total 14336
--rw-r--r--  1 fsilva   220B Feb 17 16:18 100.LP_list.txt
--rw-r--r--  1 fsilva   181B Feb 17 16:18 100.par
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s01-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s01-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s01-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s02-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s02-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s02-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s03-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s03-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s03-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s04-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s04-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s04-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s05-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s05-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s05-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s06-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s06-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s06-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s07-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s07-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s07-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s08-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s08-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s08-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s09-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s09-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s09-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s10-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s10-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s10-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s11-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s11-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s11-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s12-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s12-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s12-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s13-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s13-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s13-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s14-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s14-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s14-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s15-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s15-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s15-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s16-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s16-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s16-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s17-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s17-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s17-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s18-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s18-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s18-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s19-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s19-lp.090
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s19-lp.ver
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s20-lp.000
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s20-lp.090
--rw-r--r--  1 fsilva   338K Feb 17 16:18 100.s20-lp.ccd
--rw-r--r--  1 fsilva   320K Feb 17 16:18 100.s20-lp.ocd
--rw-r--r--  1 fsilva   104K Feb 17 16:18 100.s20-lp.ver
--rw-r--r--  1 fsilva   548B Feb 17 16:18 100.stations.dat
--rw-r--r--  1 fsilva   179B Feb 17 16:18 CODAconv.out
--rw-r--r--  1 fsilva   1.2K Feb 17 16:18 PStimes.out
--rw-r--r--  1 fsilva   102B Feb 17 16:18 convcd01
--rw-r--r--  1 fsilva   218B Feb 17 16:18 incoda01
-drwxr-xr-x  3 fsilva   102B Feb 17 16:18 velmodel
-
-./bbp/tests/ref_data/sdsu/100/velmodel:
-total 8
--rw-r--r--  1 fsilva   250B Feb 17 16:18 velmodel.dat
+total 6744
+-rw-r--r--  1 staff   111B Feb 17  2017 100.bob.xy
+drwxr-xr-x  6 staff   192B Feb 17  2017 MOGof
+-rw-r--r--  1 staff   332B Feb 17  2017 gp_velmodel.sdsu
+-rw-r--r--  1 staff   134B Feb 17  2017 gp_velmodel.v1d
+-rw-r--r--  1 staff   503K Feb 17  2017 m589-s2379646.srf
+-rw-r--r--  1 staff   440K Apr 18 21:51 s01.bbp
+-rw-r--r--  1 staff   440K Apr 18 21:51 s02.bbp
+-rw-r--r--  1 staff   440K Apr 18 21:51 s03.bbp
+-rw-r--r--  1 staff   440K Apr 18 21:51 s04.bbp
+-rw-r--r--  1 staff   440K Apr 18 21:51 s05.bbp
+-rw-r--r--  1 staff   1.9K Mar 29 15:32 sdsu-aug2018-labasin-vmod.txt
+-rw-r--r--  1 staff   983B Feb 17  2017 sdsu_nga_rock1.v1d
+-rw-r--r--  1 staff   600B Feb 17  2017 sdsu_velmodel.ref
+-rw-r--r--  1 staff   260B Apr  4 14:03 test_stat.txt
+-rw-r--r--  1 staff   615K Feb 17  2017 wh-gp02.srf
+-rw-r--r--  1 staff   289B Apr  4 14:01 wh_test.src
 
 ./bbp/tests/ref_data/sdsu/MOGof:
 total 16
-drwxr-xr-x  9 fsilva   306B Feb 17 16:18 ref_inputs
-drwxr-xr-x  5 fsilva   170B Feb 17 16:18 ref_results
--rw-r--r--  1 fsilva   759B Feb 17 16:18 test_ten_stat.txt
--rw-r--r--  1 fsilva   326B Feb 17 16:18 test_three_stat.txt
+drwxr-xr-x  9 staff   288B Feb 17  2017 ref_inputs
+drwxr-xr-x  5 staff   160B Feb 17  2017 ref_results
+-rw-r--r--  1 staff   759B Feb 17  2017 test_ten_stat.txt
+-rw-r--r--  1 staff   326B Feb 17  2017 test_three_stat.txt
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_inputs:
 total 8
--rw-r--r--   1 fsilva   960B Feb 17 16:18 PARAM.dat
-drwxr-xr-x  25 fsilva   850B Feb 17 16:18 landers_obs
-drwxr-xr-x  25 fsilva   850B Feb 17 16:18 landers_syn
-drwxr-xr-x  12 fsilva   408B Feb 17 16:18 ten_stat_obs
-drwxr-xr-x  12 fsilva   408B Feb 17 16:18 ten_stat_syn
-drwxr-xr-x   5 fsilva   170B Feb 17 16:18 three_stat_obs
-drwxr-xr-x   5 fsilva   170B Feb 17 16:18 three_stat_syn
+-rw-r--r--   1 staff   960B Feb 17  2017 PARAM.dat
+drwxr-xr-x  25 staff   800B Feb 17  2017 landers_obs
+drwxr-xr-x  25 staff   800B Feb 17  2017 landers_syn
+drwxr-xr-x  12 staff   384B Feb 17  2017 ten_stat_obs
+drwxr-xr-x  12 staff   384B Feb 17  2017 ten_stat_syn
+drwxr-xr-x   5 staff   160B Feb 17  2017 three_stat_obs
+drwxr-xr-x   5 staff   160B Feb 17  2017 three_stat_syn
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_inputs/landers_obs:
 total 15208
--rw-r--r--  1 fsilva   854K Feb 17 16:18 5071.bbp
--rw-r--r--  1 fsilva   876K Feb 17 16:18 5295.bbp
--rw-r--r--  1 fsilva   157K Feb 17 16:18 ce12025.bbp
--rw-r--r--  1 fsilva   157K Feb 17 16:18 ce12026.bbp
--rw-r--r--  1 fsilva   131K Feb 17 16:18 ce12149.bbp
--rw-r--r--  1 fsilva   144K Feb 17 16:18 ce12206.bbp
--rw-r--r--  1 fsilva   147K Feb 17 16:18 ce12331.bbp
--rw-r--r--  1 fsilva   419K Feb 17 16:18 ce12543.bbp
--rw-r--r--  1 fsilva   427K Feb 17 16:18 ce12630.bbp
--rw-r--r--  1 fsilva   131K Feb 17 16:18 ce21081.bbp
--rw-r--r--  1 fsilva   116K Feb 17 16:18 ce22074.bbp
--rw-r--r--  1 fsilva   131K Feb 17 16:18 ce22161.bbp
--rw-r--r--  1 fsilva   116K Feb 17 16:18 ce22170.bbp
--rw-r--r--  1 fsilva   435K Feb 17 16:18 ce22561.bbp
--rw-r--r--  1 fsilva   288K Feb 17 16:18 ce23522.bbp
--rw-r--r--  1 fsilva   627K Feb 17 16:18 ce23542.bbp
--rw-r--r--  1 fsilva   105K Feb 17 16:18 ce23559.bbp
--rw-r--r--  1 fsilva   576K Feb 17 16:18 ce23583.bbp
--rw-r--r--  1 fsilva   497K Feb 17 16:18 ce23597.bbp
--rw-r--r--  1 fsilva   105K Feb 17 16:18 ce24577.bbp
--rw-r--r--  1 fsilva   131K Feb 17 16:18 ce32075.bbp
--rw-r--r--  1 fsilva   105K Feb 17 16:18 ce33083.bbp
--rw-r--r--  1 fsilva   889K Feb 17 16:18 luc.bbp
+-rw-r--r--  1 staff   854K Feb 17  2017 5071.bbp
+-rw-r--r--  1 staff   876K Feb 17  2017 5295.bbp
+-rw-r--r--  1 staff   157K Feb 17  2017 ce12025.bbp
+-rw-r--r--  1 staff   157K Feb 17  2017 ce12026.bbp
+-rw-r--r--  1 staff   131K Feb 17  2017 ce12149.bbp
+-rw-r--r--  1 staff   144K Feb 17  2017 ce12206.bbp
+-rw-r--r--  1 staff   147K Feb 17  2017 ce12331.bbp
+-rw-r--r--  1 staff   419K Feb 17  2017 ce12543.bbp
+-rw-r--r--  1 staff   427K Feb 17  2017 ce12630.bbp
+-rw-r--r--  1 staff   131K Feb 17  2017 ce21081.bbp
+-rw-r--r--  1 staff   116K Feb 17  2017 ce22074.bbp
+-rw-r--r--  1 staff   131K Feb 17  2017 ce22161.bbp
+-rw-r--r--  1 staff   116K Feb 17  2017 ce22170.bbp
+-rw-r--r--  1 staff   435K Feb 17  2017 ce22561.bbp
+-rw-r--r--  1 staff   288K Feb 17  2017 ce23522.bbp
+-rw-r--r--  1 staff   627K Feb 17  2017 ce23542.bbp
+-rw-r--r--  1 staff   105K Feb 17  2017 ce23559.bbp
+-rw-r--r--  1 staff   576K Feb 17  2017 ce23583.bbp
+-rw-r--r--  1 staff   497K Feb 17  2017 ce23597.bbp
+-rw-r--r--  1 staff   105K Feb 17  2017 ce24577.bbp
+-rw-r--r--  1 staff   131K Feb 17  2017 ce32075.bbp
+-rw-r--r--  1 staff   105K Feb 17  2017 ce33083.bbp
+-rw-r--r--  1 staff   889K Feb 17  2017 luc.bbp
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_inputs/landers_syn:
 total 19320
--rw-r--r--  1 fsilva   418K Feb 17 16:18 5071.acc.bbp
--rw-r--r--  1 fsilva   418K Feb 17 16:18 5295.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce12025.acc.bbp
--rw-r--r--  1 fsilva   418K Feb 17 16:18 ce12026.acc.bbp
--rw-r--r--  1 fsilva   418K Feb 17 16:18 ce12149.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce12206.acc.bbp
--rw-r--r--  1 fsilva   418K Feb 17 16:18 ce12331.acc.bbp
--rw-r--r--  1 fsilva   418K Feb 17 16:18 ce12543.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce12630.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce21081.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce22074.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce22161.acc.bbp
--rw-r--r--  1 fsilva   418K Feb 17 16:18 ce22170.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce22561.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce23522.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce23542.acc.bbp
--rw-r--r--  1 fsilva   418K Feb 17 16:18 ce23559.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce23583.acc.bbp
--rw-r--r--  1 fsilva   416K Feb 17 16:18 ce23597.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce24577.acc.bbp
--rw-r--r--  1 fsilva   417K Feb 17 16:18 ce32075.acc.bbp
--rw-r--r--  1 fsilva   416K Feb 17 16:18 ce33083.acc.bbp
--rw-r--r--  1 fsilva   418K Feb 17 16:18 luc.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 5071.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 5295.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce12025.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 ce12026.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 ce12149.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce12206.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 ce12331.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 ce12543.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce12630.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce21081.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce22074.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce22161.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 ce22170.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce22561.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce23522.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce23542.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 ce23559.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce23583.acc.bbp
+-rw-r--r--  1 staff   416K Feb 17  2017 ce23597.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce24577.acc.bbp
+-rw-r--r--  1 staff   417K Feb 17  2017 ce32075.acc.bbp
+-rw-r--r--  1 staff   416K Feb 17  2017 ce33083.acc.bbp
+-rw-r--r--  1 staff   418K Feb 17  2017 luc.acc.bbp
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_inputs/ten_stat_obs:
 total 2480
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-0.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-1.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-2.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-3.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-4.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-5.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-6.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-7.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-8.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-9.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-0.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-1.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-2.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-3.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-4.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-5.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-6.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-7.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-8.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-9.bbp
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_inputs/ten_stat_syn:
 total 2480
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-0.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-1.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-2.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-3.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-4.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-5.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-6.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-7.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-8.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-9.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-0.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-1.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-2.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-3.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-4.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-5.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-6.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-7.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-8.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-9.acc.bbp
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_inputs/three_stat_obs:
 total 744
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-0.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-1.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-2.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-0.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-1.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-2.bbp
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_inputs/three_stat_syn:
 total 744
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-0.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-1.acc.bbp
--rw-r--r--  1 fsilva   121K Feb 17 16:18 sample_1-2.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-0.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-1.acc.bbp
+-rw-r--r--  1 staff   121K Feb 17  2017 sample_1-2.acc.bbp
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_results:
 total 0
-drwxr-xr-x   8 fsilva   272B Feb 17 16:18 Landers-UCSB-PGX
-drwxr-xr-x  46 fsilva   1.5K Feb 17 16:18 ten_stat
-drwxr-xr-x  16 fsilva   544B Feb 17 16:18 three_stat
+drwxr-xr-x   8 staff   256B Feb 17  2017 Landers-UCSB-PGX
+drwxr-xr-x  46 staff   1.4K Feb 17  2017 ten_stat
+drwxr-xr-x  16 staff   512B Feb 17  2017 three_stat
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_results/Landers-UCSB-PGX:
 total 48
--rw-r--r--  1 fsilva   2.2K Feb 17 16:18 GOF.list
--rw-r--r--  1 fsilva   821B Feb 17 16:18 GOF_PGA.list
--rw-r--r--  1 fsilva   824B Feb 17 16:18 GOF_PGD.list
--rw-r--r--  1 fsilva   812B Feb 17 16:18 GOF_PGV.list
--rw-r--r--  1 fsilva   817B Feb 17 16:18 GOF_PSA.list
--rw-r--r--  1 fsilva   1.9K Feb 17 16:18 gof_summary.txt
+-rw-r--r--  1 staff   2.2K Feb 17  2017 GOF.list
+-rw-r--r--  1 staff   821B Feb 17  2017 GOF_PGA.list
+-rw-r--r--  1 staff   824B Feb 17  2017 GOF_PGD.list
+-rw-r--r--  1 staff   812B Feb 17  2017 GOF_PGV.list
+-rw-r--r--  1 staff   817B Feb 17  2017 GOF_PSA.list
+-rw-r--r--  1 staff   1.9K Feb 17  2017 gof_summary.txt
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_results/ten_stat:
 total 24600
--rw-r--r--  1 fsilva   370B Feb 17 16:18 DELAY.list
--rw-r--r--  1 fsilva   9.5K Feb 17 16:18 ElD_R.out
--rw-r--r--  1 fsilva   9.5K Feb 17 16:18 ElD_S.out
--rw-r--r--  1 fsilva    60K Feb 17 16:18 ErrorBias.out
--rw-r--r--  1 fsilva   4.8M Feb 17 16:18 FileR.out
--rw-r--r--  1 fsilva   4.8M Feb 17 16:18 FileS.out
--rw-r--r--  1 fsilva   1.0K Feb 17 16:18 GOF.list
--rw-r--r--  1 fsilva     0B Feb 17 16:18 GOF_COVAR.list
--rw-r--r--  1 fsilva   640B Feb 17 16:18 GOF_CROSSCOR.list
--rw-r--r--  1 fsilva   637B Feb 17 16:18 GOF_DUR.list
--rw-r--r--  1 fsilva   641B Feb 17 16:18 GOF_ENERGYFIT.list
--rw-r--r--  1 fsilva   641B Feb 17 16:18 GOF_FS.list
--rw-r--r--  1 fsilva   639B Feb 17 16:18 GOF_InElEl.list
--rw-r--r--  1 fsilva   9.9K Feb 17 16:18 GOF_InElEl_All.list
--rw-r--r--  1 fsilva   642B Feb 17 16:18 GOF_PGA.list
--rw-r--r--  1 fsilva   640B Feb 17 16:18 GOF_PGD.list
--rw-r--r--  1 fsilva   636B Feb 17 16:18 GOF_PGV.list
--rw-r--r--  1 fsilva   641B Feb 17 16:18 GOF_PSA.list
--rw-r--r--  1 fsilva   9.6K Feb 17 16:18 GOF_SA16X_DATA.dat
--rw-r--r--  1 fsilva   9.6K Feb 17 16:18 GOF_SA16Y_DATA.dat
--rw-r--r--  1 fsilva   9.6K Feb 17 16:18 GOF_SA16Z_DATA.dat
--rw-r--r--  1 fsilva   642B Feb 17 16:18 GOF_SAFIT.list
--rw-r--r--  1 fsilva   642B Feb 17 16:18 GOF_SPECDUR.list
--rw-r--r--  1 fsilva   640B Feb 17 16:18 GOF_SPECFIT.list
--rw-r--r--  1 fsilva   137K Feb 17 16:18 InElR.19.16.NumSta.out
--rw-r--r--  1 fsilva   137K Feb 17 16:18 InElS.19.16.NumSta.out
--rw-r--r--  1 fsilva    14K Feb 17 16:18 OUTPUT.m
--rw-r--r--  1 fsilva   610B Feb 17 16:18 PGA.out
--rw-r--r--  1 fsilva   610B Feb 17 16:18 PGV.out
--rw-r--r--  1 fsilva   9.5K Feb 17 16:18 SpecDur16GOF_XYZ.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecDurRX.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecDurRY.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecDurSX.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecDurSY.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecDurX.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecDurY.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecOutH.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecOutHR.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecOutHS.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecOutRX.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecOutRY.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecOutSX.out
--rw-r--r--  1 fsilva   155K Feb 17 16:18 SpecOutSY.out
--rw-r--r--  1 fsilva   745B Feb 17 16:18 gof_summary.txt
+-rw-r--r--  1 staff   370B Feb 17  2017 DELAY.list
+-rw-r--r--  1 staff   9.5K Feb 17  2017 ElD_R.out
+-rw-r--r--  1 staff   9.5K Feb 17  2017 ElD_S.out
+-rw-r--r--  1 staff    60K Feb 17  2017 ErrorBias.out
+-rw-r--r--  1 staff   4.8M Feb 17  2017 FileR.out
+-rw-r--r--  1 staff   4.8M Feb 17  2017 FileS.out
+-rw-r--r--  1 staff   1.0K Feb 17  2017 GOF.list
+-rw-r--r--  1 staff     0B Feb 17  2017 GOF_COVAR.list
+-rw-r--r--  1 staff   640B Feb 17  2017 GOF_CROSSCOR.list
+-rw-r--r--  1 staff   637B Feb 17  2017 GOF_DUR.list
+-rw-r--r--  1 staff   641B Feb 17  2017 GOF_ENERGYFIT.list
+-rw-r--r--  1 staff   641B Feb 17  2017 GOF_FS.list
+-rw-r--r--  1 staff   639B Feb 17  2017 GOF_InElEl.list
+-rw-r--r--  1 staff   9.9K Feb 17  2017 GOF_InElEl_All.list
+-rw-r--r--  1 staff   642B Feb 17  2017 GOF_PGA.list
+-rw-r--r--  1 staff   640B Feb 17  2017 GOF_PGD.list
+-rw-r--r--  1 staff   636B Feb 17  2017 GOF_PGV.list
+-rw-r--r--  1 staff   641B Feb 17  2017 GOF_PSA.list
+-rw-r--r--  1 staff   9.6K Feb 17  2017 GOF_SA16X_DATA.dat
+-rw-r--r--  1 staff   9.6K Feb 17  2017 GOF_SA16Y_DATA.dat
+-rw-r--r--  1 staff   9.6K Feb 17  2017 GOF_SA16Z_DATA.dat
+-rw-r--r--  1 staff   642B Feb 17  2017 GOF_SAFIT.list
+-rw-r--r--  1 staff   642B Feb 17  2017 GOF_SPECDUR.list
+-rw-r--r--  1 staff   640B Feb 17  2017 GOF_SPECFIT.list
+-rw-r--r--  1 staff   137K Feb 17  2017 InElR.19.16.NumSta.out
+-rw-r--r--  1 staff   137K Feb 17  2017 InElS.19.16.NumSta.out
+-rw-r--r--  1 staff    14K Feb 17  2017 OUTPUT.m
+-rw-r--r--  1 staff   610B Feb 17  2017 PGA.out
+-rw-r--r--  1 staff   610B Feb 17  2017 PGV.out
+-rw-r--r--  1 staff   9.5K Feb 17  2017 SpecDur16GOF_XYZ.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecDurRX.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecDurRY.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecDurSX.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecDurSY.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecDurX.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecDurY.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecOutH.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecOutHR.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecOutHS.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecOutRX.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecOutRY.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecOutSX.out
+-rw-r--r--  1 staff   155K Feb 17  2017 SpecOutSY.out
+-rw-r--r--  1 staff   745B Feb 17  2017 gof_summary.txt
 
 ./bbp/tests/ref_data/sdsu/MOGof/ref_results/three_stat:
 total 112
--rw-r--r--  1 fsilva   300B Feb 17 16:18 GOF.list
--rw-r--r--  1 fsilva   223B Feb 17 16:18 GOF_CROSSCOR.list
--rw-r--r--  1 fsilva   225B Feb 17 16:18 GOF_DUR.list
--rw-r--r--  1 fsilva   227B Feb 17 16:18 GOF_ENERGYFIT.list
--rw-r--r--  1 fsilva   227B Feb 17 16:18 GOF_FS.list
--rw-r--r--  1 fsilva   227B Feb 17 16:18 GOF_InElEl.list
--rw-r--r--  1 fsilva   226B Feb 17 16:18 GOF_PGA.list
--rw-r--r--  1 fsilva   227B Feb 17 16:18 GOF_PGD.list
--rw-r--r--  1 fsilva   225B Feb 17 16:18 GOF_PGV.list
--rw-r--r--  1 fsilva   226B Feb 17 16:18 GOF_PSA.list
--rw-r--r--  1 fsilva   225B Feb 17 16:18 GOF_SAFIT.list
--rw-r--r--  1 fsilva   225B Feb 17 16:18 GOF_SPECDUR.list
--rw-r--r--  1 fsilva   227B Feb 17 16:18 GOF_SPECFIT.list
--rw-r--r--  1 fsilva   403B Feb 17 16:18 gof_summary.txt
+-rw-r--r--  1 staff   300B Feb 17  2017 GOF.list
+-rw-r--r--  1 staff   223B Feb 17  2017 GOF_CROSSCOR.list
+-rw-r--r--  1 staff   225B Feb 17  2017 GOF_DUR.list
+-rw-r--r--  1 staff   227B Feb 17  2017 GOF_ENERGYFIT.list
+-rw-r--r--  1 staff   227B Feb 17  2017 GOF_FS.list
+-rw-r--r--  1 staff   227B Feb 17  2017 GOF_InElEl.list
+-rw-r--r--  1 staff   226B Feb 17  2017 GOF_PGA.list
+-rw-r--r--  1 staff   227B Feb 17  2017 GOF_PGD.list
+-rw-r--r--  1 staff   225B Feb 17  2017 GOF_PGV.list
+-rw-r--r--  1 staff   226B Feb 17  2017 GOF_PSA.list
+-rw-r--r--  1 staff   225B Feb 17  2017 GOF_SAFIT.list
+-rw-r--r--  1 staff   225B Feb 17  2017 GOF_SPECDUR.list
+-rw-r--r--  1 staff   227B Feb 17  2017 GOF_SPECFIT.list
+-rw-r--r--  1 staff   403B Feb 17  2017 gof_summary.txt
 
 ./bbp/tests/ref_data/song:
 total 15976
--rw-r--r--  1 fsilva   7.8M Feb 17 16:18 song_test_whittier.srf
--rw-r--r--  1 fsilva   360B Feb 17 16:18 test_whittier_song.src
+-rw-r--r--  1 staff   7.8M Feb 17  2017 song_test_whittier.srf
+-rw-r--r--  1 staff   360B Feb 17  2017 test_whittier_song.src
 
 ./bbp/tests/ref_data/ucb:
-total 2984
--rw-r--r--  1 fsilva   213K Feb 17 16:18 80001.vel.bbp
--rw-r--r--  1 fsilva   215K Feb 17 16:18 80002.vel.bbp
--rw-r--r--  1 fsilva   213K Feb 17 16:18 80003.vel.bbp
--rw-r--r--  1 fsilva   214K Feb 17 16:18 80004.vel.bbp
--rw-r--r--  1 fsilva   215K Feb 17 16:18 80005.vel.bbp
--rw-r--r--  1 fsilva   421B Feb 17 16:18 rotd50.stl
--rw-r--r--  1 fsilva   213K Feb 17 16:18 station.acc.bbp
--rw-r--r--  1 fsilva    61K Feb 17 16:18 station.peer_e.acc
--rw-r--r--  1 fsilva    61K Feb 17 16:18 station.peer_n.acc
--rw-r--r--  1 fsilva    61K Feb 17 16:18 station.peer_z.acc
+total 3104
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80001.rd100
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80001.rd100.vertical
+-rw-r--r--  1 staff   2.9K Apr  2 11:13 80001.rd50
+-rw-r--r--  1 staff   213K Feb 17  2017 80001.vel.bbp
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80002.rd100
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80002.rd100.vertical
+-rw-r--r--  1 staff   2.9K Apr  2 11:13 80002.rd50
+-rw-r--r--  1 staff   215K Feb 17  2017 80002.vel.bbp
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80003.rd100
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80003.rd100.vertical
+-rw-r--r--  1 staff   2.9K Apr  2 11:13 80003.rd50
+-rw-r--r--  1 staff   213K Feb 17  2017 80003.vel.bbp
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80004.rd100
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80004.rd100.vertical
+-rw-r--r--  1 staff   2.9K Apr  2 11:13 80004.rd50
+-rw-r--r--  1 staff   214K Feb 17  2017 80004.vel.bbp
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80005.rd100
+-rw-r--r--  1 staff   3.6K Apr  2 11:14 80005.rd100.vertical
+-rw-r--r--  1 staff   2.9K Apr  2 11:13 80005.rd50
+-rw-r--r--  1 staff   215K Feb 17  2017 80005.vel.bbp
+-rw-r--r--  1 staff   292B Apr  2 11:13 rotd50.stl
+-rw-r--r--  1 staff   213K Feb 17  2017 station.acc.bbp
+-rw-r--r--  1 staff    61K Feb 17  2017 station.peer_e.acc
+-rw-r--r--  1 staff    61K Feb 17  2017 station.peer_n.acc
+-rw-r--r--  1 staff    61K Feb 17  2017 station.peer_z.acc
 
 ./bbp/tests/ref_data/ucsb:
-total 13184
--rw-r--r--  1 fsilva   2.1M Feb 17 16:18 FFSP_OUTPUT.001
--rw-r--r--  1 fsilva   111B Feb 17 16:18 faultGlobal.in
--rw-r--r--  1 fsilva   172B Feb 17 16:18 ffsp.inp
--rw-r--r--  1 fsilva   134B Feb 17 16:18 gp_velocity_model.txt
--rw-r--r--  1 fsilva   323B Feb 17 16:18 labasin.vel
--rw-r--r--  1 fsilva    93B Feb 17 16:18 one_stat.txt
--rw-r--r--  1 fsilva   308K Feb 17 16:18 s01.3comp
--rw-r--r--  1 fsilva   308K Feb 17 16:18 s01.site.3comp
--rw-r--r--  1 fsilva   203K Feb 17 16:18 s01.stitched.bbp
--rw-r--r--  1 fsilva   311K Feb 17 16:18 s02.3comp
--rw-r--r--  1 fsilva   311K Feb 17 16:18 s02.site.3comp
--rw-r--r--  1 fsilva   209K Feb 17 16:18 s02.stitched.bbp
--rw-r--r--  1 fsilva   310K Feb 17 16:18 s03.3comp
--rw-r--r--  1 fsilva   310K Feb 17 16:18 s03.site.3comp
--rw-r--r--  1 fsilva   209K Feb 17 16:18 s03.stitched.bbp
--rw-r--r--  1 fsilva   311K Feb 17 16:18 s04.3comp
--rw-r--r--  1 fsilva   311K Feb 17 16:18 s04.site.3comp
--rw-r--r--  1 fsilva   209K Feb 17 16:18 s04.stitched.bbp
--rw-r--r--  1 fsilva   311K Feb 17 16:18 s05.3comp
--rw-r--r--  1 fsilva   311K Feb 17 16:18 s05.site.3comp
--rw-r--r--  1 fsilva   209K Feb 17 16:18 s05.stitched.bbp
--rw-r--r--  1 fsilva    15B Feb 17 16:18 source_SCEC.list
--rw-r--r--  1 fsilva   136B Feb 17 16:18 source_model.list
--rw-r--r--  1 fsilva   450B Feb 17 16:18 stations.ll
--rw-r--r--  1 fsilva   560B Feb 17 16:18 stats-h0.125.ll
--rw-r--r--  1 fsilva   284B Feb 17 16:18 test_eq.src
--rw-r--r--  1 fsilva   460B Feb 17 16:18 test_nr_ucsb.src
--rw-r--r--  1 fsilva   465B Feb 17 16:18 test_stat.txt
--rw-r--r--  1 fsilva   227K Feb 17 16:18 test_ucsb.srf
--rw-r--r--  1 fsilva   515B Feb 17 16:18 test_wh_ucsb.src
--rw-r--r--  1 fsilva   300B Feb 17 16:18 ucsb_nga_rock1.v1d
--rw-r--r--  1 fsilva   171B Feb 17 16:18 ucsb_velocity_model.txt
+total 12576
+-rw-r--r--  1 staff   2.1M Mar 28 14:01 FFSP_OUTPUT.001
+-rw-r--r--  1 staff   177B Mar 28 23:16 ffsp.inp
+-rw-r--r--  1 staff   134B Feb 17  2017 gp_velocity_model.txt
+-rw-r--r--  1 staff   741B Mar 28 14:01 nr02-vs500_lf.vel
+-rw-r--r--  1 staff    52B Apr  4 21:03 one_stat.txt
+-rw-r--r--  1 staff   381K Mar 28 14:43 s01.3comp
+-rw-r--r--  1 staff   185K Apr  4 23:27 s01.site.3comp
+-rw-r--r--  1 staff   201K Mar 28 23:11 s01.stitched.bbp
+-rw-r--r--  1 staff   381K Mar 28 14:43 s02.3comp
+-rw-r--r--  1 staff   185K Apr  4 23:27 s02.site.3comp
+-rw-r--r--  1 staff   201K Mar 28 23:11 s02.stitched.bbp
+-rw-r--r--  1 staff   381K Mar 28 14:43 s03.3comp
+-rw-r--r--  1 staff   185K Apr  4 23:27 s03.site.3comp
+-rw-r--r--  1 staff   202K Mar 28 23:11 s03.stitched.bbp
+-rw-r--r--  1 staff   382K Mar 28 14:43 s04.3comp
+-rw-r--r--  1 staff   185K Apr  4 23:27 s04.site.3comp
+-rw-r--r--  1 staff   202K Mar 28 23:11 s04.stitched.bbp
+-rw-r--r--  1 staff   380K Mar 28 14:43 s05.3comp
+-rw-r--r--  1 staff   185K Apr  4 23:27 s05.site.3comp
+-rw-r--r--  1 staff   201K Mar 28 23:11 s05.stitched.bbp
+-rw-r--r--  1 staff   136B Feb 17  2017 source_model.list
+-rw-r--r--  1 staff   450B Feb 17  2017 stations.ll
+-rw-r--r--  1 staff   560B Feb 17  2017 stats-h0.125.ll
+-rw-r--r--  1 staff   460B Feb 17  2017 test_nr_ucsb.src
+-rw-r--r--  1 staff   260B Apr  4 21:06 test_stat.txt
+-rw-r--r--  1 staff   227K Feb 17  2017 test_ucsb.srf
+-rw-r--r--  1 staff   370B Apr  4 21:38 test_wh_ucsb.src
+-rw-r--r--  1 staff   300B Feb 17  2017 ucsb_nga_rock1.v1d
+-rw-r--r--  1 staff   171B Feb 17  2017 ucsb_velocity_model.txt
 
 ./bbp/tests/ref_data/uwo:
 total 5000
--rw-r--r--  1 fsilva   244K Feb 17 16:18 LOMAPS001.acc.bbp
--rw-r--r--  1 fsilva    93K Feb 17 16:18 LOMAPS001iter001.acc
--rw-r--r--  1 fsilva    93K Feb 17 16:18 LOMAPS001iter002.acc
--rw-r--r--  1 fsilva    93K Feb 17 16:18 LOMAPS001iter003.acc
--rw-r--r--  1 fsilva   521B Feb 17 16:18 nr_v12_11_0_fs.src
--rw-r--r--  1 fsilva   183B Feb 17 16:18 nr_v12_11_2.stl
--rw-r--r--  1 fsilva   1.9M Feb 17 16:18 s01.acc.bbp
+-rw-r--r--  1 staff   244K Feb 17  2017 LOMAPS001.acc.bbp
+-rw-r--r--  1 staff    93K Feb 17  2017 LOMAPS001iter001.acc
+-rw-r--r--  1 staff    93K Feb 17  2017 LOMAPS001iter002.acc
+-rw-r--r--  1 staff    93K Feb 17  2017 LOMAPS001iter003.acc
+-rw-r--r--  1 staff   374B Mar 29 15:21 nr_v14_02_1.src
+-rw-r--r--  1 staff   136B Mar 29 15:21 nr_v19_02_1_one_station.stl
+-rw-r--r--  1 staff   1.9M Mar 29 15:21 s01.acc.bbp
 
 ./bbp/utils:
 total 8
-drwxr-xr-x  37 fsilva   1.2K May  8 11:32 batch
-drwxr-xr-x   3 fsilva   102B Jun 13 07:42 checksums
-drwxr-xr-x   7 fsilva   238B Feb 17 16:18 database
-drwxr-xr-x   4 fsilva   136B Feb 17 16:18 dist
-drwxr-xr-x  10 fsilva   340B Feb 17 16:18 misc
--rwxr-xr-x   1 fsilva   3.3K Feb 17 16:18 reset_acct.py
+drwxr-xr-x  32 staff   1.0K Dec  7 09:43 batch
+drwxr-xr-x   3 staff    96B Jun 13  2017 checksums
+drwxr-xr-x   4 staff   128B Feb 17  2017 dist
+drwxr-xr-x  15 staff   480B May 15 09:31 misc
+-rwxr-xr-x   1 staff   3.3K Feb 17  2017 reset_acct.py
 
 ./bbp/utils/batch:
-total 920
--rwxr-xr-x  1 fsilva    11K Feb 17 16:18 batch_run_bbp.py
--rwxr-xr-x  1 fsilva    14K Feb 17 16:18 bbp_epicenter_scenario.py
--rwxr-xr-x  1 fsilva    14K Feb 17 16:18 bbp_epicenter_validation.py
--rwxr-xr-x  1 fsilva    23K Mar 31 11:21 bbp_hpcc_scenario.py
--rwxr-xr-x  1 fsilva    16K Feb 17 16:18 bbp_hpcc_split_scenario.py
--rwxr-xr-x  1 fsilva    23K May  8 11:32 bbp_hpcc_validation.py
--rwxr-xr-x  1 fsilva    13K Mar 31 11:21 bbp_merge_multisegment_scenario.py
--rwxr-xr-x  1 fsilva    14K May  4 15:10 bbp_merge_multisegment_validation.py
--rwxr-xr-x  1 fsilva   3.8K Feb 17 16:18 bbp_merge_scenario.py
--rw-r--r--  1 fsilva   4.6K Feb 17 16:18 bbp_run_permutations.txt
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 build_xml.py
--rwxr-xr-x  1 fsilva    17K Feb 17 16:18 combine_anderson_gof.py
--rwxr-xr-x  1 fsilva   8.8K Feb 17 16:18 combine_bbp_data.py
--rwxr-xr-x  1 fsilva   5.9K Feb 17 16:18 combine_biasplot_gen.py
--rwxr-xr-x  1 fsilva   9.0K Feb 17 16:18 combine_dist_gof_gen.py
--rwxr-xr-x  1 fsilva    11K Feb 17 16:18 combine_gof_gen.py
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 combine_map_gof_gen.py
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 combine_rd100_bias_gen.py
--rwxr-xr-x  1 fsilva    14K Feb 17 16:18 combine_rzz2015_plot_gen.py
--rwxr-xr-x  1 fsilva   2.5K Feb 17 16:18 command_parallel.py
--rwxr-xr-x  1 fsilva   2.1K Feb 17 16:18 compare_bbp_runs.py
--rwxr-xr-x  1 fsilva   2.8K Feb 17 16:18 copy_parallel.py
--rwxr-xr-x  1 fsilva   2.6K Feb 17 16:18 create_combined_table.py
--rwxr-xr-x  1 fsilva   442B Feb 17 16:18 create_supertable.sh
--rw-r--r--  1 fsilva    18K Feb 17 16:18 gmpe_boxplot.m
--rwxr-xr-x  1 fsilva    65K Feb 17 16:18 gmpe_boxplot_gen.py
--rwxr-xr-x  1 fsilva   9.4K Feb 17 16:18 gmpe_boxplot_gen_v1.py
--rw-r--r--  1 fsilva   5.3K Feb 17 16:18 gmpe_comparison.m
--rw-r--r--  1 fsilva    13K Feb 17 16:18 gmpe_comparison_gen.py
--rwxr-xr-x  1 fsilva   8.3K Feb 17 16:18 report_bbp_data.py
--rwxr-xr-x  1 fsilva   796B Feb 17 16:18 reset_scenario.py
--rwxr-xr-x  1 fsilva   2.9K Feb 17 16:18 run_parallel.py
--rw-r--r--  1 fsilva   1.1K Feb 17 16:18 setup_bbp_env.sh
--rw-r--r--  1 fsilva   1.5K Feb 17 16:18 setup_bbp_env.template
--rw-r--r--  1 fsilva   991B Feb 17 16:18 setup_bbp_epicenter_env.sh
+total 984
+-rwxr-xr-x   1 staff    12K Oct 18  2017 batch_run_bbp.py
+-rwxr-xr-x   1 staff   8.4K May 23 10:11 bbp_converge.py
+-rwxr-xr-x   1 staff    24K Mar 15 14:25 bbp_hpcc_scenario.py
+-rwxr-xr-x   1 staff    29K Mar 15 14:22 bbp_hpcc_validation.py
+-rwxr-xr-x   1 staff    14K Sep 25  2018 bbp_merge_multisegment_scenario.py
+-rwxr-xr-x   1 staff    14K Apr 28 13:13 bbp_merge_multisegment_validation.py
+-rwxr-xr-x   1 staff   4.3K Jul 27  2017 bbp_merge_scenario.py
+-rwxr-xr-x   1 staff    12K Feb 17  2017 build_xml.py
+-rwxr-xr-x   1 staff    18K Oct 18  2017 combine_anderson_gof.py
+-rwxr-xr-x   1 staff   9.2K Oct 18  2017 combine_bbp_data.py
+-rwxr-xr-x   1 staff   6.4K Oct 18  2017 combine_biasplot_gen.py
+-rwxr-xr-x   1 staff   9.5K Oct 18  2017 combine_dist_gof_gen.py
+-rwxr-xr-x   1 staff    12K Apr  9 23:08 combine_gof_gen.py
+-rwxr-xr-x   1 staff    13K May 22 21:15 combine_map_gof_gen.py
+-rwxr-xr-x   1 staff    13K Oct 18  2017 combine_rd100_bias_gen.py
+-rwxr-xr-x   1 staff    14K Oct 18  2017 combine_rzz2015_plot_gen.py
+-rwxr-xr-x   1 staff   2.4K Apr 24  2018 command_parallel.py
+-rwxr-xr-x   1 staff   2.7K May  1  2018 compare_bbp_runs.py
+-rwxr-xr-x   1 staff   2.8K Apr 24  2018 copy_parallel.py
+-rwxr-xr-x   1 staff   3.0K Oct 18  2017 create_combined_table.py
+-rwxr-xr-x   1 staff   491B Apr 29 13:17 create_supertable.sh
+-rwxr-xr-x   1 staff    43K Feb  4 22:59 gmpe_boxplot_gen.py
+-rwxr-xr-x   1 staff    66K Feb  4 22:59 gmpe_boxplot_gen_863.py
+-rw-r--r--   1 staff   5.3K Feb 17  2017 gmpe_comparison.m
+-rw-r--r--   1 staff    14K Oct 18  2017 gmpe_comparison_gen.py
+drwxr-xr-x  12 staff   384B Apr 24  2018 pbs
+-rwxr-xr-x   1 staff   8.9K Apr 29 12:57 report_bbp_data.py
+-rwxr-xr-x   1 staff   2.6K Apr 24  2018 run_parallel.py
+-rw-r--r--   1 staff   1.1K Feb 17  2017 setup_bbp_env.sh
+-rw-r--r--   1 staff   1.5K Feb 17  2017 setup_bbp_env.template
+
+./bbp/utils/batch/pbs:
+total 248
+-rw-r--r--  1 staff   184B Apr 24  2018 README
+-rwxr-xr-x  1 staff    14K Oct 18  2017 bbp_epicenter_scenario.py
+-rwxr-xr-x  1 staff    14K Oct 18  2017 bbp_epicenter_validation.py
+-rwxr-xr-x  1 staff    24K Jul 27  2017 bbp_hpcc_scenario.py
+-rwxr-xr-x  1 staff    17K Jul 27  2017 bbp_hpcc_split_scenario.py
+-rwxr-xr-x  1 staff    25K Jul 27  2017 bbp_hpcc_validation.py
+-rwxr-xr-x  1 staff   3.0K Oct 18  2017 command_parallel.py
+-rwxr-xr-x  1 staff   3.3K Oct 18  2017 copy_parallel.py
+-rwxr-xr-x  1 staff   3.4K Oct 18  2017 run_parallel.py
+-rw-r--r--  1 staff   991B Feb 17  2017 setup_bbp_epicenter_env.sh
 
 ./bbp/utils/checksums:
 total 16
--rwxr-xr-x  1 fsilva   5.9K Feb 17 16:18 md5sum_check.py
-
-./bbp/utils/database:
-total 80
--rw-r--r--  1 fsilva   860B Feb 17 16:18 bbp_db.xml
--rwxr-xr-x  1 fsilva   5.4K Feb 17 16:18 gen_site_corr_list.py
--rwxr-xr-x  1 fsilva   3.4K Feb 17 16:18 gen_sta_list.py
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 load_eventfile.py
--rwxr-xr-x  1 fsilva    10K Feb 17 16:18 make_and_load_bbp_xml.py
+-rwxr-xr-x  1 staff   6.4K Oct 18  2017 md5sum_check.py
 
 ./bbp/utils/dist:
 total 16
--rwxr-xr-x  1 fsilva   903B Feb 17 16:18 create_source_dist.sh
--rwxr-xr-x  1 fsilva   2.7K Feb 17 16:18 make_packages_release.sh
+-rwxr-xr-x  1 staff   903B Feb 17  2017 create_source_dist.sh
+-rwxr-xr-x  1 staff   2.7K Feb 17  2017 make_packages_release.sh
 
 ./bbp/utils/misc:
-total 136
--rwxr-xr-x  1 fsilva   2.2K Feb 17 16:18 bbp2sac.py
--rwxr-xr-x  1 fsilva   5.5K Feb 17 16:18 create_dreger_fig3.py
--rwxr-xr-x  1 fsilva   1.2K Feb 17 16:18 gen_station_grid.py
--rwxr-xr-x  1 fsilva   1.9K Feb 17 16:18 get_shakemap_data.py
--rwxr-xr-x  1 fsilva    12K Feb 17 16:18 merge_multisegment_scenario.py
--rwxr-xr-x  1 fsilva    13K Feb 17 16:18 merge_multisegment_validation.py
--rwxr-xr-x  1 fsilva   5.0K Feb 17 16:18 plot_gof_comparison.py
--rwxr-xr-x  1 fsilva    10K Feb 17 16:18 plot_seismogram_comparison.py
+total 272
+-rwxr-xr-x  1 staff   2.7K Apr 11 16:15 bbp2sac.py
+-rwxr-xr-x  1 staff   5.9K Apr 11 16:16 create_dreger_fig3.py
+-rwxr-xr-x  1 staff    35K Jun 25  2018 export_bbp_cluster_simulation.py
+-rwxr-xr-x  1 staff    10K Jun 25  2018 export_bbp_simulation.py
+-rwxr-xr-x  1 staff   1.7K Apr 11 16:16 gen_station_grid.py
+-rwxr-xr-x  1 staff   2.4K Apr 11 16:16 get_shakemap_data.py
+-rwxr-xr-x  1 staff    12K Apr 11 16:29 merge_multisegment_scenario.py
+-rwxr-xr-x  1 staff    13K Apr 11 18:42 merge_multisegment_validation.py
+-rwxr-xr-x  1 staff   5.5K Apr 11 16:16 plot_gof_comparison.py
+-rwxr-xr-x  1 staff    11K Apr 11 16:16 plot_seismogram_comparison.py
+-rwxr-xr-x  1 staff   4.0K May 22  2018 plot_station_map.py
+-rwxr-xr-x  1 staff   5.3K May 10 21:25 plot_velocity_model.py
+-rwxr-xr-x  1 staff   2.7K May 15 09:31 read_eventfile.py
 
 ./doc:
-total 704
--rw-r--r--  1 fsilva   3.7K Jun 16 13:02 Acknowledging.md
--rw-r--r--  1 fsilva   4.4K Jun 16 13:02 Data-Products.md
--rw-r--r--  1 fsilva   8.2K Jun 16 13:02 FAQ.md
--rw-r--r--  1 fsilva    29K Jun 16 13:02 File-Format-Guide.md
--rw-r--r--  1 fsilva   2.6K Jun 16 13:02 Home.md
--rw-r--r--  1 fsilva   3.5K Jun 16 13:02 Installation.md
--rw-r--r--  1 fsilva   220K Jun 16 13:07 MANIFEST
--rw-r--r--  1 fsilva   2.2K Jun 16 13:02 Methods-and-Modules.md
--rw-r--r--  1 fsilva    16K Jun 16 13:02 Release-Notes.md
--rw-r--r--  1 fsilva    24K Jun 16 13:02 Running-Simulations.md
--rw-r--r--  1 fsilva   7.8K Jun 16 13:02 Running-Tests.md
--rw-r--r--  1 fsilva   7.6K Jun 16 13:02 Troubleshooting.md
-drwxr-xr-x  5 fsilva   170B Feb 17 16:24 examples
+total 456
+-rw-r--r--   1 staff   3.8K May 28 09:36 Acknowledging.md
+-rw-r--r--   1 staff   4.1K May 28 09:55 Data-Products.md
+-rw-r--r--   1 staff   8.8K May 28 09:38 FAQ.md
+-rw-r--r--   1 staff    27K May 28 09:59 File-Format-Guide.md
+-rw-r--r--   1 staff   4.7K May 28 10:17 Home.md
+-rw-r--r--   1 staff   4.5K May 28 10:14 Installation.md
+-rw-r--r--   1 staff    64K May 28 10:42 MANIFEST
+-rw-r--r--   1 staff   2.9K May 28 09:38 Methods-and-Modules.md
+-rw-r--r--   1 staff    18K May 28 09:37 Release-Notes.md
+-rw-r--r--   1 staff    33K May 28 10:13 Running-Simulations.md
+-rw-r--r--   1 staff   7.8K May 28 09:37 Running-Tests.md
+-rw-r--r--   1 staff    12K May 28 09:38 Troubleshooting.md
+-rw-r--r--   1 staff   9.2K May 28 10:07 Utilities.md
+drwxr-xr-x   6 staff   192B May  3 14:27 examples
+drwxr-xr-x  24 staff   768B May 28 09:38 images
+drwxr-xr-x  10 staff   320B May 28 09:38 pdfs
 
 ./doc/examples:
 total 8
--rw-r--r--  1 fsilva   166B Feb 17 16:24 README
-drwxr-xr-x  4 fsilva   136B Feb 17 16:24 northridge_3_stations
-drwxr-xr-x  4 fsilva   136B Feb 17 16:24 scenario_1_station
+-rw-r--r--  1 staff   166B May  3 13:45 README
+drwxr-xr-x  4 staff   128B May 13 10:43 chino_hills_larger_mag
+drwxr-xr-x  4 staff   128B May 13 11:37 northridge_3_stations
+drwxr-xr-x  4 staff   128B May 13 10:48 scenario_1_station
+
+./doc/examples/chino_hills_larger_mag:
+total 8
+-rw-r--r--  1 staff   445B May 13 10:38 chino-hills-5_60-mag.src
+drwxr-xr-x  4 staff   128B May 13 10:45 results
+
+./doc/examples/chino_hills_larger_mag/results:
+total 320
+-rw-r--r--@ 1 staff    79K May 13 10:44 gof-CHINOH_5-39_r0-180-rd50.png
+-rw-r--r--@ 1 staff    78K May 13 10:45 gof-CHINOH_5-60_r0-180-rd50.png
 
 ./doc/examples/northridge_3_stations:
 total 8
--rw-r--r--  1 fsilva   290B Feb 17 16:24 northridge_3_stations.stl
-drwxr-xr-x  4 fsilva   136B Feb 17 16:24 results
+-rw-r--r--  1 staff   237B May 13 10:27 nr_custom_3_stations.stl
+drwxr-xr-x  4 staff   128B May 13 11:39 results
 
 ./doc/examples/northridge_3_stations/results:
 total 0
-drwxr-xr-x  90 fsilva   3.0K Feb 17 16:24 gp
-drwxr-xr-x  91 fsilva   3.0K Feb 17 16:24 ucsb
+drwxr-xr-x  99 staff   3.1K May 13 11:38 gp
+drwxr-xr-x  98 staff   3.1K May 13 11:39 ucsb
 
 ./doc/examples/northridge_3_stations/results/gp:
-total 5712
--rw-r--r--  1 fsilva   214K Feb 17 16:24 6267045.balp.acc.bbp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 6267045.balp.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 6267045.balp.rsp
--rw-r--r--  1 fsilva   214K Feb 17 16:24 6267045.balp.vel.bbp
--rw-r--r--  1 fsilva    47K Feb 17 16:24 6267045.balp_acceleration_seis.png
--rw-r--r--  1 fsilva    51K Feb 17 16:24 6267045.balp_velocity_seis.png
--rw-r--r--  1 fsilva   215K Feb 17 16:24 6267045.nwhp.acc.bbp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 6267045.nwhp.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 6267045.nwhp.rsp
--rw-r--r--  1 fsilva   214K Feb 17 16:24 6267045.nwhp.vel.bbp
--rw-r--r--  1 fsilva    47K Feb 17 16:24 6267045.nwhp_acceleration_seis.png
--rw-r--r--  1 fsilva    44K Feb 17 16:24 6267045.nwhp_velocity_seis.png
--rw-r--r--  1 fsilva   214K Feb 17 16:24 6267045.vasq.acc.bbp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 6267045.vasq.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 6267045.vasq.rsp
--rw-r--r--  1 fsilva   215K Feb 17 16:24 6267045.vasq.vel.bbp
--rw-r--r--  1 fsilva    49K Feb 17 16:24 6267045.vasq_acceleration_seis.png
--rw-r--r--  1 fsilva    46K Feb 17 16:24 6267045.vasq_velocity_seis.png
--rw-r--r--  1 fsilva   5.4K Feb 17 16:24 6267045.xml
--rw-r--r--  1 fsilva    58B Feb 17 16:24 Northridge-6267045-resid-0.010-rotd50.txt
--rw-r--r--  1 fsilva    58B Feb 17 16:24 Northridge-6267045-resid-0.050-rotd50.txt
--rw-r--r--  1 fsilva    57B Feb 17 16:24 Northridge-6267045-resid-0.100-rotd50.txt
--rw-r--r--  1 fsilva    57B Feb 17 16:24 Northridge-6267045-resid-0.200-rotd50.txt
--rw-r--r--  1 fsilva    57B Feb 17 16:24 Northridge-6267045-resid-0.500-rotd50.txt
--rw-r--r--  1 fsilva    56B Feb 17 16:24 Northridge-6267045-resid-1.000-rotd50.txt
--rw-r--r--  1 fsilva    57B Feb 17 16:24 Northridge-6267045-resid-2.000-rotd50.txt
--rw-r--r--  1 fsilva    18B Feb 17 16:24 Northridge-6267045-resid-5.000-rotd50.txt
--rw-r--r--  1 fsilva    95B Feb 17 16:24 Northridge-6267045-resid-map-0.010-rotd50.txt
--rw-r--r--  1 fsilva    95B Feb 17 16:24 Northridge-6267045-resid-map-0.050-rotd50.txt
--rw-r--r--  1 fsilva    94B Feb 17 16:24 Northridge-6267045-resid-map-0.100-rotd50.txt
--rw-r--r--  1 fsilva    94B Feb 17 16:24 Northridge-6267045-resid-map-0.200-rotd50.txt
--rw-r--r--  1 fsilva    94B Feb 17 16:24 Northridge-6267045-resid-map-0.500-rotd50.txt
--rw-r--r--  1 fsilva    93B Feb 17 16:24 Northridge-6267045-resid-map-1.000-rotd50.txt
--rw-r--r--  1 fsilva    94B Feb 17 16:24 Northridge-6267045-resid-map-2.000-rotd50.txt
--rw-r--r--  1 fsilva    31B Feb 17 16:24 Northridge-6267045-resid-map-5.000-rotd50.txt
--rw-r--r--  1 fsilva   8.4K Feb 17 16:24 Northridge-6267045.rd50-resid.txt
--rw-r--r--  1 fsilva    14K Feb 17 16:24 Northridge-6267045.resid.txt
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-000.bias
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-000.m90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-000.p90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-000.sigma
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-000.sigma0
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-090.bias
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-090.m90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-090.p90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-090.sigma
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-090.sigma0
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-avgh.bias
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-avgh.m90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-avgh.p90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-avgh.sigma
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6267045_r0-120-avgh.sigma0
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5e.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5e.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5e.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5e.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5e.sigma0
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5n.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5n.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5n.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5n.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-psa5n.sigma0
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-rotd50.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-rotd50.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-rotd50.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-rotd50.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6267045_r0-120-rd50-rotd50.sigma0
--rw-r--r--  1 fsilva    64K Feb 17 16:24 Northridge_6267045_balp_overlay.png
--rw-r--r--  1 fsilva    58K Feb 17 16:24 Northridge_6267045_balp_rotd50.png
--rw-r--r--  1 fsilva    56K Feb 17 16:24 Northridge_6267045_balp_rsp.png
--rw-r--r--  1 fsilva    59K Feb 17 16:24 Northridge_6267045_nwhp_overlay.png
--rw-r--r--  1 fsilva    55K Feb 17 16:24 Northridge_6267045_nwhp_rotd50.png
--rw-r--r--  1 fsilva    57K Feb 17 16:24 Northridge_6267045_nwhp_rsp.png
--rw-r--r--  1 fsilva    64K Feb 17 16:24 Northridge_6267045_vasq_overlay.png
--rw-r--r--  1 fsilva    57K Feb 17 16:24 Northridge_6267045_vasq_rotd50.png
--rw-r--r--  1 fsilva    57K Feb 17 16:24 Northridge_6267045_vasq_rsp.png
--rw-r--r--  1 fsilva    70K Feb 17 16:24 gof-Northridge-6267045_r0-120-rd50.png
--rw-r--r--  1 fsilva    70K Feb 17 16:24 gof-Northridge-6267045_r0-120.png
--rw-r--r--  1 fsilva    41K Feb 17 16:24 gof-dist-linear-Northridge-6267045-rotd50.png
--rw-r--r--  1 fsilva    41K Feb 17 16:24 gof-dist-log-Northridge-6267045-rotd50.png
--rw-r--r--  1 fsilva   133K Feb 17 16:24 gof-map-Northridge-6267045-rotd50.png
--rw-r--r--  1 fsilva   3.6K Feb 17 16:24 index-6267045.html
-drwxr-xr-x  8 fsilva   272B Feb 17 16:24 obs_seis_northridge_3_sta
-drwxr-xr-x  4 fsilva   136B Feb 17 16:24 param_files
--rw-r--r--  1 fsilva   999B Feb 17 16:24 software_status-6267045.txt
--rw-r--r--  1 fsilva   3.9K Feb 17 16:24 station_map.kml
--rw-r--r--  1 fsilva    76K Feb 17 16:24 station_map.png
--rw-r--r--  1 fsilva   2.3K Feb 17 16:24 system_status-6267045.txt
+total 37968
+-rw-r--r--  1 staff   535K May 13 11:38 7766630.2001-SCE.acc.bbp
+-rw-r--r--  1 staff   3.6K May 13 11:38 7766630.2001-SCE.rd100
+-rw-r--r--  1 staff   3.6K May 13 11:38 7766630.2001-SCE.rd100.vertical
+-rw-r--r--  1 staff   2.7K May 13 11:38 7766630.2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K May 13 11:38 7766630.2001-SCE.rd50.vertical
+-rw-r--r--  1 staff   539K May 13 11:38 7766630.2001-SCE.vel.bbp
+-rw-r--r--  1 staff    54K May 13 11:38 7766630.2001-SCE_acceleration_seis.png
+-rw-r--r--  1 staff    50K May 13 11:38 7766630.2001-SCE_velocity_seis.png
+-rw-r--r--  1 staff   534K May 13 11:38 7766630.2002-SYL.acc.bbp
+-rw-r--r--  1 staff   3.6K May 13 11:38 7766630.2002-SYL.rd100
+-rw-r--r--  1 staff   3.6K May 13 11:38 7766630.2002-SYL.rd100.vertical
+-rw-r--r--  1 staff   2.7K May 13 11:38 7766630.2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K May 13 11:38 7766630.2002-SYL.rd50.vertical
+-rw-r--r--  1 staff   533K May 13 11:38 7766630.2002-SYL.vel.bbp
+-rw-r--r--  1 staff    55K May 13 11:38 7766630.2002-SYL_acceleration_seis.png
+-rw-r--r--  1 staff    49K May 13 11:38 7766630.2002-SYL_velocity_seis.png
+-rw-r--r--  1 staff   535K May 13 11:38 7766630.2028-FIG.acc.bbp
+-rw-r--r--  1 staff   3.6K May 13 11:38 7766630.2028-FIG.rd100
+-rw-r--r--  1 staff   3.6K May 13 11:38 7766630.2028-FIG.rd100.vertical
+-rw-r--r--  1 staff   2.7K May 13 11:38 7766630.2028-FIG.rd50
+-rw-r--r--  1 staff   2.7K May 13 11:38 7766630.2028-FIG.rd50.vertical
+-rw-r--r--  1 staff   537K May 13 11:38 7766630.2028-FIG.vel.bbp
+-rw-r--r--  1 staff    55K May 13 11:38 7766630.2028-FIG_acceleration_seis.png
+-rw-r--r--  1 staff    53K May 13 11:38 7766630.2028-FIG_velocity_seis.png
+-rw-r--r--  1 staff   6.4K May 13 11:38 7766630.xml
+-rw-r--r--  1 staff     0B May 13 11:38 NR-7766630-resid-0.010-rotd50.txt
+-rw-r--r--  1 staff    20B May 13 11:38 NR-7766630-resid-0.050-rotd50.txt
+-rw-r--r--  1 staff    57B May 13 11:38 NR-7766630-resid-0.100-rotd50.txt
+-rw-r--r--  1 staff    57B May 13 11:38 NR-7766630-resid-0.200-rotd50.txt
+-rw-r--r--  1 staff    57B May 13 11:38 NR-7766630-resid-0.500-rotd50.txt
+-rw-r--r--  1 staff    57B May 13 11:38 NR-7766630-resid-1.000-rotd50.txt
+-rw-r--r--  1 staff    55B May 13 11:38 NR-7766630-resid-2.000-rotd50.txt
+-rw-r--r--  1 staff    18B May 13 11:38 NR-7766630-resid-5.000-rotd50.txt
+-rw-r--r--  1 staff     0B May 13 11:38 NR-7766630-resid-map-0.010-rotd50.txt
+-rw-r--r--  1 staff    32B May 13 11:38 NR-7766630-resid-map-0.050-rotd50.txt
+-rw-r--r--  1 staff    95B May 13 11:38 NR-7766630-resid-map-0.100-rotd50.txt
+-rw-r--r--  1 staff    95B May 13 11:38 NR-7766630-resid-map-0.200-rotd50.txt
+-rw-r--r--  1 staff    95B May 13 11:38 NR-7766630-resid-map-0.500-rotd50.txt
+-rw-r--r--  1 staff    95B May 13 11:38 NR-7766630-resid-map-1.000-rotd50.txt
+-rw-r--r--  1 staff    93B May 13 11:38 NR-7766630-resid-map-2.000-rotd50.txt
+-rw-r--r--  1 staff    31B May 13 11:38 NR-7766630-resid-map-5.000-rotd50.txt
+-rw-r--r--  1 staff   8.3K May 13 11:38 NR-7766630.rd50-resid.txt
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5e.bias
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5e.m90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5e.p90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5e.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5e.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5n.bias
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5n.m90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5n.p90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5n.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-psa5n.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-rotd50.bias
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-rotd50.m90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-rotd50.p90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-rotd50.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-7766630_r0-120-rd50-rotd50.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-ask.bias
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-ask.m90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-ask.p90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-ask.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-ask.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-bssa.bias
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-bssa.m90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-bssa.p90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-bssa.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-bssa.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cb.bias
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cb.m90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cb.p90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cb.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cb.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cy.bias
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cy.m90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cy.p90
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cy.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:38 NR-GMPE-7766630_r0-all-rd50-cy.sigma0
+-rw-r--r--  1 staff    67K May 13 11:38 NR_7766630_2001-SCE_overlay.png
+-rw-r--r--  1 staff    61K May 13 11:38 NR_7766630_2001-SCE_rotd50.png
+-rw-r--r--  1 staff    64K May 13 11:38 NR_7766630_2002-SYL_overlay.png
+-rw-r--r--  1 staff    55K May 13 11:38 NR_7766630_2002-SYL_rotd50.png
+-rw-r--r--  1 staff    72K May 13 11:38 NR_7766630_2028-FIG_overlay.png
+-rw-r--r--  1 staff    55K May 13 11:38 NR_7766630_2028-FIG_rotd50.png
+drwxr-xr-x  9 staff   288B May 13 11:38 gmpe_data_nr_custom_3_stations
+-rw-r--r--  1 staff    71K May 13 11:38 gof-NR-7766630_r0-120-rd50.png
+-rw-r--r--  1 staff    87K May 13 11:38 gof-NR-GMPE-7766630_r0-all-rd50.png
+-rw-r--r--  1 staff    42K May 13 11:38 gof-dist-linear-NR-7766630-rotd50.png
+-rw-r--r--  1 staff    41K May 13 11:38 gof-dist-log-NR-7766630-rotd50.png
+-rw-r--r--  1 staff   137K May 13 11:38 gof-map-NR-7766630-rotd50.png
+-rw-r--r--  1 staff   3.9K May 13 11:38 index-7766630.html
+-rw-r--r--  1 staff   177K May 13 11:38 nr_v14_02_1.png
+-rw-r--r--  1 staff    14M May 13 11:38 nr_v14_02_1.srf
+drwxr-xr-x  8 staff   256B May 13 11:38 obs_seis_nr_custom_3_stations
+drwxr-xr-x  4 staff   128B May 13 11:38 param_files
+-rw-r--r--  1 staff   1.0K May 13 11:38 software_status-7766630.txt
+-rw-r--r--  1 staff    64K May 13 11:38 station_map.png
+-rw-r--r--  1 staff   1.8K May 13 11:38 system_status-7766630.txt
 
-./doc/examples/northridge_3_stations/results/gp/obs_seis_northridge_3_sta:
-total 72
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 balp.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 balp.rsp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 nwhp.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 nwhp.rsp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 vasq.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 vasq.rsp
+./doc/examples/northridge_3_stations/results/gp/gmpe_data_nr_custom_3_stations:
+total 56
+-rw-r--r--  1 staff   2.7K May 13 11:38 2001-SCE-gmpe.ri50
+-rw-r--r--  1 staff   2.7K May 13 11:38 2002-SYL-gmpe.ri50
+-rw-r--r--  1 staff   2.7K May 13 11:38 2028-FIG-gmpe.ri50
+-rw-r--r--  1 staff   3.3K May 13 11:38 ask-7766630.resid.txt
+-rw-r--r--  1 staff   3.3K May 13 11:38 bssa-7766630.resid.txt
+-rw-r--r--  1 staff   3.3K May 13 11:38 cb-7766630.resid.txt
+-rw-r--r--  1 staff   3.3K May 13 11:38 cy-7766630.resid.txt
+
+./doc/examples/northridge_3_stations/results/gp/obs_seis_nr_custom_3_stations:
+total 48
+-rw-r--r--  1 staff   3.6K May 13 11:38 2001-SCE.rd100
+-rw-r--r--  1 staff   2.7K May 13 11:38 2001-SCE.rd50
+-rw-r--r--  1 staff   3.6K May 13 11:38 2002-SYL.rd100
+-rw-r--r--  1 staff   2.7K May 13 11:38 2002-SYL.rd50
+-rw-r--r--  1 staff   3.6K May 13 11:38 2028-FIG.rd100
+-rw-r--r--  1 staff   2.7K May 13 11:38 2028-FIG.rd50
 
 ./doc/examples/northridge_3_stations/results/gp/param_files:
 total 16
--rw-r--r--  1 fsilva   120B Feb 17 16:24 northridge_3_sta.stl
--rw-r--r--  1 fsilva   393B Feb 17 16:24 nr_v14_02_1.src
+-rw-r--r--  1 staff   237B May 13 11:38 nr_custom_3_stations.stl
+-rw-r--r--  1 staff   374B May 13 11:38 nr_v14_02_1.src
 
 ./doc/examples/northridge_3_stations/results/ucsb:
-total 9088
--rw-r--r--  1 fsilva   428K Feb 17 16:24 6268250.balp.acc.bbp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 6268250.balp.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 6268250.balp.rsp
--rw-r--r--  1 fsilva   381K Feb 17 16:24 6268250.balp.vel.bbp
--rw-r--r--  1 fsilva    51K Feb 17 16:24 6268250.balp_acceleration_seis.png
--rw-r--r--  1 fsilva    52K Feb 17 16:24 6268250.balp_velocity_seis.png
--rw-r--r--  1 fsilva   428K Feb 17 16:24 6268250.nwhp.acc.bbp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 6268250.nwhp.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 6268250.nwhp.rsp
--rw-r--r--  1 fsilva   387K Feb 17 16:24 6268250.nwhp.vel.bbp
--rw-r--r--  1 fsilva    46K Feb 17 16:24 6268250.nwhp_acceleration_seis.png
--rw-r--r--  1 fsilva    46K Feb 17 16:24 6268250.nwhp_velocity_seis.png
--rw-r--r--  1 fsilva   428K Feb 17 16:24 6268250.vasq.acc.bbp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 6268250.vasq.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 6268250.vasq.rsp
--rw-r--r--  1 fsilva   376K Feb 17 16:24 6268250.vasq.vel.bbp
--rw-r--r--  1 fsilva    50K Feb 17 16:24 6268250.vasq_acceleration_seis.png
--rw-r--r--  1 fsilva    46K Feb 17 16:24 6268250.vasq_velocity_seis.png
--rw-r--r--  1 fsilva   5.3K Feb 17 16:24 6268250.xml
--rw-r--r--  1 fsilva   532K Feb 17 16:24 FFSP_OUTPUT.001
--rw-r--r--  1 fsilva    57B Feb 17 16:24 Northridge-6268250-resid-0.010-rotd50.txt
--rw-r--r--  1 fsilva    58B Feb 17 16:24 Northridge-6268250-resid-0.050-rotd50.txt
--rw-r--r--  1 fsilva    57B Feb 17 16:24 Northridge-6268250-resid-0.100-rotd50.txt
--rw-r--r--  1 fsilva    57B Feb 17 16:24 Northridge-6268250-resid-0.200-rotd50.txt
--rw-r--r--  1 fsilva    56B Feb 17 16:24 Northridge-6268250-resid-0.500-rotd50.txt
--rw-r--r--  1 fsilva    56B Feb 17 16:24 Northridge-6268250-resid-1.000-rotd50.txt
--rw-r--r--  1 fsilva    57B Feb 17 16:24 Northridge-6268250-resid-2.000-rotd50.txt
--rw-r--r--  1 fsilva    18B Feb 17 16:24 Northridge-6268250-resid-5.000-rotd50.txt
--rw-r--r--  1 fsilva    94B Feb 17 16:24 Northridge-6268250-resid-map-0.010-rotd50.txt
--rw-r--r--  1 fsilva    95B Feb 17 16:24 Northridge-6268250-resid-map-0.050-rotd50.txt
--rw-r--r--  1 fsilva    94B Feb 17 16:24 Northridge-6268250-resid-map-0.100-rotd50.txt
--rw-r--r--  1 fsilva    94B Feb 17 16:24 Northridge-6268250-resid-map-0.200-rotd50.txt
--rw-r--r--  1 fsilva    93B Feb 17 16:24 Northridge-6268250-resid-map-0.500-rotd50.txt
--rw-r--r--  1 fsilva    93B Feb 17 16:24 Northridge-6268250-resid-map-1.000-rotd50.txt
--rw-r--r--  1 fsilva    94B Feb 17 16:24 Northridge-6268250-resid-map-2.000-rotd50.txt
--rw-r--r--  1 fsilva    31B Feb 17 16:24 Northridge-6268250-resid-map-5.000-rotd50.txt
--rw-r--r--  1 fsilva   8.4K Feb 17 16:24 Northridge-6268250.rd50-resid.txt
--rw-r--r--  1 fsilva    14K Feb 17 16:24 Northridge-6268250.resid.txt
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-000.bias
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-000.m90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-000.p90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-000.sigma
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-000.sigma0
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-090.bias
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-090.m90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-090.p90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-090.sigma
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-090.sigma0
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-avgh.bias
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-avgh.m90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-avgh.p90
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-avgh.sigma
--rw-r--r--  1 fsilva   3.1K Feb 17 16:24 Northridge-6268250_r0-120-avgh.sigma0
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5e.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5e.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5e.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5e.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5e.sigma0
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5n.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5n.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5n.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5n.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-psa5n.sigma0
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-rotd50.bias
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-rotd50.m90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-rotd50.p90
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-rotd50.sigma
--rw-r--r--  1 fsilva   1.7K Feb 17 16:24 Northridge-6268250_r0-120-rd50-rotd50.sigma0
--rw-r--r--  1 fsilva    61K Feb 17 16:24 Northridge_6268250_balp_overlay.png
--rw-r--r--  1 fsilva    59K Feb 17 16:24 Northridge_6268250_balp_rotd50.png
--rw-r--r--  1 fsilva    57K Feb 17 16:24 Northridge_6268250_balp_rsp.png
--rw-r--r--  1 fsilva    57K Feb 17 16:24 Northridge_6268250_nwhp_overlay.png
--rw-r--r--  1 fsilva    56K Feb 17 16:24 Northridge_6268250_nwhp_rotd50.png
--rw-r--r--  1 fsilva    60K Feb 17 16:24 Northridge_6268250_nwhp_rsp.png
--rw-r--r--  1 fsilva    61K Feb 17 16:24 Northridge_6268250_vasq_overlay.png
--rw-r--r--  1 fsilva    59K Feb 17 16:24 Northridge_6268250_vasq_rotd50.png
--rw-r--r--  1 fsilva    59K Feb 17 16:24 Northridge_6268250_vasq_rsp.png
--rw-r--r--  1 fsilva    75K Feb 17 16:24 gof-Northridge-6268250_r0-120-rd50.png
--rw-r--r--  1 fsilva    75K Feb 17 16:24 gof-Northridge-6268250_r0-120.png
--rw-r--r--  1 fsilva    41K Feb 17 16:24 gof-dist-linear-Northridge-6268250-rotd50.png
--rw-r--r--  1 fsilva    40K Feb 17 16:24 gof-dist-log-Northridge-6268250-rotd50.png
--rw-r--r--  1 fsilva   133K Feb 17 16:24 gof-map-Northridge-6268250-rotd50.png
--rw-r--r--  1 fsilva   3.6K Feb 17 16:24 index-6268250.html
-drwxr-xr-x  8 fsilva   272B Feb 17 16:24 obs_seis_northridge_3_sta
-drwxr-xr-x  5 fsilva   170B Feb 17 16:24 param_files
--rw-r--r--  1 fsilva   1.0K Feb 17 16:24 software_status-6268250.txt
--rw-r--r--  1 fsilva   2.1K Feb 17 16:24 station_map.kml
--rw-r--r--  1 fsilva    76K Feb 17 16:24 station_map.png
--rw-r--r--  1 fsilva   2.3K Feb 17 16:24 system_status-6268250.txt
+total 42776
+-rw-r--r--  1 staff   428K May 13 11:39 7767176.2001-SCE.acc.bbp
+-rw-r--r--  1 staff   3.6K May 13 11:39 7767176.2001-SCE.rd100
+-rw-r--r--  1 staff   3.6K May 13 11:39 7767176.2001-SCE.rd100.vertical
+-rw-r--r--  1 staff   2.7K May 13 11:39 7767176.2001-SCE.rd50
+-rw-r--r--  1 staff   2.7K May 13 11:39 7767176.2001-SCE.rd50.vertical
+-rw-r--r--  1 staff   429K May 13 11:39 7767176.2001-SCE.vel.bbp
+-rw-r--r--  1 staff    47K May 13 11:39 7767176.2001-SCE_acceleration_seis.png
+-rw-r--r--  1 staff    47K May 13 11:39 7767176.2001-SCE_velocity_seis.png
+-rw-r--r--  1 staff   428K May 13 11:39 7767176.2002-SYL.acc.bbp
+-rw-r--r--  1 staff   3.6K May 13 11:39 7767176.2002-SYL.rd100
+-rw-r--r--  1 staff   3.6K May 13 11:39 7767176.2002-SYL.rd100.vertical
+-rw-r--r--  1 staff   2.7K May 13 11:39 7767176.2002-SYL.rd50
+-rw-r--r--  1 staff   2.7K May 13 11:39 7767176.2002-SYL.rd50.vertical
+-rw-r--r--  1 staff   437K May 13 11:39 7767176.2002-SYL.vel.bbp
+-rw-r--r--  1 staff    49K May 13 11:39 7767176.2002-SYL_acceleration_seis.png
+-rw-r--r--  1 staff    45K May 13 11:39 7767176.2002-SYL_velocity_seis.png
+-rw-r--r--  1 staff   428K May 13 11:39 7767176.2028-FIG.acc.bbp
+-rw-r--r--  1 staff   3.6K May 13 11:39 7767176.2028-FIG.rd100
+-rw-r--r--  1 staff   3.6K May 13 11:39 7767176.2028-FIG.rd100.vertical
+-rw-r--r--  1 staff   2.7K May 13 11:39 7767176.2028-FIG.rd50
+-rw-r--r--  1 staff   2.7K May 13 11:39 7767176.2028-FIG.rd50.vertical
+-rw-r--r--  1 staff   427K May 13 11:39 7767176.2028-FIG.vel.bbp
+-rw-r--r--  1 staff    51K May 13 11:39 7767176.2028-FIG_acceleration_seis.png
+-rw-r--r--  1 staff    51K May 13 11:39 7767176.2028-FIG_velocity_seis.png
+-rw-r--r--  1 staff   5.4K May 13 11:39 7767176.xml
+-rw-r--r--  1 staff    17M May 13 11:39 FFSP_OUTPUT.001
+-rw-r--r--  1 staff     0B May 13 11:39 NR-7767176-resid-0.010-rotd50.txt
+-rw-r--r--  1 staff    20B May 13 11:39 NR-7767176-resid-0.050-rotd50.txt
+-rw-r--r--  1 staff    57B May 13 11:39 NR-7767176-resid-0.100-rotd50.txt
+-rw-r--r--  1 staff    57B May 13 11:39 NR-7767176-resid-0.200-rotd50.txt
+-rw-r--r--  1 staff    56B May 13 11:39 NR-7767176-resid-0.500-rotd50.txt
+-rw-r--r--  1 staff    55B May 13 11:39 NR-7767176-resid-1.000-rotd50.txt
+-rw-r--r--  1 staff    55B May 13 11:39 NR-7767176-resid-2.000-rotd50.txt
+-rw-r--r--  1 staff    18B May 13 11:39 NR-7767176-resid-5.000-rotd50.txt
+-rw-r--r--  1 staff     0B May 13 11:39 NR-7767176-resid-map-0.010-rotd50.txt
+-rw-r--r--  1 staff    32B May 13 11:39 NR-7767176-resid-map-0.050-rotd50.txt
+-rw-r--r--  1 staff    95B May 13 11:39 NR-7767176-resid-map-0.100-rotd50.txt
+-rw-r--r--  1 staff    95B May 13 11:39 NR-7767176-resid-map-0.200-rotd50.txt
+-rw-r--r--  1 staff    94B May 13 11:39 NR-7767176-resid-map-0.500-rotd50.txt
+-rw-r--r--  1 staff    93B May 13 11:39 NR-7767176-resid-map-1.000-rotd50.txt
+-rw-r--r--  1 staff    93B May 13 11:39 NR-7767176-resid-map-2.000-rotd50.txt
+-rw-r--r--  1 staff    31B May 13 11:39 NR-7767176-resid-map-5.000-rotd50.txt
+-rw-r--r--  1 staff   8.4K May 13 11:39 NR-7767176.rd50-resid.txt
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5e.bias
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5e.m90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5e.p90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5e.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5e.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5n.bias
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5n.m90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5n.p90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5n.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-psa5n.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-rotd50.bias
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-rotd50.m90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-rotd50.p90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-rotd50.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-7767176_r0-120-rd50-rotd50.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-ask.bias
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-ask.m90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-ask.p90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-ask.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-ask.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-bssa.bias
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-bssa.m90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-bssa.p90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-bssa.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-bssa.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cb.bias
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cb.m90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cb.p90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cb.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cb.sigma0
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cy.bias
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cy.m90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cy.p90
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cy.sigma
+-rw-r--r--  1 staff   1.7K May 13 11:39 NR-GMPE-7767176_r0-all-rd50-cy.sigma0
+-rw-r--r--  1 staff    61K May 13 11:39 NR_7767176_2001-SCE_overlay.png
+-rw-r--r--  1 staff    58K May 13 11:39 NR_7767176_2001-SCE_rotd50.png
+-rw-r--r--  1 staff    59K May 13 11:39 NR_7767176_2002-SYL_overlay.png
+-rw-r--r--  1 staff    56K May 13 11:39 NR_7767176_2002-SYL_rotd50.png
+-rw-r--r--  1 staff    64K May 13 11:39 NR_7767176_2028-FIG_overlay.png
+-rw-r--r--  1 staff    54K May 13 11:39 NR_7767176_2028-FIG_rotd50.png
+drwxr-xr-x  9 staff   288B May 13 11:39 gmpe_data_nr_custom_3_stations
+-rw-r--r--  1 staff    72K May 13 11:39 gof-NR-7767176_r0-120-rd50.png
+-rw-r--r--  1 staff    87K May 13 11:39 gof-NR-GMPE-7767176_r0-all-rd50.png
+-rw-r--r--  1 staff    42K May 13 11:39 gof-dist-linear-NR-7767176-rotd50.png
+-rw-r--r--  1 staff    41K May 13 11:39 gof-dist-log-NR-7767176-rotd50.png
+-rw-r--r--  1 staff   137K May 13 11:39 gof-map-NR-7767176-rotd50.png
+-rw-r--r--  1 staff   3.8K May 13 11:39 index-7767176.html
+drwxr-xr-x  8 staff   256B May 13 11:39 obs_seis_nr_custom_3_stations
+drwxr-xr-x  5 staff   160B May 13 11:39 param_files
+-rw-r--r--  1 staff   1.0K May 13 11:39 software_status-7767176.txt
+-rw-r--r--  1 staff    64K May 13 11:39 station_map.png
+-rw-r--r--  1 staff   1.8K May 13 11:39 system_status-7767176.txt
 
-./doc/examples/northridge_3_stations/results/ucsb/obs_seis_northridge_3_sta:
-total 72
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 balp.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 balp.rsp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 nwhp.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 nwhp.rsp
--rw-r--r--  1 fsilva   2.9K Feb 17 16:24 vasq.rd50
--rw-r--r--  1 fsilva   5.8K Feb 17 16:24 vasq.rsp
+./doc/examples/northridge_3_stations/results/ucsb/gmpe_data_nr_custom_3_stations:
+total 56
+-rw-r--r--  1 staff   2.7K May 13 11:39 2001-SCE-gmpe.ri50
+-rw-r--r--  1 staff   2.7K May 13 11:39 2002-SYL-gmpe.ri50
+-rw-r--r--  1 staff   2.7K May 13 11:39 2028-FIG-gmpe.ri50
+-rw-r--r--  1 staff   3.3K May 13 11:39 ask-7767176.resid.txt
+-rw-r--r--  1 staff   3.3K May 13 11:39 bssa-7767176.resid.txt
+-rw-r--r--  1 staff   3.3K May 13 11:39 cb-7767176.resid.txt
+-rw-r--r--  1 staff   3.3K May 13 11:39 cy-7767176.resid.txt
+
+./doc/examples/northridge_3_stations/results/ucsb/obs_seis_nr_custom_3_stations:
+total 48
+-rw-r--r--  1 staff   3.6K May 13 11:39 2001-SCE.rd100
+-rw-r--r--  1 staff   2.7K May 13 11:39 2001-SCE.rd50
+-rw-r--r--  1 staff   3.6K May 13 11:39 2002-SYL.rd100
+-rw-r--r--  1 staff   2.7K May 13 11:39 2002-SYL.rd50
+-rw-r--r--  1 staff   3.6K May 13 11:39 2028-FIG.rd100
+-rw-r--r--  1 staff   2.7K May 13 11:39 2028-FIG.rd50
 
 ./doc/examples/northridge_3_stations/results/ucsb/param_files:
 total 24
--rw-r--r--  1 fsilva   176B Feb 17 16:24 ffsp.inp
--rw-r--r--  1 fsilva   120B Feb 17 16:24 northridge_3_sta.stl
--rw-r--r--  1 fsilva   413B Feb 17 16:24 nr_v14_02_1_ucsb.src
+-rw-r--r--  1 staff   183B May 13 11:39 ffsp.inp
+-rw-r--r--  1 staff   237B May 13 11:39 nr_custom_3_stations.stl
+-rw-r--r--  1 staff   394B May 13 11:39 nr_v19_03_1_ucsb.src
 
 ./doc/examples/scenario_1_station:
 total 16
--rw-r--r--  1 fsilva   140B Feb 17 16:24 nr_one_stat.stl
--rw-r--r--  1 fsilva   267B Feb 17 16:24 user_eq.src
+-rw-r--r--  1 staff   142B May 13 10:48 nr_one_stat.stl
+-rw-r--r--  1 staff   257B May 13 10:46 user_eq.src
+
+./doc/images:
+total 4112
+-rw-r--r--  1 staff   180K May 17 13:57 10000000.rzz2015.2001-SCE.001.png
+-rw-r--r--  1 staff    67K May 17 13:40 NR_10000000_2001-SCE_overlay.png
+-rw-r--r--  1 staff    59K May 17 13:40 NR_10000000_2032-LBR_rotd50.png
+-rw-r--r--  1 staff   188K May 15 11:38 SRL_Cover_v8.png
+-rw-r--r--  1 staff    38K May 15 11:20 canada1000.png
+-rw-r--r--  1 staff    37K May 15 11:20 centralcal500.png
+-rw-r--r--  1 staff    38K May 15 11:20 centraljapan500.png
+-rw-r--r--  1 staff    37K May 15 11:20 ceus1000.png
+-rw-r--r--  1 staff    78K May 16 11:56 gof-CHINOH-6916980_r0-180-rd50.png
+-rw-r--r--  1 staff    79K May 16 11:56 gof-CHINOH-6917077_r0-180-rd50.png
+-rw-r--r--  1 staff    72K May 17 13:57 gof-NR-10000000-anderson-2004-JGB.png
+-rw-r--r--  1 staff   100K May 17 13:57 gof-NR-10000000-anderson-summary.png
+-rw-r--r--  1 staff    71K May 17 13:58 gof-NR-10000000_r0-120-rd100.png
+-rw-r--r--  1 staff    73K May 17 13:40 gof-NR-10000000_r0-120-rd50.png
+-rw-r--r--  1 staff    57K May 17 13:40 gof-dist-log-NR-10000000-rotd50.png
+-rw-r--r--  1 staff   191K May 17 13:40 gof-map-NR-10000000-rotd50.png
+-rw-r--r--  1 staff    37K May 15 11:20 labasin500.png
+-rw-r--r--  1 staff   267K May 17 13:58 lomap-gp-srf-cut.png
+-rw-r--r--  1 staff    37K May 15 11:20 mojave500.png
+-rw-r--r--  1 staff    37K May 15 11:20 nocal500.png
+-rw-r--r--  1 staff   237K May 17 13:58 station_map_landers-cut.png
+-rw-r--r--  1 staff    38K May 15 11:20 westernjapan500.png
+
+./doc/pdfs:
+total 7176
+-rw-r--r--  1 staff    88K May 16 11:22 BBP-ExSIM-2019-04-09.pdf
+-rw-r--r--  1 staff   444K May 16 11:22 BBP-GP-2019-04-02.pdf
+-rw-r--r--  1 staff    99K May 16 11:22 BBP-Irikura_Recipe_Method_1-2019-04-03.pdf
+-rw-r--r--  1 staff   393K May 16 11:22 BBP-Irikura_Recipe_Method_2-2019-04-11.pdf
+-rw-r--r--  1 staff   370K May 16 11:22 BBP-SDSU_2019-04-02.pdf
+-rw-r--r--  1 staff   145K May 16 11:22 BBP-Song-2019-04-03.pdf
+-rw-r--r--  1 staff   1.7M May 16 11:22 BBP-UCSB-2019-04-09.pdf
+-rw-r--r--  1 staff   298K May 15 14:21 california_gfs_19_4.pdf
 
 ./setup:
-total 24
--rw-r--r--  1 fsilva   1.6K Jun 12 15:29 bbp-17.3.0-md5.txt
--rwxr-xr-x  1 fsilva   7.1K Jun 16 12:59 easy_install_bbp.sh
+total 32
+-rw-r--r--  1 staff   1.5K May 12 20:49 bbp-19.4.0-md5.txt
+-rwxr-xr-x  1 staff   8.2K May 20 13:22 easy_install_bbp_19.4.0.sh
