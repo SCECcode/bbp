@@ -18,7 +18,7 @@ This full release of the Broadband Platform includes several new features and bu
 
 * Updated the GP rupture generator to genslip-5.4.1 and the GP high-frequency code to hb_high_6.0.3.
 
-* Added a Central California simulation region covering the Central Coast of California.
+* Added Green's Functions and validation events for the Central coast region of California.
 
 * Extended the GP site response module so it can work with all 7 simulation methods.
 
