@@ -1,5 +1,3 @@
-The Broadband Platform is open-source software that is made available under the terms of the Apache License, Version 2.0. A copy of the License is provided by the Apache Software Foundation (http://www.apache.org/licenses/LICENSE-2.0) and can also be found with the software in the 'LICENSE' file.
-
 ### Modules
 
 The Broadband Platform consists of a series of modules. There are two main types of modules, science modules and utility modules. Science modules are those for which the platform has multiple implementations, provided by different coding research groups. The Science modules are combined to define a method (see sub-section below). Utility modules only have 1 implementation and are used by all simulations. A schematic of the available modules and their flow relationships is shown below in the following sections.
@@ -37,3 +35,6 @@ A spectral response post-processing module is automatically run after the seismo
 * Afshari and Stewart 2016 GMPE
 * RotD100
 * Anderson GoF 2004
+
+### Software License
+The Broadband Platform is open-source software that is made available under the terms of the Apache License, Version 2.0. A copy of the License is provided by the Apache Software Foundation (http://www.apache.org/licenses/LICENSE-2.0) and can also be found with the software in the 'LICENSE' file.
