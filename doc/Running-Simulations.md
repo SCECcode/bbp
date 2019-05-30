@@ -10,7 +10,7 @@ The platform can be run in multiple modes. The default is interactive mode, in w
 
 For a large number of runs, or if the user is repeating a specific run, this can be tedious. The platform provides two other ways to describe a run, with an option file or an XML description.
 
-An option file provides responses to all the questions that the platform poses. The format is described in [File Formats](./File-Format-Guide), but it's basically a text file, 1 entry per line, with support for comments. It can be fed to the platform using the -o option.
+An option file provides responses to all the questions that the platform poses. The format is described in [File Formats](./File-Format-Guide.md), but it's basically a text file, 1 entry per line, with support for comments. It can be fed to the platform using the -o option.
 
 The platform will also accept XML files containing a full description of a run. The schema for these files is given in [File Formats](./File-Format-Guide.md). These files are also produced by the platform after every simulation, and placed in xml/<simulation ID>.xml. So if you want to rerun a simulation, you can point the platform to the XML file from that simulation using the '-x' option. Note that a new simulation ID will be assigned to the run, so there is no risk of overwriting previous simulation results.
 
