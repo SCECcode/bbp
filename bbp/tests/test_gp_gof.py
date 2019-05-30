@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ class TestGPGof(unittest.TestCase):
         sta_base = os.path.basename(os.path.splitext(self.stations)[0])
 
         # Set up paths
+        refdir = os.path.join(self.install.A_TEST_REF_DIR, "gp")
         a_indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
         a_tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
         a_outdir_seis = os.path.join(self.install.A_OUT_DATA_DIR,
@@ -56,36 +57,37 @@ class TestGPGof(unittest.TestCase):
                             a_outdir, a_logdir],
                            print_cmd=False)
         # Copy stations
-        cmd = "cp %s/gp/%s %s/." % (self.install.A_TEST_REF_DIR,
-                                    self.stations,
-                                    a_indir)
+        cmd = "cp %s %s" % (os.path.join(refdir, self.stations), a_indir)
         bband_utils.runprog(cmd, print_cmd=False)
+
         # Copy src file
-        cmd = "cp %s/gp/%s %s/." % (self.install.A_TEST_REF_DIR,
-                                    self.srcfile,
-                                    a_indir)
+        cmd = "cp %s %s" % (os.path.join(refdir, self.srcfile), a_indir)
         bband_utils.runprog(cmd, print_cmd=False)
 
         for i in range(1, 6):
             # Copy sample calculated seismograms and response files
-            cmd = ("cp %s/gp/s%02d.merged.bbp %s/%d/%d.s%02d.vel.bbp" %
-                   (self.install.A_TEST_REF_DIR, i,
-                    self.install.A_OUT_DATA_DIR, self.sim_id,
-                    self.sim_id, i))
+            cmd = "cp %s %s" % (os.path.join(refdir,
+                                             "s%02d.merged.bbp" % (i)),
+                                os.path.join(a_outdir,
+                                             "%d.s%02d.vel.bbp" %
+                                             (self.sim_id, i)))
             bband_utils.runprog(cmd, print_cmd=False)
-            cmd = ("cp %s/gp/s%02d.rd50 %s/%d/%d.s%02d.rd50" %
-                   (self.install.A_TEST_REF_DIR, i,
-                    self.install.A_OUT_DATA_DIR, self.sim_id,
-                    self.sim_id, i))
+            cmd = "cp %s %s" % (os.path.join(refdir,
+                                             "s%02d.rd50" % (i)),
+                                os.path.join(a_outdir,
+                                             "%d.s%02d.rd50" %
+                                             (self.sim_id, i)))
             bband_utils.runprog(cmd, print_cmd=False)
             # Cope sample observed seismograms and response files
-            cmd = ("cp %s/gp/s%02d.merged.bbp %s/s%02d.bbp" %
-                   (self.install.A_TEST_REF_DIR, i,
-                    a_outdir_seis, i))
+            cmd = "cp %s %s" % (os.path.join(refdir,
+                                             "s%02d.merged.bbp" % (i)),
+                                os.path.join(a_outdir_seis,
+                                             "s%02d.bbp" % (i)))
             bband_utils.runprog(cmd, print_cmd=False)
-            cmd = ("cp %s/gp/s%02d.rd50 %s/s%02d.rd50" %
-                   (self.install.A_TEST_REF_DIR, i,
-                    a_outdir_seis, i))
+            cmd = "cp %s %s" % (os.path.join(refdir,
+                                             "s%02d.rd50" % (i)),
+                                os.path.join(a_outdir_seis,
+                                             "s%02d.rd50" % (i)))
             bband_utils.runprog(cmd, print_cmd=False)
 
     def test_gof(self):

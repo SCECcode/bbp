@@ -1,11 +1,11 @@
 n
-LABasin863
+LABasin500
 exsim
 1
 northridge_eq_gp.src
 1
-2
+1
 n
-n
+y
 n
 n

@@ -1,12 +1,12 @@
 y
-Northridge
+NR
 ucsb
 n
 y
 2
 1
-2
-n
+1
+y
 n
 n
 n

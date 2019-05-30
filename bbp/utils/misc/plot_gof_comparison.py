@@ -1,7 +1,20 @@
 #!/usr/bin/env python
 """
+Copyright 2010-2019 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
 Program to plot a GoF comparison between two sets of seismograms
-$Id: plot_gof_comparison.py 1644 2016-04-19 18:54:19Z fsilva $
 """
 
 # Import Python modules
@@ -80,7 +93,7 @@ for site in site_list:
         # Just skip it
         print "Skipping station %s..." % (stat)
         continue
-    
+
     # Calculate Rrup
     origin = (src_keys['lon_top_center'],
               src_keys['lat_top_center'])
@@ -128,7 +141,7 @@ for comp in config.COMPS_PSA5:
                                    bband_utils.GP_MAX_FILENAME)
 
     cmd = ("%s/resid2uncer_varN " % (install.A_GP_BIN_DIR) +
-           "residfile=%s fileroot=%s " % (resid_file, fileroot) + 
+           "residfile=%s fileroot=%s " % (resid_file, fileroot) +
            "comp=%s nstat=%d nper=63 " % (comp, len(site_list)) +
            "min_cdst=%d >> %s 2>&1" %
            (config.MIN_CDST, log_file))
@@ -141,7 +154,7 @@ fileroot = '%s-%d_r0-all-rd50' % (event_label, sim_id_1)
 plotter = PlotGoF()
 plotter.plot(plottitle, fileroot, TMPDIR, output_dir,
              0, plot_mode, 'single')
-   
+
 print "All Done!"
 # Clean-up, all done!
 shutil.rmtree(TMPDIR)

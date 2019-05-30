@@ -1,12 +1,12 @@
 y
-Northridge
+NR
 song
 n
 y
 2
 1
-2
-n
+1
+y
 n
 n
 n

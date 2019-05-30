@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class TestGenslip(unittest.TestCase):
         self.cfg = GenslipCfg()
         os.chdir(self.install.A_COMP_DIR)
         self.sim_id = int(seqnum.get_seq_num())
-        self.velmodel = "genslip_nr_generic1d-gp01.vmod"
+        self.velmodel = "nr02-vs500.fk1d"
         self.srcfile = "test_wh.src"
         self.outsrf = "%d_test_eq.srf" % self.sim_id
 
@@ -64,7 +64,7 @@ class TestGenslip(unittest.TestCase):
     def tearDown(self):
         os.chdir(self.install.A_TEST_DIR)
 
-    def test_gensrf(self):
+    def test_genslip(self):
         """
         Test GP rupture generator
         """
@@ -72,7 +72,7 @@ class TestGenslip(unittest.TestCase):
         a_res_dir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
 
         gen = Genslip(self.velmodel, self.srcfile,
-                      self.outsrf, "LABasin863",
+                      self.outsrf, "LABasin500",
                       sim_id=self.sim_id)
         gen.run()
         #

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,19 +34,21 @@ DIST = [[0.0, 5.0],
         [70.0, 300.0]]
 
 # Mechanism dictionary
-MECH = [("REV", ["Niigata", "NR", "WHITTIER", "RDL1K",
-                 "Mineral", "Saguenay1k"]),
-        ("ROBL", ["NORTHPS", "LOMAP", "CHINOH"]),
-        ("SS", ["Tottori", "Landers", "ALUMR"]),
+MECH = [("REV", ["Niigata", "NR", "WHITTIER",
+                 "SanSimeon", "Iwate",
+                 "RDL1K", "Mineral", "Saguenay1k"]),
+        ("ROBL", ["NORTHPS", "LOMAP", "CHINOH", "Chuetsu"]),
+        ("SS", ["Tottori", "Landers", "ALUMR", "Parkfield"]),
         ("NM", [])]
 
 # Event list
-EVENTS = ["CHINOH", "ALUMR", "WHITTIER", "NORTHPS",
-          "Tottori", "Niigata", "NR", "LOMAP", "Landers",
+EVENTS = ["CHINOH", "ALUMR", "WHITTIER", "Parkfield",
+          "NORTHPS", "Tottori", "SanSimeon", "Niigata",
+          "Chuetsu", "NR", "Iwate", "LOMAP", "Landers",
           "RDL1K", "Mineral", "Saguenay1k"]
 
 EVENTS_CA = ["WHITTIER", "NORTHPS", "NR", "LOMAP", "Landers",
-             "CHINOH", "ALUMR"]
+             "CHINOH", "ALUMR", "SanSimeon", "Parkfield"]
 
 EVENTS_CENA = ["Mineral", "RDL1K", "Saguenay1k"]
 

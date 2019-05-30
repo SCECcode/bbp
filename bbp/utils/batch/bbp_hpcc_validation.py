@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -308,7 +308,8 @@ def generate_xml(install, numsim, srcdir, xmldir,
     shutil.rmtree(tmpdir)
 
 def write_slurm(install, numsim, simdir, xmldir, email,
-                prefix, newnodes, walltime, savetemp):
+                prefix, newnodes, walltime, savetemp,
+                codebase):
     """
     Write the slurm script
     """
@@ -338,7 +339,7 @@ def write_slurm(install, numsim, simdir, xmldir, email,
     slurmfile.write("#SBATCH --nodes=%d\n" % (nodes))
     slurmfile.write("#SBATCH --time=%d:00:00\n" % (walltime))
     slurmfile.write("#SBATCH --export=all\n")
-    slurmfile.write('#SBATCH --job-name="BBP"\n')
+    slurmfile.write('#SBATCH --job-name="BBP-%s"\n' % (codebase))
     slurmfile.write("#SBATCH --mail-user=%s\n" % (email))
     slurmfile.write("#SBATCH --mail-type=BEGIN,END,ALL\n")
     slurmfile.write("#SBATCH --error=%s\n" % (errfile))
@@ -709,7 +710,8 @@ def main():
                  multiseg, segment, source_file)
     # Write slurm file
     write_slurm(bbp_install, numsim, simdir, xmldir,
-                email, prefix, newnodes, walltime, savetemp)
+                email, prefix, newnodes, walltime,
+                savetemp, codebase)
 
     # Write .info file
     info_file = open(os.path.join(simdir, "%s.info" % (prefix)), 'w')

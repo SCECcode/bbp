@@ -1,24 +1,35 @@
 	<BBP_Run_Specification>
-		<Validation_Run event="Northridge" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.3.0"/>
+		<Validation_Run event="NR" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="19.4.0"/>
 		<BBP_Modules>
 			<BBP_Module>
 				<name>ExSim</name>
 				<staged_files>
-					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
-					<file>$BBP_INSTALL_GF/LABasin863/uwo/labasin_exsim.par</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_GF/LABasin500/uwo/labasin_exsim.par</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">labasin_exsim.par</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>WccSiteamp</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">EXSIM</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Plot_Map</name>
 				<staged_files>
-					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
@@ -30,7 +41,7 @@
 				<name>PlotSeis</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
-					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
@@ -55,8 +66,8 @@
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">$BBP_INSTALL_VAL/Northridge/common/AccBBP</argument>
-					<argument type="str">acc_bbp</argument>
+					<argument type="str">$BBP_INSTALL_VAL/NR/obs/Acc</argument>
+					<argument type="str">acc_peer</argument>
 					<argument type="str"></argument>
 				</arguments>
 			</BBP_Module>
@@ -67,22 +78,20 @@
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">$BBP_INSTALL_VAL/Northridge/common/AccBBP</argument>
 					<argument type="str">acc</argument>
-					<argument type="str">Northridge</argument>
+					<argument type="str">NR</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>GPGof</name>
 				<staged_files>
-					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="float">6.73</argument>
-					<argument type="str">Northridge</argument>
+					<argument type="str">NR</argument>
 					<argument type="int">120</argument>
 				</arguments>
 				<keyword_arguments>
@@ -93,13 +102,13 @@
 				<name>GenHTML</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
-					<file>$BBP_INSTALL_VAL/Northridge/common/nr_v14_02_1.src</file>
+					<file>$BBP_INSTALL_VAL/NR/common/nr_v14_02_1.src</file>
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">nr_v14_02_1.src</argument>
-					<argument type="str">LABasin863</argument>
-					<argument type="str">Northridge</argument>
+					<argument type="str">LABasin500</argument>
+					<argument type="str">NR</argument>
 					<argument type="str">EXSIM</argument>
 				</arguments>
 			</BBP_Module>

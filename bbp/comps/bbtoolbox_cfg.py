@@ -58,6 +58,9 @@ class BBToolboxCfg(object):
         val = self.getval("dip")
         self.DIP = float(val)
 
+        val = self.getval("rake")
+        self.RAKE = float(val)
+
         val = self.getval("hypo_along_stk")
         self.HYPO_ALONG_STK = float(val)
 

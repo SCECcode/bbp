@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-Broadband Platform Version of Martin Mai's BBcoda2.csh
-$Id: syn1D.py 1761 2016-09-20 20:41:40Z fsilva $
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Broadband Platform Module for the UCSB wave propagation codes
 """
 from __future__ import division, print_function
 
@@ -17,6 +27,7 @@ import shutil
 import bband_utils
 import stas2files
 import fault_utils
+import uc_fault_utils
 from install_cfg import InstallCfg
 from syn1D_cfg import Syn1DCfg
 from station_list import StationList
@@ -41,35 +52,6 @@ class Syn1D(object):
         self.slo = None
         self.a_indir = None
         self.a_tmpdir = None
-
-    def create_fault_global_in(self, a_fault_file):
-        """
-        This function creates the faultglobal.in file from data
-        obtained in the src file
-        """
-        out_fp = open(a_fault_file, "w")
-        out_fp.write("%.3f %.3f %2.3f\n" %
-                     (self.cfg.CFGDICT['lon_top_center'],
-                      self.cfg.CFGDICT['lat_top_center'],
-                      self.cfg.CFGDICT["depth_to_top"]))
-        out_fp.write("%.2f %.2f\n" %
-                     (self.cfg.CFGDICT["fault_length"],
-                      self.cfg.CFGDICT["fault_width"]))
-        out_fp.write("%.1f %.1f %.1f\n" %
-                     (self.cfg.CFGDICT['strike'],
-                      self.cfg.CFGDICT['dip'],
-                      self.cfg.CFGDICT['rake']))
-        out_fp.write("%.2f %.2f\n" %
-                     (self.cfg.CFGDICT["hypo_along_stk"],
-                      self.cfg.CFGDICT["hypo_down_dip"]))
-        out_fp.write("%.2f\n" % (self.cfg.CFGDICT['magnitude']))
-        out_fp.write("-1 -1\n")
-        out_fp.write("%d\n" % (int(self.cfg.CFGDICT['seed'])))
-        out_fp.write("-1\n")
-        out_fp.write("-1\n")
-        out_fp.write("%s\n" % (self.r_velmodel))
-        out_fp.write("FFSP_OUTPUT\n")
-        out_fp.close()
 
     def run_syn1d(self, a_tmpdir_mod, a_velmodel,
                   a_greenfile, a_greensoil, a_lahfile):
@@ -134,7 +116,10 @@ class Syn1D(object):
         #
         r_faultfile = "faultGlobal.in"
         a_faultfile = os.path.join(a_tmpdir_mod, r_faultfile)
-        self.create_fault_global_in(a_faultfile)
+        uc_fault_utils.uc_create_fault_global(a_faultfile, self.sim_id,
+                                              self.r_srcfile, self.vmodel_name,
+                                              self.r_velmodel,
+                                              self.cfg.R_FFSP_FILE)
 
         #
         # Convert stations to xy
@@ -173,7 +158,10 @@ class Syn1D(object):
         #
         r_faultfile = "faultGlobal.in"
         a_faultfile = os.path.join(a_tmpdir_stitch, r_faultfile)
-        self.create_fault_global_in(a_faultfile)
+        uc_fault_utils.uc_create_fault_global(a_faultfile, self.sim_id,
+                                              self.r_srcfile, self.vmodel_name,
+                                              self.r_velmodel,
+                                              self.cfg.R_FFSP_FILE)
 
         # Copy station list xy to the stitch directory
         r_station_file = "stations.xy"
@@ -256,10 +244,7 @@ class Syn1D(object):
 
         # Parse SRC file
         a_srcfile = os.path.join(self.a_indir, self.r_srcfile)
-
         self.cfg = Syn1DCfg(self.vmodel_name, a_srcfile)
-
-
 
         # Read station list
         a_stations = os.path.join(self.a_indir, self.r_stations)

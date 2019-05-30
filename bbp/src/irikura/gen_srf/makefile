@@ -1,7 +1,7 @@
 all: gen_srf gen_srf_segment sum_seg
 
-gen_srf: gen_srf_4.9.f
-	gfortran -o gen_srf gen_srf_4.9.f
+gen_srf: gen_srf_4.9.1.f
+	gfortran -o gen_srf gen_srf_4.9.1.f
 	cp gen_srf ../bin/.
 
 gen_srf_segment: gen_srf_segment4.f

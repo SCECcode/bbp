@@ -46,7 +46,21 @@ SUBROUTINE scattering_parameters
 ! Updated: June 2015 (v1.6)
 !    Add ngaw_flag, if ngaw_flag = 1, NGA-west1
 !                   if ngaw_flag = 2, NGA-west2
-!  
+!
+! Updated: February 2019 (v2.0)
+!   Add merging_flag, for LFs and HFs
+!                     if merging_flag = 1, in the frequency domain
+!                     if merging_flag = 2, in the time domain
+!   Add infcorr_flag, for inter-frequency correlation flag
+!                     if infcorr_flag = 0, no correlation
+!                     if infcorr_flag = 1, apply correlation
+!
+! Update: March 2019 (v2.1)
+! Author: N. Wang
+!   Add cseed, for inter-frequency correlation random seed
+!              if cseed = -1, seed defined by system-time
+!              else, seed defined by user
+
 use def_kind; use interfaces, only: rand_pdf 
 use io_file, only: scat_file; use scattering 
 use stf_data, only: Tr_sca; use flags 
@@ -71,6 +85,7 @@ real(kind=r_scat),parameter                    :: kappa_min=0.010, kappa_max=0.1
 !real(kind=r_scat)                              :: tmp_fmax,tmp_str_fac,tmp_fac
 integer(kind=i_single)                         :: tmp_iseed,tmp_sseed,tmp_imerg,tmp_gsf
 integer(kind=i_single)                         :: seed_size,i,tmp_time_step,tmp_ngawf
+integer(kind=i_single)                         :: tmp_merging,tmp_infcorr
 real(kind=r_scat)                              :: tmp_Q,tmp_scatcoeff,tmp_kappa
 real(kind=r_scat)                              :: tmp_hpass,tmp_fdec
 real(kind=r_scat)                              :: tmp_fmax,tmp_str_fac
@@ -245,12 +260,11 @@ else
 endif
 
 ! time_step section
-read(1,*) tmp_time_step   
-if (tmp_time_step < 1)  then
-   time_step = 1        ! default value
+read(1,*) tmp_time_step
+if (tmp_time_step < 1) then
    print*,'change time_step'
 else
-   time_step = tmp_time_step    ! user-defined value
+   time_step=tmp_time_step    ! user-defined value
 endif
 
 ! gs_flag section
@@ -259,9 +273,8 @@ read(1,*) tmp_gsf
 if (tmp_gsf >= 1 .and. tmp_gsf <= 3) then ! add gs_flag=3=Japanese events
    gs_flag=tmp_gsf       ! 1=western CA, 2=eastern North America
 else
-   gs_flag = 1          ! default value
    print*,'change gs_flag'
-endif
+endif 
 
 print*,'gs_flag= ',gs_flag
 
@@ -284,7 +297,32 @@ if (tmp_ngawf == 1 .or. tmp_ngawf == 2) then
    ngaw_flag=tmp_ngawf       ! 1=NGA-west1, 2=NGA-west2
 else
    print*,'change ngaw_flag'
+endif 
+
+! merging_flag section
+read(1,*) tmp_merging
+if (tmp_merging == 1 .or. tmp_merging == 2) then
+   merging_flag=tmp_merging
+else
+   print*,'change merging_flag'
 endif
+
+! infcorr_flag section
+read(1,*) tmp_infcorr
+if (tmp_infcorr == 0 .or. tmp_infcorr == 1) then
+   infcorr_flag=tmp_infcorr
+else
+   print*,'change infcorr_flag'
+endif
+
+! seed number for inter-frequency correlation section
+read(1,*) cseed
+
+
+!! set iseed if infcorr_flag = 1, do inter-frequency correlation
+!if (infcorr_flag == 1) iseed=3071
+!print*,'iseed',iseed
+!print*,'tmp_iseed',tmp_iseed
 
 ! jump to the third part of the scattering file
 !read(1,*);read(1,*);read(1,*)

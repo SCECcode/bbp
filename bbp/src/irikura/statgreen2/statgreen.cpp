@@ -1,29 +1,64 @@
 //#pragma warning(disable:4786)
 
-// Copyright (c) 2011-2018 National Research Institute for Earth Science and Disaster Resilience (NIED)
+// Copyright (c) 2011-2018 National Research Institute for Earth
+// Science and Disaster Resilience (NIED)
+//
 // All rights reserved.
 //
-// Programs statgreen, statgreen2, and greenscale computes ground motion time series by the stochastic Green's function (SGF) method.
+// Programs statgreen, statgreen2, and greenscale computes ground
+// motion time series by the stochastic Green's function (SGF) method.
 //
 // Disclaimer:
-/* Users take full responsibility for the use of the software. Neither NIED nor any of the contributors shall be responsible for any loss, damages, or costs which may be incurred by the users or third parties arising in the use of the software, whatever the reason may be, even if advised of the possibility of such damages. */
+//
+/* Users take full responsibility for the use of the software. Neither
+   NIED nor any of the contributors shall be responsible for any loss,
+   damages, or costs which may be incurred by the users or third
+   parties arising in the use of the software, whatever the reason may
+   be, even if advised of the possibility of such damages. */
+//
 //
 // References:
+//
 // (1) Reference for the SGF software
 /*
-- Senna, S. and H. Fujiwara (2011): Development of Estimation Tools for Earthquake Ground Motion, Technical Note of the National Research Institute for Earth Science and Disaster Prevention, No. 354 (in Japanese)
+- Senna, S. and H. Fujiwara (2011): Development of Estimation Tools
+  for Earthquake Ground Motion, Technical Note of the National
+  Research Institute for Earth Science and Disaster Prevention,
+  No. 354 (in Japanese)
 */
 // (2) Stochastic Green's function (SGF) method
 /*
-- Dan, K. and T. Sato (1998): Strong Motion Prediction by Semi-empirical Method Based on Variable-slip Rupture Model of Earthquake Fault, Journal of Structural and Construction Engineering (Transactions of AIJ), No.509, 49-60. (in Japanese)
-- Dan, K., M. Watanabe, T. Sato, J. Miyakoshi, and T. Sato (2000): Isoseismal Map of Strong Motions for the 1923 Kanto Earthquake (MJMA7.9) by Stochastic Green's Function Method, Journal of Structural and Construction Engineering (Transactions of AIJ), No.530, 53-62. (in Japanese)
-- Satoh, T., H. Kawase, and T. Sato (1994): Engineering bedrock waves obtained through the identification analysis based on borehole records and their statistical envelope characteristics, Journal of Structural and Construction Engineering (Transactions of AIJ), No.461, 19-28. (in Japanese)
+- Dan, K. and T. Sato (1998): Strong Motion Prediction by
+  Semi-empirical Method Based on Variable-slip Rupture Model of
+  Earthquake Fault, Journal of Structural and Construction Engineering
+  (Transactions of AIJ), No.509, 49-60. (in Japanese)
+
+- Dan, K., M. Watanabe, T. Sato, J. Miyakoshi, and T. Sato (2000):
+  Isoseismal Map of Strong Motions for the 1923 Kanto Earthquake
+  (MJMA7.9) by Stochastic Green's Function Method, Journal of
+  Structural and Construction Engineering (Transactions of AIJ),
+  No.530, 53-62. (in Japanese)
+
+- Satoh, T., H. Kawase, and T. Sato (1994): Engineering bedrock waves
+  obtained through the identification analysis based on borehole
+  records and their statistical envelope characteristics, Journal of
+  Structural and Construction Engineering (Transactions of AIJ),
+  No.461, 19-28. (in Japanese)
 */
 // (3) NIED broadband ground motion computation by recipe
 /*
-- Fujiwara, H. et al. (2009). Technical Reports on National Seismic Hazard Maps for Japan, Technical Note of the National Res. Inst. for Earth Science and Disaster Prevention 336, 528pp (in English)
-- Fujiwara, H. et al. (2012): Some Improvements of Seismic Hazard Assessment based on the 2011 Tohoku Earthquake, Technical Note of the National Research Institute for Earth Science and Disaster Prevention, No.379. (in Japanese)
-- They can be obtained from http://www.j-shis.bosai.go.jp/map/JSHIS2/download.html?lang=en .
+- Fujiwara, H. et al. (2009). Technical Reports on National Seismic
+  Hazard Maps for Japan, Technical Note of the National Res. Inst. for
+  Earth Science and Disaster Prevention 336, 528pp (in English)
+
+- Fujiwara, H. et al. (2012): Some Improvements of Seismic Hazard
+  Assessment based on the 2011 Tohoku Earthquake, Technical Note of
+  the National Research Institute for Earth Science and Disaster
+  Prevention, No.379. (in Japanese)
+
+- They can be obtained from:
+
+  http://www.j-shis.bosai.go.jp/map/JSHIS2/download.html?lang=en .
 */
 
 #include <iostream>
@@ -46,7 +81,7 @@
 
 using namespace std;
 
-// CVerticalSHResponseï¿½Nï¿½ï¿½ï¿½Xï¿½ÌƒTï¿½ï¿½ï¿½vï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
+// CVerticalSHResponseƒNƒ‰ƒX‚ÌƒTƒ“ƒvƒ‹ƒvƒƒOƒ‰ƒ€
 int main( int argc, char* argv[] )
 {
     vector<double> frq, acc, wave, wave2;
@@ -67,10 +102,10 @@ int main( int argc, char* argv[] )
 		return 1;
 	}
 
-    //------------------- ï¿½Xï¿½eï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Ìsï¿½Ç‚ï¿½ ---------------------
+    //------------------- ƒXƒe[ƒVƒ‡ƒ“‚Ìs“Ç‚İ ---------------------
 	//char* stnumber  = argv[1];
 	//int stationnum  = atoi(stnumber);
-    //------------------- ï¿½Xï¿½eï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì“Ç‚İï¿½ï¿½ï¿½ -----------
+    //------------------- ƒXƒe[ƒVƒ‡ƒ“ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ -----------
 	char* station_filename  = argv[1];
 	//std::vector<double> stationNo;
 	//std::vector<double> slatitude;
@@ -89,8 +124,8 @@ int main( int argc, char* argv[] )
 	double ssdepth;
 	double dR_s;
 
-	//ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
-	//fieldï¿½ï¿½vectorï¿½ï¿½ï¿½oï¿½^
+	//•¨«’l‚ğ“Ç‚İ‚Ş
+	//field‚Évector‚ğ“o˜^
 	//std::vector< std::vector<double>* > station;
 	std::vector< std::vector<string>* > station;
 	station.push_back( &stationNo );
@@ -99,7 +134,7 @@ int main( int argc, char* argv[] )
 	station.push_back( &sdepth );
 	station.push_back( &sSASFileName );
 
-	//ï¿½Ç‚İï¿½ï¿½ï¿½
+	//“Ç‚İ‚İ
 	unsigned int numofStation = read_sta( station_filename, station );
 	if( argc == 5 ){
         lStNum  = 0;
@@ -107,7 +142,7 @@ int main( int argc, char* argv[] )
 	}else if(argc == 7){
         lStNum  = atoi(argv[5]);
         if(lStNum > 0){
-            //ï¿½Ï‘ï¿½ï¿½_ï¿½Ôï¿½ï¿½É‚ï¿½ï¿½í‚¹ï¿½ï¿½
+            //ŠÏ‘ª“_”Ô†‚É‚ ‚í‚¹‚é
             lStNum = lStNum - 1;
         }
         lEndNum = atoi(argv[6]) ;
@@ -123,7 +158,7 @@ int main( int argc, char* argv[] )
 	}
 	std::cerr << "station " << numofStation << std::endl;
 
-	//-------------------- ï¿½fï¿½wï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½Ì“Ç‚İï¿½ï¿½ï¿½ --------------------
+	//-------------------- ’f‘wƒpƒ‰ƒ[ƒ^‚Ì“Ç‚İ‚İ --------------------
 	char* fault_filename  = argv[2];
 
     /*
@@ -175,8 +210,8 @@ int main( int argc, char* argv[] )
     std::vector<string> Em_sVr;
     std::vector<string> Em_sOffset;
 
-	//ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
-	//fieldï¿½ï¿½vectorï¿½ï¿½ï¿½oï¿½^
+	//•¨«’l‚ğ“Ç‚İ‚Ş
+	//field‚Évector‚ğ“o˜^
 	//std::vector< std::vector<double>* > faultparam;
 	std::vector< std::vector<string>* > faultparam;
 	faultparam.push_back( &Elatitude );
@@ -208,7 +243,7 @@ int main( int argc, char* argv[] )
     faultparam.push_back( &Em_sVr );
     faultparam.push_back( &Em_sOffset );
 
-	// ï¿½Ç‚İï¿½ï¿½ï¿½
+	// “Ç‚İ‚İ
 	//unsigned int numofefault = read_csv( fault_filename, faultparam );
 	unsigned int numofefault = read_fault( fault_filename, faultparam );
 
@@ -217,68 +252,68 @@ int main( int argc, char* argv[] )
 		return 1;
 	}
 	std::cerr << "fault_eparam " << numofefault << std::endl;
-    //<- 20060131 ï¿½tï¿½Hï¿½[ï¿½}ï¿½bï¿½gï¿½ÏXï¿½É‚ï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½İƒï¿½ï¿½[ï¿½`ï¿½ï¿½ï¿½Ì•ÏX
-    //ï¿½yï¿½ï¿½ï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚İï¿½ï¿½ï¿½
+    //<- 20060131 ƒtƒH[ƒ}ƒbƒg•ÏX‚É‚æ‚é“Ç‚İ‚İƒ‹[ƒ`ƒ“‚Ì•ÏX
+    //“y¿ƒf[ƒ^‚Ì“Ç‚İ‚İ
 	char* soil_filename  = argv[3];
 	std::vector<double> velocity;
 	std::vector<double> density;
 	std::vector<double> thickness;
-	// ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
-	// fieldï¿½ï¿½vectorï¿½ï¿½ï¿½oï¿½^
+	// •¨«’l‚ğ“Ç‚İ‚Ş
+	// field‚Évector‚ğ“o˜^
 	std::vector< std::vector<double>* > field;
 	field.push_back( &thickness );
 	field.push_back( &velocity  );
 	field.push_back( &density );
-    //ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Jï¿½ï¿½
+    //ƒtƒ@ƒCƒ‹‚ğŠJ‚­
     ifstream istrm( soil_filename );
     if( !istrm.is_open() ){
         std::cerr << soil_filename << " not found." << std::endl;
 	    return 1;
     }
-    //ï¿½sï¿½ï¿½ï¿½Æ‚Éƒfï¿½[ï¿½^ï¿½ï¿½ï¿½iï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½Æ[ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â•Ê‚Ìƒxï¿½Nï¿½gï¿½ï¿½ï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
-    vector<string> strSoilProp;  //ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½pï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½zï¿½ï¿½ï¿½FVs,Ro,Q
-    vector<string> strSoilDepth; //ï¿½[ï¿½xï¿½ï¿½ï¿½Eï¿½pï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½zï¿½ï¿½ï¿½FDepth
-    string strbuf;               //ï¿½eï¿½ï¿½ï¿½|ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½bï¿½tï¿½@
-    bool bProp = false;          //ï¿½ï¿½ï¿½ï¿½ï¿½lpartï¿½tï¿½ï¿½ï¿½O
-    bool bDepth = false;         //ï¿½[ï¿½xpartï¿½tï¿½ï¿½ï¿½O
+    //s‚²‚Æ‚Éƒf[ƒ^‚ğŠi”[‚·‚éB•¨«’l•”•ª‚Æ[“x•”•ª‚ğŒÂ•Ê‚ÌƒxƒNƒgƒ‹‚É“ü‚ê‚éB
+    vector<string> strSoilProp;  //•¨«’l—p•¶š—ñ”z—ñFVs,Ro,Q
+    vector<string> strSoilDepth; //[“x‹«ŠE—p•¶š—ñ”z—ñFDepth
+    string strbuf;               //ƒeƒ“ƒ|ƒ‰ƒŠƒoƒbƒtƒ@
+    bool bProp = false;          //•¨«’lpartƒtƒ‰ƒO
+    bool bDepth = false;         //[“xpartƒtƒ‰ƒO
     while( getline(istrm,strbuf)){
-        //ï¿½wï¿½bï¿½_ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½#ï¿½ï¿½ï¿½È‚ï¿½ï¿½È‚ï¿½ï¿½Ü‚Å‚Í‹ï¿½ï¿½Ç‚ï¿½
-        //#ï¿½Å‚Í‚È‚ï¿½ï¿½È‚ï¿½ï¿½CbProp=falseï¿½Ì‚Æ‚ï¿½trueï¿½É‚ï¿½ï¿½ï¿½
+        //ƒwƒbƒ_•”s“ª‚Ì#‚ª‚È‚­‚È‚é‚Ü‚Å‚Í‹ó“Ç‚İ
+        //#‚Å‚Í‚È‚­‚È‚èCbProp=false‚Ì‚Æ‚«true‚É‚·‚é
         if( strbuf.compare(0,1,"#") != 0 && !bProp){
             bProp =true;
         }
-        //bProp=trueï¿½Å•ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç‚İï¿½ï¿½İCï¿½[ï¿½ï¿½ï¿½Ìƒfï¿½[ï¿½^ï¿½ï¿½ï¿½oï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½bDepth=trueï¿½É‚ï¿½ï¿½ï¿½
+        //bProp=true‚Å•¨«’l‚ğ“Ç‚İ‚İC[‚³‚Ìƒf[ƒ^‚ªo‚Ä‚«‚½‚çbDepth=true‚É‚·‚é
         if(bProp && strbuf.compare(0,1,"#")==0 ) {
             bDepth = true;
         }
-        //ï¿½ï¿½ï¿½Û‚Éƒfï¿½[ï¿½^ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½Ş•ï¿½ï¿½ï¿½
+        //ÀÛ‚Éƒf[ƒ^‚ğ“Ç‚İ‚Ş•”•ª
         if(bProp && !bDepth ){
-            //ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½Ì“Ç‚İï¿½ï¿½ï¿½
+            //•¨«’lƒf[ƒ^•”•ª‚Ì“Ç‚İ‚İ
             strSoilProp.push_back(strbuf);
         }else if( bProp && bDepth ){
-            //ï¿½[ï¿½xï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½Ì“Ç‚İï¿½ï¿½ï¿½
-            //ï¿½sï¿½ï¿½ï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î“Ç‚İ”ï¿½ï¿½Î‚ï¿½
+            //[“xƒf[ƒ^•”•ª‚Ì“Ç‚İ‚İ
+            //s“ª‚É”‚ª‚ ‚ê‚Î“Ç‚İ”ò‚Î‚·
             if(strbuf.compare(0,1,"#") != 0){
                 strSoilDepth.push_back(strbuf);
             }
         }
-        //ï¿½ï¿½ï¿½Ì’iï¿½Kï¿½Å‚ÍCï¿½sï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½#ï¿½È~ï¿½ÌƒRï¿½ï¿½ï¿½ï¿½ï¿½gï¿½Í‚ï¿½ï¿½Ì‚Ü‚Ücï¿½ï¿½ï¿½B
-        //ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½zï¿½ï¿½ï¿½ÉŠiï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Kï¿½ÅƒRï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
+        //‚±‚Ì’iŠK‚Å‚ÍCs––•”•ª‚Ì#ˆÈ~‚ÌƒRƒƒ“ƒg‚Í‚»‚Ì‚Ü‚Üc‚éB
+        //ƒf[ƒ^‚ğ”z—ñ‚ÉŠi”[‚·‚é’iŠK‚ÅƒRƒƒ“ƒg‚ğœ‚­B
     }
-    // ï¿½Ï‘ï¿½ï¿½_ï¿½ï¿½ï¿½Æ‚ÌŒvï¿½Z
+    // ŠÏ‘ª“_‚²‚Æ‚ÌŒvZ
     //for( int k = stationnum-1 ; k < stationnum  ; k++ )
     //for( int k = 0 ; k < stationnum  ; k++ )
     for( unsigned int k = lStNum ; k < lEndNum ; k++){
 
-        printf("CALC-No. = %d\n ", k+1 );//ï¿½vï¿½Zï¿½Ï‘ï¿½ï¿½_ï¿½Ê’u
+        printf("CALC-No. = %d\n ", k+1 );//ŒvZŠÏ‘ª“_ˆÊ’u
 
-		double eelatitude  = atof(Elatitude[0].c_str());  // ï¿½fï¿½wï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½Ü“x
-		double eelongitude = atof(Elongitude[0].c_str()); // ï¿½fï¿½wï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½oï¿½x
-		double eedepth     = atof(Edepth[0].c_str());     // ï¿½fï¿½wï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½[ï¿½x
+		double eelatitude  = atof(Elatitude[0].c_str());  // ’f‘w’†‰›“_ˆÜ“x
+		double eelongitude = atof(Elongitude[0].c_str()); // ’f‘w’†‰›“_Œo“x
+		double eedepth     = atof(Edepth[0].c_str());     // ’f‘w’†‰›“_[“x
 		double Samplefreq  = atof(ESamplefrq[0].c_str());
 		double Sample      = atof(ESampletime[0].c_str());
 
-		// ï¿½tï¿½[ï¿½ï¿½ï¿½Gï¿½pï¿½ï¿½ï¿½Tï¿½Cï¿½Y
+		// ƒt[ƒŠƒG—pƒŠƒTƒCƒY
 		int oridatasize =  (int)(Samplefreq * Sample);
 		int datasize;
 		for(int nn = 0 ;  nn < 16 ; nn++ ){
@@ -307,7 +342,7 @@ int main( int argc, char* argv[] )
 
 		Distance( eelongitude, eelatitude, eedepth ,sslongitude, sslatitude, ssdepth , dR_s);
 
-		//------------------ ï¿½yï¿½ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½Ì“Ç‚İï¿½ï¿½ï¿½ ----------------------
+		//------------------ “y¿ƒpƒ‰ƒ[ƒ^‚Ì“Ç‚İ‚İ ----------------------
 
 		double dt = 1.0/(double)Samplefreq;
 
@@ -316,16 +351,16 @@ int main( int argc, char* argv[] )
 		//std::vector<double> density;
 		//std::vector<double> thickness;
 
-		// ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
-		// fieldï¿½ï¿½vectorï¿½ï¿½ï¿½oï¿½^
+		// •¨«’l‚ğ“Ç‚İ‚Ş
+		// field‚Évector‚ğ“o˜^
 		//std::vector< std::vector<double>* > field;
 		//field.push_back( &thickness );
 		//field.push_back( &velocity  );
 		//field.push_back( &density );
 
 		//unsigned int numofLayer = read_csv( layer_filename, field );
-        //<- 20060130 ï¿½wï¿½ï¿½ï¿½Æ‚É•ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç‚İï¿½ï¿½Şƒï¿½ï¿½[ï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½ÏX
-        //ï¿½xï¿½Nï¿½gï¿½ï¿½ï¿½Ïï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        //<- 20060130 ‘w‚²‚Æ‚É•¨«’l‚ğ“Ç‚İ‚Şƒ‹[ƒ`ƒ“‚ğ•ÏX
+        //ƒxƒNƒgƒ‹•Ï”‚ğ‰Šú‰»
         velocity.clear();
         density.clear();
         thickness.clear();
@@ -337,13 +372,13 @@ int main( int argc, char* argv[] )
 			return 1;
 		}
 
-		//------------------ WAVï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì“Ç‚İï¿½ï¿½ï¿½ ----------------------------
+		//------------------ WAVƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ ----------------------------
 
 		char* wav_filename  = argv[4];
 		std::vector<double> SAngle;
 
-		// ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
-		// fieldï¿½ï¿½vectorï¿½ï¿½ï¿½oï¿½^
+		// •¨«’l‚ğ“Ç‚İ‚Ş
+		// field‚Évector‚ğ“o˜^
 		std::vector< std::vector<double>* > wavfield;
 		wavfield.push_back( &SAngle );
 
@@ -354,7 +389,7 @@ int main( int argc, char* argv[] )
 			return 1;
 		}
 
-		//------------------ ï¿½oï¿½Í”gï¿½`ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ìİ’ï¿½ --------------------------
+		//------------------ o—Í”gŒ`ƒtƒ@ƒCƒ‹‚Ìİ’è --------------------------
 
 		//char* output_filename = argv[6];
         string stempfilename;
@@ -363,12 +398,12 @@ int main( int argc, char* argv[] )
         output_filename = new char[stempfilename.length() + 1];
         strcpy(output_filename,stempfilename.c_str());
         //strlen(output_filename);
-		//----------------------- ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½Ñoï¿½ï¿½ -----------------------------
-		int Ssize = SAngle.size()-1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½Ê‘ï¿½ï¿½Ìï¿½
+		//----------------------- ŒvZ‚¨‚æ‚Ño—Í -----------------------------
+		int Ssize = SAngle.size()-1;//‰Šúƒ‰ƒ“ƒ_ƒ€ˆÊ‘Š‚Ì”
 
 		spec.GetBasenWave(dR_s/1000 ,(int)Samplefreq, datasize, wave, wave2, SAngle, Ssize);
 
-		// ï¿½nï¿½kï¿½ï¿½ï¿½Õ‚Ì”gï¿½`ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½oï¿½ï¿½
+		// ’nkŠî”Õ‚Ì”gŒ`ƒtƒ@ƒCƒ‹o—Í
 		double maxval = *std::max_element( wave2.begin(), wave2.end() );
 		double minval = *std::min_element( wave2.begin(), wave2.end() );
 		double absmax = 0;
@@ -388,31 +423,31 @@ int main( int argc, char* argv[] )
 
 		/*------------------------------------------------------------*/
 
-		// SHï¿½gï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë‰ï¿½ï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ï¿½ï¿½ì¬ï¿½ï¿½ï¿½Ä‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½
+		// SH”g‚Ì‚’¼“üË‰“šƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ä‰“š‚ğŒvZ‚·‚é
 		CVerticalSHResponse vertShResp( velocity, density, thickness );
 		vertShResp.CalcResponse( datasize, dt );
 
-		// ï¿½nï¿½kï¿½ï¿½ï¿½Õï¿½ï¿½Ì”gï¿½`ï¿½ï¿½ï¿½Å‰ï¿½ï¿½Ê‚É“ï¿½ï¿½Ë‚ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Ì‰ï¿½ï¿½ï¿½ï¿½gï¿½`ï¿½ï¿½ï¿½oï¿½Í‚ï¿½ï¿½ï¿½
+		// ’nkŠî”Õã‚Ì”gŒ`‚ğÅ‰º–Ê‚É“üË‚µ‚½‚Æ‚«‚Ì‰“š”gŒ`‚ğo—Í‚·‚é
 		std::vector<std::complex<double> > inputWave( vertShResp.NumofSample() );
 		if( !inputw( inputWave, dt, wave2 ) ) std::cerr << "inputwave error" << std::endl;
 		CFastFourierTransform::Trans( inputWave );
 
-		// ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ“¾ï¿½ï¿½Convolutionï¿½ï¿½ï¿½oï¿½ï¿½
+		// ü”g”‰“šæ“¾¨Convolution¨o—Í
 		std::vector<std::complex<double> > response( vertShResp.NumofSample() );
 		std::vector<std::complex<double> > outputWave( vertShResp.NumofSample() );
 
-        //iLayer==0ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½Í‚ï¿½ï¿½È‚ï¿½ï¿½Ì‚ÅAï¿½ï¿½ï¿½[ï¿½vï¿½Å‚Ü‚í‚·ï¿½Kï¿½vï¿½È‚ï¿½ï¿½Ì‚Å‚ÍHï¿½H
+        //iLayer==0‚Ì‚µ‚©o—Í‚µ‚È‚¢‚Ì‚ÅAƒ‹[ƒv‚Å‚Ü‚í‚·•K—v‚È‚¢‚Ì‚Å‚ÍHH
 		for( unsigned int iLayer = 0; iLayer < numofLayer; iLayer++ ){
-			// ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ“¾
+			// ü”g”‰“šæ“¾
 			vertShResp.GetSpectrum( iLayer, response, dt );
 			// Convolution
 			for( unsigned int j = 0; j < outputWave.size(); j++ ) {
                 outputWave[j] = (inputWave[j] * response[j]);
             }
-            // ï¿½ï¿½ï¿½nï¿½ï¿½
+            // Œn—ñ
             CFastFourierTransform::Inverse( outputWave );
 
-			// ï¿½Hï¿½wï¿½Iï¿½ï¿½ï¿½Õ‚Ì”gï¿½`ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½oï¿½ï¿½
+			// HŠw“IŠî”Õ‚Ì”gŒ`ƒtƒ@ƒCƒ‹o—Í
 			if( iLayer == 0 ){
 
 				std::ostringstream filename_strm;

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ data. This single residuals file uses the same resid2uncer_varN
 program used in single bias plots to generate data for the combined
 plot.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -70,20 +71,20 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
         bband_utils.check_path_lengths([combined_resid_file, fileroot],
                                        bband_utils.GP_MAX_FILENAME)
 
-        cmd = ("%s/resid2uncer_varN " % (gp_bin_dir) +
+        cmd = ("%s " % (os.path.join(gp_bin_dir, "resid2uncer_varN")) +
                "residfile=%s fileroot=%s " % (combined_resid_file, fileroot) +
                "comp=%s nstat=%d nper=63 " % (comp, num_stations) +
                " >> %s 2>&1" % (logfile))
         bband_utils.runprog(cmd, abort_on_error=True)
 
-    plottitle = ("Combined GOF Plot for %s\n%d Realizations\n%s Method" %
+    plottitle = ("Combined GOF Plot for %s\n%d Realizations - %s Method" %
                  (comp_label, num_realization, codebase.upper()))
     fileroot = "%s-%s-combined-rd50" % (codebase, comp_label)
     plotter = PlotGoF()
     plotter.plot(plottitle, fileroot, tmpdir, outdir,
                  cutoff=0, mode="rd50-single", colorset="combined")
 
-    print "Stations used: %s" % (num_stations)
+    print("Stations used: %s" % (num_stations))
 
 def combine_station_data(station, input_dir, temp_dir):
     """
@@ -157,7 +158,7 @@ def combine_realizations_data(input_dir, temp_dir):
 
     # Now walk through all realizations and combine stations data
     for station in stations:
-        print "working on station: %s" % (station)
+        print("working on station: %s" % (station))
         combine_station_data(station, input_dir, temp_dir)
 
     return event_label, len(realizations), len(stations)
@@ -238,7 +239,8 @@ def create_resid_data_file(comp_label, input_indir, input_obsdir,
         simfile1 = os.path.join(temp_dir, "%s.rd50" % (stat))
         datafile1 = os.path.join(obs_dir, "%s.rd50" % (stat))
 
-        cmd = ("%s/gen_resid_tbl_3comp bbp_format=1 " % (gp_bin_dir) +
+        cmd = ("%s bbp_format=1 " %
+               (os.path.join(gp_bin_dir, "gen_resid_tbl_3comp")) +
                "datafile1=%s simfile1=%s " % (datafile1, simfile1) +
                "comp1=psa5n comp2=psa5e comp3=rotd50 " +
                "eqname=%s mag=0.0 stat=%s lon=%.4f lat=%.4f " %
@@ -312,6 +314,6 @@ summarize_rotd50(TMPDIR, OUTPUT_DIR,
                  NUM_REALIZATIONS,
                  OPTIONS.codebase)
 
-print "All Done!"
+print("All Done!")
 # Clean-up, all done!
 shutil.rmtree(TMPDIR)

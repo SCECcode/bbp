@@ -1,7 +1,18 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 Multisegment tool for merging multiple BBP runs into a combined simulation
 """
@@ -267,9 +278,9 @@ class MergeScenario(object):
             bband_utils.runprog(cmd)
 
         plottitle = 'Rupture Model for %s' % (self.scenario)
-        plot_srf.plot_multi_segment(plottitle,
-                                    self.srf_files,
-                                    self.a_outdir)
+        plot_srf.plot_multi_srf_files(plottitle,
+                                      self.srf_files,
+                                      self.a_outdir)
 
         # Restore directory
         os.chdir(old_cwd)

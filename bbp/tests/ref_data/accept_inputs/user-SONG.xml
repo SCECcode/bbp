@@ -1,47 +1,58 @@
 	<BBP_Run_Specification>
-		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="17.3.0"/>
+		<Scenario_Run input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="19.4.0"/>
 		<BBP_Modules>
 			<BBP_Module>
-				<name>RMG</name>
+				<name>SongRMGSS</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_song.src</file>
 				</staged_files>
 				<arguments>
-					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
 					<argument type="str">northridge_eq_song.src</argument>
 					<argument type="str">northridge_eq_song.srf</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Jbsim</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_song.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
-					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
 					<argument type="str">northridge_eq_song.src</argument>
 					<argument type="str">northridge_eq_song.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
 				<name>Hfsims</name>
 				<staged_files>
-					<file>$BBP_INSTALL_GF/LABasin863/gp/genslip_nr_generic1d-gp01.vmod</file>
+					<file>$BBP_INSTALL_GF/LABasin500/gp/nr02-vs500.fk1d</file>
 					<file>$BBP_DATA_DIR/run/northridge_eq_song.src</file>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
 				</staged_files>
 				<arguments>
-					<argument type="str">genslip_nr_generic1d-gp01.vmod</argument>
+					<argument type="str">nr02-vs500.fk1d</argument>
 					<argument type="str">northridge_eq_song.src</argument>
 					<argument type="str">northridge_eq_song.srf</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
+				<name>WccSiteamp</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+					<argument type="str">GP</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
@@ -51,10 +62,10 @@
 				</staged_files>
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
 				</arguments>
 				<keyword_arguments>
-					<keyword_argument keyword="acc" type="bool">False</keyword_argument>
+					<keyword_argument keyword="acc" type="bool">True</keyword_argument>
 				</keyword_arguments>
 			</BBP_Module>
 			<BBP_Module>
@@ -99,7 +110,7 @@
 				<arguments>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">northridge_eq_song.src</argument>
-					<argument type="str">LABasin863</argument>
+					<argument type="str">LABasin500</argument>
 					<argument type="NoneType">None</argument>
 					<argument type="str">SONG</argument>
 				</arguments>

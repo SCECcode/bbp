@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class TestUCStitch(unittest.TestCase):
     def setUp(self):
         self.install = InstallCfg()
         os.chdir(self.install.A_INSTALL_ROOT)
-        self.velocity = "labasin.vel"
+        self.velocity = "nr02-vs500_lf.vel"
         self.srffile = "test_ucsb.srf"
         self.stations = "test_stat.txt"
         self.sim_id = int(seqnum.get_seq_num())
@@ -43,42 +43,41 @@ class TestUCStitch(unittest.TestCase):
         self.a_tmpdir_mod = os.path.join(self.install.A_TMP_DATA_DIR,
                                          str(self.sim_id),
                                          "uc_stitch_%s" % (sta_base))
-        cmd = "mkdir -p %s/%d" % (self.install.A_IN_DATA_DIR, self.sim_id)
+
+        # Create directories
+        a_refdir = os.path.join(self.install.A_TEST_REF_DIR, "ucsb")
+        a_indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
+        a_tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
+        a_outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
+        a_logdir = os.path.join(self.install.A_OUT_LOG_DIR, str(self.sim_id))
+        cmd = "mkdir -p %s" % (a_indir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_TMP_DATA_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_tmpdir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_OUT_DATA_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_outdir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_OUT_LOG_DIR, self.sim_id)
+        cmd = "mkdir -p %s" % (a_logdir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/ucsb/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.velocity,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.velocity), a_indir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/ucsb/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                         self.srffile,
-                                         self.install.A_IN_DATA_DIR,
-                                         self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(a_refdir, self.srffile), a_indir)
         bband_utils.runprog(cmd)
-        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.stations,
-                                       self.install.A_IN_DATA_DIR,
-                                       self.sim_id)
+        cmd = "cp %s %s" % (os.path.join(self.install.A_TEST_REF_DIR,
+                                         "gp", self.stations), a_indir)
         bband_utils.runprog(cmd)
         for i in range(1, 6):
-            cmd = ("cp %s/gp/s%02d-lf.bbp %s/%d/%d.s%02d-lf.bbp" %
-                   (self.install.A_TEST_REF_DIR, i,
-                    self.install.A_TMP_DATA_DIR, self.sim_id,
-                    self.sim_id, i))
+            cmd = "cp %s %s" % (os.path.join(self.install.A_TEST_REF_DIR,
+                                             "gp", "s%02d-lf.bbp" % (i)),
+                                os.path.join(a_tmpdir,
+                                             "%d.s%02d-lf.bbp" %
+                                             (self.sim_id, i)))
             bband_utils.runprog(cmd)
-            cmd = ("cp %s/ucsb/s%02d.3comp %s/%d/%d.s%02d.bbp" %
-                   (self.install.A_TEST_REF_DIR, i,
-                    self.install.A_TMP_DATA_DIR, self.sim_id,
-                    self.sim_id, i))
+            cmd = "cp %s %s" % (os.path.join(a_refdir, "s%02d.3comp" % (i)),
+                                os.path.join(a_tmpdir, "%d.s%02d.bbp" % (self.sim_id, i)))
             bband_utils.runprog(cmd)
 
-    def test_bbp_wid(self):
+    def test_ucsb_stitch(self):
         """
         Test the UCSB stitch code
         """
@@ -92,8 +91,7 @@ class TestUCStitch(unittest.TestCase):
                                     "ucsb",
                                     "s%02d.stitched.bbp" % (i))
             bbpfile = os.path.join(self.a_tmpdir_mod,
-                                   "%d.s%02d-stitch.bbp" % (str(self.sim_id),
-                                                            i))
+                                   "%d.s%02d-stitch.bbp" % (self.sim_id, i))
             self.failIf(cmp_bbp.cmp_bbp(ref_file, bbpfile) != 0,
                         "output merged BBP file "
                         "%s does not match reference merged bbp file %s" %

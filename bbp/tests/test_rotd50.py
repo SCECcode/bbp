@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import os
 import unittest
 
 # Import Broadband modules
+import cmp_bbp
 import rotd50
 import seqnum
 import bband_utils
@@ -80,6 +81,16 @@ class TestRotD50(unittest.TestCase):
 
         rotd50_obj = rotd50.RotD50(r_station_list, sim_id)
         rotd50_obj.run()
+
+        # Check results
+        for i in range(1, 6):
+            ref_rd50 = os.path.join(ref_dir, "8000%d.rd50" % (i))
+            new_rd50 = os.path.join(self.outdir, "%d.8000%d.rd50" %
+                                    (sim_id, i))
+            errmsg = ("Output file %s does not match reference file: %s" %
+                      (new_rd50, ref_rd50))
+            self.failIf(cmp_bbp.cmp_files_generic(ref_rd50,
+                                                  new_rd50) != 0, errmsg)
 
 if __name__ == "__main__":
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestRotD50)

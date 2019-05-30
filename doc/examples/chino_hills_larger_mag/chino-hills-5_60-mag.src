@@ -1,0 +1,24 @@
+#
+# Chino Hills source file (modified with increased magnitude of 5.60)
+#
+# MAGNITUDE = 5.39 <--- this is the original value
+MAGNITUDE = 5.60
+FAULT_LENGTH = 6.30
+FAULT_WIDTH = 4.60
+DEPTH_TO_TOP = 12.79
+STRIKE = 296
+RAKE = 146
+DIP = 66
+LAT_TOP_CENTER = 33.939
+LON_TOP_CENTER = -117.771
+HYPO_ALONG_STK = 0.0
+HYPO_DOWN_DIP =  2.30
+#
+# Model specific parameters
+#
+DWID = 0.1
+DLEN = 0.1
+#
+# Alternative SEEDS create alternative .srf
+#
+SEED = 2379646

@@ -26,7 +26,6 @@ import seqnum
 import cmp_bbp
 import bband_utils
 from install_cfg import InstallCfg
-from sdsu_mogof_cfg import SDSUMOGofCfg
 from sdsu_mogof import SDSU_MOGof
 
 class Test_SDSU_MOGof_PGX(unittest.TestCase):
@@ -35,9 +34,7 @@ class Test_SDSU_MOGof_PGX(unittest.TestCase):
     """
 
     def setUp(self):
-        #i_r_stations,i_r_metadata,i_a_datadir,i_format,i_mag,i_comparison_label, cutoff=None, sim_id=0):
         self.install = InstallCfg()
-        self.cfg = SDSUMOGofCfg()
         os.chdir(self.install.A_INSTALL_ROOT)
         self.r_velocity = ""
         self.gof_weights = dict()

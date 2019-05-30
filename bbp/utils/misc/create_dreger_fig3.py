@@ -1,9 +1,18 @@
 #!/usr/bin/env python
 """
-Southern California Earthquake Center Broadband Platform
-Copyright 2010-2016 Southern California Earthquake Center
+Copyright 2010-2019 University Of Southern California
 
-$Id$
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 
 # Import Python modules
@@ -80,7 +89,7 @@ def summarize_and_plot_data(data, method, output_file):
     fig.subplots_adjust(hspace=0.4)
     fig.subplots_adjust(left=0.05)
     fig.subplots_adjust(right=0.98)
-                    
+
     current = start
     for bin in range(0, bins):
         mean_data[bin] = {}
@@ -150,7 +159,7 @@ def summarize_and_plot_data(data, method, output_file):
         subfig.set_ylim(-1.5, 1.5)
         subfig.grid(True)
         subfig.minorticks_on()
-        
+
     # All done, save plot!
     fig.savefig(output_file, format='png', transparent=False,
                 dpi=300)
@@ -171,7 +180,7 @@ def main():
     # Read input file
     data = read_data(input_file)
     summarize_and_plot_data(data, method, output_file)
-        
+
 
 if __name__ == "__main__":
     main()

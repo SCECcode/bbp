@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,28 +38,30 @@ class TestMatch(unittest.TestCase):
         self.match_cfg = MatchCfg()
         os.chdir(self.install.A_INSTALL_ROOT)
         self.stations = "test_stat.txt"
-        self.vmodel_name = "LABasin863"
+        self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
         self.freqs = ['lf', 'hf']
-        cmd = "mkdir -p %s/%d" % (self.install.A_IN_DATA_DIR, self.sim_id)
+
+        refdir = os.path.join(self.install.A_TEST_REF_DIR, "gp")
+        indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
+        tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
+        outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
+        logdir = os.path.join(self.install.A_OUT_LOG_DIR, str(self.sim_id))
+        # Create all directories
+        bband_utils.mkdirs([indir, tmpdir, outdir, logdir], print_cmd=False)
+
+        # Copy station list
+        cmd = "cp %s %s" % (os.path.join(refdir, self.stations), indir)
         bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_TMP_DATA_DIR, self.sim_id)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_OUT_DATA_DIR, self.sim_id)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s/%d" % (self.install.A_OUT_LOG_DIR, self.sim_id)
-        bband_utils.runprog(cmd)
-        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.stations,
-                                       self.install.A_IN_DATA_DIR,
-                                       self.sim_id)
-        bband_utils.runprog(cmd)
+
         for i in range(1, 6):
             for freq in self.freqs:
-                cmd = ("cp %s/gp/s%02d-%s-site.bbp %s/%d/%d.s%02d-%s.acc.bbp" %
-                       (self.install.A_TEST_REF_DIR, i, freq,
-                        self.install.A_TMP_DATA_DIR, self.sim_id,
-                        self.sim_id, i, freq))
+                cmd = "cp %s %s" % (os.path.join(refdir,
+                                                 "s%02d-%s-site.bbp" %
+                                                 (i, freq)),
+                                    os.path.join(tmpdir,
+                                                 "%d.s%02d-%s.acc.bbp" %
+                                                 (self.sim_id, i, freq)))
                 bband_utils.runprog(cmd)
 
     def test_match(self):

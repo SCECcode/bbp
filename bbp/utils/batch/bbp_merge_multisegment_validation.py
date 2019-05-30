@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -66,14 +66,12 @@ def post_process(station_list, src_files,
                              int(realization))
     process.run()
     process = GenPlots(os.path.basename(station_list),
-                       val_obj.get_obs_path(),
                        'acc',
                        val_obj.get_validation_name(),
                        int(realization))
     process.run()
     process = GPGof(os.path.basename(src_files[0]),
                     os.path.basename(station_list),
-                    val_obj.get_magnitude(),
                     val_obj.get_validation_name(),
                     val_obj.get_cutoff(),
                     False,
