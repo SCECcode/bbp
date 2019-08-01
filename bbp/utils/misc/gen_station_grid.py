@@ -16,9 +16,9 @@ limitations under the License.
 
 Program to create a list of stations for use in the Broadband Platform.
 """
+from __future__ import division, print_function
 
 # Import Python modules
-import os
 import sys
 
 def main():
@@ -28,7 +28,7 @@ def main():
     can only be used to generate a maximum of 9999 stations.
     """
     if len(sys.argv) < 6:
-        print "Usage: %s lat_min lat_max lon_min lon_max step" % sys.argv[0]
+        print("Usage: %s lat_min lat_max lon_min lon_max step" % sys.argv[0])
         sys.exit(0)
 
     lat_min = float(sys.argv[1])
@@ -44,9 +44,9 @@ def main():
     while cur_lat <= lat_max:
         while cur_lon <= lon_max:
             station_number = station_number + 1
-            print "%2.3f    %2.3f    sta%04d   10   " % (cur_lon,
-                                                         cur_lat,
-                                                         station_number)
+            print("%2.3f    %2.3f    sta%04d   " % (cur_lon,
+                                                    cur_lat,
+                                                    station_number))
             cur_lon = cur_lon + step
         cur_lat = cur_lat + step
         cur_lon = lon_min
