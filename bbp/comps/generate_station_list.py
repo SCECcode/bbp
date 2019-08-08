@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ from __future__ import division, print_function
 import optparse
 import numpy as np
 
-from pynga import LonLatToAngleDistance, DistanceToSimpleFaultSurface, \
-    EndLocation, SimpleFaultSurface, FaultTraceGen
+from pynga.utils import (LonLatToAngleDistance, DistanceToSimpleFaultSurface,
+                         EndLocation, SimpleFaultSurface, FaultTraceGen)
 #from pynga.utils import *
 
 # Parse command-line options
@@ -43,6 +43,8 @@ parser.add_option("-s", "--source", dest="source_file",
                   help="provides the source file to use")
 parser.add_option("-o", "--output", dest="output_file",
                   help="output file for the station list")
+parser.add_option("-v", "--vs30", dest="vs30",
+                  help="vs30 for the stations")
 parser.add_option("-p", "--plot_prefix", dest="plot_prefix",
                   help="specifies the plot prefix to use (default: no plots)")
 parser.add_option("--hw", "--hanging-wall", dest="hanging_wall",
@@ -75,6 +77,9 @@ if options.source_file is None:
 if options.output_file is None:
     parser.print_help()
     parser.error("Must specify output station list file")
+if options.vs30 is None:
+    parser.print_help()
+    parser.error("Must specify Vs30 to be used in station list")
 
 if options.plot_prefix is None:
     plot_prefix = None
@@ -96,6 +101,7 @@ grid_size = float(options.grid_size)
 station_radius = float(options.station_radius)
 source_file = options.source_file
 output_file = options.output_file
+vs30 = int(float(options.vs30))
 
 # Figure out where to place stations, start with default
 stations_foot_wall = True
@@ -158,7 +164,7 @@ FaultTrace, FaultSeg, AveStrike = SimpleFaultSurface(FaultTrace1,
                                                      AveDip)
 
 # generate grid of stations (for grid search)  in lon/lat
-strike = strike*np.pi / 180.
+strike = strike * np.pi / 180.
 loc0 = [lon0, lat0, 0.0]
 
 vD = 0.0
@@ -179,13 +185,13 @@ Ny = int(2 * hDy / dhD + 1)
 
 LocY = loc11
 Loc2D = []
-for iy in xrange(Ny):
+for _ in range(Ny):
     Loc2D.append(LocY)
     az = strike + np.pi / 2.
     hD = dhD
     vector = [az, hD, vD]
     LocX = LocY
-    for ix in xrange(Nx - 1):
+    for _ in range(Nx - 1):
         LocX = EndLocation(LocX, vector)
         Loc2D.append(LocX)
     az = strike
@@ -199,7 +205,7 @@ print('Total station locations: %d' % (Nloc))
 
 Rrups = []
 Rxs = []
-for iloc in xrange(len(Loc2D)):
+for iloc in range(len(Loc2D)):
     SiteGeom = Loc2D[iloc]
     Rjb, Rrup, Rx = DistanceToSimpleFaultSurface(SiteGeom,
                                                  FaultTrace1,
@@ -210,7 +216,15 @@ for iloc in xrange(len(Loc2D)):
     Rxs.append(Rx)
 
 if plot_prefix is not None:
+    import matplotlib.style
     import matplotlib as mpl
+    # Restore Matplotlib 1.x styles if we are using Matplotlib 2.x
+    try:
+        mpl.style.use('classic')
+    except:
+        pass
+    # Turn off tick label formatting with offsets
+    mpl.rcParams['axes.formatter.useoffset'] = False
     mpl.use('Agg')
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
@@ -222,12 +236,14 @@ if plot_prefix is not None:
     img = ax.scatter(LocS0[:, 0], LocS0[:, 1],
                      c=np.array(Rrups), s=np.array(Rrups), edgecolor='none')
     ax.plot(verts1[:, 0], verts1[:, 1], 'k')
-    ax.set_xlabel('lon')
-    ax.set_ylabel('lat')
-    ax.set_title('All station grid and Rrup with domain: '
+    ax.set_xlabel('lon', size=8)
+    ax.set_ylabel('lat', size=8)
+    ax.tick_params(labelsize=7)
+    ax.set_title('All station grid and Rrup with domain\n'
                  '%s*%s km^2, and grid size: %s km' %
-                 (2 * hDx, 2 * hDy, dhD))
-    fig.colorbar(img)
+                 (2 * hDx, 2 * hDy, dhD), size=10)
+    cbar = fig.colorbar(img)
+    cbar.ax.tick_params(labelsize=8)
     fig.savefig('%s_all_station_rrup_grid_size_%s.pdf' %
                 (plot_prefix, '%.2f' % grid_size), format='pdf')
 
@@ -237,10 +253,12 @@ if plot_prefix is not None:
     img = ax.scatter(LocS0[:, 0], LocS0[:, 1],
                      c=np.array(Rxs), s=abs(np.array(Rxs)), edgecolor='none')
     ax.plot(verts1[:, 0], verts1[:, 1], 'k')
-    ax.set_xlabel('lon')
-    ax.set_ylabel('lat')
-    ax.set_title('All station grid and Rx')
-    fig.colorbar(img)
+    ax.set_xlabel('lon', size=8)
+    ax.set_ylabel('lat', size=8)
+    ax.tick_params(labelsize=7)
+    ax.set_title('All station grid and Rx', size=10)
+    cbar = fig.colorbar(img)
+    cbar.ax.tick_params(labelsize=8)
     fig.savefig('%s_all_station_rx_grid_size_%s.pdf' %
                 (plot_prefix, '%.2f' % grid_size), format='pdf')
 
@@ -252,7 +270,7 @@ Rrups1 = []
 Rxs1 = []
 
 azs1 = []   # will be used to rank the index1
-for iloc in xrange(Nloc):
+for iloc in range(Nloc):
     if Rrup0-dhD / 2. <= Rrups[iloc] <= Rrup0 + dhD / 2.:
         if not stations_hanging_wall and Rxs[iloc] > 0:
             continue
@@ -328,17 +346,17 @@ LocS2 = np.array(LocS2)
 # write into file
 fid = open(output_file, 'w')
 fid.write('#Slon\tSlat\tRSN\tVs30(m/s)\n')
-for ista in xrange(num_output_stations):
-    fid.write('%s %s %s %s\n' %
+for ista in range(num_output_stations):
+    fid.write('%s %s %s %d\n' %
               (LocS2[ista, 0], LocS2[ista, 1],
-               "sta-%s%04d" % (stat_prefix, ista), 863))
+               "sta-%s%04d" % (stat_prefix, ista), vs30))
 fid.close()
 
 if plot_prefix is not None:
     fig = plt.figure(3)
     fig.clf()
     ax = Axes3D(fig)
-    DepFactor = 1./6371*180./np.pi
+    DepFactor = 1. / 6371 * 180. / np.pi
     DepFactor = 1.0
     ax.plot(verts1[:, 0], verts1[:, 1],
             -verts1[:, 2]*DepFactor, 'k--', label='Fault Surface')
@@ -347,9 +365,10 @@ if plot_prefix is not None:
     ax.plot(LocS0[:, 0], LocS0[:, 1], 0.0, 'g+', label='Station Grid')
     ax.text(verts1[3, 0], verts1[3, 1],
             -verts1[3, 2]*DepFactor, 'dip=%s' % ('%.1f' % AveDip))
-    ax.set_xlabel('lon')
-    ax.set_ylabel('lat')
-    ax.set_zlabel('dep (km)')
+    ax.set_xlabel('lon', size=8)
+    ax.set_ylabel('lat', size=8)
+    ax.tick_params(labelsize=7)
+    ax.set_zlabel('dep (km)', size=8)
     ax.set_zlim3d([-110, 0])
     ax.plot(LocS1[:, 0], LocS1[:, 1], 0.0, 'b^',
             label='Station with Rrup=~%s km' % Rrup0)
