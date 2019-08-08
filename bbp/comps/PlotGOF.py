@@ -114,7 +114,7 @@ class PlotGoF(object):
         conf_h = [[] for _ in range(len(gof_fileroot))]
 
         # Read data from all input files
-        for compnum in xrange(0, len(gof_fileroot)):
+        for compnum in range(0, len(gof_fileroot)):
             filenamebase = os.path.join(indir, gof_fileroot[compnum])
             #print("Reading component files %s.*" % (filenamebase))
             periods[compnum], bias[compnum] = self.read_data("%s.bias" %
@@ -134,7 +134,7 @@ class PlotGoF(object):
                                                                0.01)
 
             # Compute bias and conf interval lower/upper bounds
-            for i in xrange(0, len(bias[compnum])):
+            for i in range(0, len(bias[compnum])):
                 bias_l[compnum].append(bias[compnum][i] - sigma0[compnum][i])
                 bias_h[compnum].append(bias[compnum][i] + sigma0[compnum][i])
                 conf_l[compnum].append(m90[compnum][i])
@@ -264,7 +264,7 @@ class PlotGoF(object):
         conf_l = [[], [], []]
         conf_h = [[], [], []]
 
-        for compnum in xrange(0, len(comp_ext)):
+        for compnum in range(0, len(comp_ext)):
             comp = comp_ext[compnum]
             filenamebase = os.path.join(indir, "%s-%s" % (gof_fileroot, comp))
             #print("Reading component files %s.*" % (filenamebase))
@@ -285,7 +285,7 @@ class PlotGoF(object):
                                                               min_period)
 
             # Compute bias and conf interval lower/upper bounds
-            for i in xrange(0, len(bias[compnum])):
+            for i in range(0, len(bias[compnum])):
                 bias_l[compnum].append(bias[compnum][i] - sigma0[compnum][i])
                 bias_h[compnum].append(bias[compnum][i] + sigma0[compnum][i])
                 conf_l[compnum].append(m90[compnum][i])
@@ -299,7 +299,7 @@ class PlotGoF(object):
 
         # Construct baseline
         baseline = []
-        for i in xrange(0, len(period[0])):
+        for _ in range(0, len(period[0])):
             baseline.append(0.0)
 
         # Find max, min values
@@ -403,7 +403,7 @@ class PlotGoF(object):
         conf_l = [[], [], []]
         conf_h = [[], [], []]
 
-        for compnum in xrange(0, len(comp_ext)):
+        for compnum in range(0, len(comp_ext)):
             comp = comp_ext[compnum]
             filenamebase = os.path.join(indir, "%s-%s" % (gof_fileroot, comp))
             #print("Reading component files %s.*" % (filenamebase))
@@ -424,7 +424,7 @@ class PlotGoF(object):
                                                               min_period)
 
             # Compute bias and conf interval lower/upper bounds
-            for i in xrange(0, len(bias[compnum])):
+            for i in range(0, len(bias[compnum])):
                 bias_l[compnum].append(bias[compnum][i] - sigma0[compnum][i])
                 bias_h[compnum].append(bias[compnum][i] + sigma0[compnum][i])
                 conf_l[compnum].append(m90[compnum][i])
@@ -438,7 +438,7 @@ class PlotGoF(object):
 
         # Construct baseline
         baseline = []
-        for i in xrange(0, len(period[0])):
+        for _ in range(0, len(period[0])):
             baseline.append(0.0)
 
         # Find max, min values
@@ -451,7 +451,7 @@ class PlotGoF(object):
         max_y = MAX_Y_AXIS
 
         # Draw each component
-        for compnum in xrange(0, 3):
+        for compnum in range(0, 3):
             comp = comp_ext[compnum]
             offset = COMP_OFFSET[compnum]
 
