@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ from __future__ import division, print_function
 # Import Python modules
 import os
 import sys
+import math
 
 import numpy as np
 import matplotlib
@@ -39,6 +40,18 @@ import bband_utils
 import plot_config
 from install_cfg import InstallCfg
 from station_list import StationList
+
+def school_round(value):
+    """
+    Implements the school round where round(0.5) = 1.0
+    """
+    if (float(value) % 1) >= 0.5:
+        if value > 0:
+            return float(math.ceil(value))
+        elif value < 0:
+            return float(math.floor(value))
+
+    return round(value)
 
 class AndersonGOF(object):
     """
@@ -151,9 +164,9 @@ class AndersonGOF(object):
             X5, Y5 = butter(8, (1.0 / deltat) / (1.0 / tdeltat), 'low')
             tfif = filtfilt(X5, Y5, tfi,
                             padlen=3*(max(len(X5), len(Y5))-1))
-            idx = [int(round(x)) for x in np.arange(1,
-                                                    len(tfif) + 0.0000001,
-                                                    (deltat/tdeltat))]
+            idx = [int(school_round(x)) for x in np.arange(1,
+                                                           len(tfif) + 0.0000001,
+                                                           (deltat/tdeltat))]
             tf = [tfif[i-1] for i in idx]
             # Keep xii
             xi = xii
