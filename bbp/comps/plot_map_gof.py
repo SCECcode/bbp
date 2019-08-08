@@ -248,11 +248,11 @@ def create_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
         subfig.set_autoscale_on(False)
 
         # Plot coast lines
-        for idx in xrange(0, len(coast_x)):
+        for idx in range(0, len(coast_x)):
             subfig.plot(coast_x[idx], coast_y[idx], linestyle='-', color='0.75')
 
         # Plot borders
-        for idx in xrange(0, len(bord_x)):
+        for idx in range(0, len(bord_x)):
             subfig.plot(bord_x[idx], bord_y[idx], linestyle='-', color='0.75')
 
         # Plot fault trace
