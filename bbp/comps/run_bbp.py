@@ -18,6 +18,10 @@ SCEC Broadband Platform
 """
 from __future__ import division, print_function
 
+# Works for both Python 2 and 3
+try: input = raw_input
+except NameError: pass
+
 # Import Python modules first
 import os
 import sys
@@ -67,6 +71,12 @@ class Logger(object):
         Write output to the logfile
         """
         self.fp.write(string)
+
+    def flush(self):
+        """
+        Flush output
+        """
+        self.fp.flush()
 
     def close(self):
         """
@@ -202,8 +212,8 @@ else:
         print()
         while True:
             try:
-                val_choice = raw_input("Do you want to perform a "
-                                       "validation simulation (y/n)? ")
+                val_choice = input("Do you want to perform a "
+                                   "validation simulation (y/n)? ")
                 if (val_choice.lower() == 'y' or val_choice.lower() == 'n' or
                     val_choice.lower() == 'yes' or val_choice.lower() == 'no'):
                     break

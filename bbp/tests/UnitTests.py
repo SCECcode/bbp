@@ -59,6 +59,9 @@ class Logger(object):
     def write(self, string):
         self.out_fp.write(string)
 
+    def flush(self):
+        self.out_fp.flush()
+
     def close(self):
         self.out_fp.flush()
         self.out_fp.close()
