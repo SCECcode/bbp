@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ class TestSDSUMOGof(unittest.TestCase):
         #  Weighting on Fourier Spectrum
         self.gof_weights["fourier_spectrum"] = 1.0
 
-        self.plot_map = False
+        self.plot_map = True
         self.r_datadir = os.path.join(self.install.A_TEST_REF_DIR, "sdsu")
         self.r_format = "A"
         self.r_comparison_label = "Northridge"
