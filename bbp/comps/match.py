@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ class Match(object):
             # Got to first timestamp. Now, pick two consecutive
             # timestamps values
             lf_t1 = float(line.strip().split()[0])
-            lf_t2 = float(lf_file.next().strip().split()[0])
+            lf_t2 = float(next(lf_file).strip().split()[0])
             # Subtract the two times
             lf_dt = lf_t2 - lf_t1
             # All done!
@@ -175,7 +175,7 @@ class Match(object):
             # Got to first timestamp. Now, pick two consecutive
             # timestamps values
             hf_t1 = float(line.strip().split()[0])
-            hf_t2 = float(hf_file.next().strip().split()[0])
+            hf_t2 = float(next(hf_file).strip().split()[0])
             # Subtract the two times
             hf_dt = hf_t2 - hf_t1
             # All done!
