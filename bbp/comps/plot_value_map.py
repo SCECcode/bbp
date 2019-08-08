@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import sys
 import math
 import struct
 import numpy as np
+from scipy.interpolate import griddata
 import matplotlib as mpl
 mpl.rcParams['font.size'] = 10.
 import warnings
@@ -30,8 +31,6 @@ with warnings.catch_warnings():
     import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
-import matplotlib.mlab as mlab
-#from matplotlib.patches import Circle
 from matplotlib import lines
 from pyproj import Proj
 
@@ -132,21 +131,21 @@ class PlotValueMap(object):
         self.y_invert = True
 
         rzone = 11
-#        if self.region !=  None:
-#            if self.region.getName() == "Northern California":
-#                rzone = 10
-#                print "Region : %s, UTM Zone: %d" % (self.region.getName(), rzone)
-#        else:
+        # if self.region !=  None:
+        #     if self.region.getName() == "Northern California":
+        #         rzone = 10
+        #         print "Region : %s, UTM Zone: %d" % (self.region.getName(), rzone)
+        #     else:
         print("Region : None, UTM Zone: %d" % (rzone))
 
         pobj = Proj(proj='utm', zone=rzone, ellps='WGS84')
-        self.offset = map(round, pobj(self.origin[0], self.origin[1]))
-        #Calculate region dimension in km
+        self.offset = list(map(round, pobj(self.origin[0], self.origin[1])))
+        # Calculate region dimension in km
         dim_y = math.ceil(GS.get_distance(self.nw, self.sw)) * (1000.0 / self.dx) #(KM*1000/dx)
         dim_x = math.ceil(GS.get_distance(self.sw, self.se)) * (1000.0 / self.dx)
         dim_z = 1.0 * (1000.0 / self.dx) #Just want to plot surface so we use 1 KM for Z
         self.dim = [int(dim_x), int(dim_y), int(dim_z)]
-#               print "Self.dx, self.offset, self.dim:", self.dx, self.offset, self.dim
+        # print "Self.dx, self.offset, self.dim:", self.dx, self.offset, self.dim
 
         self.projobj = Projection(self.dx, self.dim, self.offset, "utm", rzone)
         self.build_station_list(self.station_file)
@@ -162,8 +161,10 @@ class PlotValueMap(object):
                   "Missing coast line data! Skipping coast line plot!")
             return
 
-        boundfile = "%s/%d/boundaries.txt" % (self.install.A_TMP_DATA_DIR, self.sim_id)
-        #mapfile, outfile, proj, offsets, dx, dim
+        boundfile = os.path.join(self.install.A_TMP_DATA_DIR,
+                                 str(self.sim_id),
+                                 "boundaries.txt")
+        # mapfile, outfile, proj, offsets, dx, dim
         print("Mapfile is: %s" % (mapfile))
         prog = ExtractBoundaries(mapfile, boundfile, proj, offsets,
                                  dx, dim, x_invert, y_invert)
@@ -219,15 +220,17 @@ class PlotValueMap(object):
         assert x.ndim == y.ndim == z.ndim == 1 and  len(x) == len(y) == len(z)
 
         # Define grid and interpolate the rest
-        xi = np.linspace(0.0, float(self.dim[0]-1), self.dim[0])
-        yi = np.linspace(0.0, float((self.dim[1]-1)*-1), self.dim[1])
+        xi = np.linspace(0.0, float(self.dim[0] - 1), self.dim[0])
+        yi = np.linspace(0.0, float((self.dim[1] - 1) * -1), self.dim[1])
 
         # print "Length of xi, yi:", len(xi), len(yi)
-        zi = mlab.griddata(x, y, z, xi, yi)
+        # zi = mlab.griddata(x, y, z, xi, yi, interp='linear')
+        zi = griddata((x, y), z, (xi[None, :], yi[:, None]),
+                      method='cubic', rescale=True)
         # print "Shape of zi:", zi.shape
         # nmask = np.ma.count_masked(zi)
         # if nmask > 0:
-        #print("info: griddata: %d of %d points are masked, not interpolated" %
+        # print("info: griddata: %d of %d points are masked, not interpolated" %
         #      (nmask, zi.size))
         return zi
 
@@ -238,7 +241,7 @@ class PlotValueMap(object):
 
         ip = open(boundfile, 'rb')
         packed = ip.read(readsize)
-        while packed != '':
+        while len(packed) == 12:
             data = struct.unpack('iff', packed)
             if data[0] == 0:
                 if len(poly) > 1:
@@ -290,7 +293,7 @@ class PlotValueMap(object):
         num_ticks = 10
         diff = (value_max - value_min) / float(num_ticks)
         # print "Colorbar diff: ", diff
-        for i in xrange(0, num_ticks + 1):
+        for i in range(0, num_ticks + 1):
             # print (value_min + (i * diff))
             ticks.append(value_min + (i * diff))
 
@@ -381,12 +384,12 @@ class PlotValueMap(object):
         ticks = [[[], []], [[], []]]
         ticks[0][0] = []
         ticks[0][1] = []
-        for i in xrange(0, self.dim[0] * int(self.spacing[0]) + 1, 50000):
+        for i in range(0, self.dim[0] * int(self.spacing[0]) + 1, 50000):
             ticks[0][0].append(i / self.spacing[0])
             ticks[0][1].append('%d' % (i / 1000))
         ticks[1][0] = []
         ticks[1][1] = []
-        for i in xrange(0, self.dim[1] * int(self.spacing[1]) + 1, 50000):
+        for i in range(0, self.dim[1] * int(self.spacing[1]) + 1, 50000):
             ticks[1][0].append(i / self.spacing[1])
             ticks[1][1].append('%d' % (i / 1000))
 
