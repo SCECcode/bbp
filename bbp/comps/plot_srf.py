@@ -54,8 +54,8 @@ def read_xy_file(input_file, numx, numy):
     data = np.arange(numx * numy, dtype=float).reshape(numy, numx)
 
     # Data is x-fast
-    for y in xrange(0, numy):
-        for x in xrange(0, numx):
+    for y in range(0, numy):
+        for x in range(0, numx):
             tokens = slips[y * (numx) + x].split()
             data[y][x] = tokens[2]
 
@@ -102,11 +102,11 @@ def get_srf_params(srf_file, segment=0):
                 sys.exit(1)
             for _ in range(segment):
                 # Skip lines to get to the segment we want
-                _ = srf.next()
-                _ = srf.next()
+                _ = next(srf)
+                _ = next(srf)
             # The next line should have what we need
-            srf_params1 = srf.next()
-            srf_params2 = srf.next()
+            srf_params1 = next(srf)
+            srf_params2 = next(srf)
             break
     srf.close()
     if srf_params1 is None or srf_params2 is None:
@@ -168,8 +168,8 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
         sumslip = 0.0
         minslip = 100000.0
         maxslip = 0.0
-        for y in xrange(0, dims[1]):
-            for x in xrange(0, dims[0]):
+        for y in range(0, dims[1]):
+            for x in range(0, dims[0]):
                 if slips[y][x] > maxslip:
                     maxslip = slips[y][x]
                 if slips[y][x] < minslip:
@@ -267,8 +267,8 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
         # Setup tinit contours
         mintinit = 100000.0
         maxtinit = 0.0
-        for y in xrange(0, dims[1]):
-            for x in xrange(0, dims[0]):
+        for y in range(0, dims[1]):
+            for x in range(0, dims[0]):
                 if tinits[y][x] > maxtinit:
                     maxtinit = tinits[y][x]
                 if tinits[y][x] < mintinit:
@@ -388,8 +388,8 @@ def plot_multi_plot(num_segments, srf_params, srf_dims,
         # Setup tinit contours
         mintinit = 100000.0
         maxtinit = 0.0
-        for y in xrange(0, dims[1]):
-            for x in xrange(0, dims[0]):
+        for y in range(0, dims[1]):
+            for x in range(0, dims[0]):
                 if tinits[y][x] > maxtinit:
                     maxtinit = tinits[y][x]
                 if tinits[y][x] < mintinit:
@@ -462,8 +462,8 @@ def plot(plottitle, srffile, outdir):
         sumslip = 0.0
         minslip = 100000.0
         maxslip = 0.0
-        for y in xrange(0, dims[1]):
-            for x in xrange(0, dims[0]):
+        for y in range(0, dims[1]):
+            for x in range(0, dims[0]):
                 if slips[y][x] > maxslip:
                     maxslip = slips[y][x]
                 if slips[y][x] < minslip:
@@ -552,8 +552,8 @@ def plot(plottitle, srffile, outdir):
     # Setup tinit contours
     mintinit = 100000.0
     maxtinit = 0.0
-    for y in xrange(0, dims[1]):
-        for x in xrange(0, dims[0]):
+    for y in range(0, dims[1]):
+        for x in range(0, dims[0]):
             if tinits[y][x] > maxtinit:
                 maxtinit = tinits[y][x]
             if tinits[y][x] < mintinit:
