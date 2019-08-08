@@ -20,6 +20,10 @@ parameters.
 """
 from __future__ import division, print_function
 
+# Works for both Python 2 and 3
+try: input = raw_input
+except NameError: pass
+
 # Import Python modules
 import os
 import ast
@@ -85,18 +89,18 @@ class WorkflowBuilder(object):
                       " methods that can be used to calculate synthetic"
                       " seismograms.")
                 print()
-                method = raw_input("Choose a Method to use in this "
-                                   "Broadband %s simulation:\n" % (sim_type) +
-                                   "(1) GP (Graves & Pitarka)\n"
-                                   "(2) UCSB\n"
-                                   "(3) SDSU\n"
-                                   "(4) EXSIM\n"
-                                   "(5) Song\n"
-                                   "(6) Irikura Recipe Method 1 (Irikura1)\n"
-                                   "(7) Irikura Recipe Method 2 (Irikura2)\n"
-                                   # "(8) CSM (Composite Source Model)"
-                                   # " - Beta Version\n"
-                                   "? ")
+                method = input("Choose a Method to use in this "
+                               "Broadband %s simulation:\n" % (sim_type) +
+                               "(1) GP (Graves & Pitarka)\n"
+                               "(2) UCSB\n"
+                               "(3) SDSU\n"
+                               "(4) EXSIM\n"
+                               "(5) Song\n"
+                               "(6) Irikura Recipe Method 1 (Irikura1)\n"
+                               "(7) Irikura Recipe Method 2 (Irikura2)\n"
+                               # "(8) CSM (Composite Source Model)"
+                               # " - Beta Version\n"
+                               "? ")
             if (method == '1' or method.lower() == "graves & pitarka" or
                 method.lower() == "gp"):
                 return "GP"
@@ -161,7 +165,7 @@ class WorkflowBuilder(object):
                                                 i + 1,
                                                 os.path.basename(src_file[i]))
 
-                src_option = raw_input("%s? " % question)
+                src_option = input("%s? " % question)
             try:
                 choice = int(src_option)
             except ValueError:
@@ -212,9 +216,9 @@ class WorkflowBuilder(object):
                           " Answer 'no' here if you would like to use"
                           " the standard source file for this event.")
                     print()
-                    user_src_file = raw_input("Do you want to provide "
-                                              "a custom source file "
-                                              "(y/n)? ")
+                    user_src_file = input("Do you want to provide "
+                                          "a custom source file "
+                                          "(y/n)? ")
                 if (user_src_file.lower() == 'y' or
                     user_src_file.lower() == 'yes'):
                     # Get custom file from user (note that
@@ -318,8 +322,8 @@ class WorkflowBuilder(object):
                           "Active Tectonic Regions.\nWe do not recommend "
                           "its use for CEUS simulations.")
                     print()
-                site_resp = raw_input("Do you want to run the "
-                                      "site response module (y/n)? ")
+                site_resp = input("Do you want to run the "
+                                  "site response module (y/n)? ")
             if site_resp.lower() == 'y' or site_resp.lower() == 'yes':
                 return True
             elif site_resp.lower() == 'n' or site_resp.lower() == 'no':
@@ -670,9 +674,9 @@ class WorkflowBuilder(object):
                             print()
                             print("=" * 80)
                             print()
-                            custom = raw_input("Would you like to specify a "
-                                               "custom ExSIM template file "
-                                               "(y/n)? ")
+                            custom = input("Would you like to specify a "
+                                           "custom ExSIM template file "
+                                           "(y/n)? ")
                         if custom.lower() == 'y' or custom.lower() == 'yes':
                             template_file = self.get_input_file("ExSim "
                                                                 "Template "
@@ -906,8 +910,8 @@ class WorkflowBuilder(object):
                     plot_vel = self.opt_obj.get_next_option()
                 else:
                     print("=" * 80)
-                    plot_vel = raw_input("Do you want to generate "
-                                         "velocity seismograms' plots (y/n)? ")
+                    plot_vel = input("Do you want to generate "
+                                     "velocity seismograms' plots (y/n)? ")
                 if plot_vel.lower() == 'y' or plot_vel.lower() == 'yes':
                     plot_seis_module.addArg(True)
                     break
@@ -928,8 +932,8 @@ class WorkflowBuilder(object):
                     plot_acc = self.opt_obj.get_next_option()
                 else:
                     print("=" * 80)
-                    plot_acc = raw_input("Do you want to generate acceleration"
-                                         " seismograms' plots (y/n)? ")
+                    plot_acc = input("Do you want to generate acceleration"
+                                     " seismograms' plots (y/n)? ")
                 if plot_acc.lower() == 'y' or plot_acc.lower() == 'yes':
                     plot_seis_module.addArg(True)
                     break
@@ -972,8 +976,8 @@ class WorkflowBuilder(object):
                       " show how GMPEs match the recorded data for a"
                       " certain event.")
                 print()
-                plot_gmpe = raw_input("Do you want to generate "
-                                      "a GMPE comparison plot (y/n)? ")
+                plot_gmpe = input("Do you want to generate "
+                                  "a GMPE comparison plot (y/n)? ")
             if plot_gmpe.lower() == 'y' or plot_gmpe.lower() == 'yes':
                 break
             elif plot_gmpe.lower() == 'n' or plot_gmpe.lower() == 'no':
@@ -1049,8 +1053,8 @@ class WorkflowBuilder(object):
                       "plots and data files that can be used to study "
                       "the simulation.")
                 print()
-                do_more_metrics = raw_input("Do you want to calculate "
-                                            "additional metrics (y/n)? ")
+                do_more_metrics = input("Do you want to calculate "
+                                        "additional metrics (y/n)? ")
 
             if do_more_metrics.lower() == 'n':
                 # Nothing to do, return
@@ -1075,8 +1079,8 @@ class WorkflowBuilder(object):
                 print("Additional metrics defined in "
                       "Rezaeian-Zhong-Zareian 2015")
                 print()
-                do_rzz2015 = raw_input("Do you want to calculate "
-                                       "the RZZ2015 metrics (y/n)? ")
+                do_rzz2015 = input("Do you want to calculate "
+                                   "the RZZ2015 metrics (y/n)? ")
 
             if do_rzz2015.lower() == 'n':
                 # Skip this one
@@ -1117,8 +1121,8 @@ class WorkflowBuilder(object):
                 print("===============")
                 print("Additional FAS metrics")
                 print()
-                do_fas = raw_input("Do you want to calculate "
-                                   "FAS metrics (y/n)? ")
+                do_fas = input("Do you want to calculate "
+                               "FAS metrics (y/n)? ")
 
             if do_fas.lower() == 'n':
                 # Skip this one
@@ -1147,8 +1151,8 @@ class WorkflowBuilder(object):
                 print("Additional GMPE for significant duration defined in "
                       "Afshari and Stewart 2016")
                 print()
-                do_as2016 = raw_input("Do you want to calculate "
-                                      "the AS2016 metrics (y/n)? ")
+                do_as2016 = input("Do you want to calculate "
+                                  "the AS2016 metrics (y/n)? ")
 
             if do_as2016.lower() == 'n':
                 # Skip this one
@@ -1183,8 +1187,8 @@ class WorkflowBuilder(object):
                 print("===========")
                 print("Ratio of maximum to median responses across orientations")
                 print()
-                do_rd100 = raw_input("Do you want to calculate "
-                                     "the RotD100 metrics (y/n)? ")
+                do_rd100 = input("Do you want to calculate "
+                                 "the RotD100 metrics (y/n)? ")
 
             if do_rd100.lower() == 'n':
                 # Skip this one
@@ -1225,9 +1229,9 @@ class WorkflowBuilder(object):
                 print("===========")
                 print("Anderson GoF (2004) calculates 10 extra metrics")
                 print()
-                do_anderson_gof = raw_input("Do you want to calculate "
-                                            "the Anderson GoF (2004) "
-                                            "metrics (y/n)? ")
+                do_anderson_gof = input("Do you want to calculate "
+                                        "the Anderson GoF (2004) "
+                                        "metrics (y/n)? ")
 
             if do_anderson_gof.lower() == 'n':
                 # Skip this one
@@ -1267,8 +1271,8 @@ class WorkflowBuilder(object):
                       " creates a comparison plot showing how well the "
                       " calculated seismograms fit recorded data.")
                 print()
-                gof = raw_input("Do you want to run a "
-                                "goodness-of-fit module (y/n)? ")
+                gof = input("Do you want to run a "
+                            "goodness-of-fit module (y/n)? ")
 
             if gof.lower() == 'n':
                 # Nothing to do, return
@@ -1299,12 +1303,12 @@ class WorkflowBuilder(object):
                       " the simulated seismograms match the"
                       " recorded data in a historical event.")
                 print()
-                gof_opt = raw_input("Choose a "
-                                    "Goodness of Fit (GOF) Module:\n"
-                                    "(1) GP\n"
-                                    "(2) SDSU\n"
-                                    "(3) Both\n"
-                                    "? ")
+                gof_opt = input("Choose a "
+                                "Goodness of Fit (GOF) Module:\n"
+                                "(1) GP\n"
+                                "(2) SDSU\n"
+                                "(3) Both\n"
+                                "? ")
             # Check if response is valid
             if gof_opt == "1" or gof_opt == "2" or gof_opt == "3":
                 # Now, we generate basic plots, such as
@@ -1382,8 +1386,8 @@ class WorkflowBuilder(object):
             print("The SDSU MO-GOF module includes a number of metrics"
                   " to compare recorded and calculates seismograms.")
             print()
-            gof_metrics = raw_input("Do you want to calculate "
-                                    "all MO-GOF metrics (y/n)? ")
+            gof_metrics = input("Do you want to calculate "
+                                "all MO-GOF metrics (y/n)? ")
         if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
             #  Weighting on PGA
             gof_weights["pga"] = 1.0
@@ -1438,8 +1442,8 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 gof_metrics = self.opt_obj.get_next_option()
             else:
-                gof_metrics = raw_input("Do you want to calculate Peak values "
-                                        "- PGA,PGV,PGD and PSA (y/n)? ")
+                gof_metrics = input("Do you want to calculate Peak values "
+                                    "- PGA,PGV,PGD and PSA (y/n)? ")
             if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
                 #  Weighting on PGA
                 gof_weights["pga"] = 1.0
@@ -1453,8 +1457,8 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 gof_metrics = self.opt_obj.get_next_option()
             else:
-                gof_metrics = raw_input("Do you want to calculate "
-                                        "Spectral Fit (y/n)? ")
+                gof_metrics = input("Do you want to calculate "
+                                    "Spectral Fit (y/n)? ")
 
             if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
                 # Weighting on Spectral Fit
@@ -1463,9 +1467,9 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 gof_metrics = self.opt_obj.get_next_option()
             else:
-                gof_metrics = raw_input("Do you want to calculate "
-                                        "Cumulative Energy Fit and "
-                                        "Data Energy Release Duration (y/n)? ")
+                gof_metrics = input("Do you want to calculate "
+                                    "Cumulative Energy Fit and "
+                                    "Data Energy Release Duration (y/n)? ")
 
             if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
                 #  Weighting on Cumulative Energy Fit
@@ -1476,8 +1480,8 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 gof_metrics = self.opt_obj.get_next_option()
             else:
-                gof_metrics = raw_input("Do you want to calculate "
-                                        "Inelastic/Elastic Fit (y/n)? ")
+                gof_metrics = input("Do you want to calculate "
+                                    "Inelastic/Elastic Fit (y/n)? ")
 
             if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
                 # Weighting on Inelastic/Elastic Fit (16)
@@ -1486,8 +1490,8 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 gof_metrics = self.opt_obj.get_next_option()
             else:
-                gof_metrics = raw_input("Do you want to calculate "
-                                        "Spectral Acceleration (y/n)? ")
+                gof_metrics = input("Do you want to calculate "
+                                    "Spectral Acceleration (y/n)? ")
 
             if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
                 # Weighting on Spec Acc (16)
@@ -1496,8 +1500,8 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 gof_metrics = self.opt_obj.get_next_option()
             else:
-                gof_metrics = raw_input("Do you want to calculate "
-                                        "Spectral Duration (y/n)? ")
+                gof_metrics = input("Do you want to calculate "
+                                    "Spectral Duration (y/n)? ")
 
             if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
                 # Weighting on Spec Dur (16)
@@ -1506,8 +1510,8 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 gof_metrics = self.opt_obj.get_next_option()
             else:
-                gof_metrics = raw_input("Do you want to calculate "
-                                        "Cross-Correlation (y/n)? ")
+                gof_metrics = input("Do you want to calculate "
+                                    "Cross-Correlation (y/n)? ")
 
             if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
                 # Weighting on Cross-Correlation
@@ -1516,8 +1520,8 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 gof_metrics = self.opt_obj.get_next_option()
             else:
-                gof_metrics = raw_input("Do you want to calculate "
-                                        "Fourier Spectrum Fit (y/n)? ")
+                gof_metrics = input("Do you want to calculate "
+                                    "Fourier Spectrum Fit (y/n)? ")
 
             if gof_metrics.lower() == 'y' or gof_metrics.lower() == 'yes':
                 # Weighting on Fourier Spectrum
@@ -1536,13 +1540,13 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 stat_opt = self.opt_obj.get_next_option()
             else:
-                stat_opt = raw_input("Do you want to\n"
-                                     "   (1) select a %s in %s\n" %
-                                     (description,
-                                      self.install.A_USER_DATA_DIR) +
-                                     "       OR\n" +
-                                     "   (2) enter the path of a %s file\n? " %
-                                     (description))
+                stat_opt = input("Do you want to\n"
+                                 "   (1) select a %s in %s\n" %
+                                 (description,
+                                  self.install.A_USER_DATA_DIR) +
+                                 "       OR\n" +
+                                 "   (2) enter the path of a %s file\n? " %
+                                 (description))
 
             if stat_opt == "1":
                 entries = os.listdir(self.install.A_USER_DATA_DIR)
@@ -1596,7 +1600,7 @@ class WorkflowBuilder(object):
                 while True:
                     choose_string = "%s\n? " % choose_string
                     try:
-                        choice_str = raw_input(choose_string)
+                        choice_str = input(choose_string)
                         # Check if user typed a filename
                         if choice_str in file_list:
                             return os.path.join(self.install.A_USER_DATA_DIR,
@@ -1617,9 +1621,9 @@ class WorkflowBuilder(object):
                     if self.opt_obj is not None:
                         choice_str = self.opt_obj.get_next_option()
                     else:
-                        choice_str = raw_input("Enter path and "
-                                               "filename of %s: " %
-                                               (description))
+                        choice_str = input("Enter path and "
+                                           "filename of %s: " %
+                                           (description))
 
                     choice_str = choice_str.strip()
                     # Check if file or list of files
@@ -1649,8 +1653,8 @@ class WorkflowBuilder(object):
             if self.opt_obj is not None:
                 choice_str = self.opt_obj.get_next_option()
             else:
-                choice_str = raw_input('Enter path for %s: ' %
-                                       (description))
+                choice_str = input('Enter path for %s: ' %
+                                   (description))
 
             if os.path.exists(choice_str):
                 break
@@ -1703,7 +1707,7 @@ class WorkflowBuilder(object):
         # Handle interactive mode
         while True:
             print("=" * 80)
-            option = raw_input(choose_string)
+            option = input(choose_string)
             # Check if it matches one of the velocity model names
             if option in models:
                 # Match, just return the name
@@ -1724,8 +1728,7 @@ class WorkflowBuilder(object):
         This function prompts the user to select a GMPE model
         """
         # Figure out which models are configured in BBP
-        models = gmpe_config.GMPES.keys()
-        models.sort()
+        models = sorted(gmpe_config.GMPES)
         if len(models) == 0:
             raise RuntimeError("No GMPE models configured in BBP!")
         # Create list of options
@@ -1769,7 +1772,7 @@ class WorkflowBuilder(object):
         # Handle interactive mode
         while True:
             print("=" * 80)
-            gmpe_opt = raw_input(choose_string)
+            gmpe_opt = input(choose_string)
             # Check if it matches one of the GMPE model names
             if gmpe_opt in models:
                 # Match, just return the name
@@ -1812,8 +1815,8 @@ class WorkflowBuilder(object):
                       " unless providing a complex Standard"
                       " Rupture Format (SRF) file.")
                 print()
-                rup_gen = raw_input("Do you want to run the "
-                                    "rupture generator (y/n)? ")
+                rup_gen = input("Do you want to run the "
+                                "rupture generator (y/n)? ")
             if rup_gen.lower() == 'y' or rup_gen.lower() == 'yes':
                 rupture_module = Module()
                 if (self.method == "GP" or
@@ -1949,7 +1952,7 @@ class WorkflowBuilder(object):
                                                   event_names[i],
                                                   suffix)
 
-                event = raw_input("%s? " % question)
+                event = input("%s? " % question)
             if event.lower() in event_names_lc:
                 # User specified an event by its name
                 self.val_obj = validation_cfg.VE_EVENTS.get_event_by_print_name(event)
@@ -2013,12 +2016,12 @@ class WorkflowBuilder(object):
                 print()
                 print("Station Selection")
                 print("=================")
-                stat_opt = raw_input("Would you like to:\n"
-                                     "   (1) generate seismograms for all "
-                                     "stations in the validation package\n"
-                                     "       OR\n"
-                                     "   (2) provide a custom list with "
-                                     "a subset of the stations\n? ")
+                stat_opt = input("Would you like to:\n"
+                                 "   (1) generate seismograms for all "
+                                 "stations in the validation package\n"
+                                 "       OR\n"
+                                 "   (2) provide a custom list with "
+                                 "a subset of the stations\n? ")
             if stat_opt == "1":
                 stations = self.val_obj.get_input("GP", "stations")
                 if stations is None:
