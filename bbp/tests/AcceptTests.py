@@ -20,7 +20,6 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
-import new
 import sys
 import shutil
 import optparse
@@ -157,11 +156,12 @@ def find_tests(test, rerun):
         # We create a method object which is an instance method for
         # BBPAcceptanceTests which executes the code in
         # testPermutation
-        method = new.instancemethod(permutation_test,
-                                    None, BBPAcceptanceTests)
+        BBPAcceptanceTests.permutation_test = permutation_test.__get__(None,
+                                                                       BBPAcceptanceTests)
         # We give the method a new name in BBPAcceptanceTests
         # which contains the xml file being run
-        setattr(BBPAcceptanceTests, "test_%s" % file_base, method)
+        setattr(BBPAcceptanceTests,
+                "test_%s" % (file_base), BBPAcceptanceTests.permutation_test)
 
 class BBPAcceptanceTests(unittest.TestCase):
 
