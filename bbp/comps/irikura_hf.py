@@ -118,18 +118,32 @@ class IrikuraHF(object):
 
         # Determine density/Vs at "fault" and at "bedrock" (defined as
         # top of fault plane for now)
-        d_goto = cent_dep
 
-        # As per Pylint, this variable is not used
-        # depth = self.config.vmodel["depth"]
+        # modified by A.I. 2019.7 =======
+        #   depth of "ELEMENT FAULT" = cent_dep
+        #   d_goto = Depth of "SEISMIC-BEDROCK"
+
         vs_m = self.config.vmodel["vs_m"]
         rho = self.config.vmodel["rho"]
 
-        index = bisect.bisect_left(self.config.vmodel["depth0"], d_goto)
+        # ELEMENT-FAULT
+        index = bisect.bisect_left(self.config.vmodel["depth0"], cent_dep)
         density = rho[index] # g/cm3
-        density_bed = density
+
+        # density_bed = density
         fault_vs = float(vs_m[index]) / 1000
-        fault_vs_bed = fault_vs
+        # fault_vs_bed = fault_vs
+
+        # Depth of SEISMIC-BEDROCK
+        if self.config.DEPTH_TO_TOP < 1.0:
+            d_goto = 1000
+        else:
+            d_goto = self.config.DEPTH_TO_TOP * 1000
+
+        index_bed = bisect.bisect_left(self.config.vmodel["depth0"], d_goto)
+        density_bed = rho[index_bed] # g/cm3
+        fault_vs_bed = float(vs_m[index_bed]) / 1000
+        # ==== A.I. 2019.7 END
 
         dwid = 2
         dlen = 2
