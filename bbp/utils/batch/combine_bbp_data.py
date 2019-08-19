@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -107,7 +108,7 @@ def combine_realizations_data(input_dir, temp_dir):
 
     # Now walk through all realizations and combine stations data
     for station in stations:
-        print "working on station: %s" % (station)
+        print("working on station: %s" % (station))
         combine_station_data(station, input_dir, temp_dir)
 
     return event_label, len(realizations), len(stations)
@@ -156,7 +157,7 @@ def create_resid_data_file(comp_label, input_indir, input_obsdir,
     src_keys = bband_utils.parse_src_file(a_srcfile)
 
     # Get the obsdir
-    print input_obsdir
+    print(input_obsdir)
     realizations = sorted(os.listdir(input_obsdir))
     one_realization = realizations[0]
     basedir = os.path.join(input_obsdir, one_realization)
@@ -217,19 +218,19 @@ def main():
     data
     """
     if len(sys.argv) < 3:
-        print "Usage: %s output_file dir1 [dir2 dir3... dirn]" % (sys.argv[0])
+        print("Usage: %s output_file dir1 [dir2 dir3... dirn]" % (sys.argv[0]))
         sys.exit(1)
 
     output_file = sys.argv[1]
     dirs = sys.argv[2:]
     for input_dir in dirs:
         if not os.path.isdir(input_dir):
-            print "Skipping directory: %s!" % (input_dir)
+            print("Skipping directory: %s!" % (input_dir))
             continue
         if not "Sims" in os.listdir(input_dir):
-            print "Skipping invalid directory: %s!" % (input_dir)
+            print("Skipping invalid directory: %s!" % (input_dir))
             continue
-        print "Processing %s..." % (input_dir)
+        print("Processing %s..." % (input_dir))
         input_outdir = os.path.join(input_dir, "Sims" , "outdata")
         input_tmpdir = os.path.join(input_dir, "Sims" , "tmpdata")
         input_indir = os.path.join(input_dir, "Sims" , "indata")
