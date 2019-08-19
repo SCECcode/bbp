@@ -643,15 +643,31 @@ def create_plot(codebase, mag, vel, dist, mech, sim_data, output_file):
         sim_mean.append(np.exp(np.mean(np.log(data))))
 
     box_positions = PERIODS
-    box_width = 1.5*10.**(np.log10(PERIODS)-1)
+    box_width = 1.5 * 10.**(np.log10(PERIODS) - 1)
 
     # y axis
     ymin = 0.00006
     ymax = 4.0
 
+    # Restore part of Matplotlib 1.x style
+    mpl.rcParams['lines.linewidth'] = 1.0
+    mpl.rcParams['lines.dashed_pattern'] = [6, 6]
+    mpl.rcParams['lines.dashdot_pattern'] = [3, 5, 1, 5]
+    mpl.rcParams['lines.dotted_pattern'] = [1, 3]
+    mpl.rcParams['lines.scale_dashes'] = False
+    mpl.rcParams['grid.color'] = 'k'
+    mpl.rcParams['grid.linestyle'] = ':'
+    mpl.rcParams['grid.linewidth'] = 0.5
+
     # Initialize plot
     fig, _ = plt.subplots()
     fig.clf()
+
+    # Adjust margins
+    fig.subplots_adjust(left=0.1)
+    fig.subplots_adjust(right=0.97)
+    fig.subplots_adjust(top=0.92)
+    fig.subplots_adjust(bottom=0.07)
 
     # Array for labels
     l_handlers = []
@@ -679,7 +695,7 @@ def create_plot(codebase, mag, vel, dist, mech, sim_data, output_file):
     # Now plot the data
     plt.boxplot(sim_data, positions=box_positions,
                 widths=box_width, whis='range',
-                boxprops=dict(linewidth=1.5),
+                boxprops=dict(linewidth=1.5, color='b'),
                 whiskerprops=dict(linewidth=1.1,
                                   linestyle='-',
                                   color='k'))
