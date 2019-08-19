@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import division, print_function
+
 import sys
 import os
 import time
@@ -23,14 +25,14 @@ class RunParallel:
         for node in nodes:
             node = node.strip()
             if node != '':
-                for i in xrange(0, numcores):
+                for _ in range(0, numcores):
                     nodelist.append(node)
 
         if (len(nodelist) == 0):
-            print "No compute nodes available"
+            print("No compute nodes available")
             return(1)
         else:
-            print "Running on %s cores" % (len(nodelist))
+            print("Running on %s cores" % (len(nodelist)))
 
         # Execute each station's xml file
         proclist = []
@@ -41,7 +43,7 @@ class RunParallel:
                 for proc in proclist:
                     if (proc[0].poll() != None):
                         if (proc[0].wait() != 0):
-                            print "Process on node %s failed" % (proc[1])
+                            print("Process on node %s failed" % (proc[1]))
                             return(1)
                         else:
                             nodelist.append(proc[1])
@@ -58,7 +60,7 @@ class RunParallel:
                 os.environ["TMPDIR"] = ("/tmp/%s" %
                                         (os.environ["SLURM_JOB_ID"]))
             cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, c)
-            print "Running on %s: %s" % (node, cmd)   
+            print("Running on %s: %s" % (node, cmd))
             proclist.append([subprocess.Popen(cmd,shell=True), node])
             # Ensure unique simids
             time.sleep(5)
@@ -84,5 +86,5 @@ if __name__ == '__main__':
     # Run the commands
     runobj = RunParallel(envscript)
     runobj.runMultiSSH(nodelist, numcores, cmdlist)
-    
+
     sys.exit(0)

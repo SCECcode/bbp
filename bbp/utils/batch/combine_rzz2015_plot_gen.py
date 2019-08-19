@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ limitations under the License.
 This program creates a combined plot for the RZZ2015 metrics,
 using data from multiple realizations.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -188,7 +189,7 @@ def combine_realizations_data(input_dir, temp_dir):
 
     # Now walk through all realizations and combine stations data
     for station in stations:
-        print "working on station: %s" % (station)
+        print("working on station: %s" % (station))
         combine_station_data(station, input_dir, temp_dir)
 
     return event_label, len(realizations), len(stations)
@@ -404,6 +405,6 @@ plot_rzz2015_data(TMPDIR, OUTPUT_DIR,
                   COMP,
                   OPTIONS.codebase)
 
-print "All Done!"
+print("All Done!")
 # Clean-up, all done!
 shutil.rmtree(TMPDIR)
