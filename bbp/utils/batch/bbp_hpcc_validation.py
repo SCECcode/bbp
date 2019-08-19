@@ -400,7 +400,7 @@ def main():
     bbp_install = InstallCfg.getInstance()
 
     # Get GMPE group names
-    gmpe_groups_available = gmpe_config.GMPES.keys()
+    gmpe_groups_available = list(gmpe_config.GMPES.keys())
     gmpe_groups_available_lc = [gmpe.lower() for gmpe in gmpe_groups_available]
 
     prog_base = os.path.basename(sys.argv[0])
