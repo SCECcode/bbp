@@ -92,6 +92,12 @@ def plot_seis(stat, filename, label, units, outfile, rrup=None):
     min_vert_y = 1.1 * min(ud1)
     max_vert_y = 1.1 * max(ud1)
 
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['xtick.top'] = True
+    mpl.rcParams['ytick.right'] = True
+
     pylab.clf()
     pylab.suptitle('Run %s, station %s' %
                    (label, stat), size=14)
@@ -179,6 +185,12 @@ def plot_overlay(stat, obs_filename, comp_filename, obs_label, comp_label,
     This function plots observed and computed seismograms side by side
     for easy comparison
     """
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['xtick.top'] = True
+    mpl.rcParams['ytick.right'] = True
+
     # Initialize variables
     textx = 0.53
     texty = 0.05
@@ -284,6 +296,12 @@ def plot_overlay_with_arias(stat, obs_filename, comp_filename,
     This function plots observed and computed seismograms side by side
     for easy comparison
     """
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['xtick.top'] = True
+    mpl.rcParams['ytick.right'] = True
+
     # Initialize variables
     textx = 0.53
     texty = 0.05

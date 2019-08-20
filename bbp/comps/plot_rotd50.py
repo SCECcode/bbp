@@ -96,6 +96,15 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
     else:
         pmin = 1.0 / float(hfreq)
 
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['lines.linewidth'] = 1.0
+    mpl.rcParams['lines.dashed_pattern'] = [6, 6]
+    mpl.rcParams['lines.dashdot_pattern'] = [3, 5, 1, 5]
+    mpl.rcParams['lines.dotted_pattern'] = [1, 3]
+    mpl.rcParams['lines.scale_dashes'] = False
+
     # Start plot
     pylab.clf()
     min_x = min([min((periods1)), min(periods2)])
@@ -124,14 +133,16 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
 
     # First plot
     ax1 = pylab.subplot(131)
-    pylab.plot(periods1, pseudo_aa_ns1, label=str(label1))
+    pylab.plot(periods1, pseudo_aa_ns1, label=str(label1),
+               linewidth=1.0, color='C0')
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_horiz_y, max_horiz_y)
     pylab.ylabel("PSA (g)")
     ax1.set_title('%s, N/S' % (label1), fontsize='small')
     if rotd50_file2 != "-":
-        pylab.plot(periods2, pseudo_aa_ns2, label=str(label2))
+        pylab.plot(periods2, pseudo_aa_ns2, label=str(label2),
+                   linewidth=1.0, color='C2')
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,
@@ -142,14 +153,16 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
 
     # Second plot
     ax2 = pylab.subplot(132)
-    pylab.plot(periods1, pseudo_aa_ew1, label=str(label1))
+    pylab.plot(periods1, pseudo_aa_ew1, label=str(label1),
+               linewidth=1.0, color='C0')
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_horiz_y, max_horiz_y)
     pylab.ylabel("PSA (g)")
     ax2.set_title('%s, E/W' % (label1), fontsize='small')
     if rotd50_file2 != "-":
-        pylab.plot(periods2, pseudo_aa_ew2, label=str(label2))
+        pylab.plot(periods2, pseudo_aa_ew2, label=str(label2),
+                   linewidth=1.0, color='C2')
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,
@@ -160,14 +173,16 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
 
     # Third plot
     ax3 = pylab.subplot(133)
-    pylab.plot(periods1, rd50_aa1, label=str(label1))
+    pylab.plot(periods1, rd50_aa1, label=str(label1),
+               linewidth=1.0, color='C0')
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_vert_y, max_vert_y)
     pylab.ylabel("PSA (g)")
     ax3.set_title('%s, RotD50' % (label1), fontsize='small')
     if rotd50_file2 != "-":
-        pylab.plot(periods2, rd50_aa2, label=str(label2))
+        pylab.plot(periods2, rd50_aa2, label=str(label2),
+                   linewidth=1.0, color='C2')
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,

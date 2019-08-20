@@ -155,6 +155,12 @@ class PlotGoF(object):
         min_y = MIN_Y_AXIS
         max_y = MAX_Y_AXIS
 
+        # Set up ticks to match matplotlib 1.x style
+        mpl.rcParams['xtick.direction'] = 'in'
+        mpl.rcParams['ytick.direction'] = 'in'
+        mpl.rcParams['xtick.top'] = True
+        mpl.rcParams['ytick.right'] = True
+
         # Start plots
         num_plots = len(gof_fileroot)
         # Make 1 column of "num_plots" rows
@@ -187,7 +193,8 @@ class PlotGoF(object):
             subfig.set_xlim(min_x, max_x)
             subfig.set_ylim(min_y, max_y)
             subfig.set_title("%s" % subplot_title, size=10)
-            subfig.plot(cur_period, cur_bias, color='red', label='_nolegend_')
+            subfig.plot(cur_period, cur_bias, color='red',
+                        label='_nolegend_', linewidth=1.0)
             subfig.fill_between(cur_period, cur_bias_h,
                                 cur_bias_l, color='cyan',
                                 label='_nolegend_')
@@ -195,7 +202,7 @@ class PlotGoF(object):
                                 cur_conf_l, color='yellow',
                                 label='_nolegend_')
             subfig.plot(cur_period, baseline, color='grey',
-                        label='_nolegend_')
+                        label='_nolegend_', linewidth=1.0)
             subfig.set_xlabel("Period (sec)", size=8)
             subfig.set_ylabel("ln (data/model)", size=8)
             subfig.set_xscale('log')
@@ -240,6 +247,12 @@ class PlotGoF(object):
             colorset_idx = 0
         else:
             colorset_idx = COLORSETS[colorset]
+
+        # Set up ticks to match matplotlib 1.x style
+        mpl.rcParams['xtick.direction'] = 'in'
+        mpl.rcParams['ytick.direction'] = 'in'
+        mpl.rcParams['xtick.top'] = True
+        mpl.rcParams['ytick.right'] = True
 
         # Set plot dims
         pylab.gcf().set_size_inches(6, 2.8)
@@ -319,7 +332,7 @@ class PlotGoF(object):
         pylab.title('RotD50', size='small')
         pylab.plot(period[compnum], bias[compnum],
                    color=BIAS_COLORS[colorset_idx],
-                   label='_nolegend_')
+                   label='_nolegend_', linewidth=1.0)
         pylab.fill_between(period[compnum], bias_h[compnum],
                            bias_l[compnum],
                            color=BIAS_LH_COLORS[colorset_idx],
@@ -329,7 +342,7 @@ class PlotGoF(object):
                            color=CONF_LH_COLORS[colorset_idx],
                            label='_nolegend_')
         pylab.plot(period[compnum], baseline, color='grey',
-                   label='_nolegend_')
+                   label='_nolegend_', linewidth=1.0)
         pylab.xlim(min_x, max_x)
         pylab.ylim(min_y, max_y)
         pylab.xlabel("Period (sec)", size=8)
@@ -379,6 +392,12 @@ class PlotGoF(object):
             colorset_idx = 0
         else:
             colorset_idx = COLORSETS[colorset]
+
+        # Set up ticks to match matplotlib 1.x style
+        mpl.rcParams['xtick.direction'] = 'in'
+        mpl.rcParams['ytick.direction'] = 'in'
+        mpl.rcParams['xtick.top'] = True
+        mpl.rcParams['ytick.right'] = True
 
         # Set plot dims
         pylab.gcf().set_size_inches(6, 8)
@@ -459,7 +478,7 @@ class PlotGoF(object):
             pylab.title(comp_title[compnum], size='small')
             pylab.plot(period[compnum], bias[compnum],
                        color=BIAS_COLORS[colorset_idx],
-                       label='_nolegend_')
+                       label='_nolegend_', linewidth=1.0)
             pylab.fill_between(period[compnum], bias_h[compnum],
                                bias_l[compnum],
                                color=BIAS_LH_COLORS[colorset_idx],
@@ -469,7 +488,7 @@ class PlotGoF(object):
                                color=CONF_LH_COLORS[colorset_idx],
                                label='_nolegend_')
             pylab.plot(period[compnum], baseline, color='grey',
-                       label='_nolegend_')
+                       label='_nolegend_', linewidth=1.0)
             pylab.xlim(min_x, max_x)
             if comp == 'ratio':
                 pylab.ylim(MIN_Y_AXIS_RATIO, MAX_Y_AXIS_RATIO)

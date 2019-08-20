@@ -215,6 +215,14 @@ def plot_station_map(plottitle, plotregion, topo, coastal, border,
     # Read borders
     bord_x, bord_y = read_coastal(border, plotregion)
 
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['xtick.top'] = True
+    mpl.rcParams['ytick.right'] = True
+    mpl.rcParams['patch.force_edgecolor'] = True
+    mpl.rcParams['patch.facecolor'] = 'b'
+
     # Set plot dims
     pylab.gcf().set_size_inches(6, 6)
     pylab.gcf().clf()
@@ -243,7 +251,7 @@ def plot_station_map(plottitle, plotregion, topo, coastal, border,
         pylab.plot(bord_x[i], bord_y[i], linestyle='-', color='0.75')
 
     # Plot fault trace
-    pylab.plot(fault_x, fault_y, linestyle='-', color='k')
+    pylab.plot(fault_x, fault_y, linestyle='-', color='k', linewidth=1.0)
 
     # Plot stations
     pylab.plot(sta_x, sta_y, marker='o', color='r', linewidth=0)
