@@ -244,7 +244,7 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
          extents) in zip(subfigs, srf_params, srf_dims,
                          srf_slips, srf_tinits, srf_extents):
 
-        subfig.set_adjustable('box-forced')
+        subfig.set_adjustable('box')
 
         # Plot slips
         im = subfig.imshow(slips, cmap=cmap, norm=norm, extent=extents,
@@ -365,7 +365,7 @@ def plot_multi_plot(num_segments, srf_params, srf_dims,
          extents) in zip(subfigs, srf_params, srf_dims,
                          srf_slips, srf_tinits, srf_extents):
 
-        subfig.set_adjustable('box-forced')
+        subfig.set_adjustable('box')
 
         # Plot slips
         im = subfig.imshow(slips, cmap=cmap, norm=norm, extent=extents,
