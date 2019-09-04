@@ -27,8 +27,8 @@ def main():
     read the step to be used in generating the station list. This code
     can only be used to generate a maximum of 9999 stations.
     """
-    if len(sys.argv) < 6:
-        print("Usage: %s lat_min lat_max lon_min lon_max step" % sys.argv[0])
+    if len(sys.argv) < 6 or len(sys.argv) > 7:
+        print("Usage: %s lat_min lat_max lon_min lon_max step [start_st_id]" % sys.argv[0])
         sys.exit(0)
 
     lat_min = float(sys.argv[1])
@@ -36,8 +36,11 @@ def main():
     lon_min = float(sys.argv[3])
     lon_max = float(sys.argv[4])
     step = float(sys.argv[5])
+    if len(sys.argv) > 6:
+        station_number = int(float(sys.argv[6]))
+    else:
+        station_number = 0
 
-    station_number = 0
     cur_lat = lat_min
     cur_lon = lon_min
 
