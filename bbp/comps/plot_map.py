@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import sys
 import math
 
 # Import Broadband modules
+import bband_utils
 import fault_utils
 import plot_utils
 from station_list import StationList
@@ -62,6 +63,10 @@ class Plot_Map(object):
 
         a_indir = os.path.join(install.A_IN_DATA_DIR, str(self.sim_id))
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(self.sim_id))
+
+        # Make sure tmpdir exists
+        dirs = [a_indir, a_outdir]
+        bband_utils.mkdirs(dirs, print_cmd=False)
 
         a_input_file = os.path.join(a_indir, self.input_file)
         a_station_file = os.path.join(a_indir, self.station_file)
