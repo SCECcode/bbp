@@ -39,17 +39,17 @@ def main():
     if len(sys.argv) > 6:
         station_number = int(float(sys.argv[6]))
     else:
-        station_number = 0
+        station_number = 1
 
     cur_lat = lat_min
     cur_lon = lon_min
 
     while cur_lat <= lat_max:
         while cur_lon <= lon_max:
-            station_number = station_number + 1
             print("%2.3f    %2.3f    sta%04d   " % (cur_lon,
                                                     cur_lat,
                                                     station_number))
+            station_number = station_number + 1
             cur_lon = cur_lon + step
         cur_lat = cur_lat + step
         cur_lon = lon_min
