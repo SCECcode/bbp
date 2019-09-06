@@ -112,7 +112,9 @@ def plot_seis(stat, filename, label, units, outfile, rrup=None):
     pylab.plot(ts1, ns1, lw=plot_config.line_width)
     pylab.xlim(min_x, max_x)
     pylab.ylim(min_horiz_y, max_horiz_y)
-    if units == 'vel':
+    if units == 'dis':
+        pylab.ylabel("Displacement (cm)")
+    elif units == 'vel':
         pylab.ylabel("Velocity (cm/s)")
     elif units == 'acc':
         pylab.ylabel("Acceleration (cm/s/s)")
@@ -123,7 +125,9 @@ def plot_seis(stat, filename, label, units, outfile, rrup=None):
     pylab.plot(ts1, ew1, lw=plot_config.line_width)
     pylab.xlim(min_x, max_x)
     pylab.ylim(min_horiz_y, max_horiz_y)
-    if units == 'vel':
+    if units == 'dis':
+        pylab.ylabel("Displacement (cm)")
+    elif units == 'vel':
         pylab.ylabel("Velocity (cm/s)")
     elif units == 'acc':
         pylab.ylabel("Acceleration (cm/s/s)")
@@ -134,7 +138,9 @@ def plot_seis(stat, filename, label, units, outfile, rrup=None):
     pylab.plot(ts1, ud1, lw=plot_config.line_width)
     pylab.xlim(min_x, max_x)
     pylab.ylim(min_vert_y, max_vert_y)
-    if units == 'vel':
+    if units == 'dis':
+        pylab.ylabel("Displacement (cm)")
+    elif units == 'vel':
         pylab.ylabel("Velocity (cm/s)")
     elif units == 'acc':
         pylab.ylabel("Acceleration (cm/s/s)")
