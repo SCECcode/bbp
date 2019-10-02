@@ -37,8 +37,8 @@ BATCH_SIM_FILE = "batch_run_bbp_sims.log"
 CORES_PER_NODE = 8
 CORES_PER_NODE_NEW = 16
 MAX_SIMULATIONS = 200
-CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura"]
-CODEBASES_SITE = ["gp", "sdsu", "song", "irikura", "exsim", "ucsb"]
+CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura1", "irikura2"]
+CODEBASES_SITE = ["gp", "sdsu", "song", "irikura1", "irikura2", "exsim", "ucsb"]
 
 def generate_src_files(numsim, source_file, srcdir,
                        prefix, hypo_rand, hypo_area,
@@ -220,7 +220,7 @@ def write_slurm(install, numsim, simdir, xmldir, email,
     outfile = os.path.join(simdir, "%s.out" % (prefix))
     errfile = os.path.join(simdir, "%s.err" % (prefix))
     bfn = os.path.join(xmldir, BATCH_SIM_FILE)
-    # Let's create the pbs file
+    # Let's create the slurm file
     slurmfn = os.path.join(simdir, "%s.slurm" % (prefix))
     slurmfile = open(slurmfn, 'w')
     slurmfile.write("#!/bin/bash\n")
@@ -588,7 +588,7 @@ def main():
                  logsdir, vmodel, codebase, prefix,
                  station_list, only_rup, srf_prefix,
                  site_response)
-    # Write pbs file
+    # Write slurm file
     write_slurm(bbp_install, numsim, simdir, xmldir,
                 email, prefix, newnodes, walltime,
                 savetemp, codebase)
