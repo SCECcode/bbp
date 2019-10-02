@@ -254,7 +254,7 @@ def plot_station_map(plottitle, plotregion, topo, coastal, border,
     pylab.plot(fault_x, fault_y, linestyle='-', color='k', linewidth=1.0)
 
     # Plot stations
-    pylab.plot(sta_x, sta_y, marker='o', color='r', linewidth=0)
+    pylab.plot(sta_x, sta_y, marker='o', color='r', linewidth=0, markersize=4)
 
     # Plot hypocenter if provided
     if hypocenter_list is not None:
