@@ -16,7 +16,7 @@ limitations under the License.
 
 This config class will encapsulate the configuration parameters
 needed to run a simulation. Programs can derive specific
-configuration sets from this base class to suppor their own programs.
+configuration sets from this base class to support their own programs.
 """
 from __future__ import division, print_function
 
@@ -29,7 +29,7 @@ import velocity_models
 
 class WccSiteampCfg(object):
     """
-    Define the configuration parameters for the Jbrun program
+    Define the configuration parameters for the GP WccSiteAmp
     """
     def __init__(self, vmodel_name, method):
         # self.SITEAMP_MODEL3D = "cb2014"
