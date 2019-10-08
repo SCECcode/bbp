@@ -80,7 +80,7 @@ def compare_runs(top_dir, output_file=None):
 
     # All done, print the results
     print("Simulation    Average Bias")
-    for key, val in sorted(results.iteritems(),
+    for key, val in sorted(results.items(),
                            key=operator.itemgetter(1)):
         print("%10s    %8f" % (key, val))
 
