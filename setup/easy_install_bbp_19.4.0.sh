@@ -20,41 +20,41 @@ download_untar () {
     FILE=`basename "/${URL_REL%%\?*}"`
 
     # Untar
-    tar -xzf $FILE
+    tar -xzf ${FILE}
 
     # Check MD5SUM
-    PREV_SUM=`cat $MD5 | grep $FILE | cut -d\  -f1`
+    PREV_SUM=`cat ${MD5} | grep ${FILE} | cut -d\  -f1`
     SYSTEM="linux"
     md5sum --help > /dev/null 2>&1 || SYSTEM="mac"
-    if [ $SYSTEM == "linux" ]; then
-	CUR_SUM=`md5sum $FILE | cut -d\  -f1`
+    if [ ${SYSTEM} == "linux" ]; then
+	CUR_SUM=`md5sum ${FILE} | cut -d\  -f1`
     else
-	CUR_SUM=`md5 $FILE | cut -d\  -f4`
+	CUR_SUM=`md5 ${FILE} | cut -d\  -f4`
     fi
 
-    if [ "$CUR_SUM" != "$PREV_SUM" ]; then
+    if [ "${CUR_SUM}" != "${PREV_SUM}" ]; then
 	echo
-	echo "=> ERROR! MD5SUM check failed for $FILE"
+	echo "=> ERROR! MD5SUM check failed for ${FILE}"
 	echo
 	exit 1
     fi
 
     # Clean up as we go
-    rm $FILE
+    rm ${FILE}
 }
 
 # Get base directory to install all packages
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BASEDIR=`echo $DIR | rev | cut -d'/' -f3- | rev`
-BASEBBP=`echo $DIR | rev | cut -d'/' -f2- | rev`
-BBPDIR="`echo $DIR | rev | cut -d'/' -f2- | rev`/bbp"
-SRCDIR="$BBPDIR/src"
-MD5FILE="$BASEBBP/setup/bbp-$VERSION-md5.txt"
+BASEDIR=`echo ${DIR} | rev | cut -d'/' -f3- | rev`
+BASEBBP=`echo ${DIR} | rev | cut -d'/' -f2- | rev`
+BBPDIR="`echo ${DIR} | rev | cut -d'/' -f2- | rev`/bbp"
+SRCDIR="${BBPDIR}/src"
+MD5FILE="${BASEBBP}/setup/bbp-${VERSION}-md5.txt"
 
 echo
-echo " ====== Welcome to Broadband Platform $VERSION installation script ======"
+echo " ====== Welcome to Broadband Platform ${VERSION} installation script ======"
 echo
-echo " Using destination directory: $BASEDIR"
+echo " Using destination directory: ${BASEDIR}"
 echo
 
 # Parse --force argument, if provided
@@ -65,9 +65,9 @@ if [ "$#" -eq 1 ]; then
 	    echo "==> Deleting existing bbp_val / bbp_gf / bbp_data directores!"
 	    read -p "==> Do you wish to delete them and all their contents? " yn
 	    case $yn in
-		[Yy]* ) rm -rf $BASEDIR/bbp_val;
-			rm -rf $BASEDIR/bbp_gf;
-			rm -rf $BASEDIR/bbp_data;
+		[Yy]* ) rm -rf ${BASEDIR}/bbp_val;
+			rm -rf ${BASEDIR}/bbp_gf;
+			rm -rf ${BASEDIR}/bbp_data;
 			break;;
 		[Nn]* ) echo "Aborting..."; exit;;
 		* ) echo "Please answer yes or no.";;
@@ -77,36 +77,36 @@ if [ "$#" -eq 1 ]; then
 fi
 
 # Check if directories exist already
-if [ -d "$BASEDIR/bbp_val" ]; then
-    echo "=> $BASEDIR/bbp_val directory exists!"
+if [ -d "${BASEDIR}/bbp_val" ]; then
+    echo "=> ${BASEDIR}/bbp_val directory exists!"
     echo "==> Use --force flag to delete bbp_val/bbp_gf/bbp_data or move them manually"
     exit 1
 fi
-if [ -d "$BASEDIR/bbp_gf" ]; then
-    echo "=> $BASEDIR/bbp_gf directory exists!"
+if [ -d "${BASEDIR}/bbp_gf" ]; then
+    echo "=> ${BASEDIR}/bbp_gf directory exists!"
     echo "==> Use --force flag to delete bbp_val/bbp_gf/bbp_data or move them manually"
     exit 1
 fi
-if [ -d "$BASEDIR/bbp_data" ]; then
-    echo "=> $BASEDIR/bbp_data directory exists!"
+if [ -d "${BASEDIR}/bbp_data" ]; then
+    echo "=> ${BASEDIR}/bbp_data directory exists!"
     echo "==> Use --force flag to delete bbp_val/bbp_gf/bbp_data or move them manually"
     exit 1
 fi
 
 # Create installation directories
 echo "=> Creating directory tree..."
-mkdir -p $BASEDIR/bbp_val
-mkdir -p $BASEDIR/bbp_gf
-mkdir -p $BASEDIR/bbp_data
+mkdir -p ${BASEDIR}/bbp_val
+mkdir -p ${BASEDIR}/bbp_gf
+mkdir -p ${BASEDIR}/bbp_data
 echo
 
 # Compile source distribution
 echo "=> Main Broadband Platform Source Distribution"
 echo "==> Compiling... (it may take a while)"
 OLD_DIR=`pwd`
-cd $SRCDIR
+cd ${SRCDIR}
 make > /dev/null 2>&1
-cd $OLD_DIR
+cd ${OLD_DIR}
 # Done with main source distribution
 echo "==> Installed!"
 
@@ -168,100 +168,100 @@ done
 
 echo "=> Installing Broadband Platform Velocity Model Packages"
 
-if [ "$NOCAL" == "y" ]; then
-    cd $BASEDIR/bbp_gf
+if [ "${NOCAL}" == "y" ]; then
+    cd ${BASEDIR}/bbp_gf
     echo "==> Northern California"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nocal500-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/nocal500-velocity-model-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$LABASIN" == "y" ]; then
-    cd $BASEDIR/bbp_gf
+if [ "${LABASIN}" == "y" ]; then
+    cd ${BASEDIR}/bbp_gf
     echo "==> LA Basin"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/labasin500-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/labasin500-velocity-model-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$CCAL" == "y" ]; then
-    cd $BASEDIR/bbp_gf
+if [ "${CCAL}" == "y" ]; then
+    cd ${BASEDIR}/bbp_gf
     echo "==> Central California"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centralcal500-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/centralcal500-velocity-model-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$MOJAVE" == "y" ]; then
-    cd $BASEDIR/bbp_gf
+if [ "${MOJAVE}" == "y" ]; then
+    cd ${BASEDIR}/bbp_gf
     echo "==> Mojave"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/mojave500-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/mojave500-velocity-model-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$CJAPAN" == "y" ]; then
-    cd $BASEDIR/bbp_gf
+if [ "${CJAPAN}" == "y" ]; then
+    cd ${BASEDIR}/bbp_gf
     echo "==> Central Japan"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/centraljapan500-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/centraljapan500-velocity-model-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$WJAPAN" == "y" ]; then
-    cd $BASEDIR/bbp_gf
+if [ "${WJAPAN}" == "y" ]; then
+    cd ${BASEDIR}/bbp_gf
     echo "==> Western Japan"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/westernjapan500-velocity-model-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/westernjapan500-velocity-model-${VERSION}.tar.gz ${MD5FILE}
 fi
 
 echo "==> Completed!"
 
 echo "=> Installing Broadband Platform Validation Packages"
 
-if [ "$NOCAL" == "y" ]; then
-    cd $BASEDIR/bbp_val
+if [ "${NOCAL}" == "y" ]; then
+    cd ${BASEDIR}/bbp_val
     echo "==> LOMAP"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/lomap-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/lomap-validation-${VERSION}.tar.gz ${MD5FILE}
     echo "==> Alum Rock"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/alum-rock-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/alum-rock-validation-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$LABASIN" == "y" ]; then
-    cd $BASEDIR/bbp_val
+if [ "${LABASIN}" == "y" ]; then
+    cd ${BASEDIR}/bbp_val
     echo "==> NR"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nr-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/nr-validation-${VERSION}.tar.gz ${MD5FILE}
     echo "==> Whittier Narrows"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/whittier-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/whittier-validation-${VERSION}.tar.gz ${MD5FILE}
     echo "==> Chino Hills"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/chino-hills-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/chino-hills-validation-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$CCAL" == "y" ]; then
-    cd $BASEDIR/bbp_val
+if [ "${CCAL}" == "y" ]; then
+    cd ${BASEDIR}/bbp_val
     echo "==> Parkfield"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/parkfield-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/parkfield-validation-${VERSION}.tar.gz ${MD5FILE}
     echo "==> San Simeon"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/sansimeon-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/sansimeon-validation-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$MOJAVE" == "y" ]; then
-    cd $BASEDIR/bbp_val
+if [ "${MOJAVE}" == "y" ]; then
+    cd ${BASEDIR}/bbp_val
     echo "==> Landers"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/landers-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/landers-validation-${VERSION}.tar.gz ${MD5FILE}
     echo "==> North Palm Springs"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/nps-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/nps-validation-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$CJAPAN" == "y" ]; then
-    cd $BASEDIR/bbp_val
+if [ "${CJAPAN}" == "y" ]; then
+    cd ${BASEDIR}/bbp_val
     echo "==> Chuetsu"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/chuetsu-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/chuetsu-validation-${VERSION}.tar.gz ${MD5FILE}
     echo "==> Iwate"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/iwate-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/iwate-validation-${VERSION}.tar.gz ${MD5FILE}
     echo "==> Niigata"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/niigata-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/niigata-validation-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$WJAPAN" == "y" ]; then
-    cd $BASEDIR/bbp_val
+if [ "${WJAPAN}" == "y" ]; then
+    cd ${BASEDIR}/bbp_val
     echo "==> Tottori"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/tottori-validation-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/tottori-validation-${VERSION}.tar.gz ${MD5FILE}
 fi
 
-if [ "$LABASIN" == "y" ] || [ "$NOCAL" == "y" ]; then
-    cd $BASEDIR/bbp_val
+if [ "${LABASIN}" == "y" ] || [ "${NOCAL}" == "y" ]; then
+    cd ${BASEDIR}/bbp_val
     echo "==> GMPEs"
-    download_untar http://hypocenter.usc.edu/research/bbp/versions/$VERSION/gmpe-verification-$VERSION.tar.gz $MD5FILE
+    download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/gmpe-verification-${VERSION}.tar.gz ${MD5FILE}
 fi
 
 echo "==> Completed!"
@@ -273,12 +273,12 @@ echo "=> All Done!"
 echo
 echo "Please add the following lines to your bash_profile:"
 echo
-echo "export BBP_DIR=$BBPDIR"
-echo "export BBP_GF_DIR=$BASEDIR/bbp_gf"
-echo "export BBP_VAL_DIR=$BASEDIR/bbp_val"
-echo "export PYTHONPATH=$BBPDIR/comps"
-echo "export BBP_DATA_DIR=$BASEDIR/bbp_data"
-echo "export PATH=$BBPDIR/comps:$BBPDIR/utils/batch:\$PATH"
+echo "export BBP_DIR=${BBPDIR}"
+echo "export BBP_GF_DIR=${BASEDIR}/bbp_gf"
+echo "export BBP_VAL_DIR=${BASEDIR}/bbp_val"
+echo "export PYTHONPATH=${BBPDIR}/comps:${PYTHONPATH}"
+echo "export BBP_DATA_DIR=${BASEDIR}/bbp_data"
+echo "export PATH=${BBPDIR}/comps:${BBPDIR}/utils/batch:\$PATH"
 if [ "$(uname)" != "Darwin" ]; then
     echo "ulimit -s unlimited"
 fi
