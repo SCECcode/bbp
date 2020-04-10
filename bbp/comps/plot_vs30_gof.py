@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Creates a distance gof plot for a list of periods
+Creates a Vs30 gof plot for a list of periods
 """
 from __future__ import division, print_function
 
@@ -35,16 +35,16 @@ MIN_Y_AXIS = -1.75
 MAX_Y_AXIS = 1.75
 COMP_EXT_RD50 = 'rotd50'
 COMP_TITLE_RD50 = 'RotD50'
-DIST_PERIODS = [0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0]
+PLOT_PERIODS = [0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0]
 
 def read_resid(resid_file, period, summary_output):
     """
     Reads the residual file resid_file and returns all data for the
-    requested periods
+    requested period
     """
     # Start empty
     data = []
-    distance = []
+    vs30s = []
 
     # Read residuals file and get information we need
     input_file = open(resid_file, 'r')
@@ -71,9 +71,9 @@ def read_resid(resid_file, period, summary_output):
         # Close input file
         input_file.close()
         # Return empty sets
-        return data, distance
+        return data, vs30s
 
-    # Index #7 has distance
+    # Index #6 has vs30
     # Index #12 has component
     # Indexes #10 and #11 have period range for valid data
 
@@ -81,7 +81,7 @@ def read_resid(resid_file, period, summary_output):
     for line in input_file:
         items = line.split()
         comp = items[12]
-        dist = items[7]
+        vs30 = items[6]
         tmin = items[10]
         tmax = items[11]
         value = items[index]
@@ -91,24 +91,24 @@ def read_resid(resid_file, period, summary_output):
         if period >= float(tmin) and period <= float(tmax):
             # Data within range, take it
             data.append(float(value))
-            distance.append(float(dist))
+            vs30s.append(float(vs30))
 
     # Done reading the file
     input_file.close()
 
     # Write summary output for later processing
     output_file = open(summary_output, 'w')
-    for dist, val in zip(distance, data):
-        output_file.write("%f %f\n" % (dist, val))
+    for vs30, val in zip(vs30s, data):
+        output_file.write("%f %f\n" % (vs30, val))
     output_file.close()
 
     # Return the data we found
-    return data, distance
+    return data, vs30s
 
-def plot_dist_gof(resid_file, comp_label, sim_id):
+def plot_vs30_gof(resid_file, comp_label, sim_id):
     """
-    Reads data from resid_file and plots a gof distance plot all
-    periods
+    Reads data from resid_file and creates a GoF Vs30 plot
+    for all periods
     """
     # Get directory names
     install = InstallCfg.getInstance()
@@ -116,40 +116,34 @@ def plot_dist_gof(resid_file, comp_label, sim_id):
 
     # Collect all the data
     all_data = []
-    all_distances = []
+    all_vs30s = []
     # Read the residuals data
-    for period in DIST_PERIODS:
+    for period in PLOT_PERIODS:
         summary_output = os.path.join(a_outdir, "%s-%d-resid-%.3f-%s.txt" %
                                       (comp_label, sim_id,
                                        period, COMP_EXT_RD50))
-        data, distance = read_resid(resid_file, period, summary_output)
+        data, vs30s = read_resid(resid_file, period, summary_output)
         all_data.append(data)
-        all_distances.append(distance)
+        all_vs30s.append(vs30s)
 
-    # Now create the 2 plots, 1 linear and 1 log
-    outfile = os.path.join(a_outdir, "gof-dist-linear-%s-%d-rotd50.png" %
+    # Now create the GoF plot
+    outfile = os.path.join(a_outdir, "gof-vs30-%s-%d-rotd50.png" %
                            (comp_label, sim_id))
-    create_dist_gof(all_data, all_distances,
+    create_vs30_gof(all_data, all_vs30s,
                     comp_label, sim_id, outfile)
 
-    outfile = os.path.join(a_outdir, "gof-dist-log-%s-%d-rotd50.png" %
-                           (comp_label, sim_id))
-    create_dist_gof(all_data, all_distances,
-                    comp_label, sim_id, outfile, log_scale=True)
-
-def create_dist_gof(all_data, all_distances,
-                    comp_label, sim_id, outfile, log_scale=False):
+def create_vs30_gof(all_data, all_vs30s,
+                    comp_label, sim_id, outfile):
     """
-    Creates a gof distance plots for all the data and distances
-    provided
+    Creates a Vs30 GoF plot
     """
 
     plottitle = ("GOF Comparison between %s and simulation %d" %
                  (comp_label, sim_id))
 
     # Create figure
-    num_plots = len(DIST_PERIODS)
-    if len(DIST_PERIODS) % 2:
+    num_plots = len(PLOT_PERIODS)
+    if len(PLOT_PERIODS) % 2:
         num_plots = num_plots + 1
     num_columns = num_plots // 2
     fig, axs = pylab.plt.subplots(2, num_columns)
@@ -159,23 +153,17 @@ def create_dist_gof(all_data, all_distances,
     fig.subplots_adjust(hspace=0.25)
 
     # Find max, min values for x_axis
-    if log_scale:
-        min_x = 1
-    else:
-        min_x = 0
+    min_x = 0
     max_x = 0
-    for dist in all_distances:
+    for vs30s in all_vs30s:
         # Check if not empty
-        if len(dist):
-            max_x = max(max_x, max(dist))
-    # If no data, set it to 90 (will get rounded to 100)
+        if len(vs30s):
+            max_x = max(max_x, max(vs30s))
+    # If no data, set it to 900 (will get rounded to 1000)
     if max_x == 0:
-        max_x = 90
+        max_x = 900
     # Round to the next 10'
     max_x = max_x + (10 - (max_x % 10))
-    if log_scale and max_x > 100:
-        # Round to the next 100'
-        max_x = max_x + (100 - (max_x % 100))
     # y-axis is fixed
     min_y = MIN_Y_AXIS
     max_y = MAX_Y_AXIS
@@ -187,25 +175,23 @@ def create_dist_gof(all_data, all_distances,
             subfigs.append(axs[y_subplot, x_subplot])
 
     # Good, now walk through each subfig
-    for subfig, data, dist, period in zip(subfigs,
-                                          all_data,
-                                          all_distances,
-                                          DIST_PERIODS):
+    for subfig, data, vs30s, period in zip(subfigs,
+                                           all_data,
+                                           all_vs30s,
+                                           PLOT_PERIODS):
         subfig.set_xlim(min_x, max_x)
         subfig.set_ylim(min_y, max_y)
         subfig.set_title("Period = %.3f s" % (period), size=8)
         subfig.set_ylabel("ln (data/model)", size=8)
         subfig.tick_params(labelsize=7)
-        subfig.plot(dist, data, 'o', color='black',
+        subfig.plot(vs30s, data, 'o', color='black',
                     label='_nolegend_')
         subfig.plot([min_x, max_x], [0.0, 0.0],
                     color='grey', label='_nolegend_')
-        if log_scale:
-            subfig.set_xscale('log')
-        subfig.set_xlabel("Distance (km)", size=8)
+        subfig.set_xlabel("Vs30 (m/s)", size=8)
 
     fig.suptitle('%s' % (plottitle), size=12)
-    print("==> Created Distance GoF plot: %s" % (outfile))
+    print("==> Created Vs30 GoF plot: %s" % (outfile))
     fig.savefig(outfile, format="png", transparent=False, dpi=plot_config.dpi)
     pylab.close()
 
@@ -220,5 +206,4 @@ if __name__ == '__main__':
         usage()
         sys.exit(-1)
 
-    plot_dist_gof(sys.argv[1], sys.argv[2], int(sys.argv[3]))
-    sys.exit(0)
+    plot_vs30_gof(sys.argv[1], sys.argv[2], int(sys.argv[3]))

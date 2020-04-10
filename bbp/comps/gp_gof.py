@@ -30,6 +30,7 @@ from station_list import StationList
 from PlotGOF import PlotGoF
 from plot_dist_gof import plot_dist_gof
 from plot_map_gof import plot_map_gof
+from plot_vs30_gof import plot_vs30_gof
 
 # Import Pynga and its utilities
 import pynga.utils as putils
@@ -58,7 +59,7 @@ class GPGof(object):
         else:
             self.single_component = False
 
-    def summarize_rotd50(self, site_list, a_outdir, a_outdir_gmpe):
+    def summarize_rotd50(self, site_list, a_outdir):
         """
         Summarizes all rotd50 data and creates the rotd50 GOF plot
         """
@@ -96,10 +97,10 @@ class GPGof(object):
                      cutoff=self.max_cutoff, mode=plot_mode, colorset='single')
 
         # Finally, plot the distance and map GOFs
-        plot_dist_gof(rd50_residfile, self.comp_label,
-                      a_outdir_gmpe, sim_id=self.sim_id)
+        plot_dist_gof(rd50_residfile, self.comp_label, sim_id=self.sim_id)
         plot_map_gof(self.r_srcfile, self.r_stations, rd50_residfile,
                      self.comp_label, sim_id=self.sim_id)
+        plot_vs30_gof(rd50_residfile, self.comp_label, sim_id=self.sim_id)
 
     def run(self):
         """
@@ -125,8 +126,6 @@ class GPGof(object):
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_outdir_seis = os.path.join(install.A_OUT_DATA_DIR, str(sim_id),
                                      "obs_seis_%s" % (sta_base))
-        a_outdir_gmpe = os.path.join(install.A_OUT_DATA_DIR, str(sim_id),
-                                     "gmpe_data_%s" % (sta_base))
 
         # Source file, parse it!
         a_srcfile = os.path.join(install.A_IN_DATA_DIR,
@@ -225,7 +224,7 @@ class GPGof(object):
 
         # Finished per station processing, now summarize and plot the data
         if os.path.exists(rd50_resid_output):
-            self.summarize_rotd50(site_list, a_outdir, a_outdir_gmpe)
+            self.summarize_rotd50(site_list, a_outdir)
 
         print("GP GoF Completed".center(80, '-'))
 
