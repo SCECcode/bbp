@@ -173,7 +173,7 @@ def peer2bbp(in_peer_n_file, in_peer_e_file, in_peer_z_file, out_bbp_file):
     # Lastly, close the file
     bbp_file.close()
 
-def bbp2peer(in_bbp_file, out_peer_n_file, out_peer_e_file, out_peer_z_file):
+def bbp2peer(in_bbp_file, out_peer_n_file, out_peer_e_file, out_peer_z_file, accel=True):
     """
     Convert bbp file into three peer files for use by RotD50 and
     other programs that input PEER format seismograms
@@ -233,9 +233,14 @@ def bbp2peer(in_bbp_file, out_peer_n_file, out_peer_e_file, out_peer_z_file):
                                                   "Error in conversion.")
             else:
                 dt_vals.append(dt)
-                n_vals.append(float(elems[1]) / bband_utils.G2CMSS)
-                e_vals.append(float(elems[2]) / bband_utils.G2CMSS)
-                z_vals.append(float(elems[3]) / bband_utils.G2CMSS)
+                if accel:
+                    n_vals.append(float(elems[1]) / bband_utils.G2CMSS)
+                    e_vals.append(float(elems[2]) / bband_utils.G2CMSS)
+                    z_vals.append(float(elems[3]) / bband_utils.G2CMSS)
+                else:
+                    n_vals.append(float(elems[1]))
+                    e_vals.append(float(elems[2]))
+                    z_vals.append(float(elems[3]))
 
     # Prepare to write 6 colume format
     n_file = open(out_peer_n_file, "w")
@@ -255,11 +260,16 @@ def bbp2peer(in_bbp_file, out_peer_n_file, out_peer_e_file, out_peer_z_file):
         e_file.write(line)
         z_file.write(line)
 
-    n_file.write("Acceleration in g\n")
+    if accel:
+        n_file.write("Acceleration in g\n")
+        e_file.write("Acceleration in g\n")
+        z_file.write("Acceleration in g\n")
+    else:
+        n_file.write("Velicity in cm/sec\n")
+        e_file.write("Velicity in cm/sec\n")
+        z_file.write("Velicity in cm/sec\n")
     n_file.write("  %d   %1.6f   NPTS, DT\n" % (npts, dt))
-    e_file.write("Acceleration in g\n")
     e_file.write("  %d   %1.6f   NPTS, DT\n" % (npts, dt))
-    z_file.write("Acceleration in g\n")
     z_file.write("  %d   %1.6f   NPTS, DT\n" % (npts, dt))
 
     cur_line = 0

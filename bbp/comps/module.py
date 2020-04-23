@@ -33,6 +33,7 @@ from bbtoolbox import BBToolbox
 from uc_site import UCSite
 from wcc_siteamp import WccSiteamp
 from rotd50 import RotD50
+from rotdPGV import RotDPGV
 from fas import FAS
 from obs_seismograms import ObsSeismograms
 from copy_seismograms import CopySeismograms
