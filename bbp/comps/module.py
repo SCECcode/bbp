@@ -33,7 +33,7 @@ from bbtoolbox import BBToolbox
 from uc_site import UCSite
 from wcc_siteamp import WccSiteamp
 from rotd50 import RotD50
-from rotdPGV import RotDPGV
+from rotd_vel import RotDVel
 from fas import FAS
 from obs_seismograms import ObsSeismograms
 from copy_seismograms import CopySeismograms
@@ -58,6 +58,7 @@ from rotd100 import RotD100
 from anderson_gof import AndersonGOF
 from irikura_gen_srf import IrikuraGenSrf
 from irikura_hf import IrikuraHF
+from arias_duration import AriasDuration
 
 class Module(object):
     def __init__(self):
