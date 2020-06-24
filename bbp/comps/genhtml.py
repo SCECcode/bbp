@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -185,6 +185,7 @@ class GenHTML(object):
         rd50plot = glob.glob(os.path.join(a_outdir, "gof*-rd50.png"))
         gmpegofplot = glob.glob(os.path.join(a_outdir, "gof*-GMPE-*.png"))
         mapgofplot = glob.glob(os.path.join(a_outdir, "gof-map-*.png"))
+        vs30gofplot = glob.glob(os.path.join(a_outdir, "gof-vs30*.png"))
         if len(gmpegofplot) == 1:
             gmpegofplot = gmpegofplot[0]
         else:
@@ -193,6 +194,10 @@ class GenHTML(object):
             mapgofplot = mapgofplot[0]
         else:
             mapgofplot = ""
+        if len(vs30gofplot) == 1:
+            vs30gofplot = vs30gofplot[0]
+        else:
+            vs30gofplot = ""
         if len(dist_lin_plot) == 1:
             dist_lin_plot = dist_lin_plot[0]
         else:
@@ -208,6 +213,8 @@ class GenHTML(object):
                 rd50plot = [plot for plot in rd50plot if plot != gmpegofplot]
             if mapgofplot:
                 rd50plot = [plot for plot in rd50plot if plot != mapgofplot]
+            if vs30gofplot:
+                rd50plot = [plot for plot in rd50plot if plot != vs30gofplot]
             if dist_lin_plot:
                 rd50plot = [plot for plot in rd50plot if plot != dist_lin_plot]
             if dist_log_plot:
@@ -218,6 +225,7 @@ class GenHTML(object):
                 rd50plot = ""
         gmpegofplot = os.path.basename(gmpegofplot)
         mapgofplot = os.path.basename(mapgofplot)
+        vs30gofplot = os.path.basename(vs30gofplot)
         rd50plot = os.path.basename(rd50plot)
         dist_lin_plot = os.path.basename(dist_lin_plot)
         dist_log_plot = os.path.basename(dist_log_plot)
@@ -259,6 +267,13 @@ class GenHTML(object):
             idxout.write("<td>RotD50 Dist Bias Log</td>\n")
             idxout.write('<td><a href="%s">%s</a></td>\n' %
                          (os.path.join(".", "%s" % (dist_log_plot)),
+                          "PNG"))
+            idxout.write("</tr>\n")
+        if vs30gofplot:
+            idxout.write("<tr>\n")
+            idxout.write("<td>RotD50 Vs30 GOF Plot</td>\n")
+            idxout.write('<td><a href="%s">%s</a></td>\n' %
+                         (os.path.join(".", "%s" % (vs30gofplot)),
                           "PNG"))
             idxout.write("</tr>\n")
         # Add station map
