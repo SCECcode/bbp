@@ -128,6 +128,8 @@ class IrikuraHFCfg(object):
         self.filter_flo = 1.0e+10
         self.filter_fhi = 0.2
         self.filter_phase = 0
+        self.sdropout = "stress_drop.out"
+        self.segments_midpoint = "segments.midpoint.txt"
 
 if __name__ == "__main__":
     IRIKURA_HF_CFG = IrikuraHFCfg(sys.argv[1])

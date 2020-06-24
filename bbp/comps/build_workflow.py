@@ -148,7 +148,7 @@ class WorkflowBuilder(object):
 
         # For multisegment validation events
         self.multisegment_validation = True
-        if method == "SONG" or method == "IRIKURA1":
+        if method == "SONG" or method == "IRIKURA1" or method == "IRIKURA2":
             self.multisegment_src_files = src_file
             return src_file[0]
 
@@ -233,7 +233,7 @@ class WorkflowBuilder(object):
                                            self.src_file)
                     if isinstance(self.src_file, list):
                         self.multisegment_validation = True
-                        if self.method == "SONG" or self.method == "IRIKURA1":
+                        if self.method == "SONG" or self.method == "IRIKURA1" or self.method == "IRIKURA2":
                             self.multisegment_src_files = self.src_file
                             self.src_file = self.src_file[0]
                             break
@@ -296,7 +296,8 @@ class WorkflowBuilder(object):
             # Found, no need to use site response module
             return False
 
-        return True
+        # The GP site response is the default site response module
+        return "GP"
 
     def select_site_response(self):
         """
@@ -325,7 +326,26 @@ class WorkflowBuilder(object):
                 site_resp = input("Do you want to run the "
                                   "site response module (y/n)? ")
             if site_resp.lower() == 'y' or site_resp.lower() == 'yes':
-                return True
+                while True:
+                    if self.opt_obj is not None:
+                        method = self.opt_obj.get_next_option()
+                    else:
+                        print()
+                        method = input("Please select a site response module "
+                                       "to use in this Broadband simulation:\n"
+                                       "(1) GP (Graves & Pitarka)\n"
+                                       "(2) PySeismoSoil\n"
+                                       "? ")
+                    if (method == '1' or method.lower() == "graves & pitarka" or
+                        method.lower() == "gp"):
+                        return "GP"
+                    elif (method == '2' or method.lower() == "pyseismosoil" or
+                          method.lower() == "seismosoil"):
+                        return "SEISMOSOIL"
+                    else:
+                        print("%s is not a valid choice for site response!\n" % (method))
+                        if self.opt_obj is not None:
+                            sys.exit(1)
             elif site_resp.lower() == 'n' or site_resp.lower() == 'no':
                 return False
             else:
@@ -452,22 +472,46 @@ class WorkflowBuilder(object):
         else:
             run_site_resp = self.infer_site_response()
         if run_site_resp:
-            site_module = Module()
-            site_module.setName("WccSiteamp")
-            site_module.addStageFile(self.stations)
-            site_module.addArg(os.path.basename(self.stations))
-            site_module.addArg("GP")
-            site_module.addArg(self.vmodel_name)
-            self.workflow.append(site_module)
+            if run_site_resp == "GP":
+                site_module = Module()
+                site_module.setName("WccSiteamp")
+                site_module.addStageFile(self.stations)
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg("GP")
+                site_module.addArg(self.vmodel_name)
+                self.workflow.append(site_module)
 
-            # And then, add the Match module
-            merge_module = Module()
-            merge_module.setName("Match")
-            merge_module.addStageFile(self.stations)
-            merge_module.addArg(os.path.basename(self.stations))
-            merge_module.addArg(self.vmodel_name)
-            merge_module.addKeywordArg('acc', True)
-            self.workflow.append(merge_module)
+                # And then, add the Match module
+                merge_module = Module()
+                merge_module.setName("Match")
+                merge_module.addStageFile(self.stations)
+                merge_module.addArg(os.path.basename(self.stations))
+                merge_module.addArg(self.vmodel_name)
+                merge_module.addKeywordArg('acc', True)
+                self.workflow.append(merge_module)
+            elif run_site_resp == "SEISMOSOIL":
+                # Run the Match module first
+                merge_module = Module()
+                merge_module.setName("Match")
+                merge_module.addStageFile(self.stations)
+                merge_module.addArg(os.path.basename(self.stations))
+                merge_module.addArg(self.vmodel_name)
+                merge_module.addKeywordArg('acc', False)
+                self.workflow.append(merge_module)
+
+                # Then run SeismoSoil
+                site_module = Module()
+                site_module.setName("SeismoSoil")
+                site_module.addStageFile(self.src_file)
+                site_module.addStageFile(self.stations)
+                site_module.addStageFile(self.gp_lf_vel_file)
+                site_module.addArg(os.path.basename(self.src_file))
+                site_module.addArg(os.path.basename(self.gp_lf_vel_file))
+                site_module.addArg("GP")
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg(self.vmodel_name)
+                site_module.addKeywordArg('debug', True)
+                self.workflow.append(site_module)
         else:
             # Not running site response
             merge_module = Module()
@@ -516,14 +560,15 @@ class WorkflowBuilder(object):
         else:
             run_site_resp = self.infer_site_response()
         if run_site_resp:
-            site_module = Module()
-            site_module.setName("WccSiteamp")
-            site_module.addStageFile(self.stations)
-            site_module.addArg(os.path.basename(self.stations))
-            site_module.addArg("UCSB")
-            site_module.addArg(self.vmodel_name)
-            self.workflow.append(site_module)
-            return
+            if run_site_resp == "GP":
+                site_module = Module()
+                site_module.setName("WccSiteamp")
+                site_module.addStageFile(self.stations)
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg("UCSB")
+                site_module.addArg(self.vmodel_name)
+                self.workflow.append(site_module)
+                return
 
         #if run_site_resp:
         #    site_module = Module()
@@ -549,6 +594,21 @@ class WorkflowBuilder(object):
         merge_module.addKeywordArg('hybrid', True)
         self.workflow.append(merge_module)
 
+        if run_site_resp:
+            if run_site_resp == "SEISMOSOIL":
+                site_module = Module()
+                site_module.setName("SeismoSoil")
+                site_module.addStageFile(self.src_file)
+                site_module.addStageFile(self.stations)
+                site_module.addStageFile(self.vel_file)
+                site_module.addArg(os.path.basename(self.src_file))
+                site_module.addArg(os.path.basename(self.vel_file))
+                site_module.addArg("UCSB")
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg(self.vmodel_name)
+                site_module.addKeywordArg('debug', True)
+                self.workflow.append(site_module)
+
     def run_sdsu_method(self, gen_srf):
         """
         This function creates a workflow for the SDSU method
@@ -561,9 +621,9 @@ class WorkflowBuilder(object):
                 if not self.srf_file:
                     self.srf_file = self.get_input_file("SRF", "srf")
         # Select velocity model for GP method for now
-        self.vel_file = self.vmodel_obj.get_velocity_model("GP")
-        lf_module.addStageFile(self.vel_file)
-        lf_module.addArg(os.path.basename(self.vel_file))
+        gp_vel_file = self.vmodel_obj.get_velocity_model("GP")
+        lf_module.addStageFile(gp_vel_file)
+        lf_module.addArg(os.path.basename(gp_vel_file))
         if self.src_file is not None and self.src_file != "":
             # we supplied a source file, so stage it
             lf_module.addStageFile(self.src_file)
@@ -619,17 +679,16 @@ class WorkflowBuilder(object):
         else:
             run_site_resp = self.infer_site_response()
         if run_site_resp:
-            site_module = Module()
-            site_module.setName("WccSiteamp")
-            site_module.addStageFile(self.stations)
-            site_module.addArg(os.path.basename(self.stations))
-            site_module.addArg("SDSU")
-            site_module.addArg(self.vmodel_name)
-            self.workflow.append(site_module)
-            return
-
-        # Not running site response, use the
-        # CopySeismograms module to wrap things up
+            if run_site_resp == "GP":
+                site_module = Module()
+                site_module.setName("WccSiteamp")
+                site_module.addStageFile(self.stations)
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg("SDSU")
+                site_module.addArg(self.vmodel_name)
+                self.workflow.append(site_module)
+                # All done!
+                return
 
         # This method produces a hybrid velocity seismogram in
         # the tmpdata directory, we just need to create the
@@ -643,10 +702,28 @@ class WorkflowBuilder(object):
         merge_module.addKeywordArg('hybrid', True)
         self.workflow.append(merge_module)
 
+        if run_site_resp:
+            if run_site_resp == "SEISMOSOIL":
+                site_module = Module()
+                site_module.setName("SeismoSoil")
+                site_module.addStageFile(self.src_file)
+                site_module.addStageFile(self.stations)
+                site_module.addStageFile(gp_vel_file)
+                site_module.addArg(os.path.basename(self.src_file))
+                site_module.addArg(os.path.basename(gp_vel_file))
+                site_module.addArg("SDSU")
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg(self.vmodel_name)
+                site_module.addKeywordArg('debug', True)
+                self.workflow.append(site_module)
+
     def run_exsim_method(self):
         """
         This function creates a workflow for the EXSIM method
         """
+        # Pick velocity model to use with site response module
+        self.vel_file = self.vmodel_obj.get_velocity_model("EXSIM")
+
         exsim_module = Module()
         exsim_module.setName("ExSim")
         # Make sure SRC file exists and is valid
@@ -708,13 +785,27 @@ class WorkflowBuilder(object):
         else:
             run_site_resp = self.infer_site_response()
         if run_site_resp:
-            site_module = Module()
-            site_module.setName("WccSiteamp")
-            site_module.addStageFile(self.stations)
-            site_module.addArg(os.path.basename(self.stations))
-            site_module.addArg("EXSIM")
-            site_module.addArg(self.vmodel_name)
-            self.workflow.append(site_module)
+            if run_site_resp == "GP":
+                site_module = Module()
+                site_module.setName("WccSiteamp")
+                site_module.addStageFile(self.stations)
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg("EXSIM")
+                site_module.addArg(self.vmodel_name)
+                self.workflow.append(site_module)
+            elif run_site_resp == "SEISMOSOIL":
+                site_module = Module()
+                site_module.setName("SeismoSoil")
+                site_module.addStageFile(self.src_file)
+                site_module.addStageFile(self.stations)
+                site_module.addStageFile(self.vel_file)
+                site_module.addArg(os.path.basename(self.src_file))
+                site_module.addArg(os.path.basename(self.vel_file))
+                site_module.addArg("EXSIM")
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg(self.vmodel_name)
+                site_module.addKeywordArg('debug', True)
+                self.workflow.append(site_module)
 
     def run_csm_method(self):
         """
@@ -809,6 +900,10 @@ class WorkflowBuilder(object):
         hf_module.addStageFile(self.stations)
         hf_module.addArg(os.path.basename(self.stations))
         hf_module.addArg(self.vmodel_name)
+        if self.multisegment_validation:
+            for idx, val in enumerate(self.multisegment_src_files):
+                hf_module.addStageFile(val)
+                hf_module.addKeywordArg('src%d' % (idx), val)
         self.workflow.append(hf_module)
 
         # Site response module
@@ -817,22 +912,46 @@ class WorkflowBuilder(object):
         else:
             run_site_resp = self.infer_site_response()
         if run_site_resp:
-            site_module = Module()
-            site_module.setName("WccSiteamp")
-            site_module.addStageFile(self.stations)
-            site_module.addArg(os.path.basename(self.stations))
-            site_module.addArg("GP")
-            site_module.addArg(self.vmodel_name)
-            self.workflow.append(site_module)
+            if run_site_resp == "GP":
+                site_module = Module()
+                site_module.setName("WccSiteamp")
+                site_module.addStageFile(self.stations)
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg("GP")
+                site_module.addArg(self.vmodel_name)
+                self.workflow.append(site_module)
 
-            # And then, add the Match module
-            merge_module = Module()
-            merge_module.setName("Match")
-            merge_module.addStageFile(self.stations)
-            merge_module.addArg(os.path.basename(self.stations))
-            merge_module.addArg(self.vmodel_name)
-            merge_module.addKeywordArg('acc', True)
-            self.workflow.append(merge_module)
+                # And then, add the Match module
+                merge_module = Module()
+                merge_module.setName("Match")
+                merge_module.addStageFile(self.stations)
+                merge_module.addArg(os.path.basename(self.stations))
+                merge_module.addArg(self.vmodel_name)
+                merge_module.addKeywordArg('acc', True)
+                self.workflow.append(merge_module)
+            elif run_site_resp == "SEISMOSOIL":
+                # Run the Match module first
+                merge_module = Module()
+                merge_module.setName("Match")
+                merge_module.addStageFile(self.stations)
+                merge_module.addArg(os.path.basename(self.stations))
+                merge_module.addArg(self.vmodel_name)
+                merge_module.addKeywordArg('acc', False)
+                self.workflow.append(merge_module)
+
+                # Then run SeismoSoil
+                site_module = Module()
+                site_module.setName("SeismoSoil")
+                site_module.addStageFile(self.src_file)
+                site_module.addStageFile(self.stations)
+                site_module.addStageFile(self.gp_lf_vel_file)
+                site_module.addArg(os.path.basename(self.src_file))
+                site_module.addArg(os.path.basename(self.gp_lf_vel_file))
+                site_module.addArg("GP")
+                site_module.addArg(os.path.basename(self.stations))
+                site_module.addArg(self.vmodel_name)
+                site_module.addKeywordArg('debug', True)
+                self.workflow.append(site_module)
         else:
             # Not running site response
             merge_module = Module()
@@ -1346,6 +1465,7 @@ class WorkflowBuilder(object):
                     gof_module.addArg(os.path.basename(self.stations))
                     gof_module.addArg(self.val_obj.get_validation_name())
                     gof_module.addArg(self.val_obj.get_cutoff())
+                    gof_module.addArg(self.val_obj.get_gof_plot_limit())
                     if self.method == "EXSIM":
                         gof_module.addKeywordArg("single_component", True)
                     else:

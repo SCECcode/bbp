@@ -42,7 +42,8 @@ class GPGof(object):
 
     def __init__(self, i_r_srcfile, i_r_stations,
                  i_comparison_label, cutoff=None,
-                 single_component=False, sim_id=0):
+                 gof_plot_limit=None, single_component=False,
+                 sim_id=0):
         """
         Initialize class instance variables
         """
@@ -51,6 +52,10 @@ class GPGof(object):
         self.r_stations = i_r_stations
         self.comp_label = i_comparison_label
         self.max_cutoff = cutoff
+        if gof_plot_limit is not None:
+            self.gof_plot_limit = gof_plot_limit
+        else:
+            self.gof_plot_limit = 0.01
         self.install = None
         self.config = None
         self.src_keys = None
@@ -94,7 +99,8 @@ class GPGof(object):
                      (self.comp_label, sim_id))
         plotter = PlotGoF()
         plotter.plot(plottitle, fileroot, a_outdir, a_outdir,
-                     cutoff=self.max_cutoff, mode=plot_mode, colorset='single')
+                     cutoff=self.max_cutoff, min_period=self.gof_plot_limit,
+                     mode=plot_mode, colorset='single')
 
         # Finally, plot the distance and map GOFs
         plot_dist_gof(rd50_residfile, self.comp_label, sim_id=self.sim_id)
