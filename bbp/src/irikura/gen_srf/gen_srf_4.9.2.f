@@ -296,7 +296,7 @@ c if nasp=3 aspect =0.8
          enddo
         enddo
 c      random location of asperities
-       call as_loc (iseed,xlen,ylen,dx,dy,nx,ny,nasp,aslength,
+       call as_loc (iseed,xlen,ylen,zz,dx,dy,nx,ny,nasp,aslength,
      + aswidth, xasp,yasp)
 
          do i=1,nasp
@@ -668,7 +668,7 @@ C     IF COORDINATES ARE GEOCENT RADIAN  I=1
       GO TO 33
       END
 
-       subroutine as_loc (iseed,fl,fw,dx,dy,nx,ny,n,aslength,
+       subroutine as_loc (iseed,fl,fw,zz,dx,dy,nx,ny,n,aslength,
      + aswidth, xa,ya)
        dimension xa(4),ya(4),aslength(4),aswidth(4)
        dimension ik(800,400),asl(4),asw(4)
@@ -694,7 +694,11 @@ c space remaining to the left and below the first asperity
 c location of the first asperity xa(1),ya(1)
 
 c  asperity location should be below 2km from the top edge
-       dh=2.0
+c  asperity location should be below 2km from the earth surface
+
+       d9=2.0
+       dh=d9-zz
+       if(dh.le.0) dh=0.
        x1=(fl-asl(1)-dx)*xr
        y1=(fw-asw(1)-dy)*yr
        if(x1.lt.dx) x1=2*dx
