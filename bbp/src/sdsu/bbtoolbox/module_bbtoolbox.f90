@@ -528,7 +528,9 @@ real(kind=r_single),allocatable,dimension(:,:):: bb_seis
 ! Number of points for LF seismograms 
 integer(kind=i_single)                          :: lf_npts                                         
 ! LF time-series length 
-real(kind=r_single)                             :: lf_len 
+real(kind=r_single)                             :: lf_len
+! Real Input LF time-series length, used when writting output
+real(kind=r_single)                             :: real_lf_len
 ! LF waveforms interpolated (to avoid spectral aliasing up to fmax)
 real(kind=r_single),allocatable,dimension(:,:)  :: lf_int          
 

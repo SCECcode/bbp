@@ -169,23 +169,6 @@ do i=1,(npts_stf-1)
    t_stf(i+1)=t_stf(i)+dt
 enddo
 
-! setting up the taper (Hanning window): only the end (last 20%) of convolved time series will
-! be tapered
-!taper_len=nint(npts*0.5)
-
-! setting up the taper (Hanning window): only the end (10 sec) of convolved time series will
-! be tapered
-taper_len=nint(10.0/dt)
-
-! allocate local array for building taper
-if(.not.allocated(han_win)) allocate(han_win(taper_len))
-
-! equation of Hanning window: h(i)=0.5*(1-cos(2*pi*i)/N) ---> see Numerical Recipes, page: 547
-! taking only the second (decaying) half 
-do i=taper_len,1,-1
-   han_win(taper_len-i+1) = 0.5 * (1 - cos(2 * pi * (i-1) / (2*taper_len)) )
-enddo
-
 ! deallocate memory
 if (allocated(h)) deallocate(h)
 

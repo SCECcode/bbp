@@ -1195,6 +1195,7 @@ case('3SF')           !single ASCII files with 4 columns (time vector and 3 comp
    enddo
 
    wts_len=(wts_npts-1)*ts_dt  !compute time-series length
+   real_lf_len = wts_len  ! record real LF length
 
    ! adjust ts_npts and ts_len
    print*,'wts_npts,ts_dt,wts_len',wts_npts,ts_dt,wts_len
@@ -1344,7 +1345,7 @@ SUBROUTINE write_disk(station,type_flag,in_arr)
 !
 use def_kind; use flags; use io_file, only: output_dir
 use scattering, only: npts,time_step; use source_receiver, only: stat_name
-use stf_data, only: npts_stf,total; use waveform, only: lf_len,lf_npts,v_npts
+use stf_data, only: npts_stf,total; use waveform, only: lf_len,lf_npts,v_npts,real_lf_len
 use tmp_para
 
 implicit none
@@ -1399,9 +1400,10 @@ case('stf')
 case default
    !dt = lf_len/(npts-1)
    dt = lf_len/(v_npts-1)
-   print*,'lf_len,npts,dt in write_dist=',lf_len,npts,dt
-   d_npts=npts/time_step
+   print*,'lf_len,npts,dt,v_npts,real_lf_len in write_dist=',lf_len,npts,dt,v_npts,real_lf_len
+   !!!d_npts=v_npts/time_step  !!d_npts=npts/time_step
    tmp_dt = dt*time_step
+   d_npts = ceiling(real_lf_len/tmp_dt +1)
 end select
 
 ! binary output (only for broad-band)

@@ -78,8 +78,17 @@ endif
 dt = lf_len/(v_npts-1)
 
 ! compute taper length
-taper_len=nint(10.0/dt)
+taper_len = ceiling(npts/10.0)  !!taper_len=nint(10.0/dt)
 !!!taper_len=nint(npts*0.5)
+
+! allocate local array for building taper
+if(.not.allocated(han_win)) allocate(han_win(taper_len))
+
+! equation of Hanning window: h(i)=0.5*(1-cos(2*pi*i)/N) ---> see Numerical Recipes, page: 547
+! taking only the second (decaying) half
+do i=taper_len,1,-1
+   han_win(taper_len-i+1) = 0.5 * (1 - cos(2 * pi * (i-1) / (2*taper_len)) )
+enddo
 
 ! tapering only last part (~20%) of scattered time-series
 forall (i=1:taper_len,j=1:3)
@@ -90,6 +99,11 @@ end forall
 do i=1,3
    conv_seis(:,i)=convlv(scattgram(:,i),stf_sum)*dt
 enddo
+
+!!taper end of the conv_seis to avoid FFT truncation
+forall (i=1:taper_len,j=1:3)
+   conv_seis(npts-taper_len+i,j)=conv_seis(npts-taper_len+i,j)*han_win(i)
+end forall
 
 ! deallocate temporary arrays
 deallocate(stf_sum)

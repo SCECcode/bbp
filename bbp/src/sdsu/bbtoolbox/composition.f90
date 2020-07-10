@@ -61,9 +61,9 @@ implicit none
 ! actual station number
 integer(kind=i_single),intent(in)              :: station
 ! indexes, taper length
-integer(kind=i_single)                         :: i,ind,taper_len
+integer(kind=i_single)                         :: i,ind,taper_len,convs_taper_len,j,bbs_taper_len
 ! for output decimation factor
-integer(kind=i_single)                         :: bb_npts,k
+integer(kind=i_single)                         :: bb_npts,k,bbs_npts
 ! time-step
 real(kind=r_single)                            :: dt
 ! frequency for acc_spec
@@ -72,6 +72,7 @@ real(kind=r_single)                            :: acc_spec_freq
 real(kind=r_single),allocatable,dimension(:)   :: acc_ratio
 ! taper
 real(kind=r_single),allocatable,dimension(:,:) :: taper
+real(kind=r_single),allocatable,dimension(:)   :: convs_taper,bbs_taper
 ! for tapering and bb_seis
 real(kind=r_single),allocatable,dimension(:,:) :: tmp_seis
 !------------------------------------------------------------------------------------
@@ -79,14 +80,33 @@ real(kind=r_single),allocatable,dimension(:,:) :: tmp_seis
 ! delta-t of both high and low-frequency (already interpolated) time-series   
 dt = lf_len/(v_npts-1)
 
+
+convs_taper_len=ceiling(npts/10.0)
+!!taper end of the conv_seis to avoid FFT truncation
+if (.not.allocated(convs_taper)) allocate(convs_taper(convs_taper_len))
+
+do i=convs_taper_len,1,-1
+   convs_taper(convs_taper_len-i+1) = 0.5 * (1 - cos(2 * pi * (i-1) / (2*convs_taper_len)) )
+enddo
+
+forall (i=1:convs_taper_len,j=1:3)
+   conv_seis(npts-convs_taper_len+i,j)=conv_seis(npts-convs_taper_len+i,j)*convs_taper(i)
+end forall
+
+forall (i=1:convs_taper_len,j=1:3)
+   lf_int(npts-convs_taper_len+i,j)=lf_int(npts-convs_taper_len+i,j)*convs_taper(i)
+end forall
+
+
 ! calculate HFs scaling factor from bb_calc for each component
 if (.not.allocated(acc_ratio)) allocate(acc_ratio(3))
 
 acc_spec_freq = 50.0
 
-do i=1,3 
+do i=1,3
    call bb_calc(i,dt,station,acc_ratio(i),acc_spec_freq)
 enddo
+
 
 !!! ----- time domain merging only ----------
 
@@ -102,6 +122,21 @@ if (merging_flag == 2) then
       enddo
    enddo
 endif
+
+
+!!taper end of the conv_seis to avoid FFT truncation
+bbs_npts = ceiling(real_lf_len/dt +1)
+bbs_taper_len=ceiling(bbs_npts/10.0)
+if (.not.allocated(bbs_taper)) allocate(bbs_taper(bbs_taper_len))
+
+do i=bbs_taper_len,1,-1
+   bbs_taper(bbs_taper_len-i+1) = 0.5 * (1 - cos(2 * pi * (i-1) / (2*bbs_taper_len)) )
+enddo
+
+forall (i=1:bbs_taper_len,j=1:3)
+   bb_seis(bbs_npts-bbs_taper_len+i,j)=bb_seis(bbs_npts-bbs_taper_len+i,j)*bbs_taper(i)
+end forall
+bb_seis(bbs_npts+1:npts,:) = 0.0
 
 !!! ----- end time domain merging --------
 
@@ -268,8 +303,8 @@ real(kind=r_single),intent(out)              :: ratio
 !----------------------------------------------------------------------------------- 
 
 ! computing frequency-delta
-df = 1 / (v_npts * dt)
-!df = 1 / (npts * dt)    !according to NR
+!!!df = 1 / (v_npts * dt)
+df = 1 / (npts * dt)    !according to NR
 
 ! compute nyquist frequency (its index is npts/2 +1) 
 ! (since npts is multiple of 2, f_nyq = {(npts+2)/2 -1)*df}
@@ -283,8 +318,8 @@ do i=1,f_nyq_index-1
 enddo
 do i=f_nyq_index,npts-1
    f(i+1)=f(i)-df
-enddo   
-   
+enddo
+
 ! flag for FFT (i.e. from time to frequency)
 trasf_sign=1    
 
@@ -305,6 +340,7 @@ call four1d(lf_four,trasf_sign)
 ! extracts Amplitude and Phase spectra (LF)
 Am_lf=cabs(lf_four)
 Ph_lf=atan2(aimag(lf_four),real(lf_four))
+
 
 ! index of target frequency in frequency vector 
 do i=1,f_nyq_index
@@ -363,9 +399,10 @@ match_fr(comp,station)=f(index_min)
 ! averaged over a wide window
 
 ! derive acceleration amplitude spectra from velocity amplitude spectra 
-Acc_hf=Am_hf(1:f_nyq_index)*2.*pi*f(1:f_nyq_index) 
+Acc_hf=Am_hf(1:f_nyq_index)*2.*pi*f(1:f_nyq_index)
 Acc_lf=Am_lf(1:f_nyq_index)*2.*pi*f(1:f_nyq_index)
 ! note: here above the problem WAS that f went from -f_nyq to f_nyq, while Am from 0 to 2*fnyq-1 
+
 
 if (imerg .eq. 0) then
    ! compute spectral averages over a large window (3 times search window)
@@ -399,10 +436,11 @@ else
    !Av_lf11 = sum(Acc_lf(fscale_11:fscale_22))/(acc_size1)   
 
    ! new merging, imerg=1: one big subfault, =2: more subfaults
-   Av_hf1=acc_spec(f_acc_spec,station) ! use 50Hz for fmax=100Hz 
+   Av_hf1=acc_spec(f_acc_spec,station) ! use 50Hz for fmax=100Hz
    ratio = Av_hf1/Av_hf11
    print*,'imerg,Av_hf1,Av_hf11,ratio for imerg>0= ', &
            imerg,Av_hf1,Av_hf11,ratio
+
 endif
 
 !!! ----- frequency domain merging -----
@@ -824,6 +862,6 @@ subf_sca=sqrt(rnsub)/nsub
 acc_spec=acc_spec*subf_sca*fac
 
 ! deallocation
-if(allocated(wsub)) deallocate(wsub,R_cell) 
+if(allocated(wsub)) deallocate(wsub,R_cell)
 
 END FUNCTION acc_spec
