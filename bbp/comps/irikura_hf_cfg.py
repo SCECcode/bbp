@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,9 +18,19 @@ from __future__ import division, print_function
 
 # Import Python modules
 import sys
+import random
 
 # Import Broadband modules
 import bband_utils
+
+def calculate_rvfac(mean_rvfac, range_rvfac, seed):
+    """
+    This function calculates a random rvfac value based on the mean
+    and range values, plus a seed to generate a random number
+    """
+    random.seed(seed)
+    rvfac = mean_rvfac + range_rvfac * ((random.random() * 2) - 1)
+    return rvfac
 
 class IrikuraHFCfg(object):
     """
@@ -130,6 +140,9 @@ class IrikuraHFCfg(object):
         self.filter_phase = 0
         self.sdropout = "stress_drop.out"
         self.segments_midpoint = "segments.midpoint.txt"
+
+        self.VEL_RUP_FRAC = 0.72
+        self.VEL_RUP_RANGE = 0.00
 
 if __name__ == "__main__":
     IRIKURA_HF_CFG = IrikuraHFCfg(sys.argv[1])

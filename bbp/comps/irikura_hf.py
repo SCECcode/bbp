@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,9 +27,10 @@ import shutil
 
 # Import Broadband modules
 import bband_utils
+import velocity_models
 from station_list import StationList
 from install_cfg import InstallCfg
-from irikura_hf_cfg import IrikuraHFCfg
+from irikura_hf_cfg import IrikuraHFCfg, calculate_rvfac
 
 class IrikuraHF(object):
     """
@@ -53,6 +54,8 @@ class IrikuraHF(object):
         self.install = None
         self.config = None
         self.log = None
+        self.mean_rvfac = None
+        self.range_rvfac = None
 
         # Get all src files that were passed to us
         if kwargs is not None and len(kwargs) > 0:
@@ -93,6 +96,27 @@ class IrikuraHF(object):
         recipe after doing some math with the input parameters
         provided by the platform.
         """
+        # Get pointer to the velocity model object
+        vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
+        if vel_obj is None:
+            raise bband_utils.ParameterError("Cannot find velocity model: %s" %
+                                             (self.vmodel_name))
+        # Check for velocity model-specific parameters
+        vmodel_params = vel_obj.get_codebase_params('gp')
+
+        # Look for MEAN_RVFAC
+        if 'MEAN_RVFAC' in vmodel_params:
+            self.mean_rvfac = float(vmodel_params['MEAN_RVFAC'])
+        else:
+            self.mean_rvfac = cfg.VEL_RUP_FRAC
+        # Look for RANGE_RVFAC
+        if 'RANGE_RVFAC' in vmodel_params:
+            self.range_rvfac = float(vmodel_params['RANGE_RVFAC'])
+        else:
+            self.range_rvfac = cfg.VEL_RUP_RANGE
+
+        rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac, self.config.SEED)
+
         # Read SRF header
         srf_dict = self.read_srf_header(a_srffile)
         # Earth radius in km
@@ -201,7 +225,7 @@ class IrikuraHF(object):
         ds_m = mo_elem / myu / dwid / dlen / 1000 / 1000 # Units m
 
         # Units km/s
-        desvel = vs_pq * 0.72
+        desvel = vs_pq * rvfac
 
         # AI: radiation pattern 0.63/sqrt(2) and m_elem 2018.7.25
         #radpatt = 0.4384
@@ -615,6 +639,10 @@ class IrikuraHF(object):
 
         # Create Irikura velocity model file
         self.create_velocity_file(vel_file, vel_file_p)
+        shutil.copy2(vel_file,
+                     os.path.join(a_param_outdir, "%d_soil.dat" % (sim_id)))
+        shutil.copy2(vel_file_p,
+                     os.path.join(a_param_outdir, "%d_soil_p.dat" % (sim_id)))
 
         # Create Irikura station list
         self.create_station_list(station_file)
@@ -624,6 +652,8 @@ class IrikuraHF(object):
         # Create other input files
         self.create_irikura_files(fault_param_dat_file,
                                   os.path.join(irikura_dir, r_single_seg_srf))
+        shutil.copy2(fault_param_dat_file,
+                     os.path.join(a_param_outdir, "%d_fault_param.dat" % (sim_id)))
 
         # Create phase files
         r_phase_file = "phase.dat"
@@ -688,6 +718,11 @@ class IrikuraHF(object):
                     self.log))
             bband_utils.runprog(cmd, abort_on_error=True)
 
+            # Save copy
+            shutil.copy2(current_elem_param_dat_file,
+                         os.path.join(a_param_outdir,
+                                      os.path.basename(current_elem_param_dat_file)))
+
             current_elem_file = open(current_elem_param_dat_file, 'r')
             for line in current_elem_file:
                 line = line.strip()
@@ -708,6 +743,11 @@ class IrikuraHF(object):
 
         elem_param_file.close()
 
+        # Save copy
+        shutil.copy2(elem_param_dat_file,
+                     os.path.join(a_param_outdir,
+                                  os.path.basename(elem_param_dat_file)))
+
         # Now add rupture perturbations by using the dtrandom code
         dtrandom_input_file = os.path.join(irikura_dir, "dtrandom_input.txt")
         dtrdm = open(dtrandom_input_file, 'w')
@@ -721,6 +761,7 @@ class IrikuraHF(object):
             dtrdm.write("%s\n" % (line))
         elem_param_file.close()
         dtrdm.close()
+
         # Save copy
         shutil.copy2(dtrandom_input_file, os.path.join(a_param_outdir,
                                                        "dtrandom_input.txt"))
@@ -731,6 +772,11 @@ class IrikuraHF(object):
                 dtrandom_input_file,
                 elem_param_rndt_dat_file))
         bband_utils.runprog(cmd, abort_on_error=True)
+
+        # Save copy
+        shutil.copy2(elem_param_rndt_dat_file,
+                     os.path.join(a_param_outdir,
+                                  os.path.basename(elem_param_rndt_dat_file)))
 
         # Run the statgreen program
         os.chdir(irikura_hor_dir)

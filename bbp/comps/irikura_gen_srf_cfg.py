@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,9 +19,19 @@ from __future__ import division, print_function
 # Import Python modules
 import os
 import sys
+import random
 
 # Import Broadband modules
 import bband_utils
+
+def calculate_rvfac(mean_rvfac, range_rvfac, seed):
+    """
+    This function calculates a random rvfac value based on the mean
+    and range values, plus a seed to generate a random number
+    """
+    random.seed(seed)
+    rvfac = mean_rvfac + range_rvfac * ((random.random() * 2) - 1)
+    return rvfac
 
 class IrikuraGenSrfCfg(object):
     """
@@ -36,6 +46,7 @@ class IrikuraGenSrfCfg(object):
         self.DT = 0.025
         self.DENS = 2.7
         self.VEL_RUP_FRAC = 0.8
+        self.VEL_RUP_RANGE = 0.0
         self.GENSRF = "gen_srf"
         self.GENSRFSEGMENT = "gen_srf_segment"
         self.SUMSEG = "sum_seg"

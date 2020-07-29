@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ import shutil
 # Import Broadband modules
 import plot_srf
 import bband_utils
-from irikura_gen_srf_cfg import IrikuraGenSrfCfg
+import velocity_models
+from irikura_gen_srf_cfg import IrikuraGenSrfCfg, calculate_rvfac
 from install_cfg import InstallCfg
 
 class IrikuraGenSrf(object):
@@ -40,6 +41,8 @@ class IrikuraGenSrf(object):
         self.r_srcfile = i_r_srcfile
         self.r_srffile = o_r_srffile
         self.vmodel_name = i_vmodel_name
+        self.mean_rvfac = None
+        self.range_rvfac = None
         self.r_srcfiles = []
 
         # Get all src files that were passed to us
@@ -88,6 +91,32 @@ class IrikuraGenSrf(object):
             a_srffile = os.path.join(a_indir, self.r_srffile)
         a_velmod = os.path.join(install.A_IN_DATA_DIR, str(sim_id),
                                 self.r_velmodel)
+
+        # Get pointer to the velocity model object
+        vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
+        if vel_obj is None:
+            raise bband_utils.ParameterError("Cannot find velocity model: %s" %
+                                             (self.vmodel_name))
+        # Check for velocity model-specific parameters
+        vmodel_params = vel_obj.get_codebase_params('gp')
+        # Look for MEAN_RVFAC
+        if 'MEAN_RVFAC' in vmodel_params:
+            self.mean_rvfac = float(vmodel_params['MEAN_RVFAC'])
+        else:
+            self.mean_rvfac = cfg.VEL_RUP_FRAC
+        # Look for RANGE_RVFAC
+        if 'RANGE_RVFAC' in vmodel_params:
+            self.range_rvfac = float(vmodel_params['RANGE_RVFAC'])
+        else:
+            self.range_rvfac = cfg.VEL_RUP_RANGE
+
+        # Calculate rvfac
+        if "common_seed" in cfg.CFGDICT[0]:
+            rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
+                                    cfg.CFGDICT[0]["common_seed"])
+        else:
+            rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
+                                    cfg.CFGDICT[0]["seed"])
 
         # Run in tmpdir subdir to isolate temp fortran files
         # Save cwd, change back to it at the end
@@ -152,7 +181,7 @@ class IrikuraGenSrf(object):
                       "%f\n" % (cfg.DT) +
                       "%d\n" % (simulation_seed) +
                       "%s\n" % (a_velmod) +
-                      "%f\n" % (cfg.VEL_RUP_FRAC) +
+                      "%f\n" % (rvfac) +
                       "END")
         bband_utils.runprog(progstring)
 
