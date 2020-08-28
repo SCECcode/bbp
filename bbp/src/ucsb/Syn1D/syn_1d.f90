@@ -1,16 +1,16 @@
 Program syn_1d
-!  
-! This code uses the green functions from green_bank.f and the 
+!
+! This code uses the green functions from green_bank.f and the
 ! source functions from ffsp_v2.f to calculate the grond motions
 ! at free surface.
 !
 ! The input parameter from all the files, except 'Green_bank.inf',
 ! should has the unit of  N-m, m, m/s, kg/m^3,  and/or degree.
 !
-! X-Y-Z Cartesian coordinate system follows righ-hand rule with Z 
-! direction positively down 
+! X-Y-Z Cartesian coordinate system follows righ-hand rule with Z
+! direction positively down
 !
-! The Output ground motions have positive direction in UP, H1 or H2 
+! The Output ground motions have positive direction in UP, H1 or H2
 ! (H1 and H2 are angles (degree) reading in from file 'fileRec').
 ! The unit of outputing ground motions will be
 ! m (displacement), m/s (velocity), or m/s/s (acceleration).
@@ -30,7 +30,7 @@ Program syn_1d
  real:: tdura,azimu_p,rake_p,dip_p,freq_b,freq_e,rdp,kap
 !
  chmotion=(/ 'Displ ','Veloc ','Accel ' /)
- chformat=(/ 'SAC   ','TXT   ','FXDR  ','Binary' /) 
+ chformat=(/ 'SAC   ','TXT   ','FXDR  ','Binary' /)
 !
  fileinp='syn_1d.inp'
  open(unit=8,file=fileinp,status='old', position='rewind')
@@ -43,7 +43,7 @@ Program syn_1d
  read(8,*)  azimu_p,rake_p,dip_p
 
 ! write(*,*) 'Enter the frequency comtrol points for perturb'
- read(8,*) freq_b, freq_e 
+ read(8,*) freq_b, freq_e
 
 ! write(*,*) 'Enter the duration of outputing GM'
  read(8,*) kap, tdura
@@ -58,18 +58,18 @@ Program syn_1d
  read(8,*) id_motion
 ! write(*,'(1a)') chmotion(id_motion)
 
-! write(*,*) 'Enter:  1 for SAC;  2 TXT; 3 FXDR; 4 Binary' 
+! write(*,*) 'Enter:  1 for SAC;  2 TXT; 3 FXDR; 4 Binary'
  read(8,*) id_format
 ! write(*,'(1a)') chformat(id_format)
 
  close(8)
 !============================================================
-! 
+!
  open(21,file=fsou_list,status='old', position='rewind')
  read(21,*) nsrc_model,nsubx,nsuby,dxsub,dysub,cxp,cyp
  read(21,*) xref_hypc,yref_hypc,angle_north_x
 !
-! xref_hypc,yref_hypc are the (x, y) value of hypocenter in the 
+! xref_hypc,yref_hypc are the (x, y) value of hypocenter in the
 ! coordinate system used for describing  the source parameters.
 ! angle_north_x is the angle from North to the X-axis
 !
@@ -89,7 +89,7 @@ Program syn_1d
  rdp=atan(1.0)/45.0
  dxsub=dxsub/1000.
  dysub=dysub/1000.
- npsx=2*(npsx/2)+1 
+ npsx=2*(npsx/2)+1
  npsy=2*(npsy/2)+1
  angle_north_x= angle_north_x*rdp
 !--------------------------------------------------------------
@@ -180,7 +180,7 @@ subroutine synthe(id_motion,st_x,st_y,ang_h1,ang_h2,ss_min,ss_max)
        x_ps=xp0+xps_sub(ips)
        y_ps=yp0+yps_sub(ips)
        depth_ps=zp0+zps_sub(ips)
-       rptm=rptm0+drx0*sh_strk(ips)+dry0*sh_dip(ips) 
+       rptm=rptm0+drx0*sh_strk(ips)+dry0*sh_dip(ips)
        call distaz(st_x,st_y,x_ps,y_ps,angle_north_x,dis,az,baz)
        call rad_pattern(iseed,az,paz,rake0,dip0,theta0,ang_h1,ang_h2)
        call inter_green(dis,depth_ps,rptm,dt,npt,green_ps)
@@ -213,6 +213,7 @@ subroutine synthe(id_motion,st_x,st_y,ang_h1,ang_h2,ss_min,ss_max)
      endif
      rise = ps_rs(js)
      spm2=cft1
+     if(id_sf_type == 8 ) spm2 = ps_p2(js)
      if(id_sf_type == 6 ) spm2 = ps_p2(js)
      !write(*,*)'ID is: ',id_sf_type
      call source_fun(id_sf_type,ndur,npt,dt,moment,rise,spm2,fsour)
@@ -247,11 +248,11 @@ subroutine input_st_parm(fileRec,xref_hypc,yref_hypc,angle_north_x)
  open(17,file=fileRec,status='old',position='rewind')
  read(17,*) nst,xs0,ys0,afa
 !
-! xs0,ys0 are the (x, y) value of hypocenter in the 
+! xs0,ys0 are the (x, y) value of hypocenter in the
 ! coordinate system used for describing the location of stations
 ! afa is the angle from North to the X-axis
 !
- if(allocated(stan_name)) then 
+ if(allocated(stan_name)) then
    deallocate(stan_name,stan_x,stan_y,stan_z,stan_h1,stan_h2)
  endif
  allocate(stan_name(nst),stan_x(nst),stan_y(nst),stan_z(nst), &
@@ -262,7 +263,7 @@ subroutine input_st_parm(fileRec,xref_hypc,yref_hypc,angle_north_x)
  sn=sin(dra)
  do ks=1,nst
    read(17,'(1a)') stan_name(ks)
-   read(17,*) stan_x(ks),stan_y(ks),stan_z(ks),stan_h1(ks),stan_h2(ks) 
+   read(17,*) stan_x(ks),stan_y(ks),stan_z(ks),stan_h1(ks),stan_h2(ks)
    xs=(stan_x(ks)-xs0)/1000.0
    ys=(stan_y(ks)-ys0)/1000.0
    stan_x(ks)=xs*cs-ys*sn+xref_hypc/1000.0
@@ -281,7 +282,7 @@ subroutine Read_Green_Bank_inf(azimu_p,rake_p,dip_p,freq_b,freq_e,tdur)
 !
  character(len=72):: file_model,temp_char
  integer:: jj,i
- real:: dr,df,ff,varf 
+ real:: dr,df,ff,varf
 !
  open(19,file='Green_Bank.inf',status='old',position='rewind')
  read(19,'(a)') temp_char
@@ -298,11 +299,11 @@ subroutine Read_Green_Bank_inf(azimu_p,rake_p,dip_p,freq_b,freq_e,tdur)
  read(19,*) nx_in,nz_in
  read(19,'(a)') temp_char
  read(19,*) jo,nb
-! 
+!
  nlay=jo+2
  if(allocated(vp)) deallocate(th,vp,vs,den,qa,qb,depth_min,depth_max)
- allocate(th(nlay),vp(nlay),vs(nlay),den(nlay),qa(nlay),qb(nlay)) 
- allocate(depth_min(nsuby),depth_max(nsuby)) 
+ allocate(th(nlay),vp(nlay),vs(nlay),den(nlay),qa(nlay),qb(nlay))
+ allocate(depth_min(nsuby),depth_max(nsuby))
 !
 !
 !  unit: km, km/s, km, g/cm^3
@@ -413,7 +414,7 @@ subroutine gf_bound(st_x_n,st_y_e,ss_min,ss_max)
  endif
  zz_min=minval(depth_min)
  zz_max=maxval(depth_max)
- if((zz_min+0.5*dep_step<dep_min).or.(zz_max-0.5*dep_step>dep_max)) then
+ if((zz_min+0.9*dep_step<dep_min).or.(zz_max-0.9*dep_step>dep_max)) then
     write(*,*)"zz_min dep_min zz_max dep_max"
     write(*,*) zz_min,dep_min,zz_max,dep_max
     stop
@@ -442,7 +443,7 @@ subroutine inter_green(rr,zz,rptm,dt,npt,green_ps)
  r21=(1.0-rx1)*rz1*trf
  r12=rx1*(1.-rz1)*trf
  r22=(1.0-rx1)*(1.-rz1)*trf
-! 
+!
  t_ch=rptm+ (r11*trmd(ix1, iz1)+r21*trmd(ix2, iz1) + &
              r12*trmd(ix1, iz2)+r22*trmd(ix2, iz2))/trf
 ! if(t_ch < 0.0) then
@@ -489,7 +490,7 @@ end subroutine inter_green
 !
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 subroutine input_source_param(filesour,npsx,npsy)
-! Read the source parameters 
+! Read the source parameters
  use source_params
  implicit NONE
  character(len=72):: filesour
@@ -501,7 +502,7 @@ subroutine input_source_param(filesour,npsx,npsy)
  read(19,*) is_moment,npsour,id_sf_type,cft1
 !
  nps_sub=npsx*npsy
- if(allocated(ps_xn)) then 
+ if(allocated(ps_xn)) then
     deallocate(ps_xn,ps_ye,ps_dz,ps_mt,ps_rp, &
                ps_rs,ps_p2,ps_sk,ps_dp,ps_rk,drtx,drty, &
                sh_strk,sh_dip,xps_sub,yps_sub,zps_sub )
@@ -511,7 +512,7 @@ subroutine input_source_param(filesour,npsx,npsy)
           ps_dp(npsour),ps_rk(npsour),drtx(npsour),drty(npsour) )
  allocate(sh_strk(nps_sub),sh_dip(nps_sub),xps_sub(nps_sub), &
           yps_sub(nps_sub),zps_sub(nps_sub))
-! 
+!
  do ks=1,npsour
    read(19,*) ps_xn(ks),ps_ye(ks),ps_dz(ks),ps_mt(ks),ps_rp(ks), &
               ps_rs(ks),ps_p2(ks),ps_sk(ks),ps_dp(ks),ps_rk(ks)
@@ -521,8 +522,9 @@ subroutine input_source_param(filesour,npsx,npsy)
 ! The above do loop over subfaults (or point sources)
 !
 ! 1-3.  are the coornidates in meters (North, East, Down) of each point source.
-! 4-7.  are the moment (N-m), rupture time (s), rise time(s), and another source 
-!       parameters (any value if not used) 
+! 4-7.  are the moment (N-m), rupture time (s), rise time(s), and another source
+!       parameters (any value if not used)
+!
 ! 8-10. are the strike, dip, and rake in degree
 !
  dr=4.0*atan(1.0)/180.0
@@ -591,6 +593,9 @@ subroutine input_source_param(filesour,npsx,npsy)
 end subroutine input_source_param
 !
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! Temporally, case (8) becomes yoffe function for the convenience
+! Chen Ji, 2020. It is truncated Kostrov function before
+!
 subroutine source_fun(id_sf_type,np1,np,dt,moment,rise,sp2,fsour)
  implicit none
  real, parameter:: pi=3.1415926, pi2=2.*pi, pi25=2.5*pi, &
@@ -605,7 +610,13 @@ subroutine source_fun(id_sf_type,np1,np,dt,moment,rise,sp2,fsour)
  real:: Tp,Te,Tr,rv,psv
  integer:: nn0,nn1,nn2,a_seed
 !
+  real:: tsin,ty,sn,tsin_min
+  integer:: npt_yoffe,nsin,j,nall
+  real, dimension(np)::hsin,yoffe
+!
  cft4=sp2;  cft5=sp2
+ fsour=0.0
+
  select case (id_sf_type)
 
 !Cases
@@ -682,19 +693,69 @@ subroutine source_fun(id_sf_type,np1,np,dt,moment,rise,sp2,fsour)
        fsour(i)=0.5*(1.+cos((t-rise)*pi/sp2))
      endif
    enddo
-!
+
  case(8)
+! modified yoffe function
+!   Chen ji, 2020
+    fsour=0.0
+    if(sp2.ge.1.0.or.sp2.lt.0.0)THEN
+      write(*,*)"please check the code, sp2 = ",sp2
+      stop
+    endif
+    tsin_min=2.0*dt
+    tsin=rise*sp2
+    ty=rise-tsin
+
+    npt_yoffe=int(ty/dt+1.0)+1
+    nsin=int(tsin/dt+0.1)+1
+    nall=nsin+npt_yoffe
+    np1=nall
+    do i=1,npt_yoffe
+      t=i*dt
+      if(t.le.ty)then
+          yoffe(i)=sqrt(ty-t)/sqrt(t)
+      else
+        yoffe(i)=0.0
+      endif
+    enddo
+    if(tsin.ge.tsin_min)then
+      do i=1,nsin
+        t=(i-1)*dt
+        if(t.le.tsin)then
+          hsin(i)=sin(t*pi/tsin)
+        else
+          hsin(i)=0.0
+        endif
+      enddo
+      do i=1,npt_yoffe
+        do j=1,nsin
+          fsour(i+j-1)=fsour(i+j-1)+yoffe(i)*hsin(j)
+        enddo
+      enddo
+    else
+      do i=1,npt_yoffe
+        fsour(i)=yoffe(i)
+      enddo
+    endif
+
+    sn=0.0
+    do i=1,nall
+      sn=sn+fsour(i)
+    enddo
+    fsour=fsour/(dt*sn)
+!=======================================================
+case(7)
   !Tp=sp2*rise
   call random_seed(a_seed)
   call random_number(Tp)
   Tp=0.1*Tp+0.15
   Te=0.8*rise
   Tr=rise
- if(Tr<Tp) Tp=0.25*Tr 
+ if(Tr<Tp) Tp=0.25*Tr
   nn0=int(Tp/dt+1.0)
   nn1=int(Te/dt+1.0)
   nn2=int(Tr/dt+1.0)
- 
+
   psv=sqrt(1.+100./(nn0*dt))
   do i=1,nn0
      t=(i-1)*dt
@@ -713,8 +774,8 @@ subroutine source_fun(id_sf_type,np1,np,dt,moment,rise,sp2,fsour)
  case default
    np1=0
    fsour=0.0
- end select 
-! 
+ end select
+!
  if(np1 > 0) then
    cnorm=moment/sum(fsour(1:np1))
    fsour(1:np1)=fsour(1:np1)*cnorm
@@ -765,12 +826,12 @@ subroutine vel_2_acc_or_disp(id_motion,n,dt,gfun)
      v2=gfun(i)
      gfun(i) = gfun(i-1)+dt05*(v1+v2)
      v1=v2
-   enddo 
+   enddo
  endif
  if(id_motion == 3) then
    do i=1,n-1
      gfun(i) = (gfun(i+1)-gfun(i))/dt
-   enddo 
+   enddo
    gfun(n)=0.0
  endif
 end subroutine vel_2_acc_or_disp
@@ -819,12 +880,12 @@ subroutine output3(tmfile,id_format,nump,dt,velc)
    close(19)
  else
    write(*,*) 'No Format can find for given index'
- endif  
+ endif
 end  subroutine output3
 !
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 subroutine read_green(npt,dt,d_min,d_max,z_min,z_max)
-!  Read Greens function from the Green Function bank 
+!  Read Greens function from the Green Function bank
 ! use source_params
  use gf_comm
  implicit NONE
@@ -832,7 +893,7 @@ subroutine read_green(npt,dt,d_min,d_max,z_min,z_max)
  real, intent(IN):: dt,d_min,d_max,z_min,z_max
  integer:: k,nta,ntb,nnormal,kall_x,kall_z
  integer:: ll,iz,k0,iz0,izz,ixx,npt_c,ntc,nc
- real:: dis0,t0,dep,dt_c,vmove,t_ch 
+ real:: dis0,t0,dep,dt_c,vmove,t_ch
 !
 ! if(z_min>=(zg_first-1.e-7) .and. z_max<=(zg_last+1.e-7)) return
 !
@@ -887,7 +948,7 @@ subroutine rad_pattern(iseed,az0,paz,rake0,dip0,theta0,ang_h1,ang_h2)
  real:: cosr,sinr,cosd,sind,cos2d,sin2d,cosa,sina,cos2a,sin2a, &
         sinh1,sinh2,cosh1,cosh2,au(5),a(5)
 !
- nfre=npt/2 
+ nfre=npt/2
 ! ran_dp=ran1(iseed)-0.5
 ! ran_rk=ran1(iseed)-0.5
 ! ran_az=ran1(irum)-0.5
@@ -920,7 +981,7 @@ subroutine rad_pattern(iseed,az0,paz,rake0,dip0,theta0,ang_h1,ang_h2)
      cosh1= cos((az-ang_h1))
      sinh2=-sin((az-ang_h2))
      cosh2= cos((az-ang_h2))
-!  
+!
      au(3)= 0.5*sinr*sin2d
      au(2)= cosr*cosd*cosa-sinr*cos2d*sina
      au(1)= 0.5*sinr*sin2d*cos2a+cosr*sind*sin2a
@@ -1014,10 +1075,10 @@ end subroutine num2ch
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 subroutine distaz(stat_x_n,stat_y_e,x_ps,y_ps,afa,dis,azz,baz)
  implicit NONE
- real, intent(IN):: stat_x_n,stat_y_e,x_ps,y_ps,afa 
+ real, intent(IN):: stat_x_n,stat_y_e,x_ps,y_ps,afa
  real, intent(OUT):: dis,azz,baz
  real:: rdp,dx,dy
-! 
+!
  rdp=180./3.1415926
  dx=stat_x_n-x_ps
  dy=stat_y_e-y_ps
@@ -1039,11 +1100,11 @@ SUBROUTINE realft(data,n,isign)
 !  Calculates the Fourier transform of a set of real data points.
 !  n must be a power of 2.
 !
-!  isign=-1, forward tranform of a real-valued data point. 
-!     data(2*i+1) and data(2*i+2) return the real and image part of 
+!  isign=-1, forward tranform of a real-valued data point.
+!     data(2*i+1) and data(2*i+2) return the real and image part of
 !     frequency f=i*df. The real-valued first (zero frequency) and
 !     last (fmax) components of the complex transform are returned
-!     as element data(1) and data(2), respectively. 
+!     as element data(1) and data(2), respectively.
 !  isign=+1, inverse transform of a complex data array. The result
 !     in this case must be multipled by 2/n (or 2*df).
 !
@@ -1119,14 +1180,14 @@ SUBROUTINE four1(data,nn,isign)
      data(i+1)=tempi
    endif
    m=n/2
-   do while ((m>=2).and.(j>m)) 
+   do while ((m>=2).and.(j>m))
      j=j-m
      m=m/2
    enddo
    j=j+m
  enddo
  mmax=2
- do while (n>mmax) 
+ do while (n>mmax)
    istep=2*mmax
    theta=6.28318530717959d0/(isign*mmax)
    wpr=-2.d0*sin(0.5d0*theta)**2
@@ -1287,4 +1348,3 @@ SUBROUTINE FORK(LX,CX,SIGNI)
       return
       end
 ! ----------------------------- END FORK --------------------------
-
