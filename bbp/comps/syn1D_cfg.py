@@ -70,7 +70,7 @@ class Syn1DCfg(object):
         self.R_UC_STATION_FILE = "uc_stations.ll"
         self.R_UC_VS30_FILE = "stations.vs30"
         self.R_UC_SOURCE_MODEL = "source_model.list"
-        self.R_FFSP_FILE = "FFSP_OUTPUT.001"
+        self.R_FFSP_FILE = "FFSP_OUTPUT.bst"
         self.MAX_STATIONS = 300
 
         vmodel_obj = velocity_models.get_velocity_model_by_name(vmodel_name)

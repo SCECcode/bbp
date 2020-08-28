@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ class UCrmg(object):
         bband_utils.runprog(cmd)
 
         # Copy output to indata and outdata directories
-        ffsp_output_file = "%s.001" % (cfg.FFSP_OUTPUT_PREFIX)
+        ffsp_output_file = "%s.bst" % (cfg.FFSP_OUTPUT_PREFIX)
         shutil.copy2(ffsp_output_file, os.path.join(a_indir, ffsp_output_file))
         shutil.copy2(ffsp_output_file, os.path.join(a_outdir, ffsp_output_file))
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ def uc_create_ffsp_inp(a_ffsp_inp, a_srcfile, i_vmodel_name):
     cyp = cfg.CFGDICT["hypo_down_dip"]
     depth_hypc = (cfg.CFGDICT["depth_to_top"] +
                   cfg.CFGDICT["hypo_down_dip"] *
-                  numpy.sin(cfg.CFGDICT["dip"] * deg2rad))
+                  numpy.sin(cfg.CFGDICT["dip"] * deg2rad)) + 0.01
 
     # Top center of fault is in the origin
     xref_hypc = (numpy.cos(cfg.CFGDICT["strike"] * deg2rad) *
@@ -72,13 +72,16 @@ def uc_create_ffsp_inp(a_ffsp_inp, a_srcfile, i_vmodel_name):
 
     # Now, write the ffsp_inp file
     ffsp_inp_file = open(a_ffsp_inp, "w")
-    ffsp_inp_file.write("8 %.2f\n" % (cfg.FMAX / 2.0))
+    ffsp_inp_file.write("8 0.2 %.2f\n" % (cfg.FMAX / 2.0))
     ffsp_inp_file.write("%.2f %.2f\n" % (cfg.CFGDICT["fault_length"],
                                          cfg.CFGDICT["fault_width"]))
     ffsp_inp_file.write("%.2f %.2f %.2f\n" % (cxp, cyp, depth_hypc))
     ffsp_inp_file.write("%.2f, %.2f\n" % (xref_hypc, yref_hypc))
-    ffsp_inp_file.write("%1.2e %.2f %.2f\n" %
-                        (moment, cfg.CFGDICT['corner_freq'], cfg.RV_AVG))
+    ffsp_inp_file.write("%1.2e %.3f, %.3f %.2f\n" %
+                        (moment, cfg.CFGDICT['corner_freq_1'],
+                         cfg.CFGDICT['corner_freq_2'], cfg.RV_AVG))
+    #ffsp_inp_file.write("%1.2e %.2f %.2f\n" %
+    #                    (moment, cfg.CFGDICT['corner_freq'], cfg.RV_AVG))
     ffsp_inp_file.write("%.2f\n" % (cfg.TP_TR))
     ffsp_inp_file.write("%.f. %.f. %.f.\n" % (cfg.CFGDICT["strike"],
                                               cfg.CFGDICT["dip"],
@@ -87,7 +90,7 @@ def uc_create_ffsp_inp(a_ffsp_inp, a_srcfile, i_vmodel_name):
     ffsp_inp_file.write("%d   %d\n" % (nsubx, nsuby))
     ffsp_inp_file.write("5  5  5  5\n")
     ffsp_inp_file.write("%d %d %d\n" % (-rdm1, -rdm2, -rdm3))
-    ffsp_inp_file.write("1 1\n")
+    ffsp_inp_file.write("1 25\n")
     ffsp_inp_file.write("%s\n" % (os.path.basename(cfg.A_UC_LF_VELMODEL)))
     ffsp_inp_file.write("0.0\n")
     ffsp_inp_file.write("1\n")
