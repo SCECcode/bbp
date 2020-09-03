@@ -119,7 +119,7 @@ def plot_vs30_gof(resid_file, comp_label, sim_id):
     all_vs30s = []
     # Read the residuals data
     for period in PLOT_PERIODS:
-        summary_output = os.path.join(a_outdir, "%s-%d-resid-%.3f-%s.txt" %
+        summary_output = os.path.join(a_outdir, "%s-%d-resid-vs30-%.3f-%s.txt" %
                                       (comp_label, sim_id,
                                        period, COMP_EXT_RD50))
         data, vs30s = read_resid(resid_file, period, summary_output)
