@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ Define the configuration parameters for the GP rupture generator
 from __future__ import division, print_function
 
 # Import Python modules
+import os
 import sys
 import random
 
@@ -39,7 +40,7 @@ class GenslipCfg(object):
     Define the configuration parameters for the GP rupture generator
     """
 
-    def __init__(self, a_srcname=None):
+    def __init__(self, a_srcfiles):
         """
         Sets basic class parameters, then parses a_srcname for more information
         """
@@ -76,10 +77,12 @@ class GenslipCfg(object):
         self.DEEP_RISETIMEDEP_RANGE = 2.5
         self.DEEP_RISETIME_FAC = 2.0
 
-        # Read SRC FILE
-        if a_srcname:
-            self.CFGDICT = bband_utils.parse_src_file(a_srcname)
+        # Read src files
+        self.CFGDICT = []
+        self.num_srcfiles = len(a_srcfiles)
+        for a_srcfile in a_srcfiles:
+            self.CFGDICT.append(bband_utils.parse_src_file(a_srcfile))
 
 if __name__ == "__main__":
-    ME = GenslipCfg()
-    print("Created Test Config Class: %s" % (sys.argv[0]))
+    ME = GenslipCfg(sys.argv[1:])
+    print("Created Test Config Class: %s" % os.path.basename(sys.argv[0]))

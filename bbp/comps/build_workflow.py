@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ class WorkflowBuilder(object):
 
         # For multisegment validation events
         self.multisegment_validation = True
-        if method == "SONG" or method == "IRIKURA1" or method == "IRIKURA2":
+        if method == "GP" or method == "SONG" or method == "IRIKURA1" or method == "IRIKURA2":
             self.multisegment_src_files = src_file
             return src_file[0]
 
@@ -233,7 +233,8 @@ class WorkflowBuilder(object):
                                            self.src_file)
                     if isinstance(self.src_file, list):
                         self.multisegment_validation = True
-                        if self.method == "SONG" or self.method == "IRIKURA1" or self.method == "IRIKURA2":
+                        if (self.method == "GP" or self.method == "SONG"
+                            or self.method == "IRIKURA1" or self.method == "IRIKURA2"):
                             self.multisegment_src_files = self.src_file
                             self.src_file = self.src_file[0]
                             break
@@ -1939,8 +1940,15 @@ class WorkflowBuilder(object):
                                 "rupture generator (y/n)? ")
             if rup_gen.lower() == 'y' or rup_gen.lower() == 'yes':
                 rupture_module = Module()
-                if (self.method == "GP" or
-                    self.method == "SDSU"):
+                if self.method == "GP":
+                    # add GP rupture generator
+                    if self.multisegment_validation:
+                        for idx, val in enumerate(self.multisegment_src_files):
+                            rupture_module.addStageFile(val)
+                            rupture_module.addKeywordArg('src%d' % (idx), val)
+                    rupture_module.setName("Genslip")
+                    codebase = "GP"
+                elif self.method == "SDSU":
                     # add GP rupture generator
                     rupture_module.setName("Genslip")
                     codebase = "GP"
