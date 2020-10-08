@@ -127,6 +127,7 @@ class IrikuraGenSrf(object):
         # The following parameters should be common to all SRC files
         # So we just read from the first one
         simulation_seed = int(cfg.CFGDICT[0]['seed'])
+        mag = cfg.CFGDICT[0]['magnitude']
         dip = cfg.CFGDICT[0]['dip']
         rake = cfg.CFGDICT[0]['rake']
         dlen = cfg.CFGDICT[0]['dlen']
@@ -169,6 +170,7 @@ class IrikuraGenSrf(object):
                       (os.path.join(install.A_IRIKURA_BIN_DIR, cfg.GENSRF),
                        self.log) +
                       "%s\n" % a_srffile +
+                      "%f\n" % mag +
                       "%f %f %f %f %f\n" %
                       (fault_len, fault_width,
                        strike, dip, rake) +
