@@ -1,4 +1,4 @@
-c       GEN_SRF4
+c       GEN_SRF4.9
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c Copyright (c) <2016>, Lawrence Livermore National Security, LLC. Produced at the Lawrence Livermore National Laboratory
@@ -46,6 +46,7 @@ c  09/01/2016 replace Miyatake's source time function
 c  10/25/2018 corrected fault width condition for single asperity 
 c  02/02/2019 make the Vr/Vs ratio an input rupture model parameter
 c  03/25/2019 the code outputs the stress drop . output file name: stress_drop.out
+c  06/30/2020 fix the min asperity depth measured from the ground surface (instead of top fault edge) 
   
         parameter (MAXnw=6000, MAXnl=6000) 
 	dimension slip(MAXnw,MAXnl),stres(MAXnw,MAXnl),alng(MAXnw,MAXnl)
@@ -63,7 +64,7 @@ c  03/25/2019 the code outputs the stress drop . output file name: stress_drop.o
 c	data rperd/0.017453292/
 
 	read(5,'(a256)')slipfile
-c        read(5,*)emag
+        read(5,*)emag
         read(5,*)xlen,ylen,stra,dipa,rakea
         read(5,*)alon,alat,zz
         read(5,*)dx,dy
@@ -73,7 +74,8 @@ c  hypo coordinates along strike
         read(5,*)iseed
         read(5,'(a256)')velmodel
         read(5,*)vel_fract
-      
+     
+        emag_thre=5.5 
         fc = 6.0
 c        if(xlen.le.25.and.ylen.lt.15.) then
         if(xlen.le.25) then
@@ -107,6 +109,7 @@ c        zvel(i)=za*sin(dipa10)
         close(15)
 
 c ======    Irikura Recipe ===========
+
 c  JMA magnitude and Seismic Moment in Nm
          emag_jma = (log10(xlen)+2.9)/0.6
 c         smom = 10**(1.17*emag_jma+10.72)
@@ -148,6 +151,51 @@ c  Somerville et al (1999)
 
 c       Magnitude
           emag0 = 1/1.5*log10(smom*1.e+07)-10.7
+
+c   M<= 5.5
+          if(emag.le.emag_thre) then
+          emag0=emag
+          d34 = 1.5*(emag+10.7)
+          smom = 10**(d34)* 1.0e-07
+          print*,emag0
+          write(6,205)smom
+205     format(1x,'Mo using Magnitude = ',e9.3,'(Nm)')
+
+          nasp=1
+c asperity area = fault area
+          s=xlen*ylen
+          smat= s
+          rasp=sqrt(smat/pi)
+
+c  average slip
+         shearmod=dens*vs*vs
+         d=smom/(shearmod*s)*1.e-15
+         print*,'Average slip (m)',d
+
+c asperity average slip
+         dsmat=d
+         print*,'Asperity average slip (m)',dsmat
+
+c  slip in each asperity
+
+        sma(1)=smat
+        dsma(1)=dsmat
+        print*,'Slip in asperity',dsma(1),'(m)'
+        dback=dsmat
+         write(6,210)dback
+
+c  Effective stress in the asperity area (MPa)
+
+         rlarge=sqrt(s/pi)
+         dum=rasp*rasp*rlarge
+         sdrsa=7./16.*smom/dum
+         sdrsa=sdrsa*1.0e-15
+         sdrback =0 
+
+        print*,'!!!!!!!!!'
+
+         else
+
 
         print*,'Magnitude ', emag0
 c        print*,'JMA mag',emag_jma
@@ -257,6 +305,10 @@ c   dsma(i):  slip in each asperity (cm)
 c   sdrback:  background stress drop (Mpa)
 c   sdrsa :   asperity stress drop (MPa)
 c   convert slip to  cm
+
+c and if on magnitude threshold
+      endif
+
         dback=dback*100.
         sdrsa=sdrsa*10
         sdrback=sdrback*10
@@ -296,8 +348,13 @@ c if nasp=3 aspect =0.8
          enddo
         enddo
 c      random location of asperities
+       if(emag.gt.emag_thre) then
        call as_loc (iseed,xlen,ylen,zz,dx,dy,nx,ny,nasp,aslength,
      + aswidth, xasp,yasp)
+       else
+        xasp(1)=0
+        yasp(1)=0
+       endif
 
          do i=1,nasp
            i1=int(xasp(i)/dx)
@@ -351,7 +408,7 @@ c  rescale slip to match the seismic moment using the 1D velmod
 
           sdum=smom*1.0e07/sdum*1.0e-20
  
-c          print*,'Ses Mom Scaling Factor:',sdum
+          print*,'Seis Mom Scaling Factor:',sdum
         open (12,file=slipfile)
 c        open (13,file=file_gmt)
         open (14,file='stf_background.out')
