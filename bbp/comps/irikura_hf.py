@@ -206,8 +206,8 @@ class IrikuraHF(object):
         fault_vs_bed = float(vs_m[index_bed]) / 1000
         # ==== A.I. 2019.7 END
 
-        dwid = 2
-        dlen = 2
+        dlen = self.config.DXX / 1000.0
+        dwid = self.config.DYY / 1000.0
 
         # AI: stress drop on element = 10MPa 2018.7.25
         sigma_s = 1.0e7  # Pa
@@ -683,6 +683,10 @@ class IrikuraHF(object):
         old_cwd = os.getcwd()
         os.chdir(irikura_dir)
 
+        # Mesh size parameters
+        dxx = self.config.DXX
+        dyy = self.config.DYY
+
         # Open combined elem_param.dat file
         elem_param_file = open(elem_param_dat_file, 'w')
         istart = 0
@@ -709,6 +713,7 @@ class IrikuraHF(object):
             config_file.write("%s\n" % (self.config.segments_midpoint))
             config_file.write("%s\n" % (self.config.sdropout))
             config_file.write("%s\n" % (os.path.basename(current_elem_param_dat_file)))
+            config_file.write("%f %f\n" % (dxx, dyy))
             config_file.close()
 
             # Run the srf2grns code
@@ -822,7 +827,7 @@ class IrikuraHF(object):
             os.chdir(working_dir)
 
             cmd = ("%s SAS %s %s %s LogGS.dat HP 1.0 0 >> %s 2>&1" %
-                   (greenscale_bin, station_file, elem_param_dat_file,
+                   (greenscale_bin, station_file, elem_param_rndt_dat_file,
                     fault_param_dat_file, self.log))
             bband_utils.runprog(cmd, abort_on_error=True)
 

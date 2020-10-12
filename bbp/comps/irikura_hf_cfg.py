@@ -143,6 +143,8 @@ class IrikuraHFCfg(object):
 
         self.VEL_RUP_FRAC = 0.72
         self.VEL_RUP_RANGE = 0.00
+        self.DXX = 1000.0
+        self.DYY = 1000.0
 
 if __name__ == "__main__":
     IRIKURA_HF_CFG = IrikuraHFCfg(sys.argv[1])
