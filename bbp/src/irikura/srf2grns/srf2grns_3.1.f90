@@ -22,6 +22,7 @@ program srf2grns
   read(5,'(a120)') sdropout  ! stress_drop.out
   read(5,'(a120)') outfile ! segment
 
+  read(5,*) dxx,dyy  ! meshsize for elemparam.dat ! 2020.7.21
 
   ! read from BBP .SRF file  ! multi-segment OK 
   call readsrf
