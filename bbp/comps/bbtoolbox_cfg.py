@@ -157,6 +157,9 @@ class BBToolboxCfg(object):
         # cause BBtoolbox to produce NaNs in 000 and 090 seismograms.
         self.FMAX = 100.00
 
+        # 09/22/2020: Correlation flag
+        self.corr_flag = 2
+
 if __name__ == "__main__":
     BBCODA2 = BBToolboxCfg()
     print("Created Test Config Class: %s" % (os.path.basename(sys.argv[0])))
