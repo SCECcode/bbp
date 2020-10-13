@@ -136,7 +136,7 @@ integer(kind=i_single):: ngaw_flag
 ! Flag for merging LFs and HFs in the frequency or time domain
 integer(kind=i_single):: merging_flag
 ! Flag for including inter-frequency correlation, or no
-integer(kind=i_single):: infcorr_flag
+integer(kind=i_single):: corr_flag
 
 END MODULE flags
 
@@ -230,7 +230,7 @@ MODULE io_file
 !
 ! Updated: February 2019 (v2.0)
 !   Change character length from 90 to 256.
-!   Add k_file to read Kemp_*.bin file name.
+!   Add corr_file to read Kemp_*.bin file name.
 !
 use def_kind
 
@@ -247,7 +247,7 @@ character(len=10) :: lf_x,lf_y,lf_z,hf_x,hf_y,hf_z
 ! input LF directory and optional (HF) directory for already computed HF files
 character(len=256):: lf_in_dir,opt_dir,output_dir
 ! files for correlation
-character(len=256):: k_file
+character(len=256):: corr_file_inf, corr_file_sp1, corr_file_sp2, corr_file_sp3
 
 END MODULE io_file
 
@@ -355,6 +355,8 @@ real(kind=r_single)                       :: str_fac
 !real(kind=r_single)                       :: fac
 ! Qk factor 'a' and 'b' (G&P 2010 eqn. 15)
 real(kind=r_single)                       :: afac,bfac
+! rupture speed ratio (G&P 2016)
+real(kind=r_single)                       :: Vrup_ratio
 ! Output decimation factor
 integer(kind=i_single)                    :: time_step 
 !--------END add-------------------------------------------------------------
@@ -517,14 +519,15 @@ implicit none
 save
 
 ! LF and (optional) HF waveforms
-real(kind=r_single),allocatable,dimension(:,:):: lf_seis,hf_seis
+real(kind=r_single),allocatable,dimension(:,:)  :: lf_seis,hf_seis
 ! Scatterograms (Coda waves) 
-real(kind=r_single),allocatable,dimension(:,:):: scattgram
+real(kind=r_single),allocatable,dimension(:,:)  :: scattgram
 ! Scatterograms convolved with source-time-function
-real(kind=r_single),allocatable,dimension(:,:):: conv_seis 
+real(kind=r_single),allocatable,dimension(:,:)  :: conv_seis
 ! Final broad-band seismograms 
-real(kind=r_single),allocatable,dimension(:,:):: bb_seis   
-
+real(kind=r_single),allocatable,dimension(:,:)  :: bb_seis
+! Correlated residual for spatial correlation
+real(kind=r_single),allocatable,dimension(:,:,:) :: corr_res
 ! Number of points for LF seismograms 
 integer(kind=i_single)                          :: lf_npts                                         
 ! LF time-series length 
@@ -649,7 +652,7 @@ END MODULE tmp_para
 
 !===================================================================================================
 
-MODULE read_Kemp
+MODULE read_correlation_files
 !
 ! Description:
 !
@@ -674,11 +677,14 @@ save
 
 ! length (number of elements in each dimension) of matrix K (lower triangular)
 integer(kind=i_single)               :: nk
-! starting point of corresponding frequency of Kemp
+! starting point -1 of corresponding frequency of Kemp
 integer(kind=i_single)               :: nks
-! Cholesky factor of frequency correlation matrix, lower triangular matrix
-real(kind=r_single),allocatable,dimension(:,:) :: Kemp
+!!! Frequency Vector
+!!!real(kind=r_single),allocatable,dimension(:) :: Fempinf, Fempsp
+!Frequency correlation matrix, lower triangular matrix
+!!!real(kind=r_single),allocatable,dimension(:,:) :: Bempinf, Bempsp1, Bempsp2, Bempsp3
+real(kind=r_single),allocatable,dimension(:,:) :: Kinf, Ksp1, Ksp2, Ksp3
 
-END MODULE read_Kemp
+END MODULE read_correlation_files
 
 !===================================================================================================

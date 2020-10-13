@@ -897,9 +897,10 @@ read(1,*); read(1,*) stf_name                    !STF to be convolved with scatt
 read(1,*); read(1,*) verbose_flag                !flag for verbose output
 read(1,*); read(1,*) srf_name                    !SRF file name
 
-read(1,*); read(1,*) k_file                      !correlation matrix file
-
 read(1,*); read(1,*) rake                        ! read rake for alt factor
+
+read(1,*); read(1,*) corr_file_inf               !correlation matrix file
+read(1,*); read(1,*) corr_file_sp1, corr_file_sp2, corr_file_sp3
 
 close(1)
 
@@ -1575,40 +1576,104 @@ write(5,*) '--------------------------------------------------------------------
 
 END SUBROUTINE write_log
 
-!===================================================================================================
 
-SUBROUTINE read_KL
+!===================================================================================================
+SUBROUTINE read_correlation_matrix_inf
 !-----------------------------------------------------------------------
 !
 ! Description:
 !
-!   Read empirical correlation matrx
+!   Read spatical correlation matrices
 !
-! Author: N. Wang
+! Author: N. Wang, December 2018
 !
-! Modified: February 2019 (v2.0)
-!
-use read_Kemp
-use io_file, only: k_file
+use def_kind
+use io_file
+use read_correlation_files
 
 implicit none
 ! indexes
 integer(kind=i_single)                      :: i,j,k,ierr
+!-----------------------------------------------------------------------
 
-!! Read input Kemp, Cholesky factor of inter-frequency correlation matrix, lower triangular matrix
+!! Read input K, Cholesky factor of inter-frequency correlation matrix, lower triangular matrix
 !print*,'nk,nks in io.f90,before',nk,nks
-open(unit=3331,file=trim(k_file),access='direct',form='unformatted', recl=4,status='old')
+open(unit=3331,file=trim(corr_file_inf),access='direct',form='unformatted', recl=4,status='old')
 read(3331,rec=1,iostat=ierr) nk
 read(3331,rec=2,iostat=ierr) nks
-!print*,'nk,nks in io.f90',nk,nks
-if (.not.allocated(Kemp)) allocate(Kemp(nk,nk))
+print*,'nk nks in io.f90',nk, nks
+if (.not.allocated(Kinf)) allocate(Kinf(nk,nk))
 k = 2
 do j = 1,nk
    do i = 1,nk
       k = k+1
-      read(3331,rec=k,iostat=ierr) Kemp(i,j)
+      read(3331,rec=k,iostat=ierr) Kinf(i,j)
    enddo
 enddo
 close(unit=3331)
+print*,'Kinf(1:10,1) in io.f90',Kinf(1:10,1)
+print*,'Kinf(1:5,200) in io.f90',Kinf(1:5,200)
+print*,'Kinf(1,1:10) in io.f90',Kinf(1,1:10)
+END SUBROUTINE read_correlation_matrix_inf
 
-END SUBROUTINE read_KL
+
+
+!===================================================================================================
+SUBROUTINE read_correlation_matrix_sp
+!-----------------------------------------------------------------------
+!
+! Description:
+!
+!   Read spatical correlation matrices
+!
+! Author: N. Wang, December 2018
+!
+use def_kind
+use read_correlation_files
+use io_file
+!!use source_receiver, only: n_stat
+
+implicit none
+! indexes
+integer(kind=i_single)                      :: i,j,k,ierr
+!-----------------------------------------------------------------------
+
+!! Read input K1 K2 K3, Cholesky factor of frequency correlation matrix, lower triangular matrix
+open(unit=3332,file=trim(corr_file_sp1),access='direct',form='unformatted', recl=4,status='old')
+read(3332,rec=1,iostat=ierr) nk
+read(3332,rec=2,iostat=ierr) nks
+if (.not.allocated(Ksp1)) allocate(Ksp1(nk,nk))
+k = 2
+do j = 1,nk
+   do i = 1,nk
+      k = k+1
+      read(3332,rec=k,iostat=ierr) Ksp1(i,j)
+   enddo
+enddo
+close(unit=3332)
+
+if (.not.allocated(Ksp2)) allocate(Ksp2(nk,nk))
+open(unit=3333,file=trim(corr_file_sp2),access='direct',form='unformatted', recl=4*nk*nk,status='old')
+read(3333,rec=1,iostat=ierr) ((Ksp2(i,j), i=1,nk), j=1,nk)
+close(unit=3333)
+
+if (.not.allocated(Ksp3)) allocate(Ksp3(nk,nk))
+open(unit=3334,file=trim(corr_file_sp3),access='direct',form='unformatted', recl=4*nk*nk,status='old')
+read(3334,rec=1,iostat=ierr) ((Ksp3(i,j), i=1,nk), j=1,nk)
+close(unit=3334)
+
+print*,'Ksp1(200,1:5)', Ksp1(200,1:5)
+print*,'Ksp2(200,1:5)', Ksp2(200,1:5)
+print*,'Ksp3(200,1:5)', Ksp3(200,1:5)
+!!! Read input L1 L2, Cholesky factor of station correlation matrix, upper triangular matrix
+!if (.not.allocated(L1)) allocate(L1(n_stat,n_stat))
+!open(unit=3334,file='L1.bin',access='direct',form='unformatted', recl=4*n_stat*n_stat,status='old')
+!read(3334,rec=1,iostat=ierr) ((L1(i,j), i=1,n_stat), j=1,n_stat)
+!close(unit=3334)
+!
+!if (.not.allocated(L2)) allocate(L2(n_stat,n_stat))
+!open(unit=3335,file='L2.bin',access='direct',form='unformatted', recl=4*n_stat*n_stat,status='old')
+!read(3335,rec=1,iostat=ierr) ((L2(i,j), i=1,n_stat), j=1,n_stat)
+!close(unit=3335)
+
+END SUBROUTINE read_correlation_matrix_sp

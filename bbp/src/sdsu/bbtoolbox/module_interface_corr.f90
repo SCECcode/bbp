@@ -195,6 +195,18 @@ INTERFACE
       integer(kind=i_single),intent(in)   :: n,nn
       complex(kind=r_single),dimension(nn):: zroots_unity
    END FUNCTION zroots_unity    
-END INTERFACE 
+END INTERFACE
+
+
+INTERFACE cholesky
+   SUBROUTINE cholesky(n,A,G)
+      use def_kind
+      implicit none
+      integer(kind=i_single),intent(in)    :: n
+      real(kind=r_double),intent(in)    :: A(n,n)
+      real(kind=r_double),intent(out)   :: G(n,n)
+   END SUBROUTINE cholesky
+END INTERFACE cholesky
+
 
 END MODULE interfaces

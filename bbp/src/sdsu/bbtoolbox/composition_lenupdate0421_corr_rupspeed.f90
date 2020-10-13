@@ -140,10 +140,21 @@ bb_seis(bbs_npts+1:npts,:) = 0.0
 
 !!! ----- end time domain merging --------
 
-if (infcorr_flag == 1) then
+
+!!! ----- Correlation --------
+if (corr_flag == 1) then
    ! calculate corrlated bb seismograms for each component
-   call infcorr(npts,dt,station)
+   call infcorr(npts,station)
 endif
+
+if (corr_flag == 2) then
+   ! calculate corrlated bb seismograms for each component
+   do i=1,3
+      call add_fourier_residual(station,i,npts)
+   enddo
+endif
+
+!!! ----- end Correlation --------
 
 if (modality_flag /= 0) then   
    ! find time-index corresponding to P-wave arrival 
@@ -613,6 +624,9 @@ real(kind=r_single),allocatable,dimension(:)    :: R_cell
 real(kind=r_single),allocatable,dimension(:)    :: t_star
 ! rupture speed at each subfault
 real(kind=r_single),allocatable,dimension(:)    :: vr_sub
+! rupture speed ration random seed variables
+integer(kind=i_single)                          :: seed_size
+integer(kind=i_single),allocatable,dimension(:) :: tmp_seed
 ! degree to radian
 real(kind=r_single),parameter                   :: DtoR=pi/180.0
 
@@ -649,13 +663,25 @@ do i=1,n_lay
    qk(i)=afac+bfac*vs(i)
 enddo
 
-!rupture velocity, eqn (4) in G&P(2010)
+!rupture velocity, updated from G&P(2016)
+if (station == 1) then
+    call random_seed(size=seed_size)
+    if (.not.allocated(tmp_seed)) allocate(tmp_seed(seed_size))
+    tmp_seed = iseed
+    print*, 'iseed', iseed
+    call random_seed(put=tmp_seed)
+    call random_number(Vrup_ratio)
+    Vrup_ratio = 0.725 + (0.825-0.725)*Vrup_ratio
+endif
+
+print*, 'Vrup_ratio', Vrup_ratio
+
 if (hyp_z > 5..and.hyp_z < 8.) then
-   vr_sub1=0.16+0.08*hyp_z*vs_avef
+   vr_sub1 = ((Vrup_ratio - 0.6*Vrup_ratio)/3*(hyp_z-5) + 0.6*Vrup_ratio)*vs_avef
 elseif (hyp_z <= 5.) then
-   vr_sub1=0.56*vs_avef
+   vr_sub1 = 0.6*Vrup_ratio*vs_avef
 elseif (hyp_z >= 8.) then
-   vr_sub1=0.8*vs_avef
+   vr_sub1 = Vrup_ratio*vs_avef
 endif
 
 ! start computing t_star1
@@ -774,13 +800,13 @@ enddo
 acc_spec=0.
 do k=1,nsub
 
-!rupture velocity, eqn (4) in G&P(2010)
+!rupture velocity, updated from G&P(2016)
    if (fz(k).gt.5..and.fz(k).lt.8.) then
-      vr_sub(k)=(0.16+0.08*fz(k))*vscu(k)
+      vr_sub(k) = ((Vrup_ratio - 0.6*Vrup_ratio)/3*(fz(k)-5) + 0.6*Vrup_ratio)*vscu(k)
    elseif (fz(k).le.5.) then
-      vr_sub(k)=0.56*vscu(k)
+      vr_sub(k) = 0.6*Vrup_ratio*vscu(k)
    elseif (fz(k).ge.8.) then
-      vr_sub(k)=0.8*vscu(k)
+      vr_sub(k) = Vrup_ratio*vscu(k)
    endif
 
 !radiation factor from G&P (2010) - should be ~0.7 or so.

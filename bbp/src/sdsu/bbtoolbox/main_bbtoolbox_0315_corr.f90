@@ -87,7 +87,7 @@ implicit none
 ! counters
 integer(kind=i_single)                        :: station,i,index_delay,ki,kj,ierr
 ! main input-file name 
-character(len=256)                            :: input_file
+character(len=256)                             :: input_file
 ! fixed string variable
 character(len=14)                             :: title
 ! timing barriers, delay for HF
@@ -142,15 +142,11 @@ call time_distance
 
 if (modality_flag /= 0) then
    ! read and/or computes several scattering values  
-   call scattering_parameters                    
-
-   ! generate random numbers to be used during coda waves computation
-   !call random_sequence
+   call scattering_parameters
 
    ! Read input Kemp, Cholesky factor of frequency correlation matrix, lower triangular matrix
-   if (infcorr_flag == 1) then
-     call read_KL
-   endif
+   if (corr_flag == 1) call read_correlation_matrix_inf
+   if (corr_flag == 2) call read_correlation_matrix_sp
 endif
 
 !print*, '---------------------------------------------------'
@@ -206,6 +202,15 @@ if (modality_flag /= 0) then
       
       ! allocating arrays for waveforms
       if (station == 1) allocate(bb_seis(npts,3),conv_seis(npts,3),scattgram(npts,3))
+      ! compute for spatial correlation
+      if (corr_flag == 2 .and. station == 1) then
+          !! Compute correlated random number for residuals
+             allocate(corr_res(npts,n_stat,3))
+             corr_res=0.0
+          !print*,'main.f90 check_1 corr_res(npts-2:npts,1,1:3)',corr_res(1000:1002,5,1:3)
+             call sp_corr_random(npts)
+          !print*,'main.f90 check_2 corr_res(npts-4:npts,1,1:3)',corr_res(1000:1002,5,1:3)
+      endif
 
       ! set-up or read stf from file
       !if (modality_flag /= 0)  call set_stf 
