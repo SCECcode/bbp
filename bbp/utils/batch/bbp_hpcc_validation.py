@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Program to set up a full validation run on HPCC
+Program to set up a full validation run on USC's HPC
 """
 from __future__ import division, print_function
 
@@ -41,7 +41,7 @@ import gmpe_config
 BATCH_SIM_FILE = "batch_run_bbp_sims.log"
 CORES_PER_NODE = 16
 CORES_PER_NODE_NEW = 16
-MAX_SIMULATIONS = 200
+MAX_SIMULATIONS = 500
 CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura1", "irikura2"]
 CODEBASES_SITE = ["gp", "sdsu", "song", "irikura1", "irikura2", "exsim", "ucsb"]
 CODEBASES_SRF = ["gp", "sdsu", "song", "ucsb"]
@@ -610,7 +610,7 @@ def main():
         if multiseg:
             source_file = source_file[segment - 1]
         else:
-            if codebase != "song" and codebase != "irikura1" and codebase != "irikura2":
+            if codebase != "song" and codebase != "irikura1" and codebase != "irikura2" and codebase != "gp":
                 print("This is a multisegment event! Please specify segment!")
                 sys.exit(1)
             else:
