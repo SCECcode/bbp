@@ -108,12 +108,12 @@ class IrikuraHF(object):
         if 'MEAN_RVFAC' in vmodel_params:
             self.mean_rvfac = float(vmodel_params['MEAN_RVFAC'])
         else:
-            self.mean_rvfac = cfg.VEL_RUP_FRAC
+            self.mean_rvfac = self.config.VEL_RUP_FRAC
         # Look for RANGE_RVFAC
         if 'RANGE_RVFAC' in vmodel_params:
             self.range_rvfac = float(vmodel_params['RANGE_RVFAC'])
         else:
-            self.range_rvfac = cfg.VEL_RUP_RANGE
+            self.range_rvfac = self.config.VEL_RUP_RANGE
 
         rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac, self.config.SEED)
 
