@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Set version number
 VERSION=19.4.0

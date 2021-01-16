@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ from __future__ import division, print_function
 # Import Python modules
 import sys
 import matplotlib as mpl
-mpl.use("AGG", warn=False)
+mpl.use("AGG")
 import pylab
 
 # Import plot config file
