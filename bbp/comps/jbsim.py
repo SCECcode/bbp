@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -90,7 +90,8 @@ class Jbsim(object):
             #
             progstring = ("%s latloncoords=1 slon=%f slat=%f " %
                           (os.path.join(install.A_GP_BIN_DIR,
-                                        "jbsim"), slon, slat) +
+                                        "jbsim-v2.0.0"), slon, slat) +
+                          "tshift_timedomain=1 use_closest_gf=1 " +
                           "rupmodtype=SRF rupmodfile=%s " % a_srffile +
                           "moment=-1 outdir=%s stat=%s " % (a_veldir, site) +
                           "min_taper_range=0.0 max_taper_range=0.0 " +
