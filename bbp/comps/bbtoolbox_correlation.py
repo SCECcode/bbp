@@ -273,6 +273,15 @@ def generate_matrices(sdsu_data_dir, lf_seis_dir,
     # For spatial correlation
     nk_sp, nks_sp, Ksp1, Ksp2, Ksp3 = create_spatial_correlation(data)
 
+    #if np.isnan(np.sum(Ksp1)):
+    #    print("NaN in Ksp1!")
+    #if np.isnan(np.sum(Ksp2)):
+    #    print("NaN in Ksp2!")
+    #if np.isnan(np.sum(Ksp3)):
+    #    print("NaN in Ksp3!")
+    #if np.isnan(np.sum(Kinf)):
+    #    print("NaN in Kinf!")
+
     # Write output files
     kinf_fn = os.path.join(output_dir, "Kinf.bin")
     ksp1_fn = os.path.join(output_dir, "Ksp1.bin")
