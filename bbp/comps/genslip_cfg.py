@@ -26,12 +26,15 @@ import random
 # Import Broadband modules
 import bband_utils
 
-def calculate_rvfac(mean_rvfac, range_rvfac, seed):
+def calculate_rvfac(mean_rvfac, range_rvfac, seed, count=0):
     """
     This function calculates a random rvfac value based on the mean
     and range values, plus a seed to generate a random number
     """
     random.seed(seed)
+    while count > 0:
+        count = count - 1
+        random.seed(int(random.random() * 100000000))
     rvfac = mean_rvfac + range_rvfac * ((random.random() * 2) - 1)
     return rvfac
 
@@ -55,6 +58,9 @@ class GenslipCfg(object):
         self.MEAN_RVFAC = 0.8
         self.RANGE_RVFAC = 0.05
         self.SHAL_VRUP = 0.6
+
+        # Default RANGE_FWIDTH_FRAC value (randomization disabled)
+        self.RANGE_FWIDTH_FRAC = 0.0
 
         # Default RISETIME_COEF set for western US simulations,
         # override in velocity model config file. This parameter used

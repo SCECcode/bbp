@@ -21,7 +21,7 @@ from __future__ import division, print_function
 # Import Python modules
 import os
 import sys
-# import math # (used to calculate moment)
+import shutil
 
 # Import Broadband modules
 import bband_utils
@@ -57,6 +57,7 @@ class Genslip(object):
         self.risetime_fac = None
         self.deep_risetime_fac = None
         self.slip_sigma = None
+        self.range_fwidth_frac = None
         self.r_srcfiles = []
 
         # Get all src files that were passed to us
@@ -82,9 +83,11 @@ class Genslip(object):
         a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_logdir = os.path.join(install.A_OUT_LOG_DIR, str(sim_id))
+        a_param_outdir = os.path.join(a_outdir, "param_files")
 
         # Make sure the output and tmp directories exist
-        bband_utils.mkdirs([a_tmpdir, a_indir, a_outdir], print_cmd=False)
+        bband_utils.mkdirs([a_tmpdir, a_indir,
+                            a_outdir, a_param_outdir], print_cmd=False)
 
         # Now, file paths
         fault_seg2gsf_bin = os.path.join(install.A_GP_BIN_DIR, "fault_seg2gsf")
@@ -104,6 +107,11 @@ class Genslip(object):
                                              (self.vmodel_name))
         # Check for velocity model-specific parameters
         vmodel_params = vel_obj.get_codebase_params('gp')
+        # Look for RANGE_FWIDTH_FRAC
+        if 'RANGE_FWIDTH_FRAC' in vmodel_params:
+            self.range_fwidth_frac = float(vmodel_params['RANGE_FWIDTH_FRAC'])
+        else:
+            self.range_fwidth_frac = cfg.RANGE_FWIDTH_FRAC
         # Look for RISETIME_COEF
         if 'RISETIME_COEF' in vmodel_params:
             self.risetime_coef = float(vmodel_params['RISETIME_COEF'])
@@ -162,11 +170,22 @@ class Genslip(object):
             cfg.CFGDICT = new_dict
 
         # Calculate nstk,ndip
+        mean_fwidth = cfg.CFGDICT[0]["fault_width"]
+        range_fwidth = mean_fwidth * self.range_fwidth_frac
+        if "common_seed" in cfg.CFGDICT[0]:
+            fwidth = calculate_rvfac(mean_fwidth, range_fwidth,
+                                     cfg.CFGDICT[0]["common_seed"],
+                                     count=1)
+        else:
+            fwidth = calculate_rvfac(mean_fwidth, range_fwidth,
+                                     cfg.CFGDICT[0]["seed"],
+                                     count=1)
         flen_total = 0.0
         for segment in cfg.CFGDICT:
             flen_total = flen_total + segment["fault_length"]
         nstk_tot = round(flen_total / cfg.CFGDICT[0]["dlen"])
-        ndip = int(round(cfg.CFGDICT[0]["fault_width"] / cfg.CFGDICT[0]["dwid"]))
+        ndip = int(round(fwidth / cfg.CFGDICT[0]["dwid"]))
+        fwidth = ndip * cfg.CFGDICT[0]["dwid"]
 
         # Check if we are using the draping method
         if ((not "draping_group" in cfg.CFGDICT[0]) or
@@ -236,7 +255,7 @@ class Genslip(object):
         fault_seg.write("%d\n" % (cfg.num_srcfiles))
         for segment in cfg.CFGDICT:
             nstk_seg = int(round(segment["fault_length"] / segment["dlen"]))
-            fault_seg.write("%f %f %f %f %f %f %f %f %d %d\n" %
+            fault_seg.write("%f %f %f %f %f %f %f %.1f %d %d\n" %
                             (segment["lon_top_center"],
                              segment["lat_top_center"],
                              segment["depth_to_top"],
@@ -244,10 +263,19 @@ class Genslip(object):
                              segment["dip"],
                              segment["rake"],
                              segment["fault_length"],
-                             segment["fault_width"],
+                             fwidth,
                              nstk_seg,
                              ndip))
         fault_seg.close()
+
+        # Save fault_seg_in file
+        shutil.copy2(a_fault_seg_in,
+                     os.path.join(a_param_outdir,
+                                  os.path.basename(a_fault_seg_in)))
+
+        # Output parameters used for this run
+        print("Sim parameters: id: %d - fwidth: %.1f - rvfrac: %f" %
+              (sim_id, fwidth, rvfac))
 
         progstring = ("%s read_slip_vals=0 < %s > %s 2>> %s\n" %
                       (fault_seg2gsf_bin, a_fault_seg_in, a_gsftmp, self.log))
