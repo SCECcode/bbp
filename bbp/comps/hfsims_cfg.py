@@ -54,7 +54,7 @@ class HfsimsCfg(object):
         #
         # Name of executable
         #
-        self.HFSIM = "hb_high_v6.0.3"
+        self.HFSIM = "hb_high_v6.0.4"
 
         #
         # Seismic Parameters
