@@ -92,7 +92,7 @@ c      fce=zz*vr/dlm/pai
       include 'params.h'
 CC      parameter (mm=16348,mmv=30000,mst=6,lv=1000)
 CC      parameter (nq=600,np=50)
-      DIMENSION RNA(mmv),RNB(mmv),RDNA(mm),DS(3,mmv)
+      DIMENSION RNA(mmv),RNB(mmv),RDNA(mm),DS(3,mmv)                       
       dimension sddp(lv,nq,np),rist(lv,nq,np),rupt(lv,nq,np)
       dimension rlsu(nq,np),phsu(nq,np),thsu(nq,np),dst(nq,np),zet(nq,np),twin(nq,np)
       DIMENSION stdd(mmv,3),dfr(mm),fgrand(mmv),fgrands(mm)
@@ -111,22 +111,22 @@ CFFF This replaces ntopq in even_dist1
       real*8 depth,thic,vp,vsh,rho,vp0,vsh0,rho0,vsmoho
       real *4 stime,rpath,p0,qbar,qfexp
       real*4 qp,qs,qs0,grand
-
+                                                      
       CHARACTER*256 asite,slip_model,outname,outname1,outname2,outname3,velfile
       CHARACTER*256 velname,velname1
       CHARACTER*256 dummy
       integer head_lines, j
 
-      character*64 cap,cname(3)
-
-      COMMON/RANDO/ifu
+      character*12 cap,cname(3) 
+      
+      COMMON/RANDO/ifu 
       common/vmod_in/depth0(nlaymax),thic0(nlaymax),vp0(nlaymax),vsh0(nlaymax),rho0(nlaymax),qp0(nlaymax),qs0(nlaymax),grand(3000)
       common/vmod/depth(nlaymax),thic(nlaymax),vp(nlaymax),vsh(nlaymax),rho(nlaymax),qp(nlaymax),qs(nlaymax)
-
-      pu =3.1415926/180
-      pai=3.1415926
+                                                              
+      pu =3.1415926/180 
+      pai=3.1415926 
       IRD=2
-      IMDL=2
+      IMDL=2 
       krc = 4
 
 c set time window envelope peak to be at 20% of total duration (e.g. Boore)
@@ -164,10 +164,10 @@ cc20140422 RWG
       Calpha_default = 0.1
       fcfac_default = 0.0
 
-      nr = 1000
+      nr = 1000    
 
       delay=0.
-      tvmin=1000.
+      tvmin=1000.  
 
       nsfac = 20
 
@@ -203,12 +203,12 @@ c CMP =0     for N-S
       read(5,*)stress_average
       print*,'stress_average= ',stress_average
 
-      read(5,'(a256)') asite
-      read(5,'(a256)') outname
+      read(5,'(a256)') asite 
+      read(5,'(a256)') outname                          
       read(5,*) nrtyp,(irtype(i),i=1,nrtyp)
       read(5,*) isite_amp
-      read(5,*) nbu,iftt,flol,fhil
-      read(5,*) irand
+      read(5,*) nbu,iftt,flol,fhil   
+      read(5,*) irand                                       
       read(5,*) nsite
       read(5,*) duration,dt,fmx,akapp,qfexp
 
@@ -226,7 +226,7 @@ cRWG  apply default values if input is negative
 
       read(5,*) sm,vr
 
-      read(5,'(a256)') slip_model
+      read(5,'(a256)') slip_model  
       open(10,file=slip_model)
 
       read(10,*) nevnt
@@ -261,7 +261,7 @@ c RWG 201241219: '*' should have been '/' in below, fixed 21041219
             read(10,*) (rupt(iv,i,j),i=1,nx(iv))
          end do
 
-133   continue
+133   continue 
 
       close(10)
 
@@ -284,7 +284,7 @@ cc20140422 RWG
 	    stop
 	 endif
       enddo
-
+      
 CCC New way read velocity model from file
 
       read(5,'(a256)') velfile
@@ -333,10 +333,10 @@ C   make sure bottom layer has zero thickness so reflected rays are computed pro
       rhosig = -1.0
       qssig = -1.0
       read(5,*) nlskip,vpsig,vshsig,rhosig,qssig,icflag
-      read(5,'(a256)') velname
+      read(5,'(a256)') velname                          
 
       if(icflag.ne.0.and.icflag.ne.1) icflag=1
-      if(vpsig.le.0.0.and.vshsig.le.0.0.and.rhosig.le.0.0.and.qssig.le.0.0) nplskip=-99
+      if(vpsig.le.0.0.and.vshsig.le.0.0.and.rhosig.le.0.0.and.qssig.le.0.0) nlskip=-99
 
       print*,'nlskip,vpsig,vshsig,rhosig,qssig,icflag= ',nlskip,vpsig,vshsig,rhosig,qssig,icflag
       print*,'velname= ',velfile
@@ -487,7 +487,7 @@ c using prduct() and sgc with surface reflected rays
 
        if(fhil.gt.1./2./dt) then
        print*,'fhigh must be < ',  1./2./dt ,fhil,dt
-C       pause
+C       pause 
        end if
 
 c avg Subfault dimensions (dlm) and max slip
@@ -523,7 +523,7 @@ c compute average corner frequency and average risetime here
       do 5000 iv=1,nevnt
          dwdj = dw(iv)*sin(dipq(iv)*pu)
          do 4799 j=1,nw(iv)
-
+	 
             zdep = dtop(iv) + (j-0.5)*dwdj
             do 543 k=1,j0
                if(zdep.le.depth0(k)) then
@@ -532,7 +532,7 @@ c compute average corner frequency and average risetime here
                endif
 543         continue
 542         continue
-
+         
 	    xmu = vsh0(k)*vsh0(k)*rho0(k)*dx(iv)*dw(iv)
 	    print *,'j= ',j,'  mu= ',xmu
 
@@ -788,9 +788,9 @@ C Direct computation of bigC using fce_avg and fcmain: bigC = (fce_avg/fcmain)^2
       print*,'  bigC= ',bigC
 
 c      ratio = 1.0
-
+      
 c  Stations location
-
+           
       open(1,file=asite)
 
       ndata=int(duration/dt)
@@ -798,9 +798,9 @@ c  Stations location
 
       ifu=irand
       call init_random_seed(irand)
-
+   
       call RANU2(NR,RNA)
-      call RANU2(NR,RNB)
+      call RANU2(NR,RNB) 
 
       loc1= index(outname,' ')-1
 
@@ -836,12 +836,12 @@ c  Stations location
 
       d10=1000.
 
-      do 20 i=1,mmv
-      do 20 ja=1,3
-      ds(ja,i)=0.
+      do 20 i=1,mmv 
+      do 20 ja=1,3      
+      ds(ja,i)=0.      
 20    continue
-
-      print*,' '
+                                                           
+      print*,' '                                       
       print*,'Site : ', msite,' ifu= ',ifu,outname
 
       if(nlskip.ge.0) then
@@ -900,7 +900,7 @@ c loop over fault segments
 
          stra=strq(iv)*pu
          dipa=dipq(iv)*pu
-         raka=rakeq(iv)*pu
+         raka=rakeq(iv)*pu 
 
 c Calculate distance, take-off angle azimuth from the center of the
 c  subfault to the station
@@ -1026,7 +1026,7 @@ CCC END 2014-09-19
 CNNNN      np2 = 8192
 
       if(np2.gt.mm) then
-
+      
          print *,'np2= ',np2,' > array dimension mm= ',mm
          print *,'need to recompile with larger array size, exiting...'
          go to 9555
@@ -1050,7 +1050,7 @@ CNNNN      np2 = 8192
 
       endif
 
-      nfold = np2/2+1
+      nfold = np2/2+1 
       mfold = np2/2-1
       df = 1.0/(np2*dt)
       do 777 i=1,nfold
@@ -1058,16 +1058,16 @@ CNNNN      np2 = 8192
  777  continue
 
       irandcnt = 1
-      do 4 i=1,nx(iv)
+      do 4 i=1,nx(iv)      
       do 4 j=1,nw(iv)
 
       print *,'sddp= ',sddp(iv,i,j),iv,i,j
-
-         if(sddp(iv,i,j).lt.0.001) goto4
+ 
+         if(sddp(iv,i,j).lt.0.001) goto4  
 
       do il=1,np2
        stdd(il,1)= 0.
-       stdd(il,2)= 0.
+       stdd(il,2)= 0. 
        stdd(il,3)= 0.
       end do
 
@@ -1080,9 +1080,9 @@ CNNNN      np2 = 8192
        ro=rho(ksrc)
        goto 66
        end if
-       enddo
+       enddo 
        print*,'wrong!'
-
+     
 66    continue
 
 c Begin subfault corner frequency
@@ -1192,6 +1192,12 @@ c hardwire for SH since only geometric term is considered
       call gf_amp_tt(j0,zet(i,j),dst(i,j),sgc,irtyp,mode,p0,stime,rpath,qbar)
       sub_tstart = stime - tw_eps*twin(i,j)
 
+c RWG 20201015
+c  Added conditional on start time to prevent negative value.
+c  Only occurs rarely, but Scott C. ran into issues with some CyberShake
+c  runs for sites very close to rupture.
+      if(sub_tstart.lt.0.5*stime) sub_tstart = 0.5*stime
+
       if(irtype(ir).eq.0) then
 	 rpath = rlsu(i,j)
 	 qbar = rpath/(bet*150.0)
@@ -1202,7 +1208,7 @@ c hardwire for SH since only geometric term is considered
       print *,'tt= ',sub_tstart,' rp= ',rpath,' bet= ',bet,' twin= ',twin(i,j)
       print *,'hs= ',zet(i,j),' range= ',dst(i,j),' rho= ',ro
 
-      tvmin=amin1(tvmin,sub_tstart)
+      tvmin=amin1(tvmin,sub_tstart)  
 
 cXXX      print*,'range= ',dst(i,j),' rpath= ',rpath,' t0=',stime,' p0=',p0
       print*,'irtype= ',irtype(ir),' t0= ',stime,' rpath= ',rpath,' az= ',phsu(i,j)/pu
@@ -1242,7 +1248,7 @@ cc8997     print *,k,ksrc,' z= ',zet(i,j),' fn= ',exp(fn(k)),' an= ',exp(an(k))
 
 CFFF end
 
-c   average rad coeff freq. dependent
+c   average rad coeff freq. dependent 
 
 CFFF the following 14 lines are new (moved from before)
 
@@ -1265,13 +1271,13 @@ CCC       if(irtype(ir).eq.1) th = pai - th
           th = pai - th
        endif
 
-       pa= phsu(i,j)
+       pa= phsu(i,j) 
 
 cNNN  cmp = pa gives radial component
 c     cmp = pa + 90*pu gives tangential component
 
       cmp=-90.*pu
-      CALL RADFRQ_lin(STRA,DIPA,RAKA,pa,th,DFR,NFOLD,CMP,flol,RNA,RNB,nr,rdna)
+      CALL RADFRQ_lin(STRA,DIPA,RAKA,pa,th,DFR,NFOLD,CMP,flol,RNA,RNB,nr,rdna) 
       call highcor_f(nfold,mfold,np2,cs(1,1),stdd(1,1),rdna)
 
       print *,'   rdna-090= ',rdna(30),' th= ',th/pu,' ir= ',ir
@@ -1282,7 +1288,7 @@ c     cmp = pa + 90*pu gives tangential component
 
       print *,'   rdna-000= ',rdna(30),' th= ',th/pu,' ir= ',ir
 
-       call RADV_lin(STRA,DIPA,RAKA,pa,th,DFR,NFOLD,flol,RNA,RNB,nr,rdna)
+       call RADV_lin(STRA,DIPA,RAKA,pa,th,DFR,NFOLD,flol,RNA,RNB,nr,rdna) 
        call highcor_f(nfold,mfold,np2,cs(1,3),stdd(1,3),rdna)
 CFFF end
 
@@ -1325,9 +1331,9 @@ C  remove scaling by 'ratio', now done in stoc_f() using bigC
             DS(1,li) =DS(1,li)+sddp(iv,i,j)*stdd(li-k2,1)
             DS(2,li) =DS(2,li)+sddp(iv,i,j)*stdd(li-k2,2)
             DS(3,li) =DS(3,li)+sddp(iv,i,j)*stdd(li-k2,3)
-1733     CONTINUE
+1733     CONTINUE 
 
-1722     CONTINUE
+1722     CONTINUE 
 
 CFFF end
 
@@ -1338,7 +1344,7 @@ cNNNN end of ray loop
 4      continue
 13     continue
 
-      if(iftt.gt.0) then
+      if(iftt.gt.0) then 
          call filter3d(nbu,iftt,flol,fhil,ds,ndata,dt)
       endif
 
@@ -1348,8 +1354,8 @@ cNNNN end of ray loop
       DO 134 I=1,ndata
       amx1=amax1(amx1,abs(ds(1,i)))
       amx2=amax1(amx2,abs(ds(2,i)))
-      amx3=amax1(amx3,abs(ds(3,i)))
-  134 CONTINUE
+      amx3=amax1(amx3,abs(ds(3,i)))  
+  134 CONTINUE                                                                  
       WRITE(6,*) 'ACC.MAX=',amx1,amx2,amx3
       print*,'Closest Distance ', d10,'  fc ',fce
 
@@ -1368,27 +1374,27 @@ cNNNN end of ray loop
 
         write(io,'(6e13.5)')(ds(l,i),i=1,ndata)
         close(io)
-        end do
+        end do      
 100     format(a8,2x,a4,1x,a56)
-102     format(1x,i6,1x,e11.5,2i3,4(1x,f10.4))
+102     format(1x,i6,1x,e11.5,2i3,4(1x,f10.4))   
 
 9192    format(f8.4,f8.4,f8.4,f8.4,f8.2,f8.2)
 555   continue
 
 9555  continue
-
-1       END
-
+                                                                 
+1       END                                           
+      
         subroutine distazi(evlar,evlor,stlar,stlor,delta,azi,bazi)
-
+  
         pai=3.141592654
-
+  
         evla=evlar/180.*pai
         evlo=evlor/180.*pai
         stla=stlar/180.*pai
         stlo=stlor/180.*pai
-
-
+ 
+        
         ae=cos(evla)*cos(evlo)
         as=cos(stla)*cos(stlo)
         be=cos(evla)*sin(evlo)
@@ -1427,42 +1433,42 @@ c        if(abs(ae).ge.1.) ae=ae*0.99999999/abs(ae)
         endif
         endif
         return
-        end
+        end 
 
       subroutine stoc(nfd,r,tdur,betvs,row,dt,smt,dlm,fc,fmx,akapp,nsum,
-     +                cw)
+     +                cw)                         
       parameter (mmv=30000)
       DIMENSION A(16348),W(16348),AS(16348),DFR(16348),GA(16348)
       DIMENSION CW(mmv),CWS(16348),SPF(16348)
 
       real*8 gsa,gm,dgamm
-      COMPLEX AC(16348),ACM(16348)
-      PAI=3.1415926
-      rp=0.63
-      fs=2.0
-      prtitn=0.71
-      eps=0.2
-      tw=0.
-c      fmx=15.0
-      seism=smt*nsum
+      COMPLEX AC(16348),ACM(16348) 
+      PAI=3.1415926                          
+      rp=0.63 
+      fs=2.0  
+      prtitn=0.71 
+      eps=0.2 
+      tw=0.                                                                                                                                                                                 
+c      fmx=15.0  
+      seism=smt*nsum                                                          
 
       nf=nn/2+1
       nn=2
  776  if(nn.ge.nfd) go to 777
       nn=nn*2
       go to 776
- 777  nf=nn/2+1
+ 777  nf=nn/2+1 
 
-      DO 2 I=1,NN
-      AS(I)=0.0
-    2 CONTINUE
-      ACCMA=0.0
-      AVLMA=0.0
-      IX=0
-      Rxx=r*100000.
+      DO 2 I=1,NN 
+      AS(I)=0.0 
+    2 CONTINUE                                                                  
+      ACCMA=0.0 
+      AVLMA=0.0                                                                 
+      IX=0                                                                      
+      Rxx=r*100000.    
 
 c Rise Time model
-      AMD=(ALOG10(seism)-17.0)/1.33
+      AMD=(ALOG10(seism)-17.0)/1.33 
       tw=10.0**(0.31*AMD-0.774)
 cXXX
 cXXX      print*,'tw: ',tw
@@ -1470,106 +1476,106 @@ cXXX      tw=2.0
 
       if(r.gt.10.) tw=tw+0.063*(r-10.)
       tw=tw*tdur
-      NT=TW/DT
-      DF=1.0/FLOAT(NN)/DT
-      DO 441 I=1,NF
-      DFR(I)=FLOAT(I-1)*DF
-  441 CONTINUE
-      NP=NN/2
-c      B=-0.2*ALOG(0.05)/(1.0+0.2*(ALOG(0.2)-1.0))
-c      C=B/0.2/TW
+      NT=TW/DT                            
+      DF=1.0/FLOAT(NN)/DT  
+      DO 441 I=1,NF  
+      DFR(I)=FLOAT(I-1)*DF 
+  441 CONTINUE                                                                  
+      NP=NN/2  
+c      B=-0.2*ALOG(0.05)/(1.0+0.2*(ALOG(0.2)-1.0))  
+c      C=B/0.2/TW  
       B=-eps*ALOG(0.05)/(1.0+eps*(ALOG(eps)-1.0))
       C=B/eps/TW
       gsa=2*b+1.0
-      GM=DGAMM(gsa)
+      GM=DGAMM(gsa)                          
       AA=SQRT((2.0*C)**(2.0*B+1.0)/GM)
-c AA=(2.7182/0.2/TW)**BB
+c AA=(2.7182/0.2/TW)**BB  
       DO 10 I=1,NT
-      T=FLOAT(I-1)*DT
-      W(I)=AA*T**B*EXP(-C*T)
-   10 CONTINUE
-      BETA=BETvs*100000.
-      CC=RP*FS*PRTITN/(4.0*PAI*ROW*BETA**3)
-      DO 20 I=2,NF
-      FR=dfr(i)
+      T=FLOAT(I-1)*DT    
+      W(I)=AA*T**B*EXP(-C*T)  
+   10 CONTINUE                                                                
+      BETA=BETvs*100000.   
+      CC=RP*FS*PRTITN/(4.0*PAI*ROW*BETA**3) 
+      DO 20 I=2,NF     
+      FR=dfr(i)  
 
 c Q model
-
-c      QV=100+10.0 *FR**1.70
+                                                        
+c      QV=100+10.0 *FR**1.70     
 c      QV=270.0*FR**0.5
        QV=150.0*FR**0.5
-
+ 
 c Beresnev Northridge     QV=150.0*FR**0.5
 
-      OMG=2.0*PAI*FR
-      OMGC=2.0*PAI*FC
-      OMGM=2.0*PAI*FMX
-      A1=CC*SMT*(OMG**2/(1.0+(OMG/OMGC)**2))
-C     A2=(1.0+(OMG/OMGM)**8)**(-0.5)
+      OMG=2.0*PAI*FR   
+      OMGC=2.0*PAI*FC 
+      OMGM=2.0*PAI*FMX    
+      A1=CC*SMT*(OMG**2/(1.0+(OMG/OMGC)**2))  
+C     A2=(1.0+(OMG/OMGM)**8)**(-0.5) 
 
       if (akapp.le.0.) then
       A2=(1.0+(OMG/OMGM)**1)**(-1.0)
       else
       a2=exp(-pai*fr*akapp)
       end if
-      A3=EXP(-OMG*Rxx/(2.0*QV*BETA))/Rxx
-      AS(I)=A1*A2*A3
-   20 CONTINUE
-      AM=0.0
-      SD=1.0
-      CALL normal_random_number(NT,A)
-      CALL FLZERO(NT,DT,A)
-c      call aver_remov(nt,A)
-
-CVVVVV      DO 44 I=1,NN
+      A3=EXP(-OMG*Rxx/(2.0*QV*BETA))/Rxx                                       
+      AS(I)=A1*A2*A3                                                            
+   20 CONTINUE                                                                     
+      AM=0.0   
+      SD=1.0                                                                    
+      CALL normal_random_number(NT,A)                                            
+      CALL FLZERO(NT,DT,A) 
+c      call aver_remov(nt,A)                                                  
+                                                                   
+CVVVVV      DO 44 I=1,NN  
 CVVVVV      AC(I)=(0.0,0.0)
-CVVVVV   44 CONTINUE
-CVVVVV      DO 45 I=1,NT
-CVVVVV      AC(I)=CMPLX(A(I),0.0)
-CVVVVV   45 CONTINUE
-CVVVVV      CALL FAST(NN,AC,-1)
-CVVVVV      DO 445 I=1,NF
-CVVVVV      CWS(I)=CABS(AC(I))*DT
-CVVVVV  445 CONTINUE
-CVVVVV      FSA=0.0
-CVVVVV      DO 446 I=1,NF
-CVVVVV      FSA=FSA+CWS(I)
-CVVVVV  446 CONTINUE
-CVVVVV      FSA=FSA/FLOAT(NF)
+CVVVVV   44 CONTINUE                                                                  
+CVVVVV      DO 45 I=1,NT  
+CVVVVV      AC(I)=CMPLX(A(I),0.0) 
+CVVVVV   45 CONTINUE                                                                  
+CVVVVV      CALL FAST(NN,AC,-1)   
+CVVVVV      DO 445 I=1,NF    
+CVVVVV      CWS(I)=CABS(AC(I))*DT    
+CVVVVV  445 CONTINUE                                                                
+CVVVVV      FSA=0.0   
+CVVVVV      DO 446 I=1,NF  
+CVVVVV      FSA=FSA+CWS(I)  
+CVVVVV  446 CONTINUE                                                                  
+CVVVVV      FSA=FSA/FLOAT(NF)    
 
-      DO 30 I=1,NT
+      DO 30 I=1,NT   
       GA(I)=A(I)*W(I)
-   30 CONTINUE
+   30 CONTINUE  
+                                                                
+      DO 75 I=1,NN  
+      AC(I)=CMPLX(0.0,0.0) 
+   75 CONTINUE                                                                  
+      DO 40 I=1,NT 
+      LL=I+kstt  
+      AC(LL)=CMPLX(GA(I),0.0) 
+   40 CONTINUE  
+      CALL FAST(NN,AC,-1)     
+      DO 71 I=1,NF   
+      SPF(I)=CABS(AC(I))*DT    
+   71 CONTINUE                                                                  
 
-      DO 75 I=1,NN
-      AC(I)=CMPLX(0.0,0.0)
-   75 CONTINUE
-      DO 40 I=1,NT
-      LL=I+kstt
-      AC(LL)=CMPLX(GA(I),0.0)
-   40 CONTINUE
-      CALL FAST(NN,AC,-1)
-      DO 71 I=1,NF
-      SPF(I)=CABS(AC(I))*DT
-   71 CONTINUE
-
-      FSA=0.0
-      DO 448 I=1,NF
-      FSA=FSA+SPF(I)
-  448 CONTINUE
-      FSA=FSA/FLOAT(NF)
-      AMP=1.0/FSA
-      DO 90 I=1,NN
-      AC(I)=AC(I)/FLOAT(NN)
-   90 CONTINUE
-      DO 100 I=1,NP
-      ACM(I)=AC(I)*AS(I)*AMP
-      ACM(NN-I+1)=CONJG(AC(I+1)*AS(I+1))*AMP
-  100 CONTINUE
-      ACM(NF)=AC(NF)*AS(NF)*AMP
-      CALL FAST(NN,ACM,1)
-      DO 110 I=1,NN
-      CW(I)=REAL(ACM(I))
+      FSA=0.0    
+      DO 448 I=1,NF      
+      FSA=FSA+SPF(I)       
+  448 CONTINUE                                                                  
+      FSA=FSA/FLOAT(NF)  
+      AMP=1.0/FSA   
+      DO 90 I=1,NN                              
+      AC(I)=AC(I)/FLOAT(NN)            
+   90 CONTINUE                                                                  
+      DO 100 I=1,NP      
+      ACM(I)=AC(I)*AS(I)*AMP     
+      ACM(NN-I+1)=CONJG(AC(I+1)*AS(I+1))*AMP   
+  100 CONTINUE                                                                  
+      ACM(NF)=AC(NF)*AS(NF)*AMP        
+      CALL FAST(NN,ACM,1)                                                       
+      DO 110 I=1,NN                                                             
+      CW(I)=REAL(ACM(I)) 
 110   CONTINUE
 
       n0=nn/10
@@ -1579,19 +1585,19 @@ CVVVVV      FSA=FSA/FLOAT(NF)
       end do
       do i=nn+1,nfd
       cw(i)=cw(nn)
-      enddo
-c      CALL INAC(DT,nn,CW,CWI)
-      return
+      enddo                                                                                             
+c      CALL INAC(DT,nn,CW,CWI) 
+      return                                                                    
       END
 
       subroutine stoc_f(np2,r,tw,eps,eta,betvs,row,dt,smt,dlm,fc,fmx,akapp,cw,dfr,qb,qfe,bigC)
       DIMENSION A(np2),W(np2),DFR(1)
       DIMENSION SPF(np2)
       real*8 gsa,a1,a2,a3,as(np2),dgamm,gm
-      COMPLEX*8 AC(np2),cw(1)
+      COMPLEX*8 AC(np2),cw(1) 
 
-      PAI=3.1415926
-      rp=0.63
+      PAI=3.1415926                          
+      rp=0.63 
 
       fc2 = fc*fc
 
@@ -1599,48 +1605,48 @@ cNNN fs is the free surface factor
 c    prtitn is vector partition factor for 2 orthogonal comps [1/sqrt(2)]
 
       fs=2.0
-      prtitn=0.71
+      prtitn=0.71 
 
-      nf = np2/2+1
-      Rxx=r*100000.
+      nf = np2/2+1 
+      Rxx=r*100000.    
 
-c      B=-0.2*ALOG(eta)/(1.0+0.2*(ALOG(0.2)-1.0))
-c      C=B/0.2/TW
+c      B=-0.2*ALOG(eta)/(1.0+0.2*(ALOG(0.2)-1.0))  
+c      C=B/0.2/TW  
       B=-eps*ALOG(eta)/(1.0+eps*(ALOG(eps)-1.0))
       C=B/eps/TW
       gsa=2*b+1.0
-      GM=DGAMM(gsa)
+      GM=DGAMM(gsa)                          
       AA=SQRT((2.0*C)**(2.0*B+1.0)/GM)
-c AA=(2.7182/0.2/TW)**BB
+c AA=(2.7182/0.2/TW)**BB  
 
       DO 10 I=1,np2
-      T=FLOAT(I-1)*DT
-      W(I)=AA*T**B*EXP(-C*T)
-   10 CONTINUE
+      T=FLOAT(I-1)*DT    
+      W(I)=AA*T**B*EXP(-C*T)  
+   10 CONTINUE                                                                
 
-      BETA=BETvs*100000.
-      CC=RP*FS*PRTITN/(4.0*PAI*ROW*BETA**3)
-      OMGC=2.0*PAI*FC
-      OMGM=2.0*PAI*FMX
-      AS(1)=0.0
-      DO 20 I=2,NF
-      FR=dfr(i)
+      BETA=BETvs*100000.   
+      CC=RP*FS*PRTITN/(4.0*PAI*ROW*BETA**3) 
+      OMGC=2.0*PAI*FC 
+      OMGM=2.0*PAI*FMX    
+      AS(1)=0.0 
+      DO 20 I=2,NF     
+      FR=dfr(i)  
       fr2 = fr*fr
 
 c Q model
-
-c      QV=100+10.0 *FR**1.70
+                                                        
+c      QV=100+10.0 *FR**1.70     
 c      QV=270.0*FR**0.5
        QV=150.0*FR**0.5
 
 cRWGTEST
 CC       qv = 1.0e+15
-
+ 
 c Beresnev Northridge     QV=150.0*FR**0.5
 
-      OMG=2.0*PAI*FR
-      A1=CC*SMT*(OMG**2/(1.0+(OMG/OMGC)**2))
-C     A2=(1.0+(OMG/OMGM)**8)**(-0.5)
+      OMG=2.0*PAI*FR   
+      A1=CC*SMT*(OMG**2/(1.0+(OMG/OMGC)**2))  
+C     A2=(1.0+(OMG/OMGM)**8)**(-0.5) 
 
       if (akapp.le.0.) then
       A2=(1.0+(OMG/OMGM)**1)**(-1.0)
@@ -1650,7 +1656,7 @@ C     A2=(1.0+(OMG/OMGM)**8)**(-0.5)
 
 cNNN division by Rxx is 1/R geometric spreading factor
 
-      A3=EXP(-OMG*Rxx/(2.0*QV*BETA))/Rxx
+      A3=EXP(-OMG*Rxx/(2.0*QV*BETA))/Rxx                                       
 
 c   use input q values via qbar
       A3=EXP(-0.5*OMG*qb*(fr**(-0.5)))/Rxx
@@ -1661,35 +1667,35 @@ C   Frankel convolution operator
       frank = bigC*(fc2 + fr2)/(fc2 + bigC*fr2)
 
       AS(I)=A1*A2*A3*frank
-   20 CONTINUE
-      CALL normal_random_number(np2,A)
+   20 CONTINUE                                                                     
+      CALL normal_random_number(np2,A)                                            
 
 Cxxxx
 Cxxxx        write(6,'(e13.5)')(a(i),i=1,np2)
 Cxxxx
 
-      CALL FLZERO(np2,DT,A)
+      CALL FLZERO(np2,DT,A) 
 
-      DO 40 I=1,np2
-      AC(I)=CMPLX(a(i)*w(i),0.0)
-   40 CONTINUE
-
-      CALL FAST(np2,AC,-1)
+      DO 40 I=1,np2 
+      AC(I)=CMPLX(a(i)*w(i),0.0) 
+   40 CONTINUE  
+                                                                
+      CALL FAST(np2,AC,-1)     
 
 C 03/18/2009 RWG changed normalization of random time sequence such that the average
 C of the POWER spectrum is unity (not amplitude spectrum), this is consistent
 C with Boore (1983)
 C
-C RWG      FSA=0.0
+C RWG      FSA=0.0    
 C RWG      DO 71 I=1,nf
-C RWG      SPF(I)=CABS(AC(I))*DT
-C RWG      FSA=FSA+SPF(I)
+C RWG      SPF(I)=CABS(AC(I))*DT    
+C RWG      FSA=FSA+SPF(I)       
 C RWG   71 CONTINUE
 C RWG
-C RWG      FSA=FSA/FLOAT(nf)
+C RWG      FSA=FSA/FLOAT(nf)  
 C RWG      AMP=1.0/FSA
 
-      fsa = 0.0
+      fsa = 0.0    
       do 71 i=1,nf
          fsa = fsa + cabs(ac(i))*cabs(ac(i))
    71 continue
@@ -1698,20 +1704,20 @@ C RWG      AMP=1.0/FSA
 C RWG
 
       NP=np2/2
-      DO 100 I=1,NP
-      cw(I)=AC(I)*AS(I)*AMP
-      cw(np2-I+1)=CONJG(AC(I+1)*AS(I+1))*AMP
-  100 CONTINUE
-      cw(NF)=AC(NF)*AS(NF)*AMP
+      DO 100 I=1,NP      
+      cw(I)=AC(I)*AS(I)*AMP     
+      cw(np2-I+1)=CONJG(AC(I+1)*AS(I+1))*AMP   
+  100 CONTINUE                                                                  
+      cw(NF)=AC(NF)*AS(NF)*AMP        
 
-      return
-      END
-
-      SUBROUTINE RADFRQ(RDNA,STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,
-     & CMP,RNA,RNB,NR,fr1)
-
-c   Frequency Dependent Aver Rad Coeff.
-
+      return                                                                    
+      END       
+                                 
+      SUBROUTINE RADFRQ(RDNA,STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,                  
+     & CMP,RNA,RNB,NR,fr1)   
+     
+c   Frequency Dependent Aver Rad Coeff.     
+                                                          
       DIMENSION RNA(nr),RNB(nr),RDNA(nfold),DFR(nfold)
 
       pu=3.1415926/180.
@@ -1720,141 +1726,141 @@ c      fr1=1.0
       range=20
 
 C   Theoretical radiation coefficient
-
-
-      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)
+                        
+                                                                   
+      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)                            
       RADVL=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA)
       SIGN=RADVL/ABS(RADVL)
-      DO 50 I=1,NFOLD
-      RDNA(I)=RADVL
-  50  CONTINUE
-
-c      print*,'Theory: ',radvl
+      DO 50 I=1,NFOLD                                                           
+      RDNA(I)=RADVL                                                              
+  50  CONTINUE   
+      
+c      print*,'Theory: ',radvl                                                                                  
 c Average radiation coefficient
-
+      
       tha1=thaa-range*pu
       tha2=thaa+range*pu
-
+     
       if(tha1.lt.90.*pu) tha1=90.*pu
-      if(tha2.gt.180.*pu) tha2=180.*pu
-
-      RADS=0.0
-      RADV=0.0
-
-      DO 150 K=1,NR
-      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))
+      if(tha2.gt.180.*pu) tha2=180.*pu 
+                         
+      RADS=0.0                                                                  
+      RADV=0.0                                                                  
+                                               
+      DO 150 K=1,NR                                                             
+      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))  
 c      fa=pa+360*pu*rnb(k)
-      fa=pa+4*range*pu*(0.5-rnb(k))
-
-      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)
-      RADS=RDSVA*COS(TH)*COS(CMP-FA)+RDSHA*SIN(CMP-FA)
-      RADV=RADV+ABS(RADS)
-c      print*,k,nr,thaa/pu,tha1/pu,tha2/pu,pa/pu,fa/pu,rads
-  150 CONTINUE
-
-      RADVH=RADV/FLOAT(NR)*SIGN
+      fa=pa+4*range*pu*(0.5-rnb(k))                       
+                                              
+      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)                              
+      RADS=RDSVA*COS(TH)*COS(CMP-FA)+RDSHA*SIN(CMP-FA)                          
+      RADV=RADV+ABS(RADS)  
+c      print*,k,nr,thaa/pu,tha1/pu,tha2/pu,pa/pu,fa/pu,rads                                                   
+  150 CONTINUE 
+                   
+      RADVH=RADV/FLOAT(NR)*SIGN 
 c      print*,radvh,nr
 c      stop
 
-c       print*,'Theory, Aver: ',radvl,RADVH
-
-      DO 200 I=2,NFOLD
-      IF(DFR(I).LE.fr1) GO TO 210
-      IF(DFR(I).GT.fr2) GO TO 220
-      RADS=0.0
-      RADV=0.0
-
+c       print*,'Theory, Aver: ',radvl,RADVH      
+                                         
+      DO 200 I=2,NFOLD                                                          
+      IF(DFR(I).LE.fr1) GO TO 210                                               
+      IF(DFR(I).GT.fr2) GO TO 220                                               
+      RADS=0.0                                                                  
+      RADV=0.0   
+                                                               
       tha1=thaa-range*pu*(dfr(i)-fr1)/(fr2-fr1)
       tha2=thaa+range*pu*(dfr(i)-fr1)/(fr2-fr1)
 
       if(tha1.lt.90.*pu) tha1=90.*pu
-      if(tha2.gt.180.*pu) tha2=180.*pu
-
-
-      DO 300 K=1,NR
-      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))
-c      fa=pa+360.*pu*(dfr(i)-fr1)/(fr2-fr1)*rnb(k)
-      fa=pa+4*range*pu*(dfr(i)-fr1)/(fr2-fr1)*(0.5-rnb(k))
-
-      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)
-      RADS=RDSVA*COS(TH)*COS(CMP-FA)+RDSHA*SIN(CMP-FA)
-      RADV=RADV+ABS(RADS)
-  300 CONTINUE
-      RDNA(I)=RADV/FLOAT(NR)*SIGN
-      GO TO 200
+      if(tha2.gt.180.*pu) tha2=180.*pu 
+      
+                                        
+      DO 300 K=1,NR                                                             
+      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2)) 
+c      fa=pa+360.*pu*(dfr(i)-fr1)/(fr2-fr1)*rnb(k)  
+      fa=pa+4*range*pu*(dfr(i)-fr1)/(fr2-fr1)*(0.5-rnb(k))                             
+                                                    
+      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)                              
+      RADS=RDSVA*COS(TH)*COS(CMP-FA)+RDSHA*SIN(CMP-FA)                          
+      RADV=RADV+ABS(RADS)                                                       
+  300 CONTINUE                                                                  
+      RDNA(I)=RADV/FLOAT(NR)*SIGN   
+      GO TO 200                                                                 
   210 RDNA(I)=RADVL
-      GO TO 200
-  220 RDNA(I)=RADVH
+      GO TO 200                                                                 
+  220 RDNA(I)=RADVH                                                         
   200 CONTINUE
+                                                                      
+      RETURN   
+                                                                       
+      END 
 
-      RETURN
-
-      END
-
-      SUBROUTINE RADUNI(RDNA,STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,
+      SUBROUTINE RADUNI(RDNA,STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,                  
      & CMP,RNA,RNB,NR)
-
+     
 c  Aver Rad. Coeff.
-
-      DIMENSION RNA(nr),RNB(nr),RDNA(nfold),DFR(nfold)
+                                                          
+      DIMENSION RNA(nr),RNB(nr),RDNA(nfold),DFR(nfold) 
       PU=3.1415926/180
-      range=20.
-
-c      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)                            c      RDX=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA)
+      range=20.   
+                                                             
+c      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)                            c      RDX=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA) 
 c      Rdna(1)=RDX
-
+                                           
        tha1=thaa-range*pu
        tha2=thaa+range*pu
       if(tha1.lt.90.*pu) tha1=90.*pu
-      if(tha2.gt.180.*pu) tha2=180.*pu
+      if(tha2.gt.180.*pu) tha2=180.*pu 
 
-
-c      RADS=0.0
-      RADV=0.0
-
-      DO 150 K=1,NR
-      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))
-c      fa=pa+120*pu*rnb(k)
+                               
+c      RADS=0.0 
+      RADV=0.0                                                                  
+                                               
+      DO 150 K=1,NR                                                             
+      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))                          
+c      fa=pa+120*pu*rnb(k) 
       fa=pa+4*range*pu*(0.5-rnb(k))
-
-      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)
-      RADS=RDSVA*COS(TH)*COS(CMP-FA)+RDSHA*SIN(CMP-FA)
-      RADV=RADV+ABS(RADS)
-  150 CONTINUE
-
-      RADVH=RADV/FLOAT(NR)
-
-      DO 100 I=1,NFOLD
-      RDNA(I)=RADVH
-  100 CONTINUE
-      RETURN
-      END
-
-
-      SUBROUTINE RADTRL(STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,
-     & CMP,rdna)
-
+                                             
+      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)                              
+      RADS=RDSVA*COS(TH)*COS(CMP-FA)+RDSHA*SIN(CMP-FA)                          
+      RADV=RADV+ABS(RADS)                                                       
+  150 CONTINUE                             
+                                                  
+      RADVH=RADV/FLOAT(NR)                                                      
+                                               
+      DO 100 I=1,NFOLD                                                          
+      RDNA(I)=RADVH                                                             
+  100 CONTINUE                                                                  
+      RETURN                                                                    
+      END     
+               
+                                                             
+      SUBROUTINE RADTRL(STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,                 
+     & CMP,rdna) 
+     
 c Theoretical rad. coeff
-      parameter (mm=16348)
-
+      parameter (mm=16348)                               
+                  
       DIMENSION Rdna(mm),DFR(mm)
-      PU=3.1415926/180
+      PU=3.1415926/180   
+                                                             
+      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)                            
+      RDX=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA) 
+                                                                              
+      DO 101 I=1,NFOLD                                                       
+      Rdna(I)=RDX                                                              
+  101 CONTINUE                                                                  
+      RETURN                                                                    
+      END                      
 
-      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)
-      RDX=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA)
-
-      DO 101 I=1,NFOLD
-      Rdna(I)=RDX
-  101 CONTINUE
-      RETURN
-      END
-
-
-      SUBROUTINE RADFRQ_lin(STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,
-     & CMP,fr1,RNA,RNB,nr,rdna)
-      parameter (mm=16348)
+                                                                             
+      SUBROUTINE RADFRQ_lin(STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,                  
+     & CMP,fr1,RNA,RNB,nr,rdna)   
+      parameter (mm=16348)                               
       DIMENSION Rdna(mm),DFR(mm),RNA(nr),RNB(nr)
-      PU=3.1415926/180
+      PU=3.1415926/180   
 
 c RADFRQ_lin() calculates "averaged" radiation pattern as a function of
 c frequency for a given subfault and receiver.
@@ -1904,9 +1910,9 @@ C purely theoretical rad pattern
       radmin = 1.0
 
 c get theoretical radtion pattern for this subfault/station
-      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)
-
-      RDX=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA)
+      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA) 
+                           
+      RDX=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA) 
       print*,'cos(th)= ',cos(thaa),' cos(cmp-pa)= ',cos(cmp-pa),' sin(cmp-pa)= ',sin(cmp-pa)
 
 c  RWG RADPAT FIX 03/19/04
@@ -1932,8 +1938,8 @@ c NEW: preserve sign
       endif
 
        range=10.
-      RADV=0.0
-      DO 150 K=1,NR
+      RADV=0.0                                                                  
+      DO 150 K=1,NR                                                             
          th = thaa + 9*range*pu*(0.5-rand_numb(0))
          fa = pa + 9*range*pu*(0.5-rand_numb(0))
 
@@ -1957,11 +1963,11 @@ c square the value to remove the sign, polarity is applied later,
 c don't forget to take sqareroot after summation
          RADV=RADV+RADS*RADS
 
-  150 CONTINUE
-
+  150 CONTINUE                             
+                                                  
       RADVH=sqrt(RADV/FLOAT(NR))
 
-      DO 101 I=1,NFOLD
+      DO 101 I=1,NFOLD                                                       
 
          if(dfr(i).le.fr1) then
 	    del = radmin
@@ -1980,56 +1986,56 @@ c 12/21/2004 Use polarity to preserve sign
 
   101 continue
 
-      RETURN
+      RETURN                                                                    
       END
 
-      SUBROUTINE RADFRQ_lin5(STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,
-     & CMP,fr1,RNA,RNB,nr,rdna)
+      SUBROUTINE RADFRQ_lin5(STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,                  
+     & CMP,fr1,RNA,RNB,nr,rdna)   
 
 c Theoretical rad. coeff
-      parameter (mm=16348)
-
+      parameter (mm=16348)                               
+                  
       DIMENSION Rdna(mm),DFR(mm),RNA(nr),RNB(nr)
-      PU=3.1415926/180
+      PU=3.1415926/180   
 
-      fr1=0.5
+      fr1=0.5                  
       fr2=2.7
 
 c     fr2=1.7
 c     fr2=1.7  used in the calculations for ORI
 
-      radvh=0.5
-
-       CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)
-
-      RDX=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA)
+      radvh=0.5 
+       
+       CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA) 
+                           
+      RDX=RDSVA*COS(THAA)*COS(CMP-PA)+RDSHA*SIN(CMP-PA) 
 
        range=10.
        tha1=thaa-range*pu
        tha2=thaa+range*pu
       if(tha1.lt.90.*pu) tha1=90.*pu
-      if(tha2.gt.180.*pu) tha2=180.*pu
-
-      RADV=0.0
-      goto 160
-
-      DO 150 K=1,NR
-      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))
+      if(tha2.gt.180.*pu) tha2=180.*pu 
+                              
+      RADV=0.0 
+      goto 160                                                                 
+                                               
+      DO 150 K=1,NR                                                             
+      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))    
       fa=360.*pu*rnb(k)
-
-      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)
-      RADS=RDSVA*COS(TH)*COS(CMP-FA)+RDSHA*SIN(CMP-FA)
-      RADV=RADV+ABS(RADS)
-  150 CONTINUE
-
-
+                                             
+      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)                              
+      RADS=RDSVA*COS(TH)*COS(CMP-FA)+RDSHA*SIN(CMP-FA)                       
+      RADV=RADV+ABS(RADS)                                                    
+  150 CONTINUE                             
+                      
+                            
       RADVH=RADV/FLOAT(NR)
-
-160      radvh=0.6
+       
+160      radvh=0.6 
          rdx=0.6
 
-      DO 101 I=1,NFOLD
-      Rdna(I)=RDX
+      DO 101 I=1,NFOLD                                                       
+      Rdna(I)=RDX  
       IF(DFR(I).LE.fr1) GO TO 101
       IF(DFR(I).GT.fr1.and.dfr(i).le.fr2) then
       rdna(i)=rdna(i)+(radvh-rdx)*(dfr(i)-fr1)/(fr2-fr1)
@@ -2038,55 +2044,55 @@ c     fr2=1.7  used in the calculations for ORI
       rdna(i)=radvh
       end if
 
-  101 CONTINUE
+  101 CONTINUE                                               
+              
+      RETURN                                                                    
+      END                         
 
-      RETURN
-      END
-
-      SUBROUTINE RADV_lin(STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,
-     & fr1,RNA,RNB,nr,rdna)
+      SUBROUTINE RADV_lin(STRA,DIPA,RAKA,PA,THAA,DFR,NFOLD,                  
+     & fr1,RNA,RNB,nr,rdna)   
 
 c Theoretical rad. coeff
-      parameter (mm=16348)
-
+      parameter (mm=16348)                               
+                  
       DIMENSION Rdna(mm),DFR(mm),RNA(nr),RNB(nr)
-      PU=3.1415926/180
-
+      PU=3.1415926/180   
+                     
       fr2=1.5
 
 c     fr2=1.7
 c     fr2=1.7  used in the calculations for ORI
 
-      fr1=0.001
+      fr1=0.001                  
       fr2=0.01
 
       radvh=0.7
-
-      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)
-      RDX=RDSVA*sin(THAA)
+                                   
+      CALL RDATN(STRA,DIPA,RAKA,PA,THAA,RDSHA,RDSVA)                            
+      RDX=RDSVA*sin(THAA) 
 
 
        range=40.
        tha1=thaa-range*pu
        tha2=thaa+range*pu
       if(tha1.lt.90.*pu) tha1=90.*pu
-      if(tha2.gt.180.*pu) tha2=180.*pu
+      if(tha2.gt.180.*pu) tha2=180.*pu 
 
-
-      RADV=0.0
-
-      DO 150 K=1,NR
-      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))
+                               
+      RADV=0.0                                                                  
+                                               
+      DO 150 K=1,NR                                                             
+      TH=ACOS((1.0-RNA(K))*COS(THA1)+RNA(K)*COS(THA2))    
       fa=360*pu*rnb(k)
-
-      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)
-      RADS=RDSVA*sin(TH)
-      RADV=RADV+ABS(RADS)
-  150 CONTINUE
-
-      RADVH=RADV/FLOAT(NR)/2.
-      DO 101 I=1,NFOLD
-      Rdna(I)=RDX
+                                             
+      CALL RDATN(STRA,DIPA,RAKA,FA,TH,RDSHA,RDSVA)                              
+      RADS=RDSVA*sin(TH)                         
+      RADV=RADV+ABS(RADS)                                                       
+  150 CONTINUE                             
+                                                  
+      RADVH=RADV/FLOAT(NR)/2.                                                                                     
+      DO 101 I=1,NFOLD                                                       
+      Rdna(I)=RDX  
       IF(DFR(I).LE.fr1) GO TO 101
       IF(DFR(I).GT.fr1.and.dfr(i).le.fr2) then
       rdna(i)=rdna(i)+(radvh-rdx)*(dfr(i)-fr1)/(fr2-fr1)
@@ -2095,16 +2101,16 @@ c     fr2=1.7  used in the calculations for ORI
       rdna(i)=radvh
       end if
 
-  101 CONTINUE
-
-      RETURN
-      END
-
+  101 CONTINUE                                               
+              
+      RETURN                                                                    
+      END                                                                                            
+                                  
       subroutine highcor(nf,mf,kla,nnn,stdd,rdna)
       parameter (mmv=30000)
       complex*8 cw1(16348)
       dimension rdna(1),stdd(1)
-
+      
       rp=0.63
       prtitn=0.71
       do 110 i=1,nnn
@@ -2119,7 +2125,7 @@ c     fr2=1.7  used in the calculations for ORI
 120   continue
       do 140 i=1,nf
       cw1(i)=cw1(i)*abs(rdna(i))
-
+ 
 140   continue
       do 150 i=1,mf
       m=nf+i
@@ -2131,12 +2137,12 @@ c     fr2=1.7  used in the calculations for ORI
       stdd(i)=real(cw1(i))
 160   continue
       return
-      end
+      end          
 
       subroutine highcor_f(nf,mf,np2,cw1,stdd,rdna)
       complex*8 cw1(1)
       dimension rdna(1),stdd(1)
-
+      
       rp=0.63
       prtitn=0.71
 
@@ -2173,123 +2179,123 @@ c150   continue
 
       return
       end
+                                                                   
+      SUBROUTINE RDATN(STR,DIP,RAK,AZ,TH,RDSH,RDSV)                             
+C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C          
+C                                                                               
+C     CALCULATION OF THE RADIATION TERM INDUCED BY THE DIRECT BODY WAVE         
+C                                                                               
+C     STR : STRIKE  (RADIAN)                                                    
+C     DIP : DIP ANGLE                                                           
+C     RAK : RAKE ANGLE                                                          
+C     AZ  : AZIMTH FROM SORCE TO RECEIVER (CLOCKWISE FROM NORTH)                
+C     TH  : INCIDENT ANGLE (FROM DOWN)                                          
+C     RDSH: RADIATION FOR SH-WAVE                                               
+C     RDSV: RADIATION FOR SV-WAVE                                               
+C                                                                               
+C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C          
+      SR=SIN(RAK)                                                               
+      CR=COS(RAK)                                                               
+      SD=SIN(DIP)                                                               
+      CD=COS(DIP)                                                               
+      ST=SIN(TH)                                                                
+      CT=COS(TH)                                                                
+      SS=SIN(AZ-STR)                                                            
+      CS=COS(AZ-STR)      
+                                                                  
+      RDP=CR*SD*ST**2*2*SS*CS-CR*CD*2*ST*CT*CS                                  
+     1    +SR*2*SD*CD*(CT**2-ST**2*SS**2)                                       
+     2    +SR*(CD**2-SD**2)*2*ST*CT*SS                                          
+      RDSV=SR*(CD**2-SD**2)*(CT**2-ST**2)*SS-CR*CD*(CT**2-ST**2)*CS             
+     1    +CR*SD*ST*CT*2*SS*CS                                                  
+     2    -SR*SD*CD*2*ST*CT*(1+SS**2)  
 
-      SUBROUTINE RDATN(STR,DIP,RAK,AZ,TH,RDSH,RDSV)
-C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C
-C
-C     CALCULATION OF THE RADIATION TERM INDUCED BY THE DIRECT BODY WAVE
-C
-C     STR : STRIKE  (RADIAN)
-C     DIP : DIP ANGLE
-C     RAK : RAKE ANGLE
-C     AZ  : AZIMTH FROM SORCE TO RECEIVER (CLOCKWISE FROM NORTH)
-C     TH  : INCIDENT ANGLE (FROM DOWN)
-C     RDSH: RADIATION FOR SH-WAVE
-C     RDSV: RADIATION FOR SV-WAVE
-C
-C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C  C
-      SR=SIN(RAK)
-      CR=COS(RAK)
-      SD=SIN(DIP)
-      CD=COS(DIP)
-      ST=SIN(TH)
-      CT=COS(TH)
-      SS=SIN(AZ-STR)
-      CS=COS(AZ-STR)
-
-      RDP=CR*SD*ST**2*2*SS*CS-CR*CD*2*ST*CT*CS
-     1    +SR*2*SD*CD*(CT**2-ST**2*SS**2)
-     2    +SR*(CD**2-SD**2)*2*ST*CT*SS
-      RDSV=SR*(CD**2-SD**2)*(CT**2-ST**2)*SS-CR*CD*(CT**2-ST**2)*CS
-     1    +CR*SD*ST*CT*2*SS*CS
-     2    -SR*SD*CD*2*ST*CT*(1+SS**2)
-
-
+                                         
        RDSH=CR*CD*CT*SS+CR*SD*ST*(CS**2-SS**2)
-     1    +SR*(CD**2-SD**2)*CT*CS
-     2    -SR*SD*CD*ST*2*SS*CS
+     1    +SR*(CD**2-SD**2)*CT*CS                                               
+     2    -SR*SD*CD*ST*2*SS*CS  
 
-
-
-
+     
+  
+     
 c      rdsv=sin(rak)*cos(2*dip)*cos(2*th)*sin(az-str)-cos(rak)*cos(dip)*
 c     1 cos(2*th)*cos(az-str)+0.5*cos(rak)*sin(dip)*sin(2*th)*
 c     2 sin(2*(az-str))-0.5*sin(rak)*sin(2*dip)*sin(2*th)*
 c     3   (1+sin(az-str)*sin(az-str))
-
+     
 c      rdsh= cos(rak)*cos(dip)*cos(th)*sin(az-str)+cos(rak)*sin(dip)*
 c     1 sin(th)*cos(2*(az-str))+sin(rak)*cos(2*dip)*cos(th)*cos(az-str)-
-c     2 0.5*sin(rak)*sin(2*dip)*sin(th)*sin(2*(az-str))
-
-
-C     RDP=RDP/GM**3
-      RETURN
-      END
-
-
-      SUBROUTINE INAC(DT,NN,DDY,DY)
-      dimension DY(1),DDY(1)
+c     2 0.5*sin(rak)*sin(2*dip)*sin(th)*sin(2*(az-str)) 
+     
+                                                   
+C     RDP=RDP/GM**3                                                             
+      RETURN                                                                    
+      END   
+                               
+                                                        
+      SUBROUTINE INAC(DT,NN,DDY,DY)                                
+      dimension DY(1),DDY(1)    
 c integrate
-
-      DY(1)=DDY(1)*DT
-      DYMAX=0.
-      DO  110  M=2,NN
-      DY(M)=DY(M-1)+(DDY(M-1)+DDY(M))/2.*DT
-  110 CONTINUE
-      RETURN
-      END
-
-
-      SUBROUTINE FAST(NNN,ACE,IND)
+                                                    
+      DY(1)=DDY(1)*DT                                                           
+      DYMAX=0.                                                                  
+      DO  110  M=2,NN                                                           
+      DY(M)=DY(M-1)+(DDY(M-1)+DDY(M))/2.*DT   
+  110 CONTINUE                                                                  
+      RETURN                                                                    
+      END                   
+                                                             
+                                                                
+      SUBROUTINE FAST(NNN,ACE,IND)                                              
 
 C RWG 20180815
 C changed array dimension declaration to ACE(1) to suppress compiler
 C warnings.  I think this is OK.
-C     COMPLEX*8 ACE(30000),TEMP,THETA
+C     COMPLEX*8 ACE(30000),TEMP,THETA                                            
 
-      COMPLEX*8 ACE(1),TEMP,THETA
+      COMPLEX*8 ACE(1),TEMP,THETA                                            
 
-      J=1
-      DO 100 I=1,NNN
-      IF(I.GE.J) GO TO 110
-      TEMP=ACE(J)
-      ACE(J)=ACE(I)
-      ACE(I)=TEMP
-  110 M=NNN/2
-  120 IF(J.LE.M) GO TO 130
-      J=J-M
-      M=M/2
-      IF(M.GE.2) GO TO 120
-  130 J=J+M
-  100 CONTINUE
-      KMAX=1
-  140 IF(KMAX.GE.NNN) RETURN
-      ISTEP=KMAX*2
-      DO 150 K=1,KMAX
-      THETA=CMPLX(0.0,3.141593*FLOAT(IND*(K-1))/FLOAT(KMAX))
-      DO 160 I=K,NNN,ISTEP
-      J=I+KMAX
-      TEMP=ACE(J)*CEXP(THETA)
-      ACE(J)=ACE(I)-TEMP
-      ACE(I)=ACE(I)+TEMP
-  160 CONTINUE
-  150 CONTINUE
-      KMAX=ISTEP
-      GO TO 140
-      END
+      J=1                                                                       
+      DO 100 I=1,NNN                                                            
+      IF(I.GE.J) GO TO 110                                                      
+      TEMP=ACE(J)                                                               
+      ACE(J)=ACE(I)                                                             
+      ACE(I)=TEMP                                                               
+  110 M=NNN/2                                                                   
+  120 IF(J.LE.M) GO TO 130                                                      
+      J=J-M                                                                     
+      M=M/2                                                                     
+      IF(M.GE.2) GO TO 120                                                      
+  130 J=J+M                                                                     
+  100 CONTINUE                                                                  
+      KMAX=1                                                                    
+  140 IF(KMAX.GE.NNN) RETURN                                                    
+      ISTEP=KMAX*2                                                              
+      DO 150 K=1,KMAX                                                           
+      THETA=CMPLX(0.0,3.141593*FLOAT(IND*(K-1))/FLOAT(KMAX))                    
+      DO 160 I=K,NNN,ISTEP                                                      
+      J=I+KMAX                                                                  
+      TEMP=ACE(J)*CEXP(THETA)                                                   
+      ACE(J)=ACE(I)-TEMP                                                        
+      ACE(I)=ACE(I)+TEMP                                                        
+  160 CONTINUE                                                                  
+  150 CONTINUE                                                                  
+      KMAX=ISTEP                                                                
+      GO TO 140       
+      END          
 
         subroutine RANU2(NRR,RN)
-        dimension rn(1)
+        dimension rn(1)        
         do i=1,nrr
         rn(i)=rand_numb(0)
         end do
         return
         end
-
+       
        	SUBROUTINE RANN2(NTOT,ACC)
 	dimension ACC(1)
 	COMMON/RANDO/ifu1
-
+	
 	J=1
 	ACC(1)=0.
 	X=RAND(ifu1)
@@ -2352,52 +2358,52 @@ C
 	A3=I-1
 	A(I)=A(I)+C1+C2*A3*DT
 2	CONTINUE
-
+        
 	RETURN
 	END
-
+     
        subroutine even_dist1(nevent,xlonq,ylatq,slon,slat,azmq,dipangq,
      +        zm,astopq,dx,dy,nx,nw,nnq,rl,ph,th,dst,zet)
 
 
 c    Calculates:
 c        rl(i,j) : Distance form the center of the subfault to the station
-c        th(i,j) : Take-off angle
+c        th(i,j) : Take-off angle 
 c        ph(i,j) : Azimuth
 
 	 include 'params.h'
 CCC         parameter (nq=600,np=50)
 
-       dimension rl(nq,np),ph(nq,np),th(nq,np),dst(nq,np),zet(nq,np)
+       dimension rl(nq,np),ph(nq,np),th(nq,np),dst(nq,np),zet(nq,np) 
         dimension xlonq(1),ylatq(1),azmq(1),dipangq(1),astopq(1),
      +nnq(1)
 
-
+      
         pi=3.14159265
         gh=10000.
-        gl=0.
+        gl=0.      
          alei=0.
          alsi=0.
 
 c  calculates the scaling factors for converting degrees into km
 
          thei=ylatq(1)
-
+    
          do ii=1,2
-         if(ii.eq.1 ) then
+         if(ii.eq.1 ) then 
          alsi=alei+1
          thsi=thei
          else
          thsi=thei+1
          alsi=alei
          end if
-
+         
          i=0
 
         call DELAZ5( THEI, ALEI, THSI, ALSI, DELT, DELTDG,
      +dis, AZES, AZESDG, AZSE, AZSEDG, I)
         az=azesdg
-
+        
         x=dis*sin(pi*az/180.)
         y=dis*cos(pi*az/180.)
         if(ii.eq.1) ddx=x
@@ -2412,21 +2418,21 @@ c  calculates the scaling factors for converting degrees into km
 
         astop=astopq(k)
         ylat=ylatq(k)
-        xlon=xlonq(k)
-        do 20 kk=1,nnq(k)
+        xlon=xlonq(k)  
+        do 20 kk=1,nnq(k)      
         i=i+1
         do 20 j=1,nw
-
+        
         a1=((j-1)*dy+dy/2)*cos(dip)
         b1=((j-1)*dy+dy/2)*sin(dip)
-
-        dlon = ((i-0.5)*dx - astop)*sin(az) + a1*cos(az)
+     
+        dlon = ((i-0.5)*dx - astop)*sin(az) + a1*cos(az) 
         dlat = ((i-0.5)*dx - astop)*cos(az) - a1*sin(az)
 
         stlon = xlon + dlon/ddx
         stlat = ylat + dlat/ddy
-
-        zm1=zm+b1
+      
+        zm1=zm+b1 
 
          call DELAZ5( stlat, stlon, slat, slon, DELT, DELTDG,
      +dis, AZES, AZESDG, AZSE, AZSEDG, 0)
@@ -2449,39 +2455,39 @@ c        print*,i,j,stlat,stlon,slat,slon,dis
 
 c    Calculates:
 c        rl(i,j) : Distance form the center of the subfault to the station
-c        th(i,j) : Take-off angle
+c        th(i,j) : Take-off angle 
 c        ph(i,j) : Azimuth
 
 	 include 'params.h'
 CCC         parameter (nq=600,np=50)
 
-       dimension rl(nq,np),ph(nq,np),th(nq,np),dst(nq,np),zet(nq,np)
-
+       dimension rl(nq,np),ph(nq,np),th(nq,np),dst(nq,np),zet(nq,np) 
+      
         pi=3.14159265
         gh=10000.
-        gl=0.
+        gl=0.      
          alei=0.
          alsi=0.
 
 c  calculates the scaling factors for converting degrees into km
 
          thei=ylatq
-
+    
          do ii=1,2
-         if(ii.eq.1 ) then
+         if(ii.eq.1 ) then 
          alsi=alei+1
          thsi=thei
          else
          thsi=thei+1
          alsi=alei
          end if
-
+         
          i=0
 
         call DELAZ5( THEI, ALEI, THSI, ALSI, DELT, DELTDG,
      +dis, AZES, AZESDG, AZSE, AZSEDG, I)
         az=azesdg
-
+        
         x=dis*sin(pi*az/180.)
         y=dis*cos(pi*az/180.)
         if(ii.eq.1) ddx=x
@@ -2495,17 +2501,17 @@ c  calculates the scaling factors for converting degrees into km
         xlon=xlonq
         do 20 i=1,nx
         do 20 j=1,nw
-
+        
         a1=((j-1)*dy+dy/2)*cos(dip)
         b1=((j-1)*dy+dy/2)*sin(dip)
-
-        dlon = ((i-0.5)*dx - astop)*sin(az) + a1*cos(az)
+     
+        dlon = ((i-0.5)*dx - astop)*sin(az) + a1*cos(az) 
         dlat = ((i-0.5)*dx - astop)*cos(az) - a1*sin(az)
 
         stlon = xlon + dlon/ddx
         stlat = ylat + dlat/ddy
-
-        zm1=zm+b1
+      
+        zm1=zm+b1 
 
          call DELAZ5( stlat, stlon, slat, slon, DELT, DELTDG,
      +dis, AZES, AZESDG, AZSE, AZSEDG, 0)
@@ -2593,119 +2599,119 @@ C     IF COORDINATES ARE GEOCENT RADIAN  I=1
       GO TO 33
 
       END
+      
 
+      FUNCTION DGAMM(X)                                                         
+C *****************************************************                           
+C *                   GAMMA FUNCTION                  *                           
+C *                IN DOUBLE PRECISION                *                           
+C *      COPYRIGHT : M.MORI  JUNE 30 1989  V.1        *                           
+C *****************************************************                           
+      IMPLICIT REAL*8 (A-H,O-Z)                                                 
 
-      FUNCTION DGAMM(X)
-C *****************************************************
-C *                   GAMMA FUNCTION                  *
-C *                IN DOUBLE PRECISION                *
-C *      COPYRIGHT : M.MORI  JUNE 30 1989  V.1        *
-C *****************************************************
-      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION C(0:19)                                                         
+      DATA IN / 19 /                                                            
 
-      DIMENSION C(0:19)
-      DATA IN / 19 /
+C     ---- FOR SINGLE PRECISION ----                                            
+C     DATA IN / 10 /                                                            
 
-C     ---- FOR SINGLE PRECISION ----
-C     DATA IN / 10 /
+      DATA C /  1.0                   D0,                                       
+     1         -0.42278 43350 98467 1 D0,                                       
+     2         -0.23309 37364 21786 7 D0,                                       
+     3          0.19109 11013 87691 5 D0,                                       
+     4         -0.24552 49000 54000 2 D-1,                                      
+     5         -0.17645 24455 01443 2 D-1,                                      
+     6          0.80232 73022 26734 7 D-2,                                      
+     7         -0.80432 97756 04247 0 D-3,                                      
+     8         -0.36083 78162 548     D-3,                                      
+     9          0.14559 61421 399     D-3,                                      
+     1         -0.17545 85975 17      D-4,                                      
+     1         -0.25889 95022 4       D-5,                                      
+     2          0.13385 01546 6       D-5,                                      
+     3         -0.20547 43152         D-6,                                      
+     4         -0.15952 68            D-9,                                      
+     5          0.62756 218           D-8,                                      
+     6         -0.12736 143           D-8,                                      
+     7          0.92339 7             D-10,                                     
+     8          0.12002 8             D-10,                                     
+     9         -0.42202               D-11 /                                    
 
-      DATA C /  1.0                   D0,
-     1         -0.42278 43350 98467 1 D0,
-     2         -0.23309 37364 21786 7 D0,
-     3          0.19109 11013 87691 5 D0,
-     4         -0.24552 49000 54000 2 D-1,
-     5         -0.17645 24455 01443 2 D-1,
-     6          0.80232 73022 26734 7 D-2,
-     7         -0.80432 97756 04247 0 D-3,
-     8         -0.36083 78162 548     D-3,
-     9          0.14559 61421 399     D-3,
-     1         -0.17545 85975 17      D-4,
-     1         -0.25889 95022 4       D-5,
-     2          0.13385 01546 6       D-5,
-     3         -0.20547 43152         D-6,
-     4         -0.15952 68            D-9,
-     5          0.62756 218           D-8,
-     6         -0.12736 143           D-8,
-     7          0.92339 7             D-10,
-     8          0.12002 8             D-10,
-     9         -0.42202               D-11 /
+      IF (X .GT. 57.0D0) GO TO 901                                              
 
-      IF (X .GT. 57.0D0) GO TO 901
+      XX = X                                                                    
+      IF (XX .LE. 1.5D0) THEN                                                   
+        IF (XX .GE. 0.5D0) THEN                                                 
+          A = XX - 1.0D0                                                        
+          FCTR = 1.0D0                                                          
+        ELSE                                                                    
+          M = INT(XX)                                                           
+          A = XX - M                                                            
+          IF (A .EQ. 0.0D0) THEN                                                
+            GO TO 902                                                           
+          ELSE IF (A .GE. -0.5D0) THEN                                          
+            MG = IABS(M) + 1                                                    
+          ELSE                                                                  
+            MG = IABS(M) + 2                                                    
+            A = A + 1.0D0                                                       
+          END IF                                                                
+          Z = 1.0D0                                                             
+          DO 20 I = 1, MG                                                       
+            Z = Z * XX                                                          
+            XX = XX + 1.0D0                                                     
+   20     CONTINUE                                                              
+          FCTR = 1.0D0 / Z                                                      
+        END IF                                                                  
 
-      XX = X
-      IF (XX .LE. 1.5D0) THEN
-        IF (XX .GE. 0.5D0) THEN
-          A = XX - 1.0D0
-          FCTR = 1.0D0
-        ELSE
-          M = INT(XX)
-          A = XX - M
-          IF (A .EQ. 0.0D0) THEN
-            GO TO 902
-          ELSE IF (A .GE. -0.5D0) THEN
-            MG = IABS(M) + 1
-          ELSE
-            MG = IABS(M) + 2
-            A = A + 1.0D0
-          END IF
-          Z = 1.0D0
-          DO 20 I = 1, MG
-            Z = Z * XX
-            XX = XX + 1.0D0
-   20     CONTINUE
-          FCTR = 1.0D0 / Z
-        END IF
+      ELSE                                                                      
+        M = INT (XX)                                                            
+        A = XX - M                                                              
+        IF (A .LE. 0.5D0) THEN                                                  
+          MG = M - 1                                                            
+        ELSE                                                                    
+          MG = M                                                                
+          A = A - 1.0D0                                                         
+        END IF                                                                  
+        Z = 1.0D0                                                               
+        DO 30 I = 1, MG                                                         
+          Z = Z * (XX - 1.0D0)                                                  
+          XX = XX - 1.0D0                                                       
+   30   CONTINUE                                                                
+        FCTR = Z                                                                
+      END IF                                                                    
 
-      ELSE
-        M = INT (XX)
-        A = XX - M
-        IF (A .LE. 0.5D0) THEN
-          MG = M - 1
-        ELSE
-          MG = M
-          A = A - 1.0D0
-        END IF
-        Z = 1.0D0
-        DO 30 I = 1, MG
-          Z = Z * (XX - 1.0D0)
-          XX = XX - 1.0D0
-   30   CONTINUE
-        FCTR = Z
-      END IF
+      Y = C(IN)                                                                 
+      DO 10 I = IN - 1, 0, -1                                                   
+        Y = C(I) + A * Y                                                        
+   10 CONTINUE                                                                  
 
-      Y = C(IN)
-      DO 10 I = IN - 1, 0, -1
-        Y = C(I) + A * Y
-   10 CONTINUE
+      DGAMM = FCTR / ((1.0D0 + A) * Y)                                          
+      RETURN                                                                    
 
-      DGAMM = FCTR / ((1.0D0 + A) * Y)
-      RETURN
+  901 CONTINUE                                                                  
+      WRITE (6,2001) X                                                          
+ 2001 FORMAT (' (FUNC.DGAMM) X(=',D23.16,')',                                   
+     \        ' MUST BE SMALLER THAN 57.0')                                     
+      DGAMM = 1.0D75                                                            
+      RETURN                                                                    
 
-  901 CONTINUE
-      WRITE (6,2001) X
- 2001 FORMAT (' (FUNC.DGAMM) X(=',D23.16,')',
-     \        ' MUST BE SMALLER THAN 57.0')
-      DGAMM = 1.0D75
-      RETURN
-
-  902 CONTINUE
-      WRITE (6,2002) X
- 2002 FORMAT (' (FUNC.DGAMM) INVALID ARGUMENT',
-     \        ' X =',D23.16)
-      DGAMM = 1.0D75
-      RETURN
-      END
+  902 CONTINUE                                                                  
+      WRITE (6,2002) X                                                          
+ 2002 FORMAT (' (FUNC.DGAMM) INVALID ARGUMENT',                                 
+     \        ' X =',D23.16)                                                    
+      DGAMM = 1.0D75                                                            
+      RETURN                                                                    
+      END        
 
        subroutine aver_remov(nms,s)
-       dimension s(1)
-
-      SMA=0
-      DO 73 I=1,nms
-      SMA=SMA+s(I)
- 73   CONTINUE
-      SMA=SMA/nms
-      DO 74 I=1,nms
-      s(I)=s(I)-SMA
+       dimension s(1)     
+    
+      SMA=0    
+      DO 73 I=1,nms 
+      SMA=SMA+s(I)                                                           
+ 73   CONTINUE            
+      SMA=SMA/nms   
+      DO 74 I=1,nms   
+      s(I)=s(I)-SMA 
  74   CONTINUE
       return
       end
@@ -2729,7 +2735,7 @@ c
 c
       return
       end
-
+      
       subroutine zpass(n,dt,ift,flo,fhi,nphas,nbut)
 c
       common/butt/x(30000),z(30000)
@@ -2890,7 +2896,7 @@ c
 	 ttp = th(2)/vs(2)
 
 6145     if(ttp.ge.stt.or.i.eq.j0) go to 6146
-
+            
 	 zdep = zdep + th(i)
 	 pz = pz + dn(i)*th(i)/vs(i)
 	 tt = ttp
@@ -2972,7 +2978,7 @@ cPPP      nn = nfreq
 
       subroutine siteamp(np2,cw,dfr,nn,fn,an)
       dimension fn(1),an(1),dfr(1)
-      COMPLEX*8 cw(1)
+      COMPLEX*8 cw(1) 
 
       np = np2/2
       nf = np+1
@@ -3034,7 +3040,7 @@ cPPP      nn = nfreq
       complex *16 rcv,cp0,gc
       complex sgc
       real *4 src_depth,range,stime,rpath,rp0,qbar
-
+    
       krec = 2
       ir = 1
       ndeg(ir)=1
@@ -3044,11 +3050,20 @@ cPPP      nn = nfreq
       gc = (1.0d+00,0.0d+00)
 
 c find source layer, set to 'ksrc'
+      hs_tol = 0.02
       dep = 0.0
       do 1543 ksrc=1,j0
-	 dep = dep + th(ksrc)
-         if(hs.eq.dep) hs = hs + 0.001
-         if(hs.lt.dep) goto 1542
+         dep = dep + th(ksrc)
+
+         if(hs.ge.dep.and.(hs-dep).lt.hs_tol) hs = dep + hs_tol
+         if(hs.lt.dep) then
+            if((dep-hs).lt.hs_tol) hs = dep - hs_tol
+            goto 1542
+         endif
+
+cc         if(hs.eq.dep) hs = hs + 0.001
+cc         if(hs.lt.dep) goto 1542
+
 1543  continue
 1542  continue
 
@@ -3066,7 +3081,7 @@ c Assume Moho is above layer with 0.00 thickness or the deepest layer in the inp
 
 c upgoing ray
       if(mod(itype,2).eq.1) then
-
+      
          l = 0
          do 1922 j=ksrc,krec,-1
 	    l = l+1
@@ -3074,7 +3089,7 @@ c upgoing ray
 	    nm(ir,l) = md
 
 1922     continue
-
+      
 c now loop over Moho multiples, if any
 	 ktn = (itype-1)/2
          do 5923 kt=1,ktn
@@ -3103,7 +3118,7 @@ c end of upgoing ray
 
 c down-going ray
       else
-
+      
          l = 0
          do 2923 j=ksrc,j0-1
 	    l = l+1
@@ -3124,7 +3139,7 @@ c down-going ray
 	    nm(ir,l) = md
 
 2924     continue
-
+      
 c now loop over Moho multiples, if any
 	 ktn = (itype-2)/2
          do 5926 kt=1,ktn
@@ -3781,7 +3796,7 @@ cXXX new way, hardwired to direct and 1 down-going Moho
       if(mod(itype,2).eq.0) th1 = dep + th(nh(1,1)) - hs
 
       sini = p0*vs(nh(1,1))
-      if(sini.ge.1.0) sini = 0.99999
+      if(sini.ge.1.0) sini = 0.999999
       denom = 1.0/(sqrt(1.0 - sini*sini))
 
       ri = th1*denom
@@ -3792,7 +3807,7 @@ cXXX new way, hardwired to direct and 1 down-going Moho
       do 965 j=2,nd(1)
 
          sini = p0*vs(nh(1,j))
-         if(sini.ge.1.0) sini = 0.999
+         if(sini.ge.1.0) sini = 0.999999
          denom = 1.0/(sqrt(1.0 - sini*sini))
 
 	 ri = th(nh(1,j))*denom
@@ -3881,7 +3896,7 @@ c      if icf=0, vel, den & q variations are completely un-correlated
 
       subroutine famprand(np2,cw,fgr,sg1,sg2)
       dimension fgr(1)
-      COMPLEX*8 cw(1)
+      COMPLEX*8 cw(1) 
 
       np = np2/2
 
@@ -3924,7 +3939,7 @@ c	print*,'n= ',n
 	return
 	end
 
-
+       
        	subroutine normal_random_number(nr,acc)
 	integer nr,j,n
 	dimension acc(nr)

@@ -21,12 +21,12 @@ FC = gfortran
 
 ##### make options
 
-hb_high_v6.0.3: hb_high_v6.0.3.f
-	${FC} ${FFLAGS} -o hb_high_v6.0.3 hb_high_v6.0.3.f
-	cp -rp hb_high_v6.0.3 ../../bin/
+hb_high_v6.0.4: hb_high_v6.0.4.f
+	${FC} ${FFLAGS} -o hb_high_v6.0.4 hb_high_v6.0.4.f
+	cp -rp hb_high_v6.0.4 ../../bin/
 
 clean:
-	rm -f *.o hb_high_v6.0.3
+	rm -f *.o hb_high_v6.0.4
 
 %.c : ${MODLIB}
 	touch $@
