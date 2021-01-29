@@ -69,3 +69,13 @@ double nt_tol(float,int);
 
 void getname_gf(char *str,char *gfname,struct gfheader *gfh,struct gfparam gfpar);
 int check_name(char *str,char *list,int n,int blen);
+
+void get_rupt(struct velmodel *, float *, float *, float *, float *, float *, double *, double *, float *);
+void taper_norm(float *, float *, int);
+void norm(float *, float *, int);
+void cfft_r(struct complex *, int, int);
+void resample(float *, int, float *, int, int, int, float *, float *);
+void forfft(struct complex *, int, int);
+void invfft(struct complex *, int, int);
+void set_geoproj(struct sgtmaster *, struct geoprojection *);
+void makedir(char *);

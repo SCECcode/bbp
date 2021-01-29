@@ -1,10 +1,11 @@
 #include "include.h"
 #include "structure.h"
 #include "function.h"
+#include "getpar.h"
 
 #define NCHAR_STAT 16
 
-main(int ac,char **av)
+int main(int ac,char **av)
 {
 FILE *fopfile(), *fpr, *fpwsv, *fpwrt, *fpwtr;
 struct gfheader gfhead[4];
