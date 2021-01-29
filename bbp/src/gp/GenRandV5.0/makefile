@@ -6,8 +6,16 @@ FDRT_OBJS = wafront2d-rwg.o
 GETPAR = ../getpar/lib
 INCPAR = -I ../getpar/include
 
+ifdef FFTW_INCDIR
+FFTW_INCFLAGS = -I ${FFTW_INCDIR}
+endif
+ifdef FFTW_LIBDIR
+FFTW_LIBFLAGS = -L ${FFTW_LIBDIR}
+endif
+
 LIBS = -lm ${GETPAR}/libget.a
-LDLIBS = ${OBJS} ${LIBS} -I ${FFTW_INCDIR} -lfftw3 -lfftw3f
+LDLIBS = ${OBJS} ${LIBS} ${FFTW_INCFLAGS} ${FFTW_LIBFLAGS} -lfftw3f
+#LDLIBS = ${OBJS} ${LIBS} ${FFTW_INCFLAGS} ${FFTW_LIBFLAGS} -lfftw3 -lfftw3f
 
 #LF_FLAGS = -D_FILE_OFFSET_BITS=32
 #
@@ -19,7 +27,7 @@ UFLAGS = -O3
 CC = gcc
 FC = gfortran
 
-CFLAGS = ${UFLAGS} ${LF_FLAGS}
+CFLAGS = ${UFLAGS} ${LF_FLAGS} ${FFTW_INCFLAGS}
 FFLAGS = ${UFLAGS} -ffixed-line-length-none
 
 ##### make options
