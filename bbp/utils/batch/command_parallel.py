@@ -53,7 +53,7 @@ class CommandParallel:
                        (os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"],
                         self.envscript, remotecmd))
             else:
-                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, remotecmd)
+                cmd = "/usr/bin/ssh -o \"ServerAliveInterval 60\" %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, remotecmd)
             
             print("Running on %s: %s" % (node, cmd))
             proclist.append([subprocess.Popen(cmd,shell=True), node])

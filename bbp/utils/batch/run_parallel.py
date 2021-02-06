@@ -59,7 +59,7 @@ class RunParallel:
             if not "TMPDIR" in os.environ:
                 os.environ["TMPDIR"] = ("/tmp/%s" %
                                         (os.environ["SLURM_JOB_ID"]))
-            cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, c)
+            cmd = "/usr/bin/ssh -o \"ServerAliveInterval 60\" %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, c)
             print("Running on %s: %s" % (node, cmd))
             proclist.append([subprocess.Popen(cmd,shell=True), node])
             # Ensure unique simids
