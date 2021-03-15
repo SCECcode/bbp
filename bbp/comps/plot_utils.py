@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2020 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,9 +22,12 @@ from __future__ import division, print_function
 import os
 import sys
 import math
+import shutil
+import tempfile
 
 # Import Broadband modules
 import bband_utils
+from install_cfg import InstallCfg
 from station_list import StationList
 
 # Use an extra buffer to plot the region around all stations (in degrees)
@@ -117,53 +120,121 @@ def write_simple_stations(station_file, out_file):
     fp_out.flush()
     fp_out.close()
 
-def write_fault_trace(srf_file, out_file):
+def get_srf_info(srf_file):
     """
-    This function reads the srf file and outputs a trace file
+    This function reads a SRF file and returns version,
+    number of segments, and a list with the nstk values
+    for each segment
     """
-    points = []
-    line = 0
-    shallowest = 100.0
+    version = None
+    num_segments = None
+    nstk = []
 
-    # Figure out SRF file version
-    srf_data = open(srf_file, 'r')
-    for line in srf_data:
+    # Read SRF file
+    input_file = open(srf_file, 'r')
+    for line in input_file:
         line = line.strip()
         # Skip blank lines
         if not line:
             continue
-        line = int(float(line))
+        version = int(float(line))
         break
 
-    if line == 1:
-        tokens = 8
-    elif line == 2:
-        tokens = 10
-    else:
-        bband_utils.ParameterError("Cannot determine SRF file version!")
-
-    for line in srf_data:
+    # Read number of segments
+    for line in input_file:
+        line = line.strip()
+        # Skip blank lines
+        if not line:
+            continue
         pieces = line.split()
-        if len(pieces) == tokens:
-            depth = float(pieces[2])
-            if depth == shallowest:
-                points.append([float(pieces[0]), float(pieces[1])])
-            elif depth < shallowest:
-                shallowest = depth
-                del points[:]
-                points.append([float(pieces[0]), float(pieces[1])])
-    # Done reading, close file
-    srf_data.close()
+        if len(pieces) == 2:
+            # Get number of planes
+            if pieces[0].lower() == "plane":
+                num_segments = int(float(pieces[1]))
+                break
+
+    if num_segments is None or version is None:
+        bband_utils.ParameterError("Cannot parse SRF file!")
+
+    # Read nstk for each segment
+    for line in input_file:
+        line = line.strip()
+        # Skip blank lines
+        if not line:
+            continue
+        pieces = line.split()
+        if len(pieces) != 6:
+            continue
+        nstk.append(int(float(pieces[2])))
+        # Check if we got nstk for each segment
+        if len(nstk) == num_segments:
+            break
+
+    input_file.close()
+    if len(nstk) != num_segments:
+        bband_utils.ParameterError("Cannot read nstk from SRF file!")
+
+    return version, num_segments, nstk
+
+def read_srf_trace(srf_file, num_segment, nstk):
+    """
+    This function reads an SRF file and returns the
+    top layer trace for the segment specified
+    """
+    install = InstallCfg.getInstance()
+
+    srf2xyz_bin = os.path.join(install.A_GP_BIN_DIR, "srf2xyz")
+    tmpdir = tempfile.mkdtemp(prefix="bbp-")
+    f_seg = os.path.join(tmpdir, "srf_points_seg-%d.txt" % (num_segment))
+
+    # Run srf2xyz
+    cmd = ("%s lonlatdep=1 nseg=%d < %s > %s" %
+           (srf2xyz_bin, num_segment, srf_file, f_seg))
+    bband_utils.runprog(cmd)
+
+    # Parse result and extract points
+    points = []
+
+    input_file = open(f_seg, 'r')
+    for line in input_file:
+        line = line.strip()
+        if not line:
+            continue
+        pieces = line.split()
+        pieces = [float(piece) for piece in pieces]
+        points.append((pieces[0], pieces[1]))
+        if len(points) == nstk:
+            break
+    input_file.close()
+
+    # Delete temp files
+    shutil.rmtree(tmpdir)
+
+    return points
+
+def write_fault_trace(srf_file, out_file):
+    """
+    This function reads the srf file and outputs a trace file
+    """
+    all_points = []
+
+    # Figure out SRF file version
+    version, num_segments , nstk = get_srf_info(srf_file)
+
+    # Reads the points for each segment
+    for segment in range(0, num_segments):
+        seg_points = read_srf_trace(srf_file, segment, nstk[segment])
+        all_points = all_points + seg_points
 
     # Now, open output file, and write the data
     trace_file = open(out_file, 'w')
-    for point in points:
+    for point in all_points:
         trace_file.write("%f %f\n" % (point[0], point[1]))
     trace_file.flush()
     trace_file.close()
 
     # Return trace
-    return points
+    return all_points
 
 def calculate_fault_edge(lat1, lon1, dist, bearing):
     """
