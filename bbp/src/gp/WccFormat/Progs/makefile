@@ -4,8 +4,15 @@ FOBJS = fourg.o mccamy.o zpass.o
 GETPAR = ../../getpar/lib
 INCPAR = -I ../../getpar/include
 
+ifdef FFTW_INCDIR
+FFTW_INCFLAGS = -I ${FFTW_INCDIR}
+endif
+ifdef FFTW_LIBDIR
+FFTW_LIBFLAGS = -L ${FFTW_LIBDIR}
+endif
+
 LIBS = -lm ${GETPAR}/libget.a
-LDLIBS = ${COBJS} ${FOBJS} ${LIBS}
+LDLIBS = ${COBJS} ${FOBJS} ${LIBS} ${FFTW_INCFLAGS} ${FFTW_LIBFLAGS} -lfftw3 -lfftw3f
 
 #LF_FLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 LF_FLAGS = -D_GNU_SOURCE
@@ -16,7 +23,7 @@ FC = gfortran
 
 ##### compile options
 
-CFLAGS = ${UFLAGS} ${LF_FLAGS}
+CFLAGS = ${UFLAGS} ${LF_FLAGS} ${FFTW_INCFLAGS}
 FFLAGS = ${UFLAGS} -ffixed-line-length-132
 
 ALLOBJS = ${COBJS} ${FOBJS}
