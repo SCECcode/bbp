@@ -617,7 +617,7 @@ def main():
         if multiseg:
             source_file = source_file[segment - 1]
         else:
-            if codebase != "song" and codebase != "irikura1" and codebase != "irikura2" and codebase != "gp":
+            if codebase != "song" and codebase != "irikura1" and codebase != "irikura2" and codebase != "gp" and codebase != "sdsu":
                 print("This is a multisegment event! Please specify segment!")
                 sys.exit(1)
             else:
