@@ -151,8 +151,8 @@ def parse_arguments():
                                      " PSA and FAS bias files.")
     parser.add_argument("--dir", "-d", dest="input_dir",
                         required=True, help="input directory")
-    parser.add_argument("-o", "--output-dir",
-                        dest="output_dir", required=True,
+    parser.add_argument("-o", "--output-dir", required=False,
+                        dest="output_dir", default=None,
                         help="output directory")
     parser.add_argument("--fas", action='store_true',
                         help="Add FAS comparison")
