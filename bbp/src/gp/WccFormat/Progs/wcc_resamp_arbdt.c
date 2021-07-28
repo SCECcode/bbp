@@ -53,10 +53,9 @@ float tap_perc = TAP_PERC;
 int resamp = 0;
 int ntpad, ntrsmp;
 float fnt, *space;
-int gnt;
 int ntout = -1;
 
-double dt_tol = 1.00001;
+double dt_tol = 1.0001;
 double tol = 1.0e-02;
 
 char infile[1024];
@@ -125,16 +124,14 @@ if(double_dt <= 0.0 || (double_dt >= head1.dt/dt_tol && double_dt <= head1.dt*dt
 else                /* need to resample time history */
    {
    ntpad = 2*head1.nt;
-   dnt = (double)(1.000000*ntpad)*(double)(head1.dt)/double_dt;
-   gnt = (int)(dnt + 0.5);
-   ntrsmp = (int)(dnt);
+   dnt = (double)(1.000000*ntpad)*((double)(head1.dt)/double_dt);
+   ntrsmp = (int)(dnt + 0.5);
 
-   while(nt_tol_d(dnt,gnt) > tol || (ntrsmp%2) == 1)
+   while(nt_tol_d(dnt,ntrsmp) > tol || (ntrsmp%2) == 1)
       {
       ntpad = ntpad + 2;
-      dnt = (double)(1.000000*ntpad)*(double)(head1.dt)/double_dt;
-      gnt = (int)(dnt + 0.5);
-      ntrsmp = (int)(dnt);
+      dnt = (double)(1.000000*ntpad)*((double)(head1.dt)/double_dt);
+      ntrsmp = (int)(dnt + 0.5);
       }
 
    fprintf(stderr,"*** ntpad=%d ntrsmp=%d\n",ntpad,ntrsmp);
@@ -165,7 +162,7 @@ else                /* need to resample time history */
       }
 
    if(ntout < 0)
-      ntout = (int)(head1.nt*head1.dt/double_dt);
+      ntout = (int)(head1.nt*((double)(head1.dt)/double_dt) + 0.5);
 
    if(ntout > ntmax/2)
       {
