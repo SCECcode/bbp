@@ -117,7 +117,7 @@ CFFF This replaces ntopq in even_dist1
       CHARACTER*256 dummy
       integer head_lines, j
 
-      character*12 cap,cname(3) 
+      character*64 cap,cname(3) 
       
       COMMON/RANDO/ifu 
       common/vmod_in/depth0(nlaymax),thic0(nlaymax),vp0(nlaymax),vsh0(nlaymax),rho0(nlaymax),qp0(nlaymax),qs0(nlaymax),grand(3000)
