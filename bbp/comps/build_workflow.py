@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2020 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -124,6 +124,26 @@ class WorkflowBuilder(object):
                 if self.opt_obj is not None:
                     sys.exit(1)
 
+    def check_multi_segment_draping(self, src_files):
+        """
+        Check list of SRC files for draping template keys
+
+        Returns True if all source files have the needed keys for
+        using the multi-segment draping approach.
+
+        Returns False if files are missing any of the needed keys
+        """
+        for src_file in src_files:
+            src_keys = bband_utils.parse_src_file(src_file)
+            if not 'draping_group' in src_keys:
+                return False
+            if not 'draping_segno' in src_keys:
+                return False
+            if not 'true_hypo' in src_keys:
+                return False
+
+        return True
+
     def get_validation_source_file(self, method):
         """
         This function selects a source file from a validation package.
@@ -146,9 +166,16 @@ class WorkflowBuilder(object):
         if isinstance(src_file, str):
             return src_file
 
+        # Check if files can use the draping template
+        use_draping = self.check_multi_segment_draping(src_file)
+
         # For multisegment validation events
-        self.multisegment_validation = True
-        if method == "GP" or method == "SONG" or method == "IRIKURA1" or method == "IRIKURA2":
+        if use_draping and (method == "GP" or
+                            method == "SDSU" or
+                            method == "SONG" or
+                            method == "IRIKURA1" or
+                            method == "IRIKURA2"):
+            self.multisegment_validation = True
             self.multisegment_src_files = src_file
             return src_file[0]
 
@@ -233,8 +260,11 @@ class WorkflowBuilder(object):
                                            self.src_file)
                     if isinstance(self.src_file, list):
                         self.multisegment_validation = True
-                        if (self.method == "GP" or self.method == "SONG"
-                            or self.method == "IRIKURA1" or self.method == "IRIKURA2"):
+                        if (self.method == "GP"
+                            or self.method == "SDSU"
+                            or self.method == "SONG"
+                            or self.method == "IRIKURA1"
+                            or self.method == "IRIKURA2"):
                             self.multisegment_src_files = self.src_file
                             self.src_file = self.src_file[0]
                             break
@@ -672,6 +702,10 @@ class WorkflowBuilder(object):
         hf_module.addStageFile(self.stations)
         hf_module.addArg(os.path.basename(self.stations))
         hf_module.addArg(self.vmodel_name)
+        if self.multisegment_validation:
+            for idx, val in enumerate(self.multisegment_src_files):
+                hf_module.addStageFile(val)
+                hf_module.addKeywordArg('src%d' % (idx), val)
         self.workflow.append(hf_module)
 
         # Site response module
@@ -880,7 +914,7 @@ class WorkflowBuilder(object):
         lf_module.addArg(self.vmodel_name)
         self.workflow.append(lf_module)
 
-        # High Frequency GP module
+        # High Frequency Irikura-2 module
         hf_module = Module()
         hf_module.setName("IrikuraHF")
         if self.src_file is not None and self.src_file != "":
@@ -1231,34 +1265,34 @@ class WorkflowBuilder(object):
                 if self.opt_obj is not None:
                     sys.exit(1)
 
-        while True:
-            if self.opt_obj is not None:
-                do_fas = self.opt_obj.get_next_option()
-            else:
-                print("=" * 80)
-                print()
-                print("FAS")
-                print("===============")
-                print("Additional FAS metrics")
-                print()
-                do_fas = input("Do you want to calculate "
-                               "FAS metrics (y/n)? ")
-
-            if do_fas.lower() == 'n':
-                # Skip this one
-                break
-            elif do_fas.lower() == 'y':
-                # Let's add the FAS module
-                fas_module = Module()
-                fas_module.setName("FAS")
-                fas_module.addStageFile(self.stations)
-                fas_module.addArg(os.path.basename(self.stations))
-                self.workflow.append(fas_module)
-                break
-            else:
-                print("Invalid choice (FAS): %s" % (do_fas))
-                if self.opt_obj is not None:
-                    sys.exit(1)
+#        while True:
+#            if self.opt_obj is not None:
+#                do_fas = self.opt_obj.get_next_option()
+#            else:
+#                print("=" * 80)
+#                print()
+#                print("FAS")
+#                print("===============")
+#                print("Additional FAS metrics")
+#                print()
+#                do_fas = input("Do you want to calculate "
+#                               "FAS metrics (y/n)? ")
+#
+#            if do_fas.lower() == 'n':
+#                # Skip this one
+#                break
+#            elif do_fas.lower() == 'y':
+#                # Let's add the FAS module
+#                fas_module = Module()
+#                fas_module.setName("FAS")
+#                fas_module.addStageFile(self.stations)
+#                fas_module.addArg(os.path.basename(self.stations))
+#                self.workflow.append(fas_module)
+#                break
+#            else:
+#                print("Invalid choice (FAS): %s" % (do_fas))
+#                if self.opt_obj is not None:
+#                   sys.exit(1)
 
         while True:
             if self.opt_obj is not None:
@@ -1411,8 +1445,8 @@ class WorkflowBuilder(object):
         # doing GOF
         while True:
             if not self.expert_mode:
-                # We do GP GOF unless in expert mode
-                gof_opt = '1'
+                # We do GP and FAS GOFs unless in expert mode
+                gof_opt = '4'
             elif self.opt_obj is not None:
                 gof_opt = self.opt_obj.get_next_option()
             else:
@@ -1426,11 +1460,15 @@ class WorkflowBuilder(object):
                 gof_opt = input("Choose a "
                                 "Goodness of Fit (GOF) Module:\n"
                                 "(1) GP\n"
-                                "(2) SDSU\n"
-                                "(3) Both\n"
+                                "(2) FAS\n"
+                                "(3) GP and SDSU\n"
+                                "(4) GP and FAS\n"
                                 "? ")
             # Check if response is valid
-            if gof_opt == "1" or gof_opt == "2" or gof_opt == "3":
+            if (gof_opt == "1" or
+                gof_opt == "2" or
+                gof_opt == "3" or
+                gof_opt == "4"):
                 # Now, we generate basic plots, such as
                 # rotd50, and seismogram overlay comparisons
                 gen_plots_module = Module()
@@ -1441,7 +1479,7 @@ class WorkflowBuilder(object):
                 gen_plots_module.addArg(self.val_obj.get_validation_name())
                 self.workflow.append(gen_plots_module)
                 # Now pick the GOF module(s) that we want
-                if gof_opt == "1" or gof_opt == "3":
+                if gof_opt == "1" or gof_opt == "3" or gof_opt == "4":
                     # Add GP GOF module
                     gof_module = Module()
                     gof_module.setName("GPGof")
@@ -1472,7 +1510,7 @@ class WorkflowBuilder(object):
                     else:
                         gof_module.addKeywordArg("single_component", False)
                     self.workflow.append(gof_module)
-                if gof_opt == "2" or gof_opt == "3":
+                if gof_opt == "3":
                     # Add SDSU GOF module
                     gof_module = Module()
                     gof_module.setName("SDSUMOGoF")
@@ -1486,6 +1524,40 @@ class WorkflowBuilder(object):
                     gof_module.addArg('A')
                     gof_module.addArg(self.val_obj.get_validation_name())
                     self.workflow.append(gof_module)
+                if gof_opt == "2" or gof_opt == "4":
+                    # Add FAS module
+                    fas_module = Module()
+                    fas_module.setName("FAS")
+                    fas_module.addStageFile(self.stations)
+                    fas_module.addArg(os.path.basename(self.stations))
+                    fas_module.addArg(self.val_obj.get_validation_name())
+                    self.workflow.append(fas_module)
+                    # Add FAS GoF module
+                    fas_gof_module = Module()
+                    fas_gof_module.setName("FASGof")
+                    if (self.src_file is not None and
+                        self.src_file != ""):
+                        # Always use the SRC file if we have one!
+                        fas_gof_module.addStageFile(self.src_file)
+                        fas_gof_module.addArg(os.path.basename(self.src_file))
+                    elif (not gen_srf and
+                        self.srf_file is not None and
+                        self.srf_file != ""):
+                        # Use the SRF file for plotting when we are not running
+                        # the rupture generator and already have a user-provided
+                        # SRF file
+                        fas_gof_module.addStageFile(self.srf_file)
+                        fas_gof_module.addArg(os.path.basename(self.srf_file))
+                    else:
+                        # Otherwise, if we run the rupture generator, let's use
+                        # the src file instead
+                        raise bband_utils.ParameterError("SRC file needed for GoF")
+                    fas_gof_module.addStageFile(self.stations)
+                    fas_gof_module.addArg(os.path.basename(self.stations))
+                    fas_gof_module.addArg(self.val_obj.get_validation_name())
+                    fas_gof_module.addArg(self.val_obj.get_cutoff())
+                    self.workflow.append(fas_gof_module)
+
                 break
 
             # Not a valid option!
@@ -1940,16 +2012,12 @@ class WorkflowBuilder(object):
                                 "rupture generator (y/n)? ")
             if rup_gen.lower() == 'y' or rup_gen.lower() == 'yes':
                 rupture_module = Module()
-                if self.method == "GP":
+                if self.method == "GP" or self.method == "SDSU":
                     # add GP rupture generator
                     if self.multisegment_validation:
                         for idx, val in enumerate(self.multisegment_src_files):
                             rupture_module.addStageFile(val)
                             rupture_module.addKeywordArg('src%d' % (idx), val)
-                    rupture_module.setName("Genslip")
-                    codebase = "GP"
-                elif self.method == "SDSU":
-                    # add GP rupture generator
                     rupture_module.setName("Genslip")
                     codebase = "GP"
                 elif self.method == "SONG":

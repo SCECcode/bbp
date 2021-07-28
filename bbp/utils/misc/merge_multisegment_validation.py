@@ -322,8 +322,9 @@ class MergeValidation(object):
                         os.path.basename(self.station_list),
                         self.val_obj.get_validation_name(),
                         self.val_obj.get_cutoff(),
-                        False,
-                        self.output_sim_id)
+                        gof_plot_limit=None,
+                        single_component=False,
+                        sim_id=self.output_sim_id)
         process.run()
 
     def merge_multisegment_validation(self):

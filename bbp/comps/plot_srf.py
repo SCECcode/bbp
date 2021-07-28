@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2020 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -208,14 +208,14 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
         # Plot tinit contours
         subfig.contour(tinits,
                        pylab.linspace(mintinit, maxtinit,
-                                      round(contour_intervals)),
+                                      int(round(contour_intervals))),
                        origin='upper', extent=extents, colors='k')
 
     # Setup slip color scale
     colorbar_ax = fig.add_axes([0.2, 0.1, 0.6, 0.02])
     cb = fig.colorbar(im, cax=colorbar_ax, orientation='horizontal',
                       ticks=pylab.linspace(colormin, colormax,
-                                           (colormax/colorint) + 1))
+                                           int(colormax/colorint) + 1))
     cb.set_label('Slip (cm)', fontsize=8)
     for tick in cb.ax.get_xticklabels():
         tick.set_fontsize(8)

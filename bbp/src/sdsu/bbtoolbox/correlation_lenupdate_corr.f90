@@ -407,6 +407,13 @@ endif
    L1 = transpose(L1)
    L2 = transpose(L2)
 
+   do i=1,n_stat
+      do j=1,n_stat
+         if (L1(i,j) /= L1(i,j)) print*,'NaN found in L1!'
+         if (L2(i,j) /= L2(i,j)) print*,'NaN found in L2!'
+      enddo
+   enddo
+   
 
    !!! ns
       allocate(corr_cut_ns(m,n_stat))

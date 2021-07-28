@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import matplotlib as mpl
 if mpl.get_backend() != 'agg':
     mpl.use('Agg') # Disables use of Tk/X11
 import pylab
+import matplotlib.gridspec as gridspec
 
 # Import plot config file
 import bband_utils
@@ -48,13 +49,16 @@ XTICK_LABEL_0_01 = ['0.01', '0.02', '0.05',
 # Component extentions
 COMP_EXT_RD50 = ['psa5n', 'psa5e', 'rotd50']
 COMP_EXT_RD100 = ['rotd100', 'rotd50', 'ratio']
+COMP_EXT_FAS = ['fash1', 'fash2', 'seas']
 
 # Component titles
 COMP_TITLE_RD50 = ['PSA North 5%', 'PSA East 5%', 'RotD50']
 COMP_TITLE_RD100 = ['RotD100', 'RotD50', 'RotD100/RotD50']
+COMP_TITLE_FAS = ['FAS H1', 'FAS H2', 'SEAS']
 
 # Component subplot locations
 COMP_OFFSET = [312, 313, 311]
+#COMP_OFFSET_FAS = [211, 212, 222]
 
 # Colorsets for plots
 COLORSETS = {"single": 0,
@@ -67,7 +71,7 @@ class PlotGoF(object):
     def __init__(self):
         return
 
-    def read_data(self, datafile, min_period):
+    def read_data(self, datafile, min_period, max_period=MAX_PERIOD):
         """
         Read in response spectra data from specified datafile
         """
@@ -82,7 +86,7 @@ class PlotGoF(object):
             period = float(tmp[0])
             # Extract subset of period values
             if ((period >= min_period) and
-                (period <= MAX_PERIOD)):
+                (period <= max_period)):
                 data[0].append(float(tmp[0]))
                 data[1].append(float(tmp[1]))
         # Close file
@@ -530,6 +534,152 @@ class PlotGoF(object):
         else:
             raise bband_utils.ParameterError("plot mode %s unsupported" %
                                              (mode))
+
+    def plot_fas_gof(self, plottitle, gof_fileroot, indir,
+                     outdir, cutoff=0, colorset=None):
+        """
+        Creates a FAS GOF plot with three subplots (SEAS, FAS_H1, FAS_H2)
+        """
+        # Pick components, labels, and colorset
+        xtick_loc = XTICK_LOC_0_01
+        xtick_label = XTICK_LABEL_0_01
+        comp_ext = COMP_EXT_FAS
+        comp_title = COMP_TITLE_FAS
+        min_period = 0.01
+        max_period = 100.0
+
+        # Select colorset
+        if colorset is None:
+            colorset_idx = 0
+        else:
+            colorset_idx = COLORSETS[colorset]
+
+        # Set up ticks to match matplotlib 1.x style
+        mpl.rcParams['xtick.direction'] = 'in'
+        mpl.rcParams['ytick.direction'] = 'in'
+        mpl.rcParams['xtick.top'] = True
+        mpl.rcParams['ytick.right'] = True
+
+        # Set plot dims
+        pylab.gcf().set_size_inches(10, 8)
+        pylab.gcf().clf()
+
+        # Create 2x2 sub plots
+        gs = gridspec.GridSpec(2, 2)
+        COMP_OFFSET_FAS = [gs[1, 0], gs[1, 1], gs[0, :]]
+
+#        pylab.subplots_adjust(left=0.125)
+#        pylab.subplots_adjust(right=0.95)
+#        pylab.subplots_adjust(top=0.9)
+#        pylab.subplots_adjust(bottom=0.1)
+#        pylab.subplots_adjust(hspace=0.35)
+#        pylab.subplots_adjust(wspace=0.5)
+
+        period = [[], [], []]
+        bias = [[], [], []]
+        m90 = [[], [], []]
+        p90 = [[], [], []]
+        sigma = [[], [], []]
+        sigma0 = [[], [], []]
+
+        bias_l = [[], [], []]
+        bias_h = [[], [], []]
+        conf_l = [[], [], []]
+        conf_h = [[], [], []]
+
+        for compnum in range(0, len(comp_ext)):
+            comp = comp_ext[compnum]
+            filenamebase = os.path.join(indir, "%s-%s" % (gof_fileroot, comp))
+            # print("Reading component files %s.*" % (filenamebase))
+            period[compnum], bias[compnum] = self.read_data("%s.bias" %
+                                                            (filenamebase),
+                                                            min_period,
+                                                            max_period)
+            period[compnum], m90[compnum] = self.read_data("%s.m90" %
+                                                           (filenamebase),
+                                                           min_period,
+                                                           max_period)
+            period[compnum], p90[compnum] = self.read_data("%s.p90" %
+                                                           (filenamebase),
+                                                           min_period,
+                                                           max_period)
+            period[compnum], sigma[compnum] = self.read_data("%s.sigma" %
+                                                             (filenamebase),
+                                                             min_period,
+                                                             max_period)
+            period[compnum], sigma0[compnum] = self.read_data("%s.sigma0" %
+                                                              (filenamebase),
+                                                              min_period,
+                                                              max_period)
+
+            # Compute bias and conf interval lower/upper bounds
+            for i in range(0, len(bias[compnum])):
+                bias_l[compnum].append(bias[compnum][i] - sigma0[compnum][i])
+                bias_h[compnum].append(bias[compnum][i] + sigma0[compnum][i])
+                conf_l[compnum].append(m90[compnum][i])
+                conf_h[compnum].append(p90[compnum][i])
+
+        # Make sure all components have same number of data points
+        npts = [len(component) for component in period]
+        #print(npts)
+        if npts[1:] != npts[:-1]:
+            print("Number of data points unequal across components")
+            return
+
+        # Construct baseline
+        baseline = []
+        for _ in range(0, len(period[0])):
+            baseline.append(0.0)
+
+        # Find max, min values
+        min_x = min(period[0])
+        max_x = max(period[0])
+        for comp in period:
+            min_x = min(min_x, min(comp))
+            max_x = max(max_x, max(comp))
+        min_y = MIN_Y_AXIS
+        max_y = MAX_Y_AXIS
+
+        # Draw each component
+        for compnum in range(0, 3):
+            comp = comp_ext[compnum]
+            offset = COMP_OFFSET_FAS[compnum]
+
+            pylab.subplot(offset)
+            pylab.title(comp_title[compnum], size='small')
+            pylab.plot(period[compnum], bias[compnum],
+                       color=BIAS_COLORS[colorset_idx],
+                       label='_nolegend_', linewidth=1.0)
+            pylab.fill_between(period[compnum], bias_h[compnum],
+                               bias_l[compnum],
+                               color=BIAS_LH_COLORS[colorset_idx],
+                               label='_nolegend_')
+            pylab.fill_between(period[compnum], conf_h[compnum],
+                               conf_l[compnum],
+                               color=CONF_LH_COLORS[colorset_idx],
+                               label='_nolegend_')
+            pylab.plot(period[compnum], baseline, color='grey',
+                       label='_nolegend_', linewidth=1.0)
+            pylab.xlim(min_x, max_x)
+            if comp == 'ratio':
+                pylab.ylim(MIN_Y_AXIS_RATIO, MAX_Y_AXIS_RATIO)
+            else:
+                pylab.ylim(min_y, max_y)
+            pylab.xlabel("Frequency (Hz)", size=8)
+            pylab.ylabel("ln (data/model)", size=8)
+            pylab.xscale('log')
+            pylab.xticks(xtick_loc, xtick_label)
+            pylab.tick_params(labelsize=8)
+
+        if cutoff == 0:
+            pylab.suptitle('%s' % (plottitle), size=11)
+        else:
+            pylab.suptitle('%s\nR < %d km' % (plottitle, cutoff), size=11)
+        outfile = os.path.join(outdir, "gof-%s.png" % (gof_fileroot))
+        print("==> Created GoF plot: %s" % (outfile))
+        pylab.savefig(outfile, format="png",
+                      transparent=False, dpi=plot_config.dpi)
+        pylab.close()
 
 def usage():
     """

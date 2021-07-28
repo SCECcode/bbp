@@ -1,6 +1,6 @@
 #!/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,13 +37,15 @@ from bbtoolbox_correlation import generate_matrices
 class BBToolbox(object):
 
     def __init__(self, i_r_scattering, i_r_velmodel, i_r_srcfile,
-                 i_r_srffile, i_r_stations, vmodel_name, sim_id=0):
+                 i_r_srffile, i_r_stations, vmodel_name, sim_id=0,
+                 **kwargs):
         """
         This function initializes basic class objects
         """
         self.sim_id = sim_id
         self.r_velmodel = i_r_velmodel
         self.r_srcfile = i_r_srcfile
+        self.r_srcfiles = []
         self.r_scattering = i_r_scattering
         self.r_srffile = i_r_srffile
         self.r_xyz_srffile = 'xyz_' + i_r_srffile
@@ -64,6 +66,14 @@ class BBToolbox(object):
         self.str_fac = None
         self.correlation_file = None
         self.corr_flag = None
+
+        # Get all src files that were passed to us
+        if kwargs is not None and len(kwargs) > 0:
+            for idx in range(len(kwargs)):
+                self.r_srcfiles.append(kwargs['src%d' % (idx)])
+        else:
+            # Not a multisegment run, just use the single src file
+            self.r_srcfiles.append(i_r_srcfile)
 
     def create_bbtoolbox_files(self, stat_file):
         """
@@ -96,8 +106,9 @@ class BBToolbox(object):
         # Set up correlation parameter
         self.corr_flag = self.config.corr_flag
         # Create correlation matrices
-        generate_matrices(self.install.A_SDSU_DATA_DIR, a_tmpdir,
-                          stat_file, a_tmpdir_mod, self.sim_id)
+        if self.corr_flag > 0:
+            generate_matrices(self.install.A_SDSU_DATA_DIR, a_tmpdir,
+                              stat_file, a_tmpdir_mod, self.sim_id)
 
         # Take care of scattering file
         if not self.r_scattering:

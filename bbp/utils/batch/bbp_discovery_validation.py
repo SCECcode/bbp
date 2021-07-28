@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2020 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -186,7 +186,7 @@ def generate_xml(install, numsim, srcdir, xmldir,
                  skip_rupgen, srf_prefix, only_rup,
                  gmpe_group_name, allmetrics,
                  site_response, multiseg, segment,
-                 source_file):
+                 source_file, fasgof):
     """
     Generates xml files in the xmldir for numsim simulations whose
     source files are in the srcdir using the validation event and
@@ -262,7 +262,10 @@ def generate_xml(install, numsim, srcdir, xmldir,
             optfile.write('y\n') # Generate GMPE comparison plot
             optfile.write('%s\n' % (gmpe_group_name))
         optfile.write('y\n') # Yes for GOF
-        optfile.write('1\n') # Run GP_GOF
+        if fasgof:
+            optfile.write('4\n') # Run both GP and FAS GOFs
+        else:
+            optfile.write('1\n') # Run GP GOF only
         if not allmetrics:
             optfile.write('n\n') # No additional metrics
         else:
@@ -270,7 +273,6 @@ def generate_xml(install, numsim, srcdir, xmldir,
             optfile.write('y\n') # RZZ2015
             optfile.write('y\n') # FAS
             optfile.write('y\n') # AS2016
-            optfile.write('y\n') # RotD100
             optfile.write('y\n') # AndersonGOF
         optfile.flush()
         optfile.close()
@@ -339,7 +341,8 @@ def write_slurm(install, numsim, simdir, xmldir, email,
         slurmfile.write("#SBATCH --partition=scec\n")
     else:
         #slurmfile.write("#SBATCH --partition=main\n")
-        slurmfile.write("#SBATCH --gres=gpu:2\n")
+        #slurmfile.write("#SBATCH --gres=gpu:2\n")
+        pass
     #slurmfile.write("#SBATCH --mem-per-cpu=2GB\n")
     slurmfile.write("#SBATCH --mem=0\n")
     slurmfile.write("#SBATCH --nodes=%d\n" % (nodes))
@@ -469,6 +472,8 @@ def main():
     parser.add_option("-s", "--site", type="string", action="store",
                       dest="site_response",
                       help="Use a site response module: %s" % (SITE_MODULES))
+    parser.add_option("--fas", action="store_true", dest="fasgof",
+                      help="Run both FAS and PSA validations")
 
     (options, args) = parser.parse_args()
 
@@ -527,6 +532,12 @@ def main():
         allmetrics = True
     else:
         allmetrics = False
+
+    # Check if user wants to perform both FAS and PSA validations
+    if options.fasgof:
+        fasgof = True
+    else:
+        fasgof = False
 
     # Check if user wants to save the contents of tmpdata
     if options.savetemp:
@@ -725,7 +736,7 @@ def main():
                  logsdir, event, codebase, prefix,
                  skip_rupgen, srf_prefix, only_rup,
                  gmpe_group_name, allmetrics, site_response,
-                 multiseg, segment, source_file)
+                 multiseg, segment, source_file, fasgof)
     # Write slurm file
     write_slurm(bbp_install, numsim, simdir, xmldir,
                 email, prefix, scecnodes, walltime,

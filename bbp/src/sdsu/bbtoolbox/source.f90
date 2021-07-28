@@ -1143,18 +1143,68 @@ real(kind=r_single)                            :: arcu
 !real(kind=r_single)                            :: dtop
 real(kind=r_single),allocatable,dimension(:)   :: slip1
 real(kind=r_single),allocatable,dimension(:)   :: slip1cu,mu_tmp,mo_tmp
-real(kind=r_single)                            :: Ca,Fd,Fr ! from Graves and Pitarka 2015 (eqn. 3-5) 
+real(kind=r_single)                            :: Ca,Fd,Fr ! from Graves and Pitarka 2015 (eqn. 3-5)
+! multi-segement modification
+integer(kind=i_single)                         :: plane_num
+integer(kind=i_single)                         :: plane, k
+integer(kind=i_single)                         :: nsub_tmp
+real(kind=r_single)                            :: dip_tmp, dtop_tmp
 !-------------------------------------------------------------------------------
 
 !open file with srf and read values
 
 open(1,file=trim(srf_name),status='old')
 read(1,*) ! read version e.g. 1.0
-read(1,*) ! read header block line1 e.g. PLANE 1
-read(1,*) ! read header block line2, elon in x,elat in y,nstk,ndp,len,wid
-!read(1,*) r_dum,dip,r_dum,r_dum,r_dum ! read header block line3, stk,dip,dtop,shyp,dhyp
-read(1,*) r_dum,dip,dtop,r_dum,r_dum ! read header block line3, stk,dip,dtop,shyp,dhyp
-read(1,*) s_dum,nsub ! read data block e.g. POINTS, np
+! multi-segement modification
+read(1,*) s_dum, plane_num, nsub
+print*,'plane_num, nsub', plane_num, nsub
+
+dip = 0.0
+dtop = 0.0
+do plane = 1, plane_num
+    read(1,*) ! read header block line2, elon in x,elat in y,nstk,ndp,len,wid
+    read(1,*) r_dum,dip_tmp,dtop_tmp,r_dum,r_dum ! read header block line3, stk,dip,dtop,shyp,dhyp
+    dip = dip + dip_tmp
+    dtop = dtop + dtop_tmp
+enddo
+dip = dip/plane_num
+dtop = dtop/plane_num
+
+! initiation time would be 0 for 1 segment for multi-segments
+tinit=0
+
+if(.not.allocated(dt)) then
+   allocate(dt(nsub),tony(nsub),slip1(nsub))
+endif
+if(.not.allocated(fx)) allocate(fx(nsub),fy(nsub),fz(nsub),areas(nsub))
+
+i = 0
+do plane = 1, plane_num
+
+    read(1,*) s_dum,nsub_tmp ! read data block e.g. POINTS, np
+    print*,'nsub_tmp', nsub_tmp
+    !loop over srf' # of points
+    do k = 1, nsub_tmp
+       i = i+1
+       read(1,*) fx(i),fy(i),fz(i),i_dum,i_dum,areas(i),tony(i),dt(i)
+       read(1,*) i_dum,slip1(i),nt_loc,r_dum,i_dum,r_dum,i_dum
+
+       ! avoid negative number of depth
+       if(fz(i) < 0.0) fz(i)=0.0
+
+       if(.not.allocated(sv)) allocate(sv(nt_loc))
+
+       if (nt_loc /= 0) then
+          read(1,*) (sv(j), j=1,nt_loc)
+       endif
+
+       if(allocated(sv)) deallocate(sv)
+
+    enddo
+
+enddo
+close(1)
+
 
 !compute str_fac for eastern CA events
 if (str_fac == 0.0) then
@@ -1223,38 +1273,12 @@ elseif (ngaw_flag == 2) then
 endif
 print*,'Ca,Fd,Fr,alt for WNA=',Ca,Fd,Fr,alt
 
-! initiation time would be 0 for 1 segment for multi-segments
-tinit=0
 
-if(.not.allocated(dt)) then
-   allocate(dt(nsub),tony(nsub),slip1(nsub))
-endif
-if(.not.allocated(fx)) allocate(fx(nsub),fy(nsub),fz(nsub),areas(nsub))
-
-!loop over srf' # of points
-do i = 1, nsub
-   read(1,*) fx(i),fy(i),fz(i),i_dum,i_dum,areas(i),tony(i),dt(i)
-   read(1,*) i_dum,slip1(i),nt_loc,r_dum,i_dum,r_dum,i_dum
-
-   ! avoid negative number of depth
-   if(fz(i) < 0.0) fz(i)=0.0
-
-   if(.not.allocated(sv)) allocate(sv(nt_loc))
-
-   if (nt_loc /= 0) then
-      read(1,*) (sv(j), j=1,nt_loc)
-   endif
-
-   if(allocated(sv)) deallocate(sv)
-
-enddo
 
 sum_area=sum(areas)
 ave_slip=sum(slip1)/nsub
 tinit=minval(tony) ! add v162
 print*,'minimum initiation time = ',tinit
-
-close(1)
 
 
 ! compute mu (shear modulus) and moment

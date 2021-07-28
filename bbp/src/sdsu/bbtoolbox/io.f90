@@ -280,7 +280,11 @@ real(kind=r_scat)                           :: tmp_siteR,tmp_siteVs
 real(kind=r_single),allocatable,dimension(:):: fre
 real(kind=r_single)                         :: xs,ys,vs_ave,d_ave,dpt
 real(kind=r_single)                         :: stt,dl
-
+! multi-segement modification
+integer(kind=i_single)                         :: plane_num
+integer(kind=i_single)                         :: plane, k
+integer(kind=i_single)                         :: ncell_tmp
+integer(kind=i_single)                         :: i_dum
 ! -----------------------------------------------------------------------------
 
 
@@ -479,14 +483,23 @@ if (ext_flag == 1 .and. modality_flag /=0) then
    ! check-point for file opening
    if (ierr /= 0) call error_handling(1,trim(ext_file),'raytracing_input (io.f90)')
    
-   read(1,*) n_cell   !first line specifies number of subfaults
-   
+   read(1,*) plane_num, n_cell   !first line specifies number of subfaults
+   print*,'plane_num, n_cell', plane_num, n_cell
    ! allocate extended fault arrays
    if (.not.allocated(x_cell)) allocate(x_cell(n_cell),y_cell(n_cell),z_cell(n_cell))
 
-   do i=1,n_cell         !row-wise ordered file (i.e. along strike)
-      read(1,*) x_cell(i),y_cell(i),z_cell(i)
+   i = 0
+   do plane = 1, plane_num
+
+      read(1,*) i_dum,ncell_tmp ! read data block e.g. POINTS, np
+      print*,'ncell_tmp', ncell_tmp
+      !loop over srf' # of points
+      do k = 1, ncell_tmp
+         i = i+1
+         read(1,*) x_cell(i),y_cell(i),z_cell(i)  !row-wise ordered file (i.e. along strike)
+      enddo
    enddo
+
    close(1)
 endif
 
@@ -1652,19 +1665,40 @@ do j = 1,nk
 enddo
 close(unit=3332)
 
+do i=1,nk
+   do j=1,nk
+      if (Ksp1(i,j) /= Ksp1(i,j)) print*,'NaN found in Ksp1!'
+   enddo
+enddo
+
 if (.not.allocated(Ksp2)) allocate(Ksp2(nk,nk))
 open(unit=3333,file=trim(corr_file_sp2),access='direct',form='unformatted', recl=4*nk*nk,status='old')
 read(3333,rec=1,iostat=ierr) ((Ksp2(i,j), i=1,nk), j=1,nk)
 close(unit=3333)
+
+do i=1,nk
+   do j=1,nk
+      if (Ksp2(i,j) /= Ksp2(i,j)) print*,'NaN found in Ksp2!'
+   enddo
+enddo
 
 if (.not.allocated(Ksp3)) allocate(Ksp3(nk,nk))
 open(unit=3334,file=trim(corr_file_sp3),access='direct',form='unformatted', recl=4*nk*nk,status='old')
 read(3334,rec=1,iostat=ierr) ((Ksp3(i,j), i=1,nk), j=1,nk)
 close(unit=3334)
 
+do i=1,nk
+   do j=1,nk
+      if (Ksp3(i,j) /= Ksp3(i,j)) print*,'NaN found in Ksp3!'
+   enddo
+enddo
+
 print*,'Ksp1(200,1:5)', Ksp1(200,1:5)
 print*,'Ksp2(200,1:5)', Ksp2(200,1:5)
 print*,'Ksp3(200,1:5)', Ksp3(200,1:5)
+
+print*,'Done checking...'
+
 !!! Read input L1 L2, Cholesky factor of station correlation matrix, upper triangular matrix
 !if (.not.allocated(L1)) allocate(L1(n_stat,n_stat))
 !open(unit=3334,file='L1.bin',access='direct',form='unformatted', recl=4*n_stat*n_stat,status='old')

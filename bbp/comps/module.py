@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ from obs_seismograms import ObsSeismograms
 from copy_seismograms import CopySeismograms
 from gen_plots import GenPlots
 from gp_gof import GPGof
+from fas_gof import FASGof
 from sdsu_mogof import SDSUMOGoF
 from gmpe_plot import GMPEPlot
 from gmpe_comparison import GMPEComparison
