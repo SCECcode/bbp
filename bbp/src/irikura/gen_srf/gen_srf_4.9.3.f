@@ -75,7 +75,9 @@ c  hypo coordinates along strike
         read(5,'(a256)')velmodel
         read(5,*)vel_fract
      
-        emag_thre=5.5 
+c        emag_thre=5.5 
+        emag_thre=5.0
+
         fc = 6.0
 c        if(xlen.le.25.and.ylen.lt.15.) then
         if(xlen.le.25) then
@@ -191,6 +193,17 @@ c  Effective stress in the asperity area (MPa)
          sdrsa=7./16.*smom/dum
          sdrsa=sdrsa*1.0e-15
          sdrback =0 
+
+          if(nasp.eq.1) then
+c Dan et al. (2002)
+         sdrback=dback/dsmat/width*sqrt(smat)
+         sdrback=sdrback*sdrsa
+         else
+         sdrback=(dback/dsmat)/width*sqrt(pi)*rasp*ss
+         sdrback=sdrback*sdrsa
+         endif
+
+         print*,'Background stress drop (MPa):',sdrback
 
         print*,'!!!!!!!!!'
 
@@ -308,6 +321,7 @@ c   convert slip to  cm
 
 c and if on magnitude threshold
       endif
+
 
         dback=dback*100.
         sdrsa=sdrsa*10
