@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -477,9 +477,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'ro', ms=4)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c2cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c2cf[i][1] for i in arange(self.BMAX)]
@@ -497,9 +497,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'ro', ms=4)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c3cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c3cf[i][1] for i in arange(self.BMAX)]
@@ -517,9 +517,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'ro', ms=4)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c4cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c4cf[i][1] for i in arange(self.BMAX)]
@@ -537,9 +537,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'ro', ms=4)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c5cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c5cf[i][1] for i in arange(self.BMAX)]
@@ -557,9 +557,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'ro', ms=4)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c6cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c6cf[i][1] for i in arange(self.BMAX)]
@@ -577,9 +577,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'ro', ms=4)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c7cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c7cf[i][1] for i in arange(self.BMAX)]
@@ -597,9 +597,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'ro', ms=4)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c8cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c8cf[i][1] for i in arange(self.BMAX)]
@@ -617,9 +617,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'ro', ms=4)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c9cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c9cf[i][1] for i in arange(self.BMAX)]
@@ -638,9 +638,9 @@ class AndersonGOF(object):
         plt.xlabel('Frequency Band', fontsize=12)
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         mean = [c10cf[i][0] for i in arange(self.BMAX)]
         # stdev = [c10cf[i][1] for i in arange(self.BMAX)]
@@ -659,9 +659,9 @@ class AndersonGOF(object):
         plt.plot(x_vals, mean, 'r-', mew=4)
         plt.xlabel('Frequency Band', fontsize=12)
         plt.fill_between(x_vals, low_conf, upp_conf,
-                         color='cyan', alpha='1.0')
+                         color='cyan', alpha=1.0)
         plt.fill_between(x_vals, low_std, upp_std,
-                         color='yellow', alpha='1.0')
+                         color='yellow', alpha=1.0)
 
         #plt.show()
         plt.savefig(output_file, dpi=plot_config.dpi)
