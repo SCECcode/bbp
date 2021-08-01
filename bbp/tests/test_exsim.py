@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,10 +60,10 @@ class TestExsim(unittest.TestCase):
 
         # exsim param template file
         vmodel_params = self.vmodel_obj.get_codebase_params('exsim')
-        self.failIf('GENERIC_PARAM' not in vmodel_params)
+        self.assertFalse('GENERIC_PARAM' not in vmodel_params)
         r_param_template = vmodel_params['GENERIC_PARAM']
 
-        self.failIf(r_param_template == "" or r_param_template is None)
+        self.assertFalse(r_param_template == "" or r_param_template is None)
         param_template = os.path.join(self.vmodel_obj.base_dir,
                                       r_param_template)
         # r_param_template is relative to the velocity model basedir,
@@ -94,8 +94,8 @@ class TestExsim(unittest.TestCase):
             bbp_file = os.path.join(self.install.A_OUT_DATA_DIR,
                                     str(self.sim_id),
                                     "%d.s%02d.acc.bbp" % (self.sim_id, i))
-            self.failIf(cmp_bbp.cmp_bbp(ref_file, bbp_file) != 0,
-                        "ExSIM output file does not match reference file!")
+            self.assertFalse(cmp_bbp.cmp_bbp(ref_file, bbp_file) != 0,
+                             "ExSIM output file does not match reference file!")
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestExsim)

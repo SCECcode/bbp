@@ -81,8 +81,8 @@ class TestGenSRF(unittest.TestCase):
         a_newfile = os.path.join(a_res_dir, self.outsrf)
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(not cmp_bbp.cmp_srf(a_ref_file, a_newfile,
-                                        tolerance=0.0011) == 0, errmsg)
+        self.assertFalse(not cmp_bbp.cmp_srf(a_ref_file, a_newfile,
+                                             tolerance=0.0011) == 0, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestGenSRF)

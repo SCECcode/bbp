@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -103,11 +103,11 @@ class TestRZZ2015(unittest.TestCase):
                                     "rzz2015",
                                     "%d.rzz2015.%s.txt" %
                                     (self.sim_id, self.eventname))
-        self.failIf(cmp_bbp.cmp_files_generic(ref_sum_file, cal_sum_file,
-                                              tolerance=1.0,
-                                              start_col=1,
-                                              sep=",") != 0,
-                    "RZZ2015 Summary file does not match reference file!")
+        self.assertFalse(cmp_bbp.cmp_files_generic(ref_sum_file, cal_sum_file,
+                                                   tolerance=1.0,
+                                                   start_col=1,
+                                                   sep=",") != 0,
+                         "RZZ2015 Summary file does not match reference file!")
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestRZZ2015)

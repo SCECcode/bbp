@@ -1,6 +1,6 @@
 #! /usr/bin/python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -69,8 +69,8 @@ class TestCC(unittest.TestCase):
         cc.ll2xy(infile, ofile, ilon, ilat, iaz)
 
         # Check output
-        self.failIf(filecmp.cmp(reffile, ofile) == False,
-                    "LL to XY did not work")
+        self.assertFalse(filecmp.cmp(reffile, ofile) == False,
+                         "LL to XY did not work")
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestCC)

@@ -84,10 +84,10 @@ class TestIrikuraHF(unittest.TestCase):
             bbpfile = os.path.join(self.install.A_TMP_DATA_DIR,
                                    str(self.sim_id), "%d.s%02d-hf.bbp" %
                                    (self.sim_id, i))
-            self.failIf(not cmp_bbp.cmp_bbp(bbpfile, ref_file,
-                                            tolerance=0.005) == 0,
-                        "output HF BBP file %s " % (bbpfile) +
-                        " does not match reference hf bbp file %s" % (ref_file))
+            self.assertFalse(not cmp_bbp.cmp_bbp(bbpfile, ref_file,
+                                                 tolerance=0.005) == 0,
+                             "output HF BBP file %s " % (bbpfile) +
+                             " does not match reference hf bbp file %s" % (ref_file))
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestIrikuraHF)

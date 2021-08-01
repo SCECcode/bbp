@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import shutil
 import filecmp
 import unittest
 
@@ -41,24 +42,20 @@ class TestUCFaultUtils(unittest.TestCase):
         self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
 
-        # Create directories
+        # Set up paths
         a_refdir = os.path.join(self.install.A_TEST_REF_DIR, "ucsb")
         a_indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
         a_tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
         a_outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
         a_logdir = os.path.join(self.install.A_OUT_LOG_DIR, str(self.sim_id))
-        cmd = "mkdir -p %s" % (a_indir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_tmpdir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_outdir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_logdir)
-        bband_utils.runprog(cmd)
+
+        # Create directories
+        bband_utils.mkdirs([a_indir, a_tmpdir, a_outdir, a_logdir],
+                           print_cmd=False)
 
         # Copy SRC file
-        cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_srcfile), a_indir)
-        bband_utils.runprog(cmd)
+        shutil.copy2(os.path.join(a_refdir, self.r_srcfile),
+                     os.path.join(a_indir, self.r_srcfile))
 
     def test_uc_fault_utils(self):
         """
@@ -74,8 +71,8 @@ class TestUCFaultUtils(unittest.TestCase):
                                           self.vmodel_name)
         ref_file = os.path.join(self.install.A_TEST_REF_DIR,
                                 "ucsb", self.r_faultfile)
-        self.failIf(filecmp.cmp(ref_file, a_ffsp_inp) == False,
-                    "output fault file does not match reference fault file")
+        self.assertFalse(filecmp.cmp(ref_file, a_ffsp_inp) == False,
+                         "output fault file does not match reference fault file")
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestUCFaultUtils)

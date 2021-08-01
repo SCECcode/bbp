@@ -1,6 +1,6 @@
 #! /usr/bin/python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class Test_s2f(unittest.TestCase):
         sl = StationList(gpfile)
         _ = stas2files.gp2uc_stalist(sl, ofile, ofile30)
         errmsg = "Conversion of station list from GP to UC format failed"
-        self.failIf(filecmp.cmp(ucref, ofile) == False, errmsg)
+        self.assertFalse(filecmp.cmp(ucref, ofile) == False, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(Test_s2f)

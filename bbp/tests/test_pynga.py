@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ class TestPyNGA(unittest.TestCase):
                     errmsg = ("Calculated and reference values differ!\n" +
                               "Model: %s Period: %f\n" % (model, period) +
                               "Scenario: %s" % (line))
-                    self.failIf(abs(calc_val - ref_val) > tolerance, errmsg)
+                    self.assertFalse(abs(calc_val - ref_val) > tolerance, errmsg)
                     # Write reference file
                     #results_file.write("%.9f\n" % (median))
         input_file.close()
@@ -177,7 +177,7 @@ class TestPyNGA(unittest.TestCase):
                     errmsg = ("Calculated and reference values differ!\n" +
                               "Model: %s Period: %f\n" % (model, period) +
                               "Scenario: %s" % (line))
-                    self.failIf(abs(calc_val - ref_val) > tolerance, errmsg)
+                    self.assertFalse(abs(calc_val - ref_val) > tolerance, errmsg)
                     # Write reference file
                     #results_file.write("%.9f\n" % (median[0]))
         input_file.close()
@@ -252,7 +252,7 @@ class TestPyNGA(unittest.TestCase):
                     errmsg = ("Calculated and reference values differ!\n" +
                               "Model: %s Period: %f\n" % (model, period) +
                               "Scenario: %s" % (line))
-                    self.failIf(abs(calc_val - ref_val) > tolerance, errmsg)
+                    self.assertFalse(abs(calc_val - ref_val) > tolerance, errmsg)
                     # Write reference file
                     #results_file.write("%.9f\n" % (median[0]))
         input_file.close()

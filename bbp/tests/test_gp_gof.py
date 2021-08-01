@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -102,11 +102,11 @@ class TestGPGof(unittest.TestCase):
         resid_file = os.path.join(self.install.A_OUT_DATA_DIR,
                                   str(self.sim_id),
                                   "NR-%d.rd50-resid.txt" % (self.sim_id))
-        self.failIf(cmp_bbp.cmp_resid(resid_ref_file,
-                                      resid_file,
-                                      tolerance=0.005) != 0,
-                    "output resid file %s does not match reference resid file %s" %
-                    (resid_file, resid_ref_file))
+        self.assertFalse(cmp_bbp.cmp_resid(resid_ref_file,
+                                           resid_file,
+                                           tolerance=0.005) != 0,
+                         "output resid file %s does not match reference resid file %s" %
+                         (resid_file, resid_ref_file))
         a_outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
         for comp in ['psa5e', 'psa5n', 'rotd50']:
             bias_ref_file = os.path.join(self.install.A_TEST_REF_DIR, "gp",
@@ -124,21 +124,22 @@ class TestGPGof(unittest.TestCase):
             p90_file = os.path.join(a_outdir, "NR-%d_r0-25-rd50-%s.p90" % (self.sim_id, comp))
             sigma_file = os.path.join(a_outdir, "NR-%d_r0-25-rd50-%s.sigma" % (self.sim_id, comp))
             sigma0_file = os.path.join(a_outdir, "NR-%d_r0-25-rd50-%s.sigma0" % (self.sim_id, comp))
-            self.failIf(cmp_bbp.cmp_bias(bias_ref_file, bias_file) != 0,
-                        "output bias file %s does not match reference bias file %s" %
-                        (bias_file, bias_ref_file))
-            self.failIf(cmp_bbp.cmp_bias(m90_ref_file, m90_file) != 0,
-                        "output m90 file %s does not match reference m90 file %s" %
-                        (m90_file, m90_ref_file))
-            self.failIf(cmp_bbp.cmp_bias(p90_ref_file, p90_file, tolerance=0.0025) != 0,
-                        "output p90 file %s does not match reference p90 file %s" %
-                        (p90_file, p90_ref_file))
-            self.failIf(cmp_bbp.cmp_bias(sigma_ref_file, sigma_file) != 0,
-                        "output sigma file %s does not match reference sigma file %s" %
-                        (sigma_file, sigma_ref_file))
-            self.failIf(cmp_bbp.cmp_bias(sigma0_ref_file, sigma0_file) != 0,
-                        "output sigma0 file %s does not match reference sigma0 file %s" %
-                        (sigma0_file, sigma0_ref_file))
+            self.assertFalse(cmp_bbp.cmp_bias(bias_ref_file, bias_file) != 0,
+                             "output bias file %s does not match reference bias file %s" %
+                             (bias_file, bias_ref_file))
+            self.assertFalse(cmp_bbp.cmp_bias(m90_ref_file, m90_file) != 0,
+                             "output m90 file %s does not match reference m90 file %s" %
+                             (m90_file, m90_ref_file))
+            self.assertFalse(cmp_bbp.cmp_bias(p90_ref_file, p90_file,
+                                              tolerance=0.0025) != 0,
+                             "output p90 file %s does not match reference p90 file %s" %
+                             (p90_file, p90_ref_file))
+            self.assertFalse(cmp_bbp.cmp_bias(sigma_ref_file, sigma_file) != 0,
+                             "output sigma file %s does not match reference sigma file %s" %
+                             (sigma_file, sigma_ref_file))
+            self.assertFalse(cmp_bbp.cmp_bias(sigma0_ref_file, sigma0_file) != 0,
+                             "output sigma0 file %s does not match reference sigma0 file %s" %
+                             (sigma0_file, sigma0_ref_file))
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestGPGof)

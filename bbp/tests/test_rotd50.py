@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -89,8 +89,8 @@ class TestRotD50(unittest.TestCase):
                                     (sim_id, i))
             errmsg = ("Output file %s does not match reference file: %s" %
                       (new_rd50, ref_rd50))
-            self.failIf(cmp_bbp.cmp_files_generic(ref_rd50,
-                                                  new_rd50) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_files_generic(ref_rd50,
+                                                       new_rd50) != 0, errmsg)
 
 if __name__ == "__main__":
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestRotD50)

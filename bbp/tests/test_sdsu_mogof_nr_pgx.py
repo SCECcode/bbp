@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import seqnum
 import cmp_bbp
 import bband_utils
 from install_cfg import InstallCfg
-from sdsu_mogof import SDSU_MOGof
+from sdsu_mogof import SDSUMOGoF
 
 class Test_SDSU_MOGof_PGX(unittest.TestCase):
     """
@@ -91,11 +91,11 @@ class Test_SDSU_MOGof_PGX(unittest.TestCase):
         for f in file_list:
             shutil.copy2(f, '%s/%d.%s' % (work_dir, self.sim_id, os.path.basename(f)))
 #    print "Test_mogof_pga self.r_format is %s" % self.r_format
-        site_obj = SDSU_MOGof(self.r_stations, self.gof_weights,
-                              self.plot_map, ref_inputs_obs_dir,
-                              self.r_format, self.r_mag,
-                              self.r_comparison_label, self.r_cutoff,
-                              sim_id=self.sim_id)
+        site_obj = SDSUMOGoF(self.r_stations, self.gof_weights,
+                             self.plot_map, ref_inputs_obs_dir,
+                             self.r_format, self.r_mag,
+                             self.r_comparison_label, self.r_cutoff,
+                             sim_id=self.sim_id)
         site_obj.run()
 
         # Compare individual output files:
@@ -121,40 +121,40 @@ class Test_SDSU_MOGof_PGX(unittest.TestCase):
             a_newfile = os.path.join(test_datadir, "GOF_PGA.list")
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
         if self.gof_weights["pgv"] == 1.0:
             a_ref_file = os.path.join(ref_datadir, "GOF_PGV.list")
             a_newfile = os.path.join(test_datadir, "GOF_PGV.list")
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
         if self.gof_weights["pgd"] == 1.0:
             a_ref_file = os.path.join(ref_datadir, "GOF_PGD.list")
             a_newfile = os.path.join(test_datadir, "GOF_PGD.list")
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
         if self.gof_weights["psa"] == 1.0:
             a_ref_file = os.path.join(ref_datadir, "GOF_PSA.list")
             a_newfile = os.path.join(test_datadir, "GOF_PSA.list")
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
             a_ref_file = os.path.join(ref_datadir, "GOF.list")
             a_newfile = os.path.join(test_datadir, "GOF.list")
 
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(Test_SDSU_MOGof_PGX)

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -166,40 +166,40 @@ class TestSDSUMOGof(unittest.TestCase):
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         a_ref_file = os.path.join(ref_datadir, "GOF_PGV.list")
         a_newfile = os.path.join(test_datadir, "GOF_PGV.list")
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         a_ref_file = os.path.join(ref_datadir, "GOF_PGD.list")
         a_newfile = os.path.join(test_datadir, "GOF_PGD.list")
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         a_ref_file = os.path.join(ref_datadir, "GOF_PSA.list")
         a_newfile = os.path.join(test_datadir, "GOF_PSA.list")
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         a_ref_file = os.path.join(ref_datadir, "GOF_CROSSCOR.list")
         a_newfile = os.path.join(test_datadir, "GOF_CROSSCOR.list")
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         # DCumEn
         a_ref_file = os.path.join(ref_datadir, "GOF_ENERGYFIT.list")
@@ -207,16 +207,16 @@ class TestSDSUMOGof(unittest.TestCase):
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         a_ref_file = os.path.join(ref_datadir, "GOF_DUR.list")
         a_newfile = os.path.join(test_datadir, "GOF_DUR.list")
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         # FSComp
         a_ref_file = os.path.join(ref_datadir, "GOF_FS.list")
@@ -224,8 +224,8 @@ class TestSDSUMOGof(unittest.TestCase):
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         # InElFit
         a_ref_file = os.path.join(ref_datadir, "GOF_InElEl.list")
@@ -233,8 +233,8 @@ class TestSDSUMOGof(unittest.TestCase):
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         # SAFit16
         a_ref_file = os.path.join(ref_datadir, "GOF_SAFIT.list")
@@ -242,8 +242,8 @@ class TestSDSUMOGof(unittest.TestCase):
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         # SpecDurFit
         a_ref_file = os.path.join(ref_datadir, "GOF_SPECDUR.list")
@@ -251,8 +251,8 @@ class TestSDSUMOGof(unittest.TestCase):
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         # SpFit
         a_ref_file = os.path.join(ref_datadir, "GOF_SPECFIT.list")
@@ -260,16 +260,16 @@ class TestSDSUMOGof(unittest.TestCase):
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile, 3, 7,
+                                         tolerance=0.035) != 0, errmsg)
 
         a_ref_file = os.path.join(ref_datadir, "GOF.list")
         a_newfile = os.path.join(test_datadir, "GOF.list")
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                         tolerance=0.035) != 0, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestSDSUMOGof)

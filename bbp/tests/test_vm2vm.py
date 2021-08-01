@@ -1,6 +1,6 @@
 #! /usr/bin/python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ class TestVm2vm(unittest.TestCase):
         sdsuref = os.path.join(self.a_sdsu_refdir, "sdsu_velmodel.ref")
         _ = vm2vm.gpvm2sdsuvm(gpfile, sdsufile)
         errmsg = "Conversion of velmodel from GP to SDSU failed"
-        self.failIf(filecmp.cmp(sdsuref, sdsufile) == False, errmsg)
+        self.assertFalse(filecmp.cmp(sdsuref, sdsufile) == False, errmsg)
 
     def test_vm2vm_nga(self):
         """
@@ -69,7 +69,7 @@ class TestVm2vm(unittest.TestCase):
         sdsuref = os.path.join(self.a_sdsu_refdir, "sdsu_nga_rock1.v1d")
         _ = vm2vm.gpvm2sdsuvm(gpfile, sdsufile)
         errmsg = "Conversion of velmodel from GP to SDSU failed"
-        self.failIf(filecmp.cmp(sdsuref, sdsufile) == False, errmsg)
+        self.assertFalse(filecmp.cmp(sdsuref, sdsufile) == False, errmsg)
 
     def test_vm2ucsb(self):
         """
@@ -80,7 +80,7 @@ class TestVm2vm(unittest.TestCase):
         ucsbref = os.path.join(self.a_ucsb_refdir, "ucsb_velocity_model.txt")
         _ = vm2vm.gpvm2ucsbvm(gpfile, ofile)
         errmsg = "Conversion of velmodel from GP to UCSB ffailed"
-        self.failIf(filecmp.cmp(ucsbref, ofile) == False, errmsg)
+        self.assertFalse(filecmp.cmp(ucsbref, ofile) == False, errmsg)
 
     def test_vm2ucsb_nga(self):
         """
@@ -91,7 +91,7 @@ class TestVm2vm(unittest.TestCase):
         ucsbref = os.path.join(self.a_ucsb_refdir, "ucsb_nga_rock1.v1d")
         _ = vm2vm.gpvm2ucsbvm(gpfile, ofile)
         errmsg = "Conversion of velmodel from GP to UCSB ffailed"
-        self.failIf(filecmp.cmp(ucsbref, ofile) == False, errmsg)
+        self.assertFalse(filecmp.cmp(ucsbref, ofile) == False, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestVm2vm)

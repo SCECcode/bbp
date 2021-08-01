@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -121,9 +121,9 @@ class TestUCSite(unittest.TestCase):
 
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(cmp_bbp.cmp_bbp(a_ref_file_no_header,
-                                    test_file_no_header,
-                                    tolerance=0.035) != 0, errmsg)
+        self.assertFalse(cmp_bbp.cmp_bbp(a_ref_file_no_header,
+                                         test_file_no_header,
+                                         tolerance=0.035) != 0, errmsg)
         cmd = "rm %s %s" % (a_ref_file_no_header, test_file_no_header)
         bband_utils.runprog(cmd)
 

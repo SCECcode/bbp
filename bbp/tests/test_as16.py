@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2020 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -94,11 +94,11 @@ class TestAS16(unittest.TestCase):
                                     "stewart_duration_gmpe",
                                     "%d.as16.%s.txt" %
                                     (self.sim_id, self.eventname))
-        self.failIf(cmp_bbp.cmp_files_generic(ref_sum_file, cal_sum_file,
-                                              tolerance=0.005,
-                                              start_col=1,
-                                              sep=",") != 0,
-                    "AS16 Summary file does not match reference file!")
+        self.assertFalse(cmp_bbp.cmp_files_generic(ref_sum_file, cal_sum_file,
+                                                   tolerance=0.005,
+                                                   start_col=1,
+                                                   sep=",") != 0,
+                         "AS16 Summary file does not match reference file!")
 
     def test_as16_testcases(self):
         """
@@ -158,14 +158,17 @@ class TestAS16(unittest.TestCase):
                 # Results are within allowed tolerance, nothing to do
                 pass
             else:
-                self.failIf(True, "AS16 results do not match reference file!\n" +
-                            "Inputs: %.1f,%d,%d,%d,%d,%d\n" %
-                            (pieces[0], pieces[1], pieces[2], pieces[3], pieces[4], pieces[5]) +
-                            "Outputs: %7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f\n" %
-                            (sd575, tau575, phi575, sd595, tau595, phi595, sd2080, tau2080, phi2080) +
-                            "Refs: %7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f\n" %
-                            (pieces[6], pieces[7], pieces[8], pieces[9],
-                             pieces[10], pieces[11], pieces[12], pieces[13], pieces[14]))
+                self.assertFalsee(True, "AS16 results do not match reference file!\n" +
+                                  "Inputs: %.1f,%d,%d,%d,%d,%d\n" %
+                                  (pieces[0], pieces[1], pieces[2],
+                                   pieces[3], pieces[4], pieces[5]) +
+                                  "Outputs: %7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f\n" %
+                                  (sd575, tau575, phi575, sd595,
+                                   tau595, phi595, sd2080, tau2080, phi2080) +
+                                  "Refs: %7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f,%7.8f\n" %
+                                  (pieces[6], pieces[7], pieces[8], pieces[9],
+                                   pieces[10], pieces[11], pieces[12], pieces[13],
+                                   pieces[14]))
 
         # Close files
         ref_file.close()
