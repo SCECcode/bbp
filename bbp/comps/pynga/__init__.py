@@ -284,9 +284,9 @@ def NGA08(model_name, Mw, Rjb, Vs30, period, epislon=0, NGAs=None,
                 values[:, icmp] = np.exp(values[:, icmp])
 
     # outputs
-    NGAsigmaT = values[:, 1]
-    NGAtau = values[:, 2]
-    NGAsigma = values[:, 3]
+    NGAsigmaT = np.array(values[:, 1]).astype(float)
+    NGAtau = np.array(values[:, 2]).astype(float)
+    NGAsigma = np.array(values[:, 3]).astype(float)
     if epislon:
         NGAmedian = np.exp(np.log(values[:, 0]) + epislon * NGAsigmaT)
     else:
