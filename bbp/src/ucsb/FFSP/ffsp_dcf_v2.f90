@@ -117,7 +117,6 @@ Program ffsp_dcf_v3
  read(8,'(1a)')  spfile
  write(7,'(1a)') spfile
  close(8)
-
 !
  if(Moment_o < 12.0) Moment_o=10**(1.5*Moment_o+9.05)
  Mw=(alog10(Moment_o)-9.05)/1.5

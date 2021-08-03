@@ -8,7 +8,7 @@ MODULE sp_sub_f
  integer:: id_cl=1
  integer:: id_lrtp=1
 !
- real:: rstm_mean,pktm_mean,td_target,t_percent
+ real:: rstm_mean,pktm_mean,td_target,t_precent
  real:: Mw,Moment_o,fc_main_1,fc_main_2,flx,fwy,dx,dy,x_hypc,y_hypc,depth_hypc, &
         lat_hypc,lon_hypc
 
@@ -18,7 +18,7 @@ MODULE sp_sub_f
         cr_pk_vc,pk_pw
  real, allocatable, dimension(:):: slip,rstm,rptm,rpvel,pktm,lrtp,&
                                    rake_prt,dip_prt,amz_prt
- real, allocatable, dimension(:):: beta,amu,taper,depth_source
+ real, allocatable, dimension(:):: beta,amu,taper
  real, allocatable, dimension(:):: vvp,vvs,roh,thk,qp,qs
  real, allocatable, dimension(:):: lx_seg,str_seg,dip_seg,rak_seg, &
                                    lon_seg,lat_seg,xfps,yfps,zfps

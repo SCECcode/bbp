@@ -5,12 +5,9 @@
 ! Written by Pengcheng Liu
 ! Copyright (c) 2005 by Pengcheng Liu
 !
-! Modifications by Chen Ji
-!      1. Using Gusey approach to define the rupture front
+! Modifications
+!      1. frequency band used to constrain the model
 !      2. using dcf to constrain the spectral level
-!      3. frequency band used to constrain the model
-!      4. using low-fc to constrain the rupture Velocity
-!      5. using the high-fc to initialize the mean rise time
 !======================================================================
 subroutine mainfault(dip,freq_min,freq_max,rv_avg,ratio_rise,nb_taper_TRBL)
 ! Set the initial parameters for generating the source paramters
@@ -53,16 +50,15 @@ subroutine mainfault(dip,freq_min,freq_max,rv_avg,ratio_rise,nb_taper_TRBL)
  y_hypc=cyp
 !
  if(allocated(slip)) deallocate(slip,rstm,rptm,pktm,rpvel,beta,amu, &
-                     taper,rtx,rtz,rake_prt,dip_prt,amz_prt,depth_source)
+                     taper,rtx,rtz,rake_prt,dip_prt,amz_prt)
  allocate(slip(nsum),rstm(nsum),rptm(nsum),pktm(nsum),lrtp(nsum),rpvel(nsum), &
           beta(nsum),amu(nsum),taper(nsum),rtx(nsum),rtz(nsum))
- allocate(rake_prt(nsum),dip_prt(nsum),amz_prt(nsum),depth_source(nsuby))
+ allocate(rake_prt(nsum),dip_prt(nsum),amz_prt(nsum))
 !
  rdip=dip*4.*atan(1.0)/180.0
  do j=1,nsuby
    yij=(j-0.5)*dy-cyp
    hk=yij*sin(rdip)+depth_hypc
-   depth_source(j)=hk
    thk(layer)=hk+0.5
    lyr=0
    sumh=0
@@ -163,13 +159,10 @@ if(Mw >7.3) print *, Mw, slip_clx, slip_cly
   rs_max= amax1(slip_clx,slip_cly)/2.5 ! asperity duration for 2.5 km/s rupture velocity
 !
 !   Somerville et al (1999), Chen Ji, 2020
-!   Note that the final risetime=rstm+pktm, so rstm = 0.84 risetime is assigned
+!   Note that the final risetime=rstm+pktm, so rstm = 0.8 risetime is assigned
 !
- rstm_mean = 0.84*10**(0.5*Mw-3.34)
+ rstm_mean = 0.8*10**(0.5*Mw-3.34)
  pktm_mean = 0.2 *rstm_mean
-! Using fc_main_2 to setup the initial value: risetime=1/fc_mean_2
- rstm_mean = 0.84/fc_main_2
- pktm_mean = 0.2*rstm_mean
 !
  rp1= 3.0
  rq1= 2.0
@@ -213,9 +206,8 @@ pk_max= 0.2*rs_max
 ! cr_sr_vc = 0.4 ! SAL10 relationship, Chen Ji, 2020
  cr_pk_vc = -0.31
 !
-! Tapering the slip-amplitudes nearby the edage of fault, clockwise up-right-bottom-left
-!
-  taper= dx*dy
+! Tapering the slip-amplitudes nearby the edage of fault
+ taper= dx*dy
 ! Top Side
  nb=nb_taper_TRBL(1)
  do j=1,nb
@@ -279,11 +271,11 @@ enddo
  nee=int(log(real(nfe2))/log(2.))+1
  ! In this study, we use 95% seismic moment as source duration criterion
  ! A empirical correction of 0.78 is added (1-sqrt(0.05)~0.78),
- t_percent=0.95
+ t_precent=0.95
  td_target=0.78/fc_main_1/3.14
 
 !
-! Using the acceleration spectrum as the target
+! Using the acceleration spectrum as the
  io_dva=3
 !
  write(*,*) "Finishing the setup of global variable"
@@ -317,10 +309,10 @@ subroutine random_field(idum1,idum2,idum3,ave_tr,ave_tp,ave_vr,err_spectra)
  use fdtim_2d
  implicit NONE
  integer, intent(INOUT):: idum1,idum2,idum3
- integer, parameter:: itrmax=5
+ integer, parameter:: itrmax=10
  integer idum4
  logical:: lloop,hloop
- integer:: i,j,k,iset,niter,is_stress
+ integer:: i,j,iset,niter,is_stress
  real::ave_tr,ave_tp,ave_vr,err_spectra
  real:: sum1,cmti,correct,cr0,cr1,cr2,csqt,cv0,cv1,cv2, &
         vrup,er_syn,er_target,cr_sr,cr_sv,gasdev
@@ -333,7 +325,7 @@ subroutine random_field(idum1,idum2,idum3,ave_tr,ave_tp,ave_vr,err_spectra)
 ! new parameters using Gusev approach
  real:: rup_time_max,lrtp_clx,lrtp_cly,lrtp_pw,coef_lrtp
  real:: rayl_sigma
- real:: percent,td,tb,te
+ real:: precent,td,tb,te
 !
 ! Generating 4 Normal distributed white noise
 !
@@ -395,16 +387,6 @@ subroutine random_field(idum1,idum2,idum3,ave_tr,ave_tp,ave_vr,err_spectra)
    enddo
    call filter_field(rstm,rs_clx,rs_cly,rs_pw,dx,dy,nsubx,nsuby)
    call random_rise_tm(rstm,nsum,rs_max,rp1,rq1)
-! Use GP approach in rise time
-  do i=1,nsuby
-    do j=1,nsubx
-      k=(j-1)*nsuby+i
-      if(depth_source(i).lt.5.0)then
-!      rstm(k)=rstm(k)*2.0
-      endif
-    enddo
-  enddo
-!
    correct=rstm_mean/(sum(rstm(1:nsum))/nsum)
    rstm=rstm*correct
    call coherent(cr_sr,nsum,slip,rstm)
@@ -451,18 +433,10 @@ niter=0
 lloop=.true.
 do while(lloop)
   niter=niter+1
-!  do i=1,nsum
-  do i=1,nsuby
-    do j=1,nsubx
-      k=(j-1)*nsuby+i
-      if(depth_source(i).gt.5.0)then
-        vrup=ave_vr*beta(k)
-      else
-        vrup=ave_vr*beta(k)*0.7
-      endif
-      rpvel(k)=vrup
-      rptm(k)=1.0/vrup
-    enddo
+  do i=1,nsum
+    vrup=ave_vr*beta(i)
+    rpvel(i)=vrup
+    rptm(i)=1.0/vrup
   enddo
   call rup_tim_2d(nsum,nsuby,nsubx,dx,dy,rptm)
   rup_time_max=maxval(rptm)
@@ -511,7 +485,7 @@ do while(lloop)
       lrtp(i)=lrtp(i)*((rptm(i)/rup_time_max)**coef_lrtp)
     enddo
     correct=0.5*rstm_mean/(sum(lrtp)/nsum)
-    lrtp=lrtp*correct
+    lrtp=-lrtp*correct
     write(*,*)"maximum lrtp = ",maxval(lrtp), correct, rstm_mean
   case(2)
   !
@@ -536,9 +510,9 @@ do while(lloop)
     if(rptm(i).lt.0.0)rptm(i)=0.0
   enddo
 
-  percent=t_percent
-  call stf_duration(percent,td,tb,te)
-  write(*,*)"duration =",percent,td,tb,te
+  precent=t_precent
+  call stf_duration(precent,td,tb,te)
+  write(*,*)"duration =",precent,td,tb,te
   if(abs(td/td_target-1.0)<0.025 .or. niter > itrmax) lloop=.false.
   write(*,*)"Before average rupture velocity = ", td, td_target, ave_vr
   ave_vr=ave_vr*td/td_target

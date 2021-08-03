@@ -40,13 +40,13 @@ subroutine dcf_logmean(fc1,fc2,logmean)
 end subroutine dcf_logmean
 !
 !================================================================
-! td is the shortest duration for percent*m0
-subroutine stf_duration(percent,td,tb,te)
+! td is the shortest duration for precent*m0
+subroutine stf_duration(precent,td,tb,te)
  use time_freq
  implicit none
  integer:: i,j,ntd,n0,n1,n2,ib,ie,n
  integer:: i_t0,i_t1,i_t2
- real:: percent,td,tb,te,left
+ real:: precent,td,tb,te,left
  real:: total,target,epslon,x
  real:: svf(ntime),m0(ntime)
  svf=0.0
@@ -55,7 +55,7 @@ subroutine stf_duration(percent,td,tb,te)
  call sum_point_svf(svf)
  total=sum(svf)
  epslon=(1-1.0e-6)*total
- target=total*percent
+ target=total*precent
  left=total-target
  n0=1
  n1=1
