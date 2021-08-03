@@ -123,6 +123,7 @@
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">NR</argument>
 					<argument type="int">120</argument>
+					<argument type="float">0.01</argument>
 				</arguments>
 				<keyword_arguments>
 					<keyword_argument keyword="single_component" type="bool">False</keyword_argument>
