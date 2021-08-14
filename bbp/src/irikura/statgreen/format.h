@@ -18,7 +18,7 @@ std::string format( const char* pszFormat, ... )
 		X( size_t size ){ _ptr = new char[ size ]; };
 		~X(){ delete[] _ptr; };
 	};
-	 
+
 	const int iInit = 80;//バッファの初期サイズ
 	const int iSpan = 32;//バッファの拡大スパン
 
@@ -43,7 +43,7 @@ std::string format( const char* pszFormat, ... )
 		return tmp._ptr; // 成功
 	}
 
-	return '\0';
+	return std::string();
 }
 
 }

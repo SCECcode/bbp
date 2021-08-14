@@ -25,7 +25,7 @@ import os
 import sys
 import shutil
 import matplotlib as mpl
-mpl.use('AGG', warn=False)
+mpl.use('AGG')
 import pylab
 import numpy as np
 

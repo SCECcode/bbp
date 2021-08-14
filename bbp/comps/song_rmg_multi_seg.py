@@ -834,8 +834,8 @@ class SongRMGMS(object):
             if not self.use_interpolation:
                 # Does not use interpolation
                 XX, ZZ = np.meshgrid(rup["lx"][segment], rup["lz"][segment])
-                X = XX.flatten(1).astype('float32')
-                Z = ZZ.flatten(1).astype('float32')
+                X = XX.flatten(order="F").astype('float32')
+                Z = ZZ.flatten(order="F").astype('float32')
 
                 Z1 = np.tile(Z, (N, 1)).T
                 del Z
@@ -849,8 +849,8 @@ class SongRMGMS(object):
             else:
                 # Uses the interpolation code
                 XX, ZZ = np.meshgrid(rup["lx1"][segment], rup["lz1"][segment])
-                X = XX.flatten(1).astype('float32')
-                Z = ZZ.flatten(1).astype('float32')
+                X = XX.flatten(order="F").astype('float32')
+                Z = ZZ.flatten(order="F").astype('float32')
 
                 Z1 = np.tile(Z, (N1, 1)).T
                 del Z
@@ -937,7 +937,7 @@ class SongRMGMS(object):
         Generating the shape of slip velocity function (SVF)
         based on Tinti et al. (BSSA, 2005)
         """
-        t = np.linspace(0, (nt-1)*dt, nt)
+        t = np.linspace(0, (nt-1)*dt, int(nt))
 
         if tau_r < tau_s:
             raise ValueError("Tau_r should be larger than Tau_s")

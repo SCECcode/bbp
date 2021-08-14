@@ -21,7 +21,7 @@ from __future__ import division, print_function
 # Import Python modules
 import sys
 import matplotlib as mpl
-mpl.use("AGG", warn=False)
+mpl.use("AGG")
 import pylab
 
 # Import plot config file
