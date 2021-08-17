@@ -23,6 +23,7 @@ from __future__ import division, print_function
 # Import Python modules
 import os
 import sys
+import time
 import shutil
 import matplotlib as mpl
 mpl.use('AGG')
@@ -32,10 +33,13 @@ import numpy as np
 # Import Broadband modules
 import bband_utils
 import install_cfg
+import plot_config
 from station_list import StationList
 
 # Import plot config file
 import plot_config
+
+COMPS = ['000', '090', 'ver']
 
 def create_boore_asc2smc(control_file, input_file,
                          data_column, num_headers,
@@ -267,6 +271,92 @@ def create_boore_smc2fs2(control_file, input_file, name_string):
     ctl_file.write('stop\n')
     ctl_file.close()
 
+def add_extra_points(input_bbp_file, output_bbp_file, num_points):
+    """
+    Add num_points data points at the end of the input_bbp_File,
+    writing the result to output_bbp_file
+    """
+    bbp_dt = None
+    bbp_t1 = None
+    bbp_t2 = None
+    input_file = open(input_bbp_file, 'r')
+    output_file = open(output_bbp_file, 'w')
+
+    for line in input_file:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("#") or line.startswith("%"):
+            output_file.write("%s\n" % (line))
+            continue
+        pieces = line.split()
+        cur_dt = float(pieces[0])
+        if bbp_dt is None:
+            if bbp_t1 is None:
+                bbp_t1 = cur_dt
+            elif bbp_t2 is None:
+                bbp_t2 = cur_dt
+                bbp_dt = bbp_t2 - bbp_t1
+        # Still write the line to output file
+        output_file.write("%s\n" % (line))
+
+    # Close input file
+    input_file.close()
+
+    if bbp_dt is None:
+        raise bband_utils.ParameterError("Cannot find DT in %s!" %
+                                         (bbp_file))
+    for _ in range(0, num_points):
+        cur_dt = cur_dt + bbp_dt
+        output_file.write("%5.7f   %5.9e   %5.9e    %5.9e\n" %
+                          (cur_dt, 0.0, 0.0, 0.0))
+
+    output_file.close()
+
+def read_bbp_samples(bbp_file):
+    """
+    Reads BBP file and return number of data points in the timeseries
+    """
+    number_of_samples = 0
+
+    input_file = open(bbp_file)
+    for line in input_file:
+        line = line.strip()
+        if line.startswith("#") or line.startswith("%"):
+            continue
+        # Count this data point
+        number_of_samples = number_of_samples + 1
+    input_file.close()
+
+    return number_of_samples
+
+def read_bbp_dt(bbp_file):
+    """
+    Reads BBP file and returns the DT
+    """
+    # Pick DT from these files
+    bbp_dt = None
+    input_file = open(bbp_file)
+    for line in input_file:
+        line = line.strip()
+        if line.startswith("#") or line.startswith("%"):
+            continue
+        # Got to first timestamp. Now, pick two consecutive
+        # timestamps values
+        bbp_t1 = float(line.strip().split()[0])
+        bbp_t2 = float(next(input_file).strip().split()[0])
+        # Subtract the two times
+        bbp_dt = bbp_t2 - bbp_t1
+        # All done!
+        break
+    input_file.close()
+
+    if bbp_dt is None:
+        raise bband_utils.ParameterError("Cannot find DT in %s!" %
+                                         (bbp_file))
+
+    return bbp_dt
+
 def read_fas_file(fas_file):
     """
     Reads FAS file and returns freq and fas arrays
@@ -298,18 +388,167 @@ def read_fas_file(fas_file):
 
     return freqs, fas
 
-def plot_fas(freqs, ns_data, ew_data, eas_smoothed_data, fas_plot, station):
+def read_fas_eas_file(fas_input_file):
+    """
+    Reads the fas_input_file, returning
+    freq, fas_h1, fas_h2, eas, seas
+    """
+    freqs = []
+    fas_h1 = []
+    fas_h2 = []
+    eas = []
+    seas = []
+
+    input_file = open(fas_input_file, 'r')
+    for line in input_file:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("#") or line.startswith("%"):
+            continue
+        pieces = line.split()
+        if len(pieces) != 5:
+            continue
+        pieces = [float(piece) for piece in pieces]
+        freqs.append(pieces[0])
+        fas_h1.append(pieces[1])
+        fas_h2.append(pieces[2])
+        eas.append(pieces[3])
+        seas.append(pieces[4])
+    input_file.close()
+
+    return freqs, fas_h1, fas_h2, eas, seas
+
+def plot_fas_comparison(station, sim_file, data_file, label1, label2,
+                        outfile, lfreq=None, hfreq=None):
+    """
+    Plots the FAS comparison between simulated and observed seismograms
+    """
+
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['lines.linewidth'] = 1.0
+    mpl.rcParams['lines.dashed_pattern'] = [6, 6]
+    mpl.rcParams['lines.dashdot_pattern'] = [3, 5, 1, 5]
+    mpl.rcParams['lines.dotted_pattern'] = [1, 3]
+    mpl.rcParams['lines.scale_dashes'] = False
+
+    # Read data
+    (sim_freqs, sim_fas_h1,
+     sim_fas_h2, sim_eas, sim_s_eas) = read_fas_eas_file(sim_file)
+    (data_freqs, data_fas_h1,
+     data_fas_h2, data_eas, data_s_eas) = read_fas_eas_file(data_file)
+
+    # Start plot
+    pylab.clf()
+
+    # Figure out limits for x and y axis
+    min_x = min([min((sim_freqs)), min(data_freqs)])
+    max_x = max([max((sim_freqs)), max(data_freqs)])
+    min_horiz_y = min([min(sim_fas_h1), min(data_fas_h1),
+                       min(sim_fas_h2), min(data_fas_h2)]) / 1.1
+    max_horiz_y = 1.1 * max([max(sim_fas_h1), max(data_fas_h1),
+                             max(sim_fas_h2), max(data_fas_h2)])
+    min_vert_y = min([min(sim_fas_h1), min(data_fas_h1),
+                      min(sim_fas_h2), min(data_fas_h2)]) / 1.1
+    max_vert_y = 1.1 * max([max(sim_fas_h1), max(data_fas_h1),
+                            max(sim_fas_h2), max(data_fas_h2)])
+
+    pylab.suptitle('FAS for station %s' % (station), size=14)
+
+    pylab.subplots_adjust(top=0.85)
+    pylab.subplots_adjust(bottom=0.15)
+    pylab.subplots_adjust(left=0.075)
+    pylab.subplots_adjust(right=0.975)
+    pylab.subplots_adjust(hspace=0.3)
+    pylab.subplots_adjust(wspace=0.3)
+
+    # First plot
+    ax1 = pylab.subplot(131)
+    ax1.set_title('%s, FAS H1' % (label1), fontsize='small')
+    pylab.plot(data_freqs, data_fas_h1, label=str(label1),
+               linewidth=0.5, color='k')
+    pylab.plot(sim_freqs, sim_fas_h1, label=str(label2),
+               linewidth=0.5, color='r')
+    pylab.xscale('log')
+    pylab.yscale('log')
+    pylab.xlabel('Frequency (Hz)')
+    pylab.ylabel("Fourier Amplitude")
+    pylab.axis([0.01, 100, 0.001, 1000])
+    pylab.grid(True)
+    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    #pylab.grid(b=True, which='minor', linewidth=0.5, color='gray')
+    if lfreq is not None:
+        pylab.vlines(lfreq, 0.001, 1000,
+                     color='violet', linestyles='--')
+    if hfreq is not None:
+        pylab.vlines(hfreq, 0.001, 1000,
+                     color='r', linestyles='--')
+    pylab.legend(prop=mpl.font_manager.FontProperties(size=8))
+
+    # Second plot
+    ax2 = pylab.subplot(132)
+    ax2.set_title('%s, FAS H2' % (label1), fontsize='small')
+    pylab.plot(data_freqs, data_fas_h2, label=str(label1),
+               linewidth=0.5, color='k')
+    pylab.plot(sim_freqs, sim_fas_h2, label=str(label2),
+               linewidth=0.5, color='r')
+    pylab.xscale('log')
+    pylab.yscale('log')
+    pylab.xlabel('Frequency (Hz)')
+    pylab.ylabel("Fourier Amplitude")
+    pylab.axis([0.01, 100, 0.001, 1000])
+    pylab.grid(True)
+    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    if lfreq is not None:
+        pylab.vlines(lfreq, 0.001, 1000,
+                     color='violet', linestyles='--')
+    if hfreq is not None:
+        pylab.vlines(hfreq, 0.001, 1000,
+                     color='r', linestyles='--')
+    pylab.legend(prop=mpl.font_manager.FontProperties(size=8))
+
+    # Third plot
+    ax3 = pylab.subplot(133)
+    ax3.set_title('%s, Smoothed EAS' % (label1), fontsize='small')
+    pylab.plot(data_freqs, data_s_eas, label=str(label1),
+               linewidth=0.5, color='k')
+    pylab.plot(sim_freqs, sim_s_eas, label=str(label2),
+               linewidth=0.5, color='r')
+    pylab.xscale('log')
+    pylab.yscale('log')
+    pylab.xlabel('Frequency (Hz)')
+    pylab.ylabel("Fourier Amplitude")
+    pylab.axis([0.01, 100, 0.001, 1000])
+    pylab.grid(True)
+    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    if lfreq is not None:
+        pylab.vlines(lfreq, 0.001, 1000,
+                     color='violet', linestyles='--')
+    if hfreq is not None:
+        pylab.vlines(hfreq, 0.001, 1000,
+                     color='r', linestyles='--')
+    pylab.legend(prop=mpl.font_manager.FontProperties(size=8))
+
+    pylab.gcf().set_size_inches(10, 4)
+    pylab.savefig(outfile, format="png", dpi=plot_config.dpi)
+    pylab.close()
+
+def plot_fas(freqs, ns_data, ew_data, eas_smoothed_data,
+             fas_plot, station, plot_title=None):
     """
     Create a plot of both FAS components
     """
-    # Generate plot
 
     # Set plot dims
     pylab.gcf().set_size_inches(11, 8.5)
     pylab.gcf().clf()
 
     # Adjust title y-position
-    t = pylab.title("Station: %s" % (station), size=12)
+    if plot_title is None:
+        plot_title = "Station : %s" % (station)
+    t = pylab.title(plot_title, size=12)
 
     pylab.plot(freqs, ns_data, 'b', lw=0.75, label="NS")
     pylab.plot(freqs, ew_data, 'r', lw=0.75, label="EW")
@@ -417,12 +656,138 @@ class FAS(object):
     """
     Implement FAS analisys for the Broadband Platform
     """
-    def __init__(self, i_r_stations, sim_id=0):
+    def __init__(self, i_r_stations, i_comparison_label, sim_id=0):
         """
         Initializes class variables
         """
         self.sim_id = sim_id
         self.r_stations = i_r_stations
+        self.comp_label = i_comparison_label
+
+    def compute_fas(self, a_tmpdir, a_outdir_fas, acc_file,
+                    station_name, output_prefix=""):
+        """
+        Computes FAS for a station
+        """
+        install = install_cfg.InstallCfg.getInstance()
+        sim_id = self.sim_id
+        asc2smc_control_file = "asc2smc.ctl"
+        smc2fs2_control_file = "smc2fs2.ctl"
+        header_lines = bband_utils.count_header_lines(os.path.join(a_tmpdir,
+                                                                   acc_file))
+        # Work on both NS and EW components
+        for comp, data_column in zip(["NS", "EW"], [2, 3]):
+            # First we convert from BBP to SMC format
+            create_boore_asc2smc(os.path.join(a_tmpdir,
+                                              asc2smc_control_file),
+                                 acc_file, data_column, header_lines,
+                                 ".smc8.%s" % (comp))
+            cmd = ("%s << END >> %s 2>&1\n" %
+                   (os.path.join(install.A_USGS_BIN_DIR, "asc2smc"),
+                    self.log) +
+                   "%s\n" % (asc2smc_control_file) +
+                   "END\n")
+            bband_utils.runprog(cmd, False, abort_on_error=True)
+            # Then, we run the smc2fs2 FAS tool
+            smc_file = "%s.smc8.%s" % (acc_file, comp)
+            create_boore_smc2fs2(os.path.join(a_tmpdir,
+                                              smc2fs2_control_file),
+                                 smc_file, ".no_smooth.fs.col")
+            cmd = ("%s >> %s 2>&1\n" %
+                   (os.path.join(install.A_USGS_BIN_DIR, "smc2fs2"),
+                    self.log))
+            bband_utils.runprog(cmd, False, abort_on_error=True)
+
+        # Calculate EAS and smoothed EAS
+        ns_file = os.path.join(a_tmpdir,
+                               "%s.smc8.NS.no_smooth.fs.col" % (acc_file))
+        ew_file = os.path.join(a_tmpdir,
+                               "%s.smc8.EW.no_smooth.fs.col" % (acc_file))
+        output_file = os.path.join(a_outdir_fas,
+                                   "%s%s.smc8.smooth.fs.col" %
+                                   (output_prefix, station_name))
+        (freqs, ns_fas,
+         ew_fas, eas, smoothed_eas) = calculate_smoothed_eas(ns_file,
+                                                             ew_file,
+                                                             output_file)
+
+        # Create plot
+        fas_plot = os.path.join(a_outdir_fas,
+                                "%s%s.fas.png" % (output_prefix,
+                                                  station_name))
+        if output_prefix.startswith("obs"):
+            plot_title = "Station: %s - Observed Data" % (station_name)
+        else:
+            plot_title = None
+
+        plot_fas(freqs, ns_fas, ew_fas, smoothed_eas,
+                 fas_plot, station_name, plot_title=plot_title)
+
+    def resample_bbp_file(self, input_bbp_file, output_bbp_file,
+                          site, old_dt, new_dt, a_tmpdir):
+        """
+        Resamples input_bbp_file to new_dt, writing the result to
+        output_bbp_file
+        """
+        sim_id = self.sim_id
+        install = install_cfg.InstallCfg.getInstance()
+
+        print("--> Resampling   %.4f --> %.4f - %s... " %
+              (old_dt, new_dt, os.path.basename(input_bbp_file)))
+        # Create path names and check if their sizes are within bounds
+        nsfile = os.path.join(a_tmpdir,
+                              "%d.%s-fas.acc.000" % (sim_id, site))
+        ewfile = os.path.join(a_tmpdir,
+                              "%d.%s-fas.acc.090" % (sim_id, site))
+        udfile = os.path.join(a_tmpdir,
+                              "%d.%s-fas.acc.ver" % (sim_id, site))
+        bbpfile = input_bbp_file
+
+        bband_utils.check_path_lengths([nsfile, ewfile, udfile],
+                                       bband_utils.GP_MAX_FILENAME)
+
+        progstring = ("%s " %
+                      (os.path.join(install.A_GP_BIN_DIR, "wcc2bbp")) +
+                      "nsfile=%s ewfile=%s udfile=%s " %
+                      (nsfile, ewfile, udfile) +
+                      "wcc2bbp=0 < %s >> %s 2>&1" %
+                      (bbpfile, self.log))
+        bband_utils.runprog(progstring, abort_on_error=True,
+                            print_cmd=False)
+
+        for component in COMPS:
+            # Set up paths for each component file
+            infile = os.path.join(a_tmpdir,
+                                  "%d.%s-fas.acc.%s" %
+                                  (sim_id, site, component))
+
+            outfile = os.path.join(a_tmpdir, "%d.%s-fas-resamp.%s" %
+                                   (sim_id, site, component))
+            bband_utils.check_path_lengths([infile, outfile],
+                                           bband_utils.GP_MAX_FILENAME)
+
+            progstring = ("%s newdt=%f " %
+                          (os.path.join(install.A_GP_BIN_DIR,
+                                        "wcc_resamp_arbdt"), new_dt) +
+                          "infile=%s outfile=%s >> %s 2>&1" %
+                          (infile, outfile, self.log))
+            bband_utils.runprog(progstring, abort_on_error=True,
+                                print_cmd=False)
+
+        # Put the acc file back together
+        nsfile = os.path.join(a_tmpdir, "%d.%s-fas-resamp.000" %
+                              (sim_id, site))
+        ewfile = os.path.join(a_tmpdir, "%d.%s-fas-resamp.090" %
+                              (sim_id, site))
+        udfile = os.path.join(a_tmpdir, "%d.%s-fas-resamp.ver" %
+                              (sim_id, site))
+        bbpfile = output_bbp_file
+        cmd = ("%s " % (os.path.join(install.A_GP_BIN_DIR, "wcc2bbp")) +
+               "nsfile=%s ewfile=%s udfile=%s " %
+               (nsfile, ewfile, udfile) +
+               "units=cm/s/s wcc2bbp=1 > %s 2>> %s" %
+               (bbpfile, self.log))
+        bband_utils.runprog(cmd, abort_on_error=True, print_cmd=False)
 
     def run(self):
         """
@@ -439,6 +804,7 @@ class FAS(object):
                                   str(sim_id),
                                   self.r_stations)
         a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
+        a_tmpdir_seis = os.path.join(a_tmpdir, "obs_seis_%s" % (sta_base))
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_outdir_fas = os.path.join(a_outdir, "FAS")
 
@@ -454,54 +820,157 @@ class FAS(object):
         old_cwd = os.getcwd()
         os.chdir(a_tmpdir)
 
+        # Initial values
+        new_dt = 10000000.0
+        new_samples = 0
+
+        # Pre-processing, find lowest dt among all input timeseries
         for site in site_list:
-            print("==> Processing station: %s" % (site.scode))
-            # Copy acc file to tmpdata
             acc_file = "%d.%s.acc.bbp" % (sim_id, site.scode)
+            obs_acc_file = "%s.bbp" % (site.scode)
+
+            # Read DT from both files
+            input_syn_acc_file = os.path.join(a_outdir, acc_file)
+            input_obs_acc_file = os.path.join(a_tmpdir_seis, obs_acc_file)
+            syn_dt = read_bbp_dt(input_syn_acc_file)
+            obs_dt = read_bbp_dt(input_obs_acc_file)
+            new_station_dt = min(syn_dt, obs_dt)
+            new_dt = min(new_dt, new_station_dt)
+
+        print("==> Target DT set to %.4f" % (new_dt))
+
+        obs_rs_array = []
+        syn_rs_array = []
+
+        print("==> Pre-processing step 1: matching dt...")
+        for site in site_list:
+
+            acc_file = "%d.%s.acc.bbp" % (sim_id, site.scode)
+            obs_acc_file = "%s.bbp" % (site.scode)
+
             shutil.copy2(os.path.join(a_outdir, acc_file),
                          os.path.join(a_tmpdir, acc_file))
-            asc2smc_control_file = "asc2smc.ctl"
-            smc2fs2_control_file = "smc2fs2.ctl"
-            header_lines = bband_utils.count_header_lines(os.path.join(a_tmpdir,
-                                                                       acc_file))
-            # Work on both NS and EW components
-            for comp, data_column in zip(["NS", "EW"], [2, 3]):
-                # First we convert from BBP to SMC format
-                create_boore_asc2smc(os.path.join(a_tmpdir,
-                                                  asc2smc_control_file),
-                                     acc_file, data_column, header_lines,
-                                     ".smc8.%s" % (comp))
-                cmd = ("%s << END >> %s 2>&1\n" %
-                       (os.path.join(install.A_USGS_BIN_DIR, "asc2smc"),
-                        self.log) +
-                       "%s\n" % (asc2smc_control_file) +
-                       "END\n")
-                bband_utils.runprog(cmd, False, abort_on_error=True)
-                # Then, we run the smc2fs2 FAS tool
-                smc_file = "%s.smc8.%s" % (acc_file, comp)
-                create_boore_smc2fs2(os.path.join(a_tmpdir,
-                                                  smc2fs2_control_file),
-                                     smc_file, ".no_smooth.fs.col")
-                cmd = ("%s >> %s 2>&1\n" %
-                       (os.path.join(install.A_USGS_BIN_DIR, "smc2fs2"),
-                        self.log))
-                bband_utils.runprog(cmd, False, abort_on_error=True)
+            shutil.copy2(os.path.join(a_tmpdir_seis, obs_acc_file),
+                         os.path.join(a_tmpdir, obs_acc_file))
 
-            # Calculate EAS and smoothed EAS
-            ns_file = os.path.join(a_tmpdir,
-                                   "%s.smc8.NS.no_smooth.fs.col" % (acc_file))
-            ew_file = os.path.join(a_tmpdir,
-                                   "%s.smc8.EW.no_smooth.fs.col" % (acc_file))
-            output_file = os.path.join(a_outdir_fas,
-                                       "%s.smc8.smooth.fs.col" % (acc_file))
-            (freqs, ns_fas,
-             ew_fas, eas, smoothed_eas) = calculate_smoothed_eas(ns_file,
-                                                                 ew_file,
-                                                                 output_file)
-            # Create plot
-            fas_plot = os.path.join(a_outdir_fas,
-                                    "%d.%s.fas.png" % (sim_id, site.scode))
-            plot_fas(freqs, ns_fas, ew_fas, smoothed_eas, fas_plot, site.scode)
+            # Read DT from both files
+            input_syn_acc_file = os.path.join(a_tmpdir, acc_file)
+            input_obs_acc_file = os.path.join(a_tmpdir, obs_acc_file)
+            syn_dt = read_bbp_dt(input_syn_acc_file)
+            obs_dt = read_bbp_dt(input_obs_acc_file)
+
+            if syn_dt == new_dt:
+                input_rs_syn_acc_file = input_syn_acc_file
+            else:
+                input_rs_syn_acc_file = os.path.join(a_tmpdir,
+                                                     "rs-%s" %
+                                                     (acc_file))
+                self.resample_bbp_file(input_syn_acc_file,
+                                       input_rs_syn_acc_file,
+                                       site.scode,
+                                       syn_dt, new_dt, a_tmpdir)
+            if obs_dt == new_dt:
+                input_rs_obs_acc_file = input_obs_acc_file
+            else:
+                input_rs_obs_acc_file = os.path.join(a_tmpdir,
+                                                     "rs-%s" %
+                                                     (obs_acc_file))
+                self.resample_bbp_file(input_obs_acc_file,
+                                       input_rs_obs_acc_file,
+                                       site.scode,
+                                       obs_dt, new_dt, a_tmpdir)
+
+            # Keep list of files to be used later
+            syn_rs_array.append(input_rs_syn_acc_file)
+            obs_rs_array.append(input_rs_obs_acc_file)
+
+        print("==> Pre-processing step 2: matching samples...")
+        for (site,
+             input_rs_syn_acc_file,
+             input_rs_obs_acc_file) in zip(site_list,
+                                           syn_rs_array,
+                                           obs_rs_array):
+            # Read samples
+            syn_samples = read_bbp_samples(input_rs_syn_acc_file)
+            obs_samples = read_bbp_samples(input_rs_obs_acc_file)
+            new_station_samples = max(syn_samples, obs_samples)
+            new_samples = max(new_samples, new_station_samples)
+
+        print("==> Target samples set to %d" % (new_samples))
+
+        for (site,
+             input_rs_syn_acc_file,
+             input_rs_obs_acc_file) in zip(site_list,
+                                           syn_rs_array,
+                                           obs_rs_array):
+
+            acc_file = "%d.%s.acc.bbp" % (sim_id, site.scode)
+            obs_acc_file = "%s.bbp" % (site.scode)
+
+            print("==> Processing station: %s" % (site.scode))
+
+            # Make sure both files have equal number of data points
+            syn_samples = read_bbp_samples(input_rs_syn_acc_file)
+            obs_samples = read_bbp_samples(input_rs_obs_acc_file)
+
+            if syn_samples == new_samples:
+                input_final_syn_acc_file = input_rs_syn_acc_file
+            else:
+                input_final_syn_acc_file = os.path.join(a_tmpdir,
+                                                        "pad-%s" %
+                                                        (acc_file))
+                extra_points = new_samples - syn_samples
+                print("=====> Adding %d extra points to %s" %
+                      (extra_points, os.path.basename(input_rs_syn_acc_file)))
+                add_extra_points(input_rs_syn_acc_file,
+                                 input_final_syn_acc_file,
+                                 extra_points)
+
+            if obs_samples == new_samples:
+                input_final_obs_acc_file = input_rs_obs_acc_file
+            else:
+                extra_points = new_samples - obs_samples
+                input_final_obs_acc_file = os.path.join(a_tmpdir,
+                                                        "pad-%s" %
+                                                        (obs_acc_file))
+                print("=====> Adding %d extra points to %s" %
+                      (extra_points, os.path.basename(input_rs_obs_acc_file)))
+                add_extra_points(input_rs_obs_acc_file,
+                                 input_final_obs_acc_file,
+                                 extra_points)
+
+            # Copy calculated acc file to tmpdata
+            print("=====> computing FAS for calculated seismogram... ", end="", flush=True)
+            t1 = time.time()
+            self.compute_fas(a_tmpdir, a_outdir_fas,
+                             os.path.basename(input_final_syn_acc_file),
+                             site.scode, output_prefix="%d." % (self.sim_id))
+            t2 = time.time()
+            print("%10.2f s" % (t2 - t1))
+
+
+            print("=====> computing FAS for observed seismogram... ", end="", flush=True)
+            t1 = time.time()
+            self.compute_fas(a_tmpdir, a_outdir_fas,
+                             os.path.basename(input_final_obs_acc_file),
+                             site.scode, output_prefix="obs.")
+            t2 = time.time()
+            print("%10.2f s" % (t2 - t1))
+
+            # Create comparison plot
+            max_syn_freq = 1.0 / (syn_dt * 2)
+            hfreq = min(max_syn_freq, site.high_freq_corner)
+            sim_file = os.path.join(a_outdir_fas,
+                                    "%d.%s.smc8.smooth.fs.col" %
+                                    (self.sim_id, site.scode))
+            data_file = os.path.join(a_outdir_fas,
+                                     "obs.%s.smc8.smooth.fs.col" % (site.scode))
+            outfile = os.path.join(a_outdir_fas,
+                                   "%d.%s.fas.comparison.png" %
+                                   (self.sim_id, site.scode))
+            plot_fas_comparison(site.scode, sim_file, data_file,
+                                self.comp_label, self.sim_id, outfile,
+                                lfreq=site.low_freq_corner, hfreq=hfreq)
 
         # All done, restore working directory
         os.chdir(old_cwd)
@@ -509,10 +978,11 @@ class FAS(object):
         print("FAS Calculation Completed".center(80, '-'))
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print("Usage: %s station_list sim_id" % (os.path.basename(sys.argv[0])))
+    if len(sys.argv) < 4:
+        print("Usage: %s station_list comparison_label sim_id" %
+              (os.path.basename(sys.argv[0])))
         sys.exit(1)
     print("Testing Module: %s" % (os.path.basename(sys.argv[0])))
-    ME = FAS(sys.argv[1], sim_id=int(sys.argv[2]))
+    ME = FAS(sys.argv[1], sys.argv[2], sim_id=int(sys.argv[3]))
     ME.run()
     sys.exit(0)
