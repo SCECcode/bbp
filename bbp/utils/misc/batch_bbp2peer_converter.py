@@ -69,6 +69,8 @@ def read_bbp_header(input_file):
                 continue
             if pieces[1] == "Station=":
                 station_info['station'] = pieces[2]
+            elif pieces[1] == "padding=":
+                station_info['padding'] = int(pieces[2])
             elif pieces[1] == "hp=":
                 station_info['hp'] = float(pieces[2])
             elif pieces[1] == "lp=":
