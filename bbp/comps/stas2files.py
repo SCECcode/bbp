@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -160,7 +160,7 @@ def bbp2sdsu_statlist(working_dir, slo, sdsu_stalist,
     out_coords = os.path.join(working_dir, tmpfile)
 
     gbb = GeoBBSRF()
-    gbb.run(slo, out_coords, extended_fault, 'n',
+    gbb.run(slo, out_coords, extended_fault,
             a_srf_file, a_xyz_srf_file, 'y')
     if not os.path.exists(out_coords):
         raise bband_utils.ProcessingError("Error converting station coordinates"

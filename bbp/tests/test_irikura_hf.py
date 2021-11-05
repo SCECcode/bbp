@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import shutil
 import unittest
 
 # Import Broadband modules
@@ -41,6 +42,8 @@ class TestIrikuraHF(unittest.TestCase):
         self.srcfile = "whittier_v12_11_0_fs.src"
         self.srffile = "whittier_v12_11_0_fs.srf"
         self.stations = "whittier_v19_02_1_short.stl"
+        self.stress_drop = "stress_drop.out"
+        self.segments_midpoint = "segments.midpoint.txt"
         self.sim_id = int(seqnum.get_seq_num())
 
         # Set up paths
@@ -54,14 +57,18 @@ class TestIrikuraHF(unittest.TestCase):
         bband_utils.mkdirs([a_indir, a_tmpdir, a_outdir, a_logdir],
                            print_cmd=False)
 
-        cmd = "cp %s %s" % (os.path.join(refdir, self.velmodel), a_indir)
-        bband_utils.runprog(cmd, print_cmd=False)
-        cmd = "cp %s %s" % (os.path.join(refdir, self.stations), a_indir)
-        bband_utils.runprog(cmd, print_cmd=False)
-        cmd = "cp %s %s" % (os.path.join(refdir, self.srffile), a_indir)
-        bband_utils.runprog(cmd, print_cmd=False)
-        cmd = "cp %s %s" % (os.path.join(refdir, self.srcfile), a_indir)
-        bband_utils.runprog(cmd, print_cmd=False)
+        shutil.copy2(os.path.join(refdir, self.velmodel),
+                     os.path.join(a_indir, self.velmodel))
+        shutil.copy2(os.path.join(refdir, self.stations),
+                     os.path.join(a_indir, self.stations))
+        shutil.copy2(os.path.join(refdir, self.srffile),
+                     os.path.join(a_indir, self.srffile))
+        shutil.copy2(os.path.join(refdir, self.srcfile),
+                     os.path.join(a_indir, self.srcfile))
+        shutil.copy2(os.path.join(refdir, self.stress_drop),
+                     os.path.join(a_tmpdir, self.stress_drop))
+        shutil.copy2(os.path.join(refdir, self.segments_midpoint),
+                     os.path.join(a_tmpdir, self.segments_midpoint))
 
     def test_irikura_hf(self):
         """
@@ -77,10 +84,10 @@ class TestIrikuraHF(unittest.TestCase):
             bbpfile = os.path.join(self.install.A_TMP_DATA_DIR,
                                    str(self.sim_id), "%d.s%02d-hf.bbp" %
                                    (self.sim_id, i))
-            self.failIf(not cmp_bbp.cmp_bbp(bbpfile, ref_file,
-                                            tolerance=0.005) == 0,
-                        "output HF BBP file %s " % (bbpfile) +
-                        " does not match reference hf bbp file %s" % (ref_file))
+            self.assertFalse(not cmp_bbp.cmp_bbp(bbpfile, ref_file,
+                                                 tolerance=0.005) == 0,
+                             "output HF BBP file %s " % (bbpfile) +
+                             " does not match reference hf bbp file %s" % (ref_file))
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestIrikuraHF)

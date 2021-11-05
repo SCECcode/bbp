@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -78,10 +78,10 @@ class TestMatch(unittest.TestCase):
             bbpfile = os.path.join(self.install.A_TMP_DATA_DIR,
                                    str(self.sim_id),
                                    "%d.s%02d.bbp" % (self.sim_id, i))
-            self.failIf(cmp_bbp.cmp_bbp(ref_file, bbpfile) != 0,
-                        "output merged BBP file %s " % (bbpfile) +
-                        " does not match reference merged bbp file %s" %
-                        (ref_file))
+            self.assertFalse(cmp_bbp.cmp_bbp(ref_file, bbpfile) != 0,
+                             "output merged BBP file %s " % (bbpfile) +
+                             " does not match reference merged bbp file %s" %
+                             (ref_file))
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestMatch)

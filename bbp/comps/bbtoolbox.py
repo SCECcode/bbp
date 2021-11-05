@@ -1,6 +1,6 @@
 #!/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,17 +32,20 @@ import velocity_models
 from station_list import StationList
 from install_cfg import InstallCfg
 from bbtoolbox_cfg import BBToolboxCfg
+from bbtoolbox_correlation import generate_matrices
 
 class BBToolbox(object):
 
     def __init__(self, i_r_scattering, i_r_velmodel, i_r_srcfile,
-                 i_r_srffile, i_r_stations, vmodel_name, sim_id=0):
+                 i_r_srffile, i_r_stations, vmodel_name, sim_id=0,
+                 **kwargs):
         """
         This function initializes basic class objects
         """
         self.sim_id = sim_id
         self.r_velmodel = i_r_velmodel
         self.r_srcfile = i_r_srcfile
+        self.r_srcfiles = []
         self.r_scattering = i_r_scattering
         self.r_srffile = i_r_srffile
         self.r_xyz_srffile = 'xyz_' + i_r_srffile
@@ -62,7 +65,15 @@ class BBToolbox(object):
         self.bfac = None
         self.str_fac = None
         self.correlation_file = None
-        self.infcorr_flag = None
+        self.corr_flag = None
+
+        # Get all src files that were passed to us
+        if kwargs is not None and len(kwargs) > 0:
+            for idx in range(len(kwargs)):
+                self.r_srcfiles.append(kwargs['src%d' % (idx)])
+        else:
+            # Not a multisegment run, just use the single src file
+            self.r_srcfiles.append(i_r_srcfile)
 
     def create_bbtoolbox_files(self, stat_file):
         """
@@ -92,21 +103,12 @@ class BBToolbox(object):
         if 'SOURCE_FUNC' in vmodel_params:
             self.source_func = vmodel_params['SOURCE_FUNC']
 
-        # Look for correlation file parameter
-        if "CORRELATION_FILE" in vmodel_params:
-            # Set flag
-            self.infcorr_flag = 1
-            # Find correlation file
-            self.correlation_file = os.path.join(vel_obj.base_dir,
-                                                 vmodel_params['CORRELATION_FILE'])
-            # Also copy file to bbtoolbox directory
-            shutil.copy2(self.correlation_file,
-                         os.path.join(a_tmpdir_mod,
-                                      os.path.basename(self.correlation_file)))
-        else:
-            # Disable flag
-            self.infcorr_flag = 0
-            self.correlation_file = "correlation_file_not_used.txt"
+        # Set up correlation parameter
+        self.corr_flag = self.config.corr_flag
+        # Create correlation matrices
+        if self.corr_flag > 0:
+            generate_matrices(self.install.A_SDSU_DATA_DIR, a_tmpdir,
+                              stat_file, a_tmpdir_mod, self.sim_id)
 
         # Take care of scattering file
         if not self.r_scattering:
@@ -222,11 +224,11 @@ class BBToolbox(object):
                     scat_out.write("%d   %s" %
                                    (self.config.SEED,
                                    line[pos:]))
-                elif line.find(r"\* infcorr_flag") >= 0:
+                elif line.find(r"\* corr_flag") >= 0:
                     # This is the line, insert here
-                    pos = line.find(r"\* infcorr_flag")
+                    pos = line.find(r"\* corr_flag")
                     scat_out.write("%d    %s" %
-                                   (int(self.infcorr_flag),
+                                   (int(self.corr_flag),
                                     line[pos:]))
                 else:
                     scat_out.write(line)
@@ -392,11 +394,12 @@ class BBToolbox(object):
         parfile_fp.write("/* SRF FILE */\n")
         parfile_fp.write('"%s"\n' %
                          (os.path.join(a_indir, self.r_xyz_srffile)))
-        parfile_fp.write("/* CORRELATION FILE */\n")
-        parfile_fp.write("%s\n" %
-                         (os.path.basename(self.correlation_file)))
         parfile_fp.write("/* RAKE */\n")
         parfile_fp.write("%.2f\n" % (self.config.RAKE))
+        parfile_fp.write("/* CORRELATION FILE FOR INTER-FREQUENCY CORRELATION*/\n")
+        parfile_fp.write("Kinf.bin\n")
+        parfile_fp.write("/* CORRELATION FILE FOR SPATIAL CORRELATION*/\n")
+        parfile_fp.write("Ksp1.bin Ksp2.bin Ksp3.bin\n")
         parfile_fp.flush()
         parfile_fp.close()
 

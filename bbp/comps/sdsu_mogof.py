@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ class SDSUMOGoF(object):
         try:
             fp = open(filename, 'r')
             files = fp.readlines()
-            for i in xrange(0, len(files)):
+            for i in range(0, len(files)):
                 files[i] = os.path.abspath(files[i].strip())
             fp.close()
         except:
@@ -115,7 +115,7 @@ class SDSUMOGoF(object):
             tstart = -1.0
             while samples[num_samples - 1] == "":
                 num_samples = num_samples - 1
-            for i in xrange(0, num_samples):
+            for i in range(0, num_samples):
                 tokens = samples[i].split()
                 if tokens[0] != '#':
                     if len(tokens) != 4:
@@ -198,7 +198,7 @@ class SDSUMOGoF(object):
 
             pp.write("%s\n" % (self.config.cfggof["low_cut"]))
             pp.write("%s\n" % (self.config.cfggof["high_cut"]))
-#            for n in xrange(0, 12):
+#            for n in range(0, 12):
 #                pp.write("%f\n" % (1.0))
             pp.write("%s\n" % (self.config.cfggof["weights"]["pga"]))
             pp.write("%s\n" % (self.config.cfggof["weights"]["pgv"]))
@@ -267,25 +267,35 @@ class SDSUMOGoF(object):
         return 0
 
     def get_sample_data(self, bbpfile):
+        """
+        This function reads a BBP file and determines its DT, it also
+        returns the number of samples in dcount
+        """
         dt = Decimal(0)
         dcount = 0
-        bfile = self.open_file(bbpfile, 'rb')
-        lines = bfile.readlines()
-        for line in lines:
-            tokens = line.strip().split()
-            if tokens[0] != '#':
-                if len(tokens) != 4:
-                    print("ERROR (sdsu_mogof): "
-                          "Seismogram %s is incorrectly formatted" % (bbpfile))
-                    print(tokens)
-                    sys.exit(-1)
-                else:
-                    dcount += 1
-                    if dcount < 2:
-                        dt = Decimal(tokens[0])
-                    elif dcount == 2:
-                        dt = Decimal(tokens[0]) - dt
-#        print "get_sample_data: bbpfile: %s, dt: %f, dcount: %d" % (bbpfile, dt, dcount)
+        bbp_file = self.open_file(bbpfile, 'r')
+        for line in bbp_file:
+            line = line.strip()
+            if line.startswith("#") or line.startswith("%"):
+                # Skip comments
+                continue
+            tokens = line.split()
+            if len(tokens) != 4:
+                print("ERROR (sdsu_mogof): "
+                      "Seismogram %s is incorrectly formatted" % (bbpfile))
+                print(tokens)
+                sys.exit(-1)
+
+            dcount += 1
+            if dcount < 2:
+                dt = Decimal(tokens[0])
+            elif dcount == 2:
+                dt = Decimal(tokens[0]) - dt
+
+        # Close file
+        bbp_file.close()
+
+        # All done!
         return dt, dcount
 
     def match_sample_rate(self, bbpfile, newdt):

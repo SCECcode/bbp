@@ -1,9 +1,10 @@
 #
-# Whittier source file
+# Whittier source file for the UCSB method
+# Fault LENGTH and WIDTH adjusted by JC as per Leonard (2010)
 #
 MAGNITUDE = 5.89
-FAULT_LENGTH = 10.00
-FAULT_WIDTH = 10.00
+FAULT_LENGTH = 7.0
+FAULT_WIDTH = 5.8
 DEPTH_TO_TOP = 12.00
 STRIKE = 280
 RAKE = 90.00
@@ -11,13 +12,15 @@ DIP = 30
 LAT_TOP_CENTER = 34.012
 LON_TOP_CENTER = -118.0885
 HYPO_ALONG_STK = 0.0
-HYPO_DOWN_DIP =  5.20
+HYPO_DOWN_DIP =  3.4
 #
 # Model specific parameters
 #
 DWID = 0.1
 DLEN = 0.1
-CORNER_FREQ = 0.4
+CORNER_FREQ = 0.08498651
+CORNER_FREQ_1 = 0.08498651
+CORNER_FREQ_2 = 2.01836636
 #
 # Alternative SEEDS create alternative .srf
 #

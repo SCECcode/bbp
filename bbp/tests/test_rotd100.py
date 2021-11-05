@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -87,15 +87,14 @@ class TestRotD100(unittest.TestCase):
                                      (sim_id, i))
             new_rd100_v = os.path.join(self.outdir, "%d.8000%d.rd100.vertical" %
                                        (sim_id, i))
-            self.failIf(cmp_bbp.cmp_files_generic(ref_rd100,
-                                                  new_rd100) != 0,
-                        "Output file %s does not match reference file: %s" %
-                        (new_rd100, ref_rd100))
-            self.failIf(cmp_bbp.cmp_files_generic(ref_rd100_v,
-                                                  new_rd100_v) != 0,
-                        "Output file %s does not match reference file: %s" %
-                        (new_rd100_v, ref_rd100_v))
-
+            self.assertFalse(cmp_bbp.cmp_files_generic(ref_rd100,
+                                                       new_rd100) != 0,
+                             "Output file %s does not match reference file: %s" %
+                             (new_rd100, ref_rd100))
+            self.assertFalse(cmp_bbp.cmp_files_generic(ref_rd100_v,
+                                                       new_rd100_v) != 0,
+                             "Output file %s does not match reference file: %s" %
+                             (new_rd100_v, ref_rd100_v))
 
 if __name__ == "__main__":
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestRotD100)

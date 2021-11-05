@@ -1,6 +1,6 @@
 UFLAGS = -w -Wall
-MODULES = module_bbtoolbox.f90 module_interface.f90
-CODES = main_bbtoolbox.f90 coda.f90 composition.f90 convolution.f90 fourier.f90 error.f90 geometry.f90 interpolation.f90 io.f90 random.f90 scattering.f90 source.f90 correlation_readnk.f90 integ_diff.f90 filtering.f90
+MODULES = module_bbtoolbox_0328_lenupdate0421_corr_rupspeed.f90 module_interface_corr.f90
+CODES = main_bbtoolbox_0315_corr.f90 coda.f90 composition_lenupdate0421_corr_rupspeed.f90 convolution.f90 fourier.f90 error.f90 geometry.f90 interpolation.f90 io.f90 random.f90 scattering.f90 source.f90 correlation_lenupdate_corr.f90 integ_diff.f90 filtering.f90
 
 all : BBtoolbox.exe
 

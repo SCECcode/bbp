@@ -68,7 +68,7 @@ def decimal_to_dms(decimalvalue):
     s = 0
     return (d, m, s)
 
-def dms_to_decimal((degrees, minutes, seconds)):
+def dms_to_decimal(degrees, minutes, seconds):
     """
     Convert a value from decimal (float) to degree,minute,second tuple
     """

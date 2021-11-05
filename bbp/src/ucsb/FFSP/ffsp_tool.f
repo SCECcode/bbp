@@ -3,9 +3,9 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       SUBROUTINE realft(data,n,isign)
 c
 c  Calculates the Fourier transform of a set of real data points.
-c  isign=-1, forward tranform of a real-valued data point. 
+c  isign=-1, forward tranform of a real-valued data point.
 c     The real-valued first (zero frequency) last (fmax) components
-c     of the complex transform are returned as element data(1) and 
+c     of the complex transform are returned as element data(1) and
 c     data(2), respectively. n must be a opwer of 2.
 c  isign=+1, inverse transform of a complex data array. The result
 c     in this case must be multipled by 2/n.
@@ -63,7 +63,7 @@ CU    USES four1
       endif
       return
       END
-C  
+C
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       SUBROUTINE four1(data,nn,isign)
       IMPLICIT NONE
@@ -255,6 +255,38 @@ c======================================================================
       return
       END
 c
+c    ===============================================
+c    inverse cdf of rayleigh distribution
+c    y=sigma*sqrt(-2ln(1-F)), F is cdf of rayleigh distribution
+c
+      Function irayl(f,sigma)
+       implicit NONE
+       real f,irayl,sigma
+       if(f.ge.0.0.and.f.lt.1.0)then
+         irayl=sigma*sqrt(-2.0*log(1.0-f))
+       else
+         write(*,*)"input error cumlative cdf must within (0,1)"
+         write(*,*)"input F= ",f
+         stop
+       endif
+      END
+c
+c======================================================================
+c     rayleigh distribution: (x/sigma^2)exp(-x^2/(2sigma^2))
+c     cdf is 1-exp(-x^2/(2sigma^2))
+c     mean is 1.253*sigma
+c     mode is sigma
+c     95% of cdf at x~2.448*sigma
+c
+      Function rayleigh(idum,sigma)
+      implicit NONE
+      integer idum
+      real rayleigh,u,sigma,ran3
+      u=ran3(idum)
+      rayleigh=sigma*sqrt(-2.0*log(u))
+      return
+      END
+c
 c======================================================================
       FUNCTION gasdev(idum,iset)
       implicit NONE
@@ -316,7 +348,7 @@ c  USES gammln
       END
 c
 c======================================================================
-c
+c calculate the cumulative probability density related to x
         subroutine gasprb(v2p,n)
 c  gasprb=1.0-0.5*erfcc(x/sqrt(2))
         implicit NONE
@@ -345,7 +377,7 @@ c  gasprb=1.0-0.5*erfcc(x/sqrt(2))
      *       t*(1.48851587+t*(-.82215223+t*.17087277)))))))))
           if(x.gt.0.0) prb=1.-prb
 
-          v2p(i)=prb 
+          v2p(i)=prb
         enddo
         return
         END
@@ -405,7 +437,7 @@ C ... source position and grid boundaries
      &     dif,perc
 C ... grid spacing and constants to reduce redundant calculations
       REAL H,H2,HTSQR2,HS2I,sval
-C ... Variables of interest 
+C ... Variables of interest
       REAL TIME( mxx,nz), SLOW( mxx,nz ), rtime(1:*),rtx(1:*),rtz(1:*)
       H2 = H * H
       HTSQR2 = H * SQRT(2.0)
@@ -499,7 +531,7 @@ C---------------- fill out rows to give values to uninitiazed points
 C
 C------------- reverse, starting column is the one just calculated
                   irevc = ileft + 1
-                  do while (ifirst .ne. 0 .and. irevc .lt. isxm1) 
+                  do while (ifirst .ne. 0 .and. irevc .lt. isxm1)
                      ifirst = 0
                      call COLTIM(time,slow,mxx,nx,nz,irevc,ITOP,IBOT,1,
      &                    1,ifirst,nx1,nz1,h,h2,HTSQR2,HS2I)
@@ -546,7 +578,7 @@ c                  print *,'reverse right ',iright
 C
 C---------------- reverse, starting column is the one just calculated
                   irevc = iright-1
-                  do while (ifirst .ne. 0 .and. irevc .gt. isxp1) 
+                  do while (ifirst .ne. 0 .and. irevc .gt. isxp1)
                      ifirst = 0
                      call COLTIM(time,slow,mxx,nx,nz,irevc,ITOP,IBOT,-1,
      &                    1,ifirst,nx1,nz1,h,h2,HTSQR2,HS2I)
@@ -565,7 +597,7 @@ C
 C---------- if we have hit this edge set its flag inactive
             IF (IRIGHT .eq. nx) LRIGHT = 0
          ENDIF
-C 
+C
 C ...... Solve row at top
          IF( LTOP .NE. 0 ) THEN
             ifirst=1
@@ -579,7 +611,7 @@ C---------- check for refraction and the need to reverse the calculation
 C
 C------------- reverse, starting row is the one just calculated
                   irevr = itop+1
-                  do while (ifirst .ne. 0 .and. irevr .lt. iszm1) 
+                  do while (ifirst .ne. 0 .and. irevr .lt. iszm1)
                      ifirst = 0
                      CALL ROWTIM(time,slow,mxx,nx,nz,irevr,ILEFT,IRIGHT,
      &                    1,1,ifirst,nx1,nz1,h,h2,HTSQR2,HS2I)
@@ -611,7 +643,7 @@ c                  print *,'reverse bot ',ibot
 C
 C---------------- reverse, starting row is the one just calculated
                   irevr = ibot-1
-                  do while (ifirst .ne. 0 .and. irevr .gt. iszp1) 
+                  do while (ifirst .ne. 0 .and. irevr .gt. iszp1)
                      ifirst = 0
                      CALL ROWTIM(time,slow,mxx,nx,nz,irevr,ILEFT,IRIGHT,
      &                    -1,1,ifirst,nx1,nz1,h,h2,HTSQR2,HS2I)
@@ -666,15 +698,15 @@ C     finite difference propagation of travel times. The parameter SISIZE
 C     determines how far into the cartesian grid the polar grid expands from
 C     the source point. If SISIZE is increased, MXP (maximum number of angles)
 C     and MXR (maximum number of radii) must be increased. As r increases
-C     the angle increment must decrease to ensure at least 2 angle increments 
+C     the angle increment must decrease to ensure at least 2 angle increments
 C     within the outermost cartesian cell. These calculations are done in
 C     in subroutine ANGRGN.
 C
 C     Only forward propagation is used since the beginning of head waves
 C     tends to be picked up properly in a polar geometry. Nearly the
 C     entire source region is re-computed in the cartesian finite difference
-C     portion anway, and it does do reverersals. PINTIM calculates the 
-C     spherical wavefronts more accurately near the source, providing more 
+C     portion anway, and it does do reverersals. PINTIM calculates the
+C     spherical wavefronts more accurately near the source, providing more
 C     accurate (earlier) times at 45 degrees from the cartesian axes.
 C
       IMPLICIT NONE
@@ -761,7 +793,7 @@ C------- calculate forward
       enddo
 C
 C---- compute times of nodes of cartesian grid that fall within the
-C---- initialization polar grid 
+C---- initialization polar grid
       call intxzt(dr,dp,r,p,time,mxp,np,nr,xsrc,zsrc,timexz,mxx,nx,nz,
      &     dx,dz,xmin,xmax,zmin,zmax,iangr)
       return
@@ -773,7 +805,7 @@ c
      &     IWAY,irev,ifirst,nx1,nz1,h,h2,HTSQR2,HS2I)
 C-----------------------------------------------------------------
 C     COLTIM calculates travel times for a column by sweeping up
-C     and down the column for all templates until all points 
+C     and down the column for all templates until all points
 C     in the column are filled with minimum travel times.
 C-----------------------------------------------------------------
       IMPLICIT NONE
@@ -853,7 +885,7 @@ C
 C------- if a refractor was found, return to do reverse propagation
          if (ifirst .ne. 0) return
       endif
-C      
+C
       ihit = 0
 C
 C---- find positions of time minima to order transmission loops below
@@ -881,7 +913,7 @@ C------- kludge to make sure a lower time is indicated during a reversal
          endif
          call reftim(TIME(ILASTT,J),TIME(NUMCOL,J),s1,s2,H,ihit)
 C
-C ...... start up from the bottom 
+C ...... start up from the bottom
          do j = minstr(indexm(I)), mnlend(indexm(I)),-1
             J1 = J - 1
             IL = MAX(1,J1-1)
@@ -983,7 +1015,7 @@ c
      &     IWAY,irev,ifirst,nx1,nz1,h,h2,HTSQR2,HS2I)
 C-----------------------------------------------------------------
 C     ROWTIM calculates travel times for a row by sweeping left
-C     and right across the row for all templates until all points 
+C     and right across the row for all templates until all points
 C     in the row are filled with minimum travel times.
 C-----------------------------------------------------------------
       IMPLICIT NONE
@@ -1056,7 +1088,7 @@ C------------- if a refraction occurs sweep to the end of this row
                      call reftim(time(k,ILASTT),time(k1,ILASTT),
      &                    slow(iu,INEXTS),slow(iu,IREFS),H,ihit)
                   enddo
-               endif         
+               endif
             enddo
          enddo
 C
@@ -1075,7 +1107,7 @@ C
 C---- sweep out from minimum time(s)
       do i = 1,nmin
 C
-C ...... calculate 1D transmission time 
+C ...... calculate 1D transmission time
          J = minstr(indexm(i))
          IL = MAX(1,J-1)
          IU = MIN(J,nx1)
@@ -1134,7 +1166,7 @@ C---------- if a refraction occurs sweep to the end of this row
                   call reftim(time(k,numrow),time(k1,numrow),
      &                 slow(iu,IREFS),slow(iu,INEXTS),H,ihit)
                enddo
-            endif         
+            endif
          enddo
 C
 C------- sweep from left to right
@@ -1251,7 +1283,7 @@ C
      &     r(0:*),p(1:*),cang(1:*),sang(1:*)
       real xmin,xmax,zmin,zmax,dx,dz,xsrc,zsrc
 C
-C---- check boundaries 
+C---- check boundaries
       if (zsrc .eq. zmin) then
          if (xsrc .lt. xmax) then
             angend = 0.D0
@@ -1344,7 +1376,7 @@ c
      &     idir,r24,sfac,dr2,rdr4,facnd,drrdpi,tm1cof,tm2cof,tm3cof,dd)
 C
 C     CRNSWP calculates times to a corner in an outward sweep over a radius
-C     ring. 
+C     ring.
 C
       IMPLICIT NONE
       INTEGER iostr,ioend,MXP,MXR,J,I,J1,I1,idir
@@ -1805,10 +1837,10 @@ C
       DOUBLE PRECISION TIME(MXP,MXR),dr,s(0:*),tmp
 
 C
-C---- calculate times within ring 
+C---- calculate times within ring
       DO I=1,np
          tmp = dr*min(s(i-1),s(i)) + TIME(I,J1)
-         TIME(I,J) = min(tmp,TIME(i,j)) 
+         TIME(I,J) = min(tmp,TIME(i,j))
       enddo
       RETURN
       END
@@ -1850,9 +1882,9 @@ C---- loop through number of receiver positions
          xpos(1,1) = 0.
          zpos(1,1) = 0.
 C
-C------- calculate path from receiver to source position until the path 
+C------- calculate path from receiver to source position until the path
 C------- intersects the source cell
-         do while (it .ne. 0) 
+         do while (it .ne. 0)
 C
 C---------- find cell indices about current path position
             ix = min(int(xi),nx)
@@ -1862,17 +1894,17 @@ C---------- find cell indices about current path position
             iz1 = min(iz+1,nz)
             izm1 = max(1,iz-1)
 C
-C---------- compute quantities for z component of the gradient 
+C---------- compute quantities for z component of the gradient
             upzd = time(ix,izm1)-time(ix,iz)
             lwzd = time(ix,iz)-time(ix,iz1)
             upzd1 = time(ix1,izm1)-time(ix1,iz)
             lwzd1 = time(ix1,iz)-time(ix1,iz1)
 C
 C---------- handle grid edges gracefully
-            if (izm1 .eq. iz) then 
-               upzd = sign(1.e-6,lwzd) 
+            if (izm1 .eq. iz) then
+               upzd = sign(1.e-6,lwzd)
                upzd1 = sign(1.e-6,lwzd1)
-            else if(iz .eq. iz1) then 
+            else if(iz .eq. iz1) then
                lwzd = sign(1.e-6,upzd)
                lwzd1 = sign(1.e-6,upzd1)
             endif
@@ -1883,9 +1915,9 @@ C---------- linear interpolation relative to x position
             lwzd = f * lwzd1 + (1.0-f)* lwzd
 C
 C---------- calculate z time gradient, checking for time discontinuity
-            if (sign(1.0,upzd) .ne. sign(1.0,lwzd)) then 
-               dtdz = 0. 
-            else 
+            if (sign(1.0,upzd) .ne. sign(1.0,lwzd)) then
+               dtdz = 0.
+            else
                dtdz = 0.5*(upzd+lwzd)
             endif
 C
@@ -1894,10 +1926,10 @@ C---------- x time gradient
             lfxd1 = time(ixm1,iz1)-time(ix,iz1)
             rtxd = time(ix,iz)-time(ix1,iz)
             rtxd1 = time(ix,iz1)-time(ix1,iz1)
-            if (ixm1 .eq. ix) then 
-               lfxd = sign(1.e-6,rtxd) 
-               lfxd1 = sign(1.e-6,rtxd1) 
-            else if(ix .eq. ix1) then 
+            if (ixm1 .eq. ix) then
+               lfxd = sign(1.e-6,rtxd)
+               lfxd1 = sign(1.e-6,rtxd1)
+            else if(ix .eq. ix1) then
                rtxd = sign(1.e-6,lfxd)
                rtxd1 = sign(1.e-6,lfxd1)
             endif
@@ -1908,9 +1940,9 @@ C---------- linear interpolation
             rtxd = f * rtxd1 + (1.0-f) * rtxd
 C
 C---------- calculate x time gradient, checking for time discontinuity
-            if (sign(1.0,lfxd) .ne. sign(1.0,rtxd)) then 
-               dtdx = 0. 
-            else 
+            if (sign(1.0,lfxd) .ne. sign(1.0,rtxd)) then
+               dtdx = 0.
+            else
                dtdx = 0.5*(lfxd+rtxd)
             endif
 C
@@ -1930,35 +1962,35 @@ C---------- calculate index location values
             izl = int(zi)
 C
 C---------- if we have left the previous cell calculate its path length
-            if (ixn .ne. ixl .or. izn .ne. izl) then 
+            if (ixn .ne. ixl .or. izn .ne. izl) then
                zdif = zn-zi
                xdif = xn-xi
                if (xi .eq. float(ixl) .and. xdif .lt. 0.0) ixl = ixl-1
                if (zi .eq. float(izl) .and. zdif .lt. 0.0) izl = izl-1
 C
-C------------- find intersection with the cell wall by looking at angles of 
-C------------- the ray and the angle to the corner of the sub-cell the ray 
+C------------- find intersection with the cell wall by looking at angles of
+C------------- the ray and the angle to the corner of the sub-cell the ray
 C------------- departs through
                angl = atan2(abs(zdif),abs(xdif))
-               if (cang .lt. 0.0) then 
-                  xs = abs(xi - float(ixl)) 
-               else 
+               if (cang .lt. 0.0) then
+                  xs = abs(xi - float(ixl))
+               else
                   xs = abs(1.+float(ixl)-xi)
                endif
-               if (sang .lt. 0.0) then 
-                  zs = abs(zi - float(izl)) 
-               else 
+               if (sang .lt. 0.0) then
+                  zs = abs(zi - float(izl))
+               else
                   zs = abs(1.+float(izl)-zi)
                endif
                angc = atan2(zs,xs)
-               if (angl .gt. angc) then 
+               if (angl .gt. angc) then
                   zc = zs
-                  if (xdif .ne. 0.0) then 
-                     xc = zc/tan(angl) 
-                  else 
+                  if (xdif .ne. 0.0) then
+                     xc = zc/tan(angl)
+                  else
                      xc = 0.
-                  endif 
-               else 
+                  endif
+               else
                   xc = xs
                   zc = xc*tan(angl)
                endif
@@ -2001,22 +2033,22 @@ C------------- check for and eliminate duplicates
                endif
                rinc = 0.0
 C
-C------------- require nonzero contribution 
+C------------- require nonzero contribution
                if (dkern(nk,i) .gt. 0.0) nk = nk+1
 C
-C------------- if both x and z indices change we probably hit the corner of 
-C------------- second cell and need to calculate its path length and store it 
-C------------- before proceeding 
+C------------- if both x and z indices change we probably hit the corner of
+C------------- second cell and need to calculate its path length and store it
+C------------- before proceeding
                if (ixn .ne. ixl .and. izn .ne. izl .and.
-     &              angl .ne. angc) then 
+     &              angl .ne. angc) then
 C
-C---------------- move to boundary and see which of x or z advances 
-                  if (angl .gt. angc) then 
+C---------------- move to boundary and see which of x or z advances
+                  if (angl .gt. angc) then
                      xc = abs(xs-xc)
                      zc = xc*tan(angl)
-                     if (sang .gt. 0.0) then 
-                        izl = min(izl+1,nz1) 
-                     else 
+                     if (sang .gt. 0.0) then
+                        izl = min(izl+1,nz1)
+                     else
                         izl = max(1,izl-1)
                      endif
                      xs = xi + xs*sign(1.0,xdif)
@@ -2024,9 +2056,9 @@ C---------------- move to boundary and see which of x or z advances
                   else
                      zc = abs(zs-zc)
                      xc = zc/tan(angl)
-                     if (cang .gt. 0.0) then 
-                        ixl = min(ixl+1,nx1) 
-                     else 
+                     if (cang .gt. 0.0) then
+                        ixl = min(ixl+1,nx1)
+                     else
                         ixl = max(1,ixl-1)
                      endif
                      zs = zi + zs*sign(1.0,zdif)
@@ -2086,7 +2118,7 @@ C         print *,' number of path segments =',nk,i,xis,zis
          nk = max(1,nk-1)
 C
 C------- if source cell does not have a contribution yet add it to the list
-         if (xpos(nk,i) .ne. isx .or. zpos(nk,i) .ne. isz) then 
+         if (xpos(nk,i) .ne. isx .or. zpos(nk,i) .ne. isz) then
             nk = nk + 1
             xpos(nk,i) = max(1,min(isx,nx1))
             zpos(nk,i) = max(1,min(isz,nz1))

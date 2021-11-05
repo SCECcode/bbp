@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import shutil
 import unittest
 
 # Import Broadband modules
@@ -37,7 +38,7 @@ class TestSyn1D(unittest.TestCase):
         self.r_velmodel = "nr02-vs500_lf.vel"
         self.r_srcfile = "test_wh_ucsb.src"
         self.r_stations = "one_stat.txt"
-        self.r_srffile = "FFSP_OUTPUT.001"
+        self.r_srffile = "FFSP_OUTPUT.bst"
         self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
 
@@ -49,14 +50,11 @@ class TestSyn1D(unittest.TestCase):
         a_logdir = os.path.join(self.install.A_OUT_LOG_DIR, str(self.sim_id))
         a_outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
 
-        cmd = "mkdir -p %s" % (a_indir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_tmpdir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_outdir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_logdir)
-        bband_utils.runprog(cmd)
+        # Create directories
+        bband_utils.mkdirs([a_indir, a_tmpdir, a_outdir, a_logdir],
+                           print_cmd=False)
+
+        # Copy files
         cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_srffile), a_indir)
         bband_utils.runprog(cmd)
         cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_srcfile), a_indir)
@@ -92,7 +90,7 @@ class TestSyn1D(unittest.TestCase):
 
             errmsg = ("Output file %s does not match reference file: %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_bbp(a_ref_file, a_newfile) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_bbp(a_ref_file, a_newfile) != 0, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestSyn1D)

@@ -22,8 +22,6 @@ from __future__ import division, print_function
 import math
 import sys
 
-from itertools import izip
-
 # Boolean flag for enforcing tolerance checks
 #ENFORCE_TOLERANCE = False
 ENFORCE_TOLERANCE = True
@@ -40,7 +38,7 @@ def cmp_ffsp(filename1, filename2, tolerance=0.01):
     header2 = fp2.readline().strip()
     items1 = [float(item) for item in header1.strip().split()]
     items2 = [float(item) for item in header2.strip().split()]
-    for i in xrange(len(items1)):
+    for i in range(len(items1)):
         if items1[i] == 0.0 and items2[i] == 0.0:
             continue
         try:
@@ -64,7 +62,7 @@ def cmp_ffsp(filename1, filename2, tolerance=0.01):
                 print("Number of items mismatch: %d versus %d!" %
                       (len(items1), len(items2)))
                 return 1
-            for i in xrange(len(items1)):
+            for i in range(len(items1)):
                 if items1[i] == 0.0 and items2[i] == 0.0:
                     continue
                 try:
@@ -472,7 +470,7 @@ def cmp_files_generic(filename1, filename2, tolerance=0.0015,
     return_code = 0
 
     with open(filename1, 'r') as file1, open(filename2, 'r') as file2:
-        for line1, line2 in izip(file1, file2):
+        for line1, line2 in zip(file1, file2):
             # Skip comments
             if line1.startswith("#"):
                 continue

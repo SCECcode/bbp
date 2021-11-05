@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class UCrmgCfg(object):
         #
         # Name and Path to executable
         #
-        self.R_UC_FFSP_EXE = "ffsp_v2"
+        self.R_UC_FFSP_EXE = "ffsp_dcf_v2"
         self.A_UC_FFSP_EXE = os.path.join(install.A_UCSB_BIN_DIR,
                                           self.R_UC_FFSP_EXE)
         self.FFSP_OUTPUT_PREFIX = "FFSP_OUTPUT"

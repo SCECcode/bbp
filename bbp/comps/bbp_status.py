@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -48,16 +48,16 @@ class BBPStatus(object):
                       ["GFORTRAN Version",
                        "cat $BBP_DIR/src/gfortran.version", False],
                       ["NumPy Version",
-                       "python -c 'import numpy; print numpy.__version__;'",
+                       "python -c 'from __future__ import print_function; import numpy; print(numpy.__version__);'",
                        False],
                       ["SciPy Version",
-                       "python -c 'import scipy; print scipy.__version__;'",
+                       "python -c 'from __future__ import print_function; import scipy; print(scipy.__version__);'",
                        False],
                       ["Matplotlib Version",
-                       "python -c 'import matplotlib; print matplotlib.__version__;'",
+                       "python -c 'from __future__ import print_function; import matplotlib; print(matplotlib.__version__);'",
                        False],
                       ["PyProj Version",
-                       "python -c 'import pyproj; print pyproj.__version__;'",
+                       "python -c 'from __future__ import print_function; import pyproj; print(pyproj.__version__);'",
                        False]]
 
     # Leave some envrionment variables out, to avoid capturing too much

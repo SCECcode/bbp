@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ limitations under the License.
 This program created a distance-based GOF, combining information from
 all realizations into a single plot.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -144,15 +145,23 @@ def create_combined_dist_gof(all_sta_resid_data, all_sta_dist_data,
     plottitle = ("GOF Comparison for %s\n%d Realizations\n%s Method" %
                  (event_label, num_realizations, codebase.upper()))
 
+    # Set up ticks to match matplotlib 1.x style
+    matplotlib.rcParams['xtick.direction'] = 'in'
+    matplotlib.rcParams['ytick.direction'] = 'in'
+    matplotlib.rcParams['xtick.top'] = True
+    matplotlib.rcParams['ytick.right'] = True
+    # And errorbars too
+    matplotlib.rcParams['errorbar.capsize'] = 3
+
     # Create figure
     num_plots = len(DIST_PERIODS)
     if len(DIST_PERIODS) % 2:
         num_plots = num_plots + 1
-    num_columns = num_plots / 2
+    num_columns = num_plots // 2
     fig, axs = pylab.plt.subplots(2, num_columns)
     fig.set_size_inches(18, 8)
     fig.subplots_adjust(left = 0.05, right = 0.95, top = 0.86, bottom = 0.06)
-
+    
     # Find max, min values for x_axis
     if log_scale:
         min_x = 1
@@ -214,7 +223,7 @@ def create_combined_dist_gof(all_sta_resid_data, all_sta_dist_data,
             subfig.set_xlabel("Distance (km)", size=8)
 
     fig.suptitle('%s' % (plottitle), size=12)
-    print "Saving dist GoF plot to %s" % (outfile)
+    print("Saving dist GoF plot to %s" % (outfile))
     fig.savefig(outfile, format="png", transparent=False, dpi=plot_config.dpi)
 
 # --------------------------------------------------------------------------
@@ -255,4 +264,4 @@ if OPTIONS.codebase is None:
 plot_combined_dist_gof(INPUT_OUTDIR, OUTPUT_DIR, OPTIONS.codebase)
 
 # All done!
-print "All Done!"
+print("All Done!")

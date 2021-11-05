@@ -109,9 +109,7 @@ for(im=0;im<mp.nmech;im++)
          gnt = (int)(fnt + 0.5);
          }
 
-      //printf("fnt: %f, gnt: %d\n", fnt, gnt);
-      ntrsmp = (int)(fnt+0.5);
-      //printf("ntrsmp: %d\n", ntrsmp);
+      ntrsmp = (int)(fnt);
 
       if((*dt) < apval_ptr[ip].dt)
 	 {
@@ -156,4 +154,48 @@ for(im=0;im<mp.nmech;im++)
 
 free(space);
 free(sptr2);
+}
+
+void get_srfpars_v2(struct standrupformat *srf,int off, int ip,float *rt,float *vs,struct mechparam *mpar)
+{
+struct srf_planerectangle *prect_ptr;
+struct srf_prectsegments *prseg_ptr;
+struct srf_allpoints *apnts_ptr;
+struct srf_apointvalues *apval_ptr;
+
+prect_ptr = &(srf->srf_prect);
+prseg_ptr = prect_ptr->prectseg;
+apnts_ptr = &(srf->srf_apnts);
+apval_ptr = apnts_ptr->apntvals + off;
+
+mpar->nmech = 0;
+mpar->flag[0] = 0;
+mpar->flag[1] = 0;
+mpar->flag[2] = 0;
+
+if(apval_ptr[ip].nt1 > 0)
+   {
+   mpar->flag[mpar->nmech] = U1FLAG;
+   mpar->nmech = mpar->nmech + 1;
+   }
+if(apval_ptr[ip].nt2 > 0)
+   {
+   mpar->flag[mpar->nmech] = U2FLAG;
+   mpar->nmech = mpar->nmech + 1;
+   }
+if(apval_ptr[ip].nt3 > 0)
+   {
+   mpar->flag[mpar->nmech] = U3FLAG;
+   mpar->nmech = mpar->nmech + 1;
+   }
+
+*vs = sqrt(apval_ptr[ip].slip1*apval_ptr[ip].slip1
+         + apval_ptr[ip].slip2*apval_ptr[ip].slip2
+	 + apval_ptr[ip].slip3*apval_ptr[ip].slip3);
+
+mpar->stk = apval_ptr[ip].stk;
+mpar->dip = apval_ptr[ip].dip;
+mpar->rak = apval_ptr[ip].rake;
+
+*rt = apval_ptr[ip].tinit;
 }

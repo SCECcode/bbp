@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import sys
@@ -38,11 +39,11 @@ def write_combined_table(input_files):
         lines = [line.strip() for line in lines]
         # Skip blank lines
         if not lines[0]:
-            print
+            print()
             continue
         # If this is a header line
         if lines[0].startswith("Rrup") or lines[0].startswith("Mechanism"):
-            print "%s - (%s)" % (lines[0], methods)
+            print("%s - (%s)" % (lines[0], methods))
             continue
         # Ok, this is a data line
         tokens = [line.split() for line in lines]
@@ -57,9 +58,9 @@ def write_combined_table(input_files):
         # Remove line header
         for idx, _ in enumerate(tokens):
             del tokens[idx][0]
-        print "%-15s" % (head),
+        print("%-15s" % (head), end="")
         # Figure out how many columns we have
-        columns = len(tokens[0]) / 3
+        columns = len(tokens[0]) // 3
 
         for idx in range(0, columns):
             for method in tokens:
@@ -72,11 +73,11 @@ def write_combined_table(input_files):
                     token0 = None
                     token1 = None
                 if token0 is None:
-                    print("%6s %6s" % ("  N/A", "  N/A")),
+                    print("%6s %6s" % ("  N/A", "  N/A"), end="")
                 else:
-                    print("%6.2f %6.2f" % (token0, token1)),
-            print " | ",
-        print
+                    print("%6.2f %6.2f" % (token0, token1), end="")
+            print(" | ", end="")
+        print()
 
     # All done, close input files
     for input_file in input_fps:
@@ -87,8 +88,8 @@ def main():
     Get input files from the user
     """
     if len(sys.argv) < 2:
-        print ("Usage: %s input_file1 [input_file2 input_file3 ...]" %
-               (sys.argv[0]))
+        print("Usage: %s input_file1 [input_file2 input_file3 ...]" %
+              (sys.argv[0]))
         sys.exit(1)
 
     input_files = sys.argv[1:]

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ class HfsimsCfg(object):
         #
         # Name of executable
         #
-        self.HFSIM = "hb_high_v6.0.3"
+        self.HFSIM = "hb_high_v6.0.4"
 
         #
         # Seismic Parameters
@@ -67,7 +67,6 @@ class HfsimsCfg(object):
         # The following parameters are set for western US simulations,
         # override in velocity model configuration file
         self.DEFAULT_SDROP = 50
-        self.DEFAULT_FCFAC = 0.0
         self.DEFAULT_QFEXP = 0.6
         self.DEFAULT_C0 = 57
         self.DEFAULT_C1 = 34
@@ -97,7 +96,6 @@ class HfsimsCfg(object):
         self.MEAN_RVFAC = 0.8
         self.RANGE_RVFAC = 0.05
         self.SHAL_RVFAC = 0.6
-        self.DEFAULT_EXTRA_FCFAC = 0.0
         self.UNITS = -1
         self.DEFAULT_VSMOHO = 999.9
         self.PATH_DUR_MODEL = 11

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Broadband Platform Version of Martin Mai BBcoda2.csh
+Python module to start the GP rupture generator
 """
 from __future__ import division, print_function
 
 # Import Python modules
 import os
 import sys
-# import math # (used to calculate moment)
+import shutil
 
 # Import Broadband modules
 import bband_utils
@@ -40,7 +40,8 @@ class Genslip(object):
     """
 
     def __init__(self, i_r_velmodel, i_r_srcfile,
-                 o_r_srffile, i_vmodel_name, sim_id=0):
+                 o_r_srffile, i_vmodel_name, sim_id=0,
+                 **kwargs):
         """
         Initialize class variables
         """
@@ -56,6 +57,16 @@ class Genslip(object):
         self.risetime_fac = None
         self.deep_risetime_fac = None
         self.slip_sigma = None
+        self.range_fwidth_frac = None
+        self.r_srcfiles = []
+
+        # Get all src files that were passed to us
+        if kwargs is not None and len(kwargs) > 0:
+            for idx in range(len(kwargs)):
+                self.r_srcfiles.append(kwargs['src%d' % (idx)])
+        else:
+            # Not a multisegment run, just use the single src file
+            self.r_srcfiles.append(i_r_srcfile)
 
     def run(self):
         """
@@ -72,20 +83,22 @@ class Genslip(object):
         a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_logdir = os.path.join(install.A_OUT_LOG_DIR, str(sim_id))
+        a_param_outdir = os.path.join(a_outdir, "param_files")
 
         # Make sure the output and tmp directories exist
-        bband_utils.mkdirs([a_tmpdir, a_indir, a_outdir], print_cmd=False)
+        bband_utils.mkdirs([a_tmpdir, a_indir,
+                            a_outdir, a_param_outdir], print_cmd=False)
 
         # Now, file paths
+        fault_seg2gsf_bin = os.path.join(install.A_GP_BIN_DIR, "fault_seg2gsf")
+        genslip_bin = os.path.join(install.A_GP_BIN_DIR, "genslip-v5.4.1")
         self.log = os.path.join(a_logdir, "%d.genslip.log" % (sim_id))
-        a_srcfile = os.path.join(a_indir, self.r_srcfile)
         a_velfile = os.path.join(a_indir, self.r_velmodel)
+        a_srcfiles = [os.path.join(a_indir,
+                                   srcfile) for srcfile in self.r_srcfiles]
 
-        # Read src file
-        cfg = GenslipCfg(a_srcfile)
-
-        # Define location of input velocity model file
-        a_velmodel = os.path.join(a_tmpdir, self.r_velmodel)
+        # Read source file(s)
+        cfg = GenslipCfg(a_srcfiles)
 
         # Get pointer to the velocity model object
         vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
@@ -94,6 +107,11 @@ class Genslip(object):
                                              (self.vmodel_name))
         # Check for velocity model-specific parameters
         vmodel_params = vel_obj.get_codebase_params('gp')
+        # Look for RANGE_FWIDTH_FRAC
+        if 'RANGE_FWIDTH_FRAC' in vmodel_params:
+            self.range_fwidth_frac = float(vmodel_params['RANGE_FWIDTH_FRAC'])
+        else:
+            self.range_fwidth_frac = cfg.RANGE_FWIDTH_FRAC
         # Look for RISETIME_COEF
         if 'RISETIME_COEF' in vmodel_params:
             self.risetime_coef = float(vmodel_params['RISETIME_COEF'])
@@ -138,71 +156,143 @@ class Genslip(object):
                                              "velocity model %s!" %
                                              (self.vmodel_name))
 
+        # If we have multiple SRC files, make sure they are in the right order
+        if cfg.num_srcfiles > 1:
+            new_dict = []
+            for cur_segno in range(1, cfg.num_srcfiles + 1):
+                for segment in cfg.CFGDICT:
+                    if int(segment["draping_segno"]) == cur_segno:
+                        new_dict.append(segment)
+                        break
+            if len(new_dict) != cfg.num_srcfiles:
+                raise bband_utils.ParameterError("Cannot find all segments in"
+                                                 "multi-segment event!")
+            cfg.CFGDICT = new_dict
+
         # Calculate nstk,ndip
-        nstk = round(cfg.CFGDICT["fault_length"] / cfg.CFGDICT["dlen"])
-        ndip = round(cfg.CFGDICT["fault_width"] / cfg.CFGDICT["dwid"])
+        mean_fwidth = cfg.CFGDICT[0]["fault_width"]
+        range_fwidth = mean_fwidth * self.range_fwidth_frac
+        if "common_seed" in cfg.CFGDICT[0]:
+            fwidth = calculate_rvfac(mean_fwidth, range_fwidth,
+                                     cfg.CFGDICT[0]["common_seed"],
+                                     count=1)
+        else:
+            fwidth = calculate_rvfac(mean_fwidth, range_fwidth,
+                                     cfg.CFGDICT[0]["seed"],
+                                     count=1)
+        flen_total = 0.0
+        for segment in cfg.CFGDICT:
+            flen_total = flen_total + segment["fault_length"]
+        nstk_tot = round(flen_total / cfg.CFGDICT[0]["dlen"])
+        ndip = int(round(fwidth / cfg.CFGDICT[0]["dwid"]))
+        fwidth = ndip * cfg.CFGDICT[0]["dwid"]
 
-        # Calculate rvfac
-        if "common_seed" in cfg.CFGDICT:
-            rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
-                                    cfg.CFGDICT["common_seed"])
+        # Check if we are using the draping method
+        if ((not "draping_group" in cfg.CFGDICT[0]) or
+            ("draping_group" in cfg.CFGDICT[0] and
+             cfg.CFGDICT[0]["draping_group"] < 1)):
+            # For single-segmenmt or multi-segment SRC files
+            # not using the draping method
+
+            # Set Hypocenter
+            master_shypo = cfg.CFGDICT[0]["hypo_along_stk"]
+
+            # Calculate rvfac
+            if "common_seed" in cfg.CFGDICT[0]:
+                rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
+                                        cfg.CFGDICT[0]["common_seed"])
+            else:
+                rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
+                                        cfg.CFGDICT[0]["seed"])
+
+            if "rupture_delay" in cfg.CFGDICT[0]:
+                rupture_delay = cfg.CFGDICT[0]["rupture_delay"]
+            else:
+                rupture_delay = 0.0
+
+            if "moment_fraction" in cfg.CFGDICT[0]:
+                moment_fraction = cfg.CFGDICT[0]["moment_fraction"]
+            else:
+                moment_fraction = -1.0
+
+            if "max_fault_length" in cfg.CFGDICT[0]:
+                flen_max = cfg.CFGDICT[0]["max_fault_length"]
+            else:
+                flen_max = -1.0
         else:
             rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
-                                    cfg.CFGDICT["seed"])
-
-        # moment = math.pow(10, 1.5 * (cfg.MAG + 10.7))
-
-        # For multi-segment SRC files
-        if "rupture_delay" in cfg.CFGDICT:
-            rupture_delay = cfg.CFGDICT["rupture_delay"]
-        else:
+                                    cfg.CFGDICT[0]["seed"])
+            # Disable the following parameters when using draping
             rupture_delay = 0.0
-
-        if "moment_fraction" in cfg.CFGDICT:
-            moment_fraction = cfg.CFGDICT["moment_fraction"]
-        else:
             moment_fraction = -1.0
-
-        if "max_fault_length" in cfg.CFGDICT:
-            flen_max = cfg.CFGDICT["max_fault_length"]
-        else:
             flen_max = -1.0
 
-        r_gsftmp = "m%.2f-%.2fx%.2f.gsf" % (cfg.CFGDICT["magnitude"],
-                                            cfg.CFGDICT["dlen"],
-                                            cfg.CFGDICT["dwid"])
+            # Now set hypocenter along strike
+            master_shypo = 0.0
+            for segment in cfg.CFGDICT:
+                if segment["true_hypo"] != 1:
+                    master_shypo = master_shypo + segment["fault_length"]
+                else:
+                    master_shypo = (master_shypo +
+                                    0.5 * (segment["fault_length"] - flen_total) +
+                                    segment["hypo_along_stk"])
+                    break
+
+        r_gsftmp = "m%.2f-%.2fx%.2f.gsf" % (cfg.CFGDICT[0]["magnitude"],
+                                            cfg.CFGDICT[0]["dlen"],
+                                            cfg.CFGDICT[0]["dwid"])
+        a_fault_seg_in = os.path.join(a_tmpdir, "fault_seg.in")
         a_gsftmp = os.path.join(a_tmpdir, r_gsftmp)
 
-        r_outroot = "m%.2f-%.2fx%.2f_s%d-v5.4.1" % (cfg.CFGDICT["magnitude"],
-                                                    cfg.CFGDICT["dlen"],
-                                                    cfg.CFGDICT["dwid"],
-                                                    cfg.CFGDICT["seed"])
+        r_outroot = "m%.2f-%.2fx%.2f_s%d-v5.4.1" % (cfg.CFGDICT[0]["magnitude"],
+                                                    cfg.CFGDICT[0]["dlen"],
+                                                    cfg.CFGDICT[0]["dwid"],
+                                                    cfg.CFGDICT[0]["seed"])
         a_srffile = os.path.join(a_indir, "%s.srf" % (r_outroot))
 
-        progstring = ("%s/fault_seg2gsf read_slip_vals=0 << EOF > %s 2>> %s\n" %
-                      (install.A_GP_BIN_DIR, a_gsftmp, self.log) +
-                      "1\n" +
-                      "%f %f %f %f %f %f %f %f %d %d\n" %
-                      (cfg.CFGDICT["lon_top_center"],
-                       cfg.CFGDICT["lat_top_center"],
-                       cfg.CFGDICT["depth_to_top"],
-                       cfg.CFGDICT["strike"], cfg.CFGDICT["dip"],
-                       cfg.CFGDICT["rake"], cfg.CFGDICT["fault_length"],
-                       cfg.CFGDICT["fault_width"], nstk, ndip) + "EOF")
+        # Write fault_seg.in file
+        fault_seg = open(a_fault_seg_in, 'w')
+        fault_seg.write("%d\n" % (cfg.num_srcfiles))
+        for segment in cfg.CFGDICT:
+            nstk_seg = int(round(segment["fault_length"] / segment["dlen"]))
+            fault_seg.write("%f %f %f %f %f %f %f %.1f %d %d\n" %
+                            (segment["lon_top_center"],
+                             segment["lat_top_center"],
+                             segment["depth_to_top"],
+                             segment["strike"],
+                             segment["dip"],
+                             segment["rake"],
+                             segment["fault_length"],
+                             fwidth,
+                             nstk_seg,
+                             ndip))
+        fault_seg.close()
+
+        # Save fault_seg_in file
+        shutil.copy2(a_fault_seg_in,
+                     os.path.join(a_param_outdir,
+                                  os.path.basename(a_fault_seg_in)))
+
+        # Output parameters used for this run
+        print("Sim parameters: id: %d - fwidth: %.1f - rvfrac: %f" %
+              (sim_id, fwidth, rvfac))
+
+        progstring = ("%s read_slip_vals=0 < %s > %s 2>> %s\n" %
+                      (fault_seg2gsf_bin, a_fault_seg_in, a_gsftmp, self.log))
         bband_utils.runprog(progstring)
 
-        progstring = ("%s/genslip-v5.4.1 read_erf=0 write_srf=1 " %
-                      (install.A_GP_BIN_DIR) +
+        progstring = ("%s read_erf=0 write_srf=1 " %
+                      (genslip_bin) +
                       "read_gsf=1 write_gsf=0 infile=%s " % (a_gsftmp) +
                       "mag=%.2f nstk=%d ndip=%d " %
-                      (cfg.CFGDICT["magnitude"], nstk, ndip) +
+                      (cfg.CFGDICT[0]["magnitude"], nstk_tot, ndip) +
                       "ns=1 nh=1 " +
                       "kmodel=2 seed=%d slip_sigma=%f " %
-                      (cfg.CFGDICT["seed"], self.slip_sigma) +
+                      (cfg.CFGDICT[0]["seed"], self.slip_sigma) +
                       "circular_average=0 modified_corners=0 " +
                       "velfile=%s shypo=%f dhypo=%f rvfrac=%f " %
-                      (a_velfile, cfg.CFGDICT["hypo_along_stk"],
-                       cfg.CFGDICT["hypo_down_dip"], rvfac) +
+                      (a_velfile, master_shypo,
+                       cfg.CFGDICT[0]["hypo_down_dip"], rvfac) +
                       "shal_vrup_dep=%f shal_vrup_deprange=%f shal_vrup=%f " %
                       (cfg.RTDEP, cfg.RTDEP_RANGE, self.shal_vrup) +
                       "side_taper=0.02 bot_taper=0.0 top_taper=0.0 " +

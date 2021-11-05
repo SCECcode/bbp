@@ -200,7 +200,8 @@ else if (modality_flag /= 0) then
    ! assume maximum frequency for coda waves as Nyquist frequency
    dt = 1 / (2 * fmax)   !new time-step 
      
-   npts = nint(lf_len / dt) + 1   !related number of points
+   npts = nint(lf_len / dt) + 1   !related number of points, npts should be larger than this value
+   if (v_npts .gt. npts) npts = v_npts
 
    ! check if this is a 2**N value (if not, adjust npts)
    exponent = log(real(npts)) / log(2.0)

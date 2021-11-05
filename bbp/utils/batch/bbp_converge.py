@@ -32,7 +32,9 @@ import random
 import shutil
 import argparse
 import numpy as np
+import matplotlib.style
 import matplotlib as mpl
+mpl.style.use('classic')
 if mpl.get_backend() != 'agg':
     mpl.use('Agg') # Disables use of Tk/X11
 import pylab
@@ -183,6 +185,10 @@ def plot_results(bias_data, codebase, colormap, output_file):
     """
     Generate plot showing results calculated from all realizations
     """
+    # Restore Matplotlib 1.x style
+    mpl.rcParams['image.interpolation'] = 'bilinear'
+    mpl.rcParams['image.resample'] = False
+
     fig, ax = pylab.plt.subplots()
     xlocs = range(1, bias_data["num_periods"] + 1)
     ylocs = list(np.full(bias_data["num_periods"],

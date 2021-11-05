@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -363,7 +364,7 @@ def load_all_data(input_indir, input_outdir):
     # Go through all stations
     for site in site_list:
         station = site.scode
-        print "working on station: %s" % (station)
+        print("working on station: %s" % (station))
 
         # Read data for this station
         load_station_data(input_outdir, data, station)
@@ -471,7 +472,7 @@ for i in range(BMAX):
 out_file.close()
 
 s1_event = np.nanmean([DATA[iC][iB]["st_means"] for iC in range(10) for iB in range(BMAX)])
-print ('The S1 score for this event is ', "{:3.1f}".format(s1_event))
+print('The S1 score for this event is ', "{:3.1f}".format(s1_event))
 
 # Plot data
 output_file = os.path.join(OPTIONS.output_dir,
@@ -485,5 +486,5 @@ fplots(eventcode, OPTIONS.codebase, s1_event,
        np.asarray(c9conf), np.asarray(c10conf),
        output_file)
 
-print "All Done!"
+print("All Done!")
 # Clean-up, all done!

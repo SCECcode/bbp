@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -250,7 +250,10 @@ def parse_xml(xml_path):
                     #print arg_val
                     arg_impl = getattr(objName, arg_val)
                 else:
-                    m = __import__("__builtin__")
+                    try:
+                        m = __import__("__builtin__")
+                    except ModuleNotFoundError:
+                        m = __import__("builtins")
                     className = parts[0]
                     if className == "NoneType":
                         arg_impl = None
@@ -288,7 +291,10 @@ def parse_xml(xml_path):
                         #print arg_val
                         arg_impl = getattr(objName, arg_val)
                     else:
-                        m = __import__("__builtin__")
+                        try:
+                            m = __import__("__builtin__")
+                        except ModuleNotFoundError:
+                            m = __import__("builtins")
                         className = parts[0]
                         if className == "NoneType":
                             arg_impl = None

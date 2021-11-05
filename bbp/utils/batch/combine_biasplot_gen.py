@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+Copyright 2010-2019 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ all realizations, writes a single temporary file with all the data and
 uses the same resid2uncer_varN program used in single bias plots to
 generate data for the combined plot.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -75,7 +76,7 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
     plotter.plot(plottitle, fileroot, tmpdir, outdir,
                  cutoff=0, mode="rd50-single", colorset="combined")
 
-    print "Stations used: %s" % (num_stations)
+    print("Stations used: %s" % (num_stations))
 
 def create_resid_data_file(input_dir, combined_file):
     """
@@ -172,6 +173,6 @@ summarize_rotd50(TMPDIR, OUTPUT_DIR,
                  NUM_REALIZATIONS,
                  OPTIONS.codebase)
 
-print "All Done!"
+print("All Done!")
 # Clean-up, all done!
 shutil.rmtree(TMPDIR)

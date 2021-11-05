@@ -4,7 +4,7 @@
 #include "defs.h"
 #include "fftw3.h"
 
-extern void fourg_(struct complex *, int *, int *, float *);
+void hermit(struct complex *s0,int nx0,int ny0);
 
 void init_slip_IO(struct complex *sc,int nx2,int ny2,int nx,int ny,float *dx,float *dy,int flip,char *file)
 {
@@ -13,6 +13,13 @@ char str[1024];
 float slip, x0, y0, x1, y1;
 int ix0, iy0, ix1, iy1, iystart;
 int ix, iy, ip, ip1;
+int nr;
+
+for(ip=0;ip<nx2*ny2;ip++)
+   {
+   sc[ip].re = 0.0;
+   sc[ip].im = 0.0;
+   }
 
 if(file[0] == '\0')
    {
@@ -26,64 +33,49 @@ else
    {
    fpr = fopfile(file,"r");
 
-   fgets(str,1024,fpr);
-   sscanf(str,"%f",&slip);
-
-   for(ip=0;ip<nx2*ny2;ip++)
-      {
-      sc[ip].re = slip;
-      sc[ip].im = 0.0;
-      }
-
    while(fgets(str,1024,fpr) != NULL)
       {
-      sscanf(str,"%f %f %f %f %f",&slip,&x0,&y0,&x1,&y1);
+      nr = sscanf(str,"%f %f %f %f %f",&slip,&x0,&y0,&x1,&y1);
 
-      iystart = 0;
-      if(flip == 1)
-         iystart = ny2/2;
-
-iystart = 0;
-
-      ix0 = (int)((0.5*nx*(*dx) + x0)/(*dx) + 0.5);
-      if(ix0 < 0)
-         ix0 = 0;
-      if(ix0 > nx2)
-         ix0 = nx2;
-
-      iy0 = iystart + (int)(y0/(*dy) + 0.5);
-      if(iy0 < iystart)
-         iy0 = iystart;
-      if(iy0 > ny2)
-         iy0 = ny2;
-
-      ix1 = (int)((0.5*nx*(*dx) + x1)/(*dx) + 0.5);
-      if(ix1 < 0)
-         ix1 = 0;
-      if(ix1 > nx2)
-         ix1 = nx2;
-
-      iy1 = iystart + (int)(y1/(*dy) + 0.5) + 1;
-      if(iy1 < iystart)
-         iy1 = iystart;
-      if(iy1 > ny2)
-         iy1 = ny2;
-
-fprintf(stderr,"ix0= %d ix1= %d iy0= %d iy1= %d\n",ix0,ix1,iy0,iy1);
-
-      for(iy=iy0;iy<iy1;iy++)
+      if(nr == 1)
          {
-         for(ix=ix0;ix<ix1;ix++)
+         for(ip=0;ip<nx2*ny2;ip++)
             {
-	    ip = ix+iy*nx2;
-	    sc[ip].re = slip;
-	    }
+            sc[ip].re = slip;
+            sc[ip].im = 0.0;
+            }
 	 }
-
-      /*
-      if(flip == 1)
+      else
          {
-         for(iy=2*iystart-(iy0+1);iy>2*iystart-(iy1+1);iy--)
+         iystart = 0;
+
+         ix0 = (int)((0.5*nx*(*dx) + x0)/(*dx) + 0.5);
+         if(ix0 < 0)
+            ix0 = 0;
+         if(ix0 > nx2)
+            ix0 = nx2;
+
+         iy0 = iystart + (int)(y0/(*dy) + 0.5);
+         if(iy0 < iystart)
+            iy0 = iystart;
+         if(iy0 > ny2)
+            iy0 = ny2;
+
+         ix1 = (int)((0.5*nx*(*dx) + x1)/(*dx) + 0.5);
+         if(ix1 < 0)
+            ix1 = 0;
+         if(ix1 > nx2)
+            ix1 = nx2;
+
+         iy1 = iystart + (int)(y1/(*dy) + 0.5) + 1;
+         if(iy1 < iystart)
+            iy1 = iystart;
+         if(iy1 > ny2)
+            iy1 = ny2;
+
+         fprintf(stderr,"ix0= %d ix1= %d iy0= %d iy1= %d\n",ix0,ix1,iy0,iy1);
+
+         for(iy=iy0;iy<iy1;iy++)
             {
             for(ix=ix0;ix<ix1;ix++)
                {
@@ -92,7 +84,6 @@ fprintf(stderr,"ix0= %d ix1= %d iy0= %d iy1= %d\n",ix0,ix1,iy0,iy1);
 	       }
 	    }
 	 }
-      */
       }
 
    if(flip == 1)
@@ -108,7 +99,6 @@ fprintf(stderr,"ix0= %d ix1= %d iy0= %d iy1= %d\n",ix0,ix1,iy0,iy1);
             }
          }
       }
-
    }
 }
 
@@ -726,6 +716,7 @@ s0[ip].im = fac*gaus_rand(&wtS,&wtD,seed)/sqrt(2.0*wtS*wtS);
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0-1)/2;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -749,6 +740,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
+
+hermit(s0,nx0,ny0);
 
 /*
 for(j=0;j<ny0;j++)
@@ -1017,6 +1011,7 @@ s0[nx0/2+nx0*ny0/2].im = 0.0;
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0-1)/2;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1040,6 +1035,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
+
+hermit(s0,nx0,ny0);
 }
 
 void kfilt_lw_H0(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,long *seed,int kflag,float *fl,float *fw)
@@ -1166,6 +1164,7 @@ for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0-1)/2;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1189,7 +1188,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
 
+hermit(s0,nx0,ny0);
 }
 
 /* 2015-03-13 RWG
@@ -1288,6 +1289,7 @@ s0[nx0/2+nx0*ny0/2].im = 0.0;
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0-1)/2;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1311,6 +1313,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
+
+hermit(s0,nx0,ny0);
 }
 
 void kfilt_rphs(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,long *seed,int kflag)
@@ -1387,6 +1392,7 @@ s0[nx0/2+nx0*ny0/2].im = 0.0;
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0-1)/2;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1410,6 +1416,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
+
+hermit(s0,nx0,ny0);
 }
 
 /* 2015-03-26 RWG
@@ -1483,6 +1492,7 @@ s0[nx0/2+nx0*ny0/2].im = 0.0;
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0-1)/2;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1506,6 +1516,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
+
+hermit(s0,nx0,ny0);
 }
 
 /* 2016-10-21 RWG
@@ -1624,6 +1637,7 @@ for(i=1;i<=(nx0-1)/2;i++)
    s0[nx0-i].im = -s0[i].im;
    }
 */
+/*
 for(j=1;j<=(ny0/2)-1;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1647,6 +1661,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
+
+hermit(s0,nx0,ny0);
 }
 
 /* 2017-xx-xx RWG
@@ -1699,6 +1716,7 @@ s0[nx0/2+nx0*ny0/2].im = 0.0;
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0-1)/2;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1722,6 +1740,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
+
+hermit(s0,nx0,ny0);
 }
 
 /* 2017-xx-xx RWG
@@ -1835,6 +1856,7 @@ s0[nx0/2+nx0*ny0/2].im = 0.0;
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0-1)/2;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1858,6 +1880,9 @@ for(j=1;j<=ny0/2;j++)
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
       }
    }
+*/
+
+hermit(s0,nx0,ny0);
 }
 
 /* 2018-06-22 RWG
@@ -1921,6 +1946,7 @@ s0[nx0/2+nx0*ny0/2].im = 0.0;
    Enforce Hermitian symmetry to make slip real valued
 */
 
+/* 
 for(j=1;j<=(ny0/2)-1;j++)
    {
    s0[(ny0-j)*nx0].re = s0[j*nx0].re;
@@ -1936,6 +1962,44 @@ for(i=1;i<=(nx0/2)-1;i++)
 for(j=1;j<=ny0/2;j++)
    {
    for(i=1;i<=nx0/2;i++)
+      {
+      s0[(nx0-i)+(ny0-j)*nx0].re = s0[i+j*nx0].re;
+      s0[(nx0-i)+(ny0-j)*nx0].im = -s0[i+j*nx0].im;
+
+      s0[i+(ny0-j)*nx0].re = s0[(nx0-i)+j*nx0].re;
+      s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
+      }
+   }
+*/
+
+hermit(s0,nx0,ny0);
+}
+
+void hermit(struct complex *s0,int nx0,int ny0)
+{
+int i, j;
+
+for(i=1;i<(nx0/2);i++)
+   {
+   s0[nx0-i].re = s0[i].re;
+   s0[nx0-i].im = -s0[i].im;
+
+   s0[(nx0-i)+nx0*(ny0/2)].re = s0[i+nx0*(ny0/2)].re;
+   s0[(nx0-i)+nx0*(ny0/2)].im = -s0[i+nx0*(ny0/2)].im;
+   }
+
+for(j=1;j<(ny0/2);j++)
+   {
+   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
+   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
+
+   s0[(nx0/2)+(ny0-j)*nx0].re = s0[(nx0/2)+j*nx0].re;
+   s0[(nx0/2)+(ny0-j)*nx0].im = -s0[(nx0/2)+j*nx0].im;
+   }
+
+for(j=1;j<ny0/2;j++)
+   {
+   for(i=1;i<nx0/2;i++)
       {
       s0[(nx0-i)+(ny0-j)*nx0].re = s0[i+j*nx0].re;
       s0[(nx0-i)+(ny0-j)*nx0].im = -s0[i+j*nx0].im;

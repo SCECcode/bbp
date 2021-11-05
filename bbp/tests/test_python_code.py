@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@ class TestPythonCode(unittest.TestCase):
         cmd = ("python %s -v >/dev/null" %
                (os.path.join(self.install.A_COMP_DIR,
                              "run_bbp.py")))
-        self.failIf(bband_utils.runprog(cmd, False) != 0,
-                    "Cannot start Broadband plotform!")
+        self.assertFalse(bband_utils.runprog(cmd, False) != 0,
+                         "Cannot start Broadband plotform!")
 
     def test_python_code_comps(self):
         """
@@ -48,8 +48,8 @@ class TestPythonCode(unittest.TestCase):
         self.install = InstallCfg()
         cmd = ("python -tt -m compileall -f -q -l %s" %
                (self.install.A_COMP_DIR))
-        self.failIf(bband_utils.runprog(cmd, False) != 0,
-                    "Python code in comps directory mixes tabs and spaces!")
+        self.assertFalse(bband_utils.runprog(cmd, False) != 0,
+                         "Python code in comps directory mixes tabs and spaces!")
 
     def test_python_code_tests(self):
         """
@@ -58,8 +58,8 @@ class TestPythonCode(unittest.TestCase):
         self.install = InstallCfg()
         cmd = ("python -tt -m compileall -f -q -l %s" %
                (self.install.A_TEST_DIR))
-        self.failIf(bband_utils.runprog(cmd, False) != 0,
-                    "Python code in test directory mixes tabs and spaces!")
+        self.assertFalse(bband_utils.runprog(cmd, False) != 0,
+                         "Python code in test directory mixes tabs and spaces!")
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestPythonCode)

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ from __future__ import division, print_function
 # Import Python modules
 import sys
 import matplotlib as mpl
-mpl.use("AGG", warn=False)
+mpl.use("AGG")
 import pylab
 
 # Import plot config file
@@ -92,6 +92,12 @@ def plot_seis(stat, filename, label, units, outfile, rrup=None):
     min_vert_y = 1.1 * min(ud1)
     max_vert_y = 1.1 * max(ud1)
 
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['xtick.top'] = True
+    mpl.rcParams['ytick.right'] = True
+
     pylab.clf()
     pylab.suptitle('Run %s, station %s' %
                    (label, stat), size=14)
@@ -106,7 +112,9 @@ def plot_seis(stat, filename, label, units, outfile, rrup=None):
     pylab.plot(ts1, ns1, lw=plot_config.line_width)
     pylab.xlim(min_x, max_x)
     pylab.ylim(min_horiz_y, max_horiz_y)
-    if units == 'vel':
+    if units == 'dis':
+        pylab.ylabel("Displacement (cm)")
+    elif units == 'vel':
         pylab.ylabel("Velocity (cm/s)")
     elif units == 'acc':
         pylab.ylabel("Acceleration (cm/s/s)")
@@ -117,7 +125,9 @@ def plot_seis(stat, filename, label, units, outfile, rrup=None):
     pylab.plot(ts1, ew1, lw=plot_config.line_width)
     pylab.xlim(min_x, max_x)
     pylab.ylim(min_horiz_y, max_horiz_y)
-    if units == 'vel':
+    if units == 'dis':
+        pylab.ylabel("Displacement (cm)")
+    elif units == 'vel':
         pylab.ylabel("Velocity (cm/s)")
     elif units == 'acc':
         pylab.ylabel("Acceleration (cm/s/s)")
@@ -128,7 +138,9 @@ def plot_seis(stat, filename, label, units, outfile, rrup=None):
     pylab.plot(ts1, ud1, lw=plot_config.line_width)
     pylab.xlim(min_x, max_x)
     pylab.ylim(min_vert_y, max_vert_y)
-    if units == 'vel':
+    if units == 'dis':
+        pylab.ylabel("Displacement (cm)")
+    elif units == 'vel':
         pylab.ylabel("Velocity (cm/s)")
     elif units == 'acc':
         pylab.ylabel("Acceleration (cm/s/s)")
@@ -179,6 +191,12 @@ def plot_overlay(stat, obs_filename, comp_filename, obs_label, comp_label,
     This function plots observed and computed seismograms side by side
     for easy comparison
     """
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['xtick.top'] = True
+    mpl.rcParams['ytick.right'] = True
+
     # Initialize variables
     textx = 0.53
     texty = 0.05
@@ -284,6 +302,12 @@ def plot_overlay_with_arias(stat, obs_filename, comp_filename,
     This function plots observed and computed seismograms side by side
     for easy comparison
     """
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['xtick.top'] = True
+    mpl.rcParams['ytick.right'] = True
+
     # Initialize variables
     textx = 0.53
     texty = 0.05

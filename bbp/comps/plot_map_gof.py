@@ -248,15 +248,15 @@ def create_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
         subfig.set_autoscale_on(False)
 
         # Plot coast lines
-        for idx in xrange(0, len(coast_x)):
+        for idx in range(0, len(coast_x)):
             subfig.plot(coast_x[idx], coast_y[idx], linestyle='-', color='0.75')
 
         # Plot borders
-        for idx in xrange(0, len(bord_x)):
+        for idx in range(0, len(bord_x)):
             subfig.plot(bord_x[idx], bord_y[idx], linestyle='-', color='0.75')
 
         # Plot fault trace
-        subfig.plot(fault_x, fault_y, linestyle='-', color='k')
+        subfig.plot(fault_x, fault_y, linestyle='-', color='k', linewidth=1.0)
 
         # If we don't have at least 1 station for this period, create
         # a fake station outside of the map area so that we can still
@@ -276,7 +276,7 @@ def create_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
         # Plot the stations
         im = subfig.scatter(sta_x_data, sta_y_data, s=20, c=sta_resid_data,
                             cmap=cm.jet_r, vmin=vmin, vmax=vmax,
-                            marker='o')
+                            marker='o', edgecolors='k')
 
         # Adding colorbars to the right of each row
 #        if DIST_PERIODS.index(period) % num_columns == num_columns - 1:

@@ -52,11 +52,11 @@ def main():
     # Write header
     station_file.write("# BBP Station List for %s\n" % (event_name))
     station_file.write("# Lon    Lat     StationId     Vs30(m/s) ")
-    station_file.write("LP_Freq(Hz)   HP_Freq(Hz)\n")
+    station_file.write("HP_Freq(Hz)   LP_Freq(Hz)\n")
 
     # Skip event_file header
     _ = event_file.readline()
-    
+
     # Write stations
     for line in event_file:
         line = line.strip()
@@ -66,8 +66,8 @@ def main():
         lat = float(line[2])
         lon = float(line[3])
         vs30 = int(float(line[5]))
-        hp = 1.0 / float(line[6])
-        lp = 1.0 / float(line[7])
+        fmax = 1.0 / float(line[6])
+        fmin = 1.0 / float(line[7])
 
         if long_names:
             sta_id = long_id
@@ -75,11 +75,11 @@ def main():
             sta_id = short_id
 
         station_file.write("%7.3f %6.3f  %s %5d %5.4f  %5.4f\n" %
-                           (lon, lat, sta_id, vs30, lp, hp))
-    
+                           (lon, lat, sta_id, vs30, fmin, fmax))
+
     # Close everything
     event_file.close()
     station_file.close()
-        
+
 if __name__ == "__main__":
     main()

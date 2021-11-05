@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import division, print_function
+
 import sys
 import os
 import time
@@ -34,13 +36,13 @@ class CopyParallel:
                     nodelist.append('localhost')
             nodes.close()
 
-        print "nodelist = ", nodelist
+        print("nodelist = ", nodelist)
 
         if (len(nodelist) == 0):
-            print "No compute nodes available"
+            print("No compute nodes available")
             return(1)
         else:
-            print "Running on %s nodes" % (len(nodelist))
+            print("Running on %s nodes" % (len(nodelist)))
 
         # Command to execute remotely
         c = ("cp -frp %s/* %s/." % (remotedir, localdir))
@@ -62,9 +64,9 @@ class CopyParallel:
 #                cmd = "%s" % (c)
             else:
 #                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'source %s;%s\'\"" % (node, self.envscript, c)
-                cmd = "/usr/bin/ssh %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, c)
+                cmd = "/usr/bin/ssh -o \"ServerAliveInterval 60\" %s \"/bin/sh -c \'TMPDIR=%s;SLURM_JOB_ID=%s;source %s;%s\'\"" % (node, os.environ["TMPDIR"], os.environ["SLURM_JOB_ID"], self.envscript, c)
             
-            print "Running on %s: %s" % (node, cmd)   
+            print("Running on %s: %s" % (node, cmd))
             proclist.append([subprocess.Popen(cmd,shell=True), node])
             
             # Sleep a bit

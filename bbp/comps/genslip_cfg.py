@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,18 +19,22 @@ Define the configuration parameters for the GP rupture generator
 from __future__ import division, print_function
 
 # Import Python modules
+import os
 import sys
 import random
 
 # Import Broadband modules
 import bband_utils
 
-def calculate_rvfac(mean_rvfac, range_rvfac, seed):
+def calculate_rvfac(mean_rvfac, range_rvfac, seed, count=0):
     """
     This function calculates a random rvfac value based on the mean
     and range values, plus a seed to generate a random number
     """
     random.seed(seed)
+    while count > 0:
+        count = count - 1
+        random.seed(int(random.random() * 100000000))
     rvfac = mean_rvfac + range_rvfac * ((random.random() * 2) - 1)
     return rvfac
 
@@ -39,7 +43,7 @@ class GenslipCfg(object):
     Define the configuration parameters for the GP rupture generator
     """
 
-    def __init__(self, a_srcname=None):
+    def __init__(self, a_srcfiles):
         """
         Sets basic class parameters, then parses a_srcname for more information
         """
@@ -54,6 +58,9 @@ class GenslipCfg(object):
         self.MEAN_RVFAC = 0.8
         self.RANGE_RVFAC = 0.05
         self.SHAL_VRUP = 0.6
+
+        # Default RANGE_FWIDTH_FRAC value (randomization disabled)
+        self.RANGE_FWIDTH_FRAC = 0.0
 
         # Default RISETIME_COEF set for western US simulations,
         # override in velocity model config file. This parameter used
@@ -76,10 +83,12 @@ class GenslipCfg(object):
         self.DEEP_RISETIMEDEP_RANGE = 2.5
         self.DEEP_RISETIME_FAC = 2.0
 
-        # Read SRC FILE
-        if a_srcname:
-            self.CFGDICT = bband_utils.parse_src_file(a_srcname)
+        # Read src files
+        self.CFGDICT = []
+        self.num_srcfiles = len(a_srcfiles)
+        for a_srcfile in a_srcfiles:
+            self.CFGDICT.append(bband_utils.parse_src_file(a_srcfile))
 
 if __name__ == "__main__":
-    ME = GenslipCfg()
-    print("Created Test Config Class: %s" % (sys.argv[0]))
+    ME = GenslipCfg(sys.argv[1:])
+    print("Created Test Config Class: %s" % os.path.basename(sys.argv[0]))

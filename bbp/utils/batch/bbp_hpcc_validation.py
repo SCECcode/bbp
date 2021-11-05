@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Program to set up a full validation run on HPCC
+Program to set up a full validation run on USC's HPC
 """
 from __future__ import division, print_function
+
+# Works for both Python 2 and 3
+try: input = raw_input
+except NameError: pass
 
 # Import Python modules
 import os
@@ -37,10 +41,11 @@ import gmpe_config
 BATCH_SIM_FILE = "batch_run_bbp_sims.log"
 CORES_PER_NODE = 16
 CORES_PER_NODE_NEW = 16
-MAX_SIMULATIONS = 200
+MAX_SIMULATIONS = 500
 CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura1", "irikura2"]
 CODEBASES_SITE = ["gp", "sdsu", "song", "irikura1", "irikura2", "exsim", "ucsb"]
 CODEBASES_SRF = ["gp", "sdsu", "song", "ucsb"]
+SITE_MODULES = ["gp", "seismosoil"]
 
 def generate_src_files(numsim, source_file, srcdir,
                        prefix, hypo_rand,
@@ -245,6 +250,7 @@ def generate_xml(install, numsim, srcdir, xmldir,
             if site_response:
                 # Use site response
                 optfile.write('y\n')
+                optfile.write('%s\n' % (site_response))
             else:
                 # Skip site response
                 optfile.write('n\n')
@@ -400,7 +406,7 @@ def main():
     bbp_install = InstallCfg.getInstance()
 
     # Get GMPE group names
-    gmpe_groups_available = gmpe_config.GMPES.keys()
+    gmpe_groups_available = list(gmpe_config.GMPES.keys())
     gmpe_groups_available_lc = [gmpe.lower() for gmpe in gmpe_groups_available]
 
     prog_base = os.path.basename(sys.argv[0])
@@ -453,8 +459,9 @@ def main():
     parser.add_option("--first-seg-dir", type="string", action="store",
                       dest="first_seg_dir",
                       help="required for multi-segment segments 2..n")
-    parser.add_option("-s", "--site", action="store_true",
-                      dest="site_response", help="Use site response module")
+    parser.add_option("-s", "--site", type="string", action="store",
+                      dest="site_response",
+                      help="Use a site response module: %s" % (SITE_MODULES))
 
     (options, args) = parser.parse_args()
 
@@ -537,10 +544,14 @@ def main():
         sys.exit(1)
 
     # Check if users wants to run site response module
-    if options.site_response:
-        site_response = True
+    site_response = options.site_response
+    if site_response is not None:
         if codebase not in CODEBASES_SITE:
             print("Cannot use site response with method: %s" % (codebase))
+            sys.exit(1)
+        site_response = site_response.lower()
+        if site_response not in SITE_MODULES:
+            print("Site response needs to be one of: %s" % (SITE_MODULES))
             sys.exit(1)
     else:
         site_response = False
@@ -599,11 +610,11 @@ def main():
         if multiseg:
             source_file = source_file[segment - 1]
         else:
-            if codebase != "song" and codebase != "irikura1":
+            if codebase != "song" and codebase != "irikura1" and codebase != "irikura2" and codebase != "gp":
                 print("This is a multisegment event! Please specify segment!")
                 sys.exit(1)
             else:
-                # For song and irikura1, we keep source_file with all segments
+                # For song and irikura1 and 2, we keep source_file with all segments
                 # as this methods can work with multiple SRC files
                 pass
 
@@ -638,11 +649,11 @@ def main():
     simdir = os.path.abspath(simdir)
     if os.path.exists(simdir):
         print("Simulation directory exists: %s" % (simdir))
-        opt = raw_input("Do you want to delete its contents (y/n)? ")
+        opt = input("Do you want to delete its contents (y/n)? ")
         if opt.lower() != "y":
             print("Please provide another simulation directory!")
             sys.exit(1)
-        opt = raw_input("ARE YOU SURE (y/n)? ")
+        opt = input("ARE YOU SURE (y/n)? ")
         if opt.lower() != "y":
             print("Please provide another simulation directory!")
             sys.exit(1)

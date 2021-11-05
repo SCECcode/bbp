@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ import shutil
 # Import Broadband modules
 import plot_srf
 import bband_utils
-from irikura_gen_srf_cfg import IrikuraGenSrfCfg
+import velocity_models
+from irikura_gen_srf_cfg import IrikuraGenSrfCfg, calculate_rvfac
 from install_cfg import InstallCfg
 
 class IrikuraGenSrf(object):
@@ -40,6 +41,8 @@ class IrikuraGenSrf(object):
         self.r_srcfile = i_r_srcfile
         self.r_srffile = o_r_srffile
         self.vmodel_name = i_vmodel_name
+        self.mean_rvfac = None
+        self.range_rvfac = None
         self.r_srcfiles = []
 
         # Get all src files that were passed to us
@@ -89,6 +92,32 @@ class IrikuraGenSrf(object):
         a_velmod = os.path.join(install.A_IN_DATA_DIR, str(sim_id),
                                 self.r_velmodel)
 
+        # Get pointer to the velocity model object
+        vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
+        if vel_obj is None:
+            raise bband_utils.ParameterError("Cannot find velocity model: %s" %
+                                             (self.vmodel_name))
+        # Check for velocity model-specific parameters
+        vmodel_params = vel_obj.get_codebase_params('gp')
+        # Look for MEAN_RVFAC
+        if 'MEAN_RVFAC' in vmodel_params:
+            self.mean_rvfac = float(vmodel_params['MEAN_RVFAC'])
+        else:
+            self.mean_rvfac = cfg.VEL_RUP_FRAC
+        # Look for RANGE_RVFAC
+        if 'RANGE_RVFAC' in vmodel_params:
+            self.range_rvfac = float(vmodel_params['RANGE_RVFAC'])
+        else:
+            self.range_rvfac = cfg.VEL_RUP_RANGE
+
+        # Calculate rvfac
+        if "common_seed" in cfg.CFGDICT[0]:
+            rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
+                                    cfg.CFGDICT[0]["common_seed"])
+        else:
+            rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
+                                    cfg.CFGDICT[0]["seed"])
+
         # Run in tmpdir subdir to isolate temp fortran files
         # Save cwd, change back to it at the end
         old_cwd = os.getcwd()
@@ -98,6 +127,7 @@ class IrikuraGenSrf(object):
         # The following parameters should be common to all SRC files
         # So we just read from the first one
         simulation_seed = int(cfg.CFGDICT[0]['seed'])
+        mag = cfg.CFGDICT[0]['magnitude']
         dip = cfg.CFGDICT[0]['dip']
         rake = cfg.CFGDICT[0]['rake']
         dlen = cfg.CFGDICT[0]['dlen']
@@ -140,6 +170,7 @@ class IrikuraGenSrf(object):
                       (os.path.join(install.A_IRIKURA_BIN_DIR, cfg.GENSRF),
                        self.log) +
                       "%s\n" % a_srffile +
+                      "%f\n" % mag +
                       "%f %f %f %f %f\n" %
                       (fault_len, fault_width,
                        strike, dip, rake) +
@@ -152,40 +183,50 @@ class IrikuraGenSrf(object):
                       "%f\n" % (cfg.DT) +
                       "%d\n" % (simulation_seed) +
                       "%s\n" % (a_velmod) +
-                      "%f\n" % (cfg.VEL_RUP_FRAC) +
+                      "%f\n" % (rvfac) +
                       "END")
         bband_utils.runprog(progstring)
 
-        if cfg.num_srcfiles > 1:
-            # Assign the slip from the planar fault to each segment's SRF file
-            a_segs_file = os.path.join(a_tmpdir, "segments.midpoint.txt")
-            # Write segments' file
-            seg_file = open(a_segs_file, 'w')
-            seg_file.write("segm  lon       lat    depth   fleng fwidth shypo zhypo strike dip rake\n")
-            seg_file.write("%d\n" % (cfg.num_srcfiles))
-            total_length = 0.0
-            for segment in range(cfg.num_srcfiles):
-                if abs(cfg.CFGDICT[segment]['hypo_along_stk']) <= cfg.CFGDICT[segment]['fault_length']:
-                    hypo_along_stk = cfg.CFGDICT[segment]['hypo_along_stk']
-                    hypo_down_dip = cfg.CFGDICT[segment]['hypo_down_dip']
-                else:
-                    hypo_along_stk = 999.0
-                    hypo_down_dip = 999.0
-                seg_file.write("seg%d    %.6f %.6f %.1f %.1f %.1f %.1f %.1f %.1f %d %d %d\n" %
-                               (segment + 1,
-                                cfg.CFGDICT[segment]['lon_top_center'],
-                                cfg.CFGDICT[segment]['lat_top_center'],
-                                cfg.CFGDICT[segment]['depth_to_top'],
-                                total_length,
-                                (total_length + cfg.CFGDICT[segment]['fault_length']),
-                                cfg.CFGDICT[segment]['fault_width'],
-                                hypo_along_stk, hypo_down_dip,
-                                cfg.CFGDICT[segment]['strike'],
-                                cfg.CFGDICT[segment]['dip'],
-                                cfg.CFGDICT[segment]['rake']))
-                total_length = total_length + cfg.CFGDICT[segment]['fault_length']
-            seg_file.close()
+        # Save single segment srf file for Irikura-2 codes later
+        progstring = "cp %s %s" % (a_srffile,
+                                   os.path.join(a_tmpdir,
+                                                "single_seg.%s" %
+                                                (self.r_srffile)))
+        bband_utils.runprog(progstring)
 
+        # Tbe segments.midpoint.txt file is created for multi-segment ruptures
+        # and also for the Irikura-2 codes that require it for all ruptures
+
+        # Assign the slip from the planar fault to each segment's SRF file
+        a_segs_file = os.path.join(a_tmpdir, "segments.midpoint.txt")
+        # Write segments' file
+        seg_file = open(a_segs_file, 'w')
+        seg_file.write("segm  lon       lat    depth   fleng fwidth shypo zhypo strike dip rake\n")
+        seg_file.write("%d\n" % (cfg.num_srcfiles))
+        total_length = 0.0
+        for segment in range(cfg.num_srcfiles):
+            if abs(cfg.CFGDICT[segment]['hypo_along_stk']) <= cfg.CFGDICT[segment]['fault_length']:
+                hypo_along_stk = cfg.CFGDICT[segment]['hypo_along_stk']
+                hypo_down_dip = cfg.CFGDICT[segment]['hypo_down_dip']
+            else:
+                hypo_along_stk = 999.0
+                hypo_down_dip = 999.0
+            seg_file.write("seg%d    %.6f %.6f %.1f %.1f %.1f %.1f %.1f %.1f %d %d %d\n" %
+                           (segment + 1,
+                            cfg.CFGDICT[segment]['lon_top_center'],
+                            cfg.CFGDICT[segment]['lat_top_center'],
+                            cfg.CFGDICT[segment]['depth_to_top'],
+                            total_length,
+                            (total_length + cfg.CFGDICT[segment]['fault_length']),
+                            cfg.CFGDICT[segment]['fault_width'],
+                            hypo_along_stk, hypo_down_dip,
+                            cfg.CFGDICT[segment]['strike'],
+                            cfg.CFGDICT[segment]['dip'],
+                            cfg.CFGDICT[segment]['rake']))
+            total_length = total_length + cfg.CFGDICT[segment]['fault_length']
+        seg_file.close()
+
+        if cfg.num_srcfiles > 1:
             #
             # Run gen_srf_segment code
             #
@@ -233,7 +274,7 @@ class IrikuraGenSrf(object):
         os.chdir(old_cwd)
 
         #
-        # Move results to outputfile
+        # Move results to output file
         #
         progstring = "cp %s %s" % (a_srffile,
                                    os.path.join(a_tmpdir, self.r_srffile))
@@ -241,9 +282,13 @@ class IrikuraGenSrf(object):
         progstring = "cp %s %s" % (a_srffile,
                                    os.path.join(a_outdir, self.r_srffile))
         bband_utils.runprog(progstring)
+
         shutil.copy2(os.path.join(a_tmpdir, "stress_drop.out"),
                      os.path.join(a_param_outdir,
                                   "stress_drop.out"))
+        shutil.copy2(os.path.join(a_tmpdir, "segments.midpoint.txt"),
+                     os.path.join(a_param_outdir,
+                                  "segments.midpoint.txt"))
 
 
         # Plot SRF

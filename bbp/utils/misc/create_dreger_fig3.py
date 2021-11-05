@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -125,7 +126,7 @@ def summarize_and_plot_data(data, method, output_file):
                               np.sum((x - np.mean(x)) * (x - np.mean(x))))
 
         xx = np.linspace(min(x), max(x),
-                         num=(int(math.ceil((max(x)-min(x))/0.1))))
+                         num=(int(math.ceil((max(x) - min(x)) / 0.1))))
         yy = slope * xx + intercept
 
         # Calculate 95% confidence bounds
@@ -169,7 +170,7 @@ def main():
     Main function
     """
     if len(sys.argv) != 2:
-        print "Usage: %s input_file" % (sys.argv[0])
+        print("Usage: %s input_file" % (sys.argv[0]))
         sys.exit(0)
 
     # Output filename
@@ -180,7 +181,6 @@ def main():
     # Read input file
     data = read_data(input_file)
     summarize_and_plot_data(data, method, output_file)
-
 
 if __name__ == "__main__":
     main()

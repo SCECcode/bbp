@@ -1,6 +1,6 @@
 #!/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,9 +35,11 @@ class Methods(object):
     Defines available models on the platform
     """
     gp, ucsb, sdsu, exsim, song, irikura1, irikura2, csm = range(8)
-    labels = ["GP", "UCSB", "SDSU", "EXSIM", "SONG", "IRIKURA_RECIPE_M1", "IRIKURA_RECIPE_M2"]
+    labels = ["GP", "UCSB", "SDSU", "EXSIM", "SONG",
+              "IRIKURA_RECIPE_M1", "IRIKURA_RECIPE_M2"]
     options = ["gp", "ucsb", "sdsu", "exsim", "song", "irikura1", "irikura2"]
-    #labels = ["GP", "UCSB", "SDSU", "EXSIM", "SONG", "IRIKURA_RECIPE_M1", "IRIKURA_RECIPE_M2", "CSM"]
+    #labels = ["GP", "UCSB", "SDSU", "EXSIM", "SONG",
+    #         "IRIKURA_RECIPE_M1", "IRIKURA_RECIPE_M2", "CSM"]
     #options = ["gp", "ucsb", "sdsu", "exsim", "song", "irikura1", "irikura2", "csm"]
 
 class GenAcceptTests(object):
@@ -115,7 +117,7 @@ class GenAcceptTests(object):
 
         # Validation simulations
         mode = "valid-northridge"
-        for method in xrange(0, len(Methods.labels)):
+        for method in range(0, len(Methods.labels)):
             optfile = "%s-%s.txt" % (mode, Methods.labels[method])
             print("Generating %s" % (optfile))
             opts = []
@@ -141,6 +143,8 @@ class GenAcceptTests(object):
             if method != Methods.csm:
                 # Run site response (CSM does not ask this question)
                 opts.append('y')
+                # Select GP site response
+                opts.append('1')
             # Skip plots
             opts.append('n')
             opts.append('n')
@@ -158,7 +162,7 @@ class GenAcceptTests(object):
 
         # User simulations
         mode = "user"
-        for method in xrange(0, len(Methods.labels)):
+        for method in range(0, len(Methods.labels)):
             optfile = "%s-%s.txt" % (mode, Methods.labels[method])
             print("Generating %s" % (optfile))
             opts = []
@@ -188,6 +192,8 @@ class GenAcceptTests(object):
             if method != Methods.csm:
                 # Run site response (CSM doesn't ask this question)
                 opts.append('y')
+                # Select GP site response
+                opts.append('1')
             # No plots
             opts.append('n')
             opts.append('n')

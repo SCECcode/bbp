@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
-import new
 import sys
 import shutil
 import optparse
@@ -125,7 +124,7 @@ def find_tests(test, rerun):
                    (self.install.A_COMP_DIR,
                     self.input_file, sim_id, self.log_file))
             rc = bband_utils.runprog(cmd, False)
-            self.failIf(rc != 0, "Acceptance test failed to execute")
+            self.assertFalse(rc != 0, "Acceptance test failed to execute")
             ref_file_dir = os.path.join(self.install.A_TEST_REF_DIR,
                                         accept_test_refs,
                                         self.file_base)
@@ -141,7 +140,7 @@ def find_tests(test, rerun):
                     errmsg = ("Output file "
                               "%s does not match reference file: %s" %
                               (test_file, a_ref_file))
-                    self.failIf(compare_result != 0, errmsg)
+                    self.assertFalse(compare_result != 0, errmsg)
                     if compare_result != 0:
                         agree = False
             if agree == True:
@@ -157,11 +156,12 @@ def find_tests(test, rerun):
         # We create a method object which is an instance method for
         # BBPAcceptanceTests which executes the code in
         # testPermutation
-        method = new.instancemethod(permutation_test,
-                                    None, BBPAcceptanceTests)
+        BBPAcceptanceTests.permutation_test = permutation_test.__get__(None,
+                                                                       BBPAcceptanceTests)
         # We give the method a new name in BBPAcceptanceTests
         # which contains the xml file being run
-        setattr(BBPAcceptanceTests, "test_%s" % file_base, method)
+        setattr(BBPAcceptanceTests,
+                "test_%s" % (file_base), BBPAcceptanceTests.permutation_test)
 
 class BBPAcceptanceTests(unittest.TestCase):
 

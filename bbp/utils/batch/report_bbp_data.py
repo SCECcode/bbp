@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -94,7 +95,7 @@ def compile_input_data(input_file):
         tmin = float(items[10])
         tmax = float(items[11])
         if event not in EVENTS:
-            print "Unknown event %s, skipping..." % event
+            print("Unknown event %s, skipping..." % (event))
             continue
         # Make sure we filter the psa5e and psa5n components out
         if line.find("psa5e") > 0 or line.find("psa5n") > 0:
@@ -125,13 +126,13 @@ def write_output_file(data):
     This function writes the output data file
     """
     for idx, vals in enumerate(DIST):
-        print "Rrup = %.2f-%.2f km" % (vals[0], vals[1])
+        print("Rrup = %.2f-%.2f km" % (vals[0], vals[1]))
         # Initialize data for calculating mean
         all_data = [[] for _ in PERIODS]
         all_data_ca = [[] for _ in PERIODS]
         all_data_cena = [[] for _ in PERIODS]
         for event in EVENTS:
-            print "%-15s" % (event),
+            print("%-15s" % (event), end="")
             for per_range, _ in enumerate(PERIODS):
                 event_data = []
                 for val in data[event][idx][per_range]:
@@ -144,50 +145,50 @@ def write_output_file(data):
                         all_data_cena[per_range].append(val)
                 event_data_abs = [abs(x) for x in event_data]
                 if not len(event_data):
-                    print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                    print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
                 else:
                     print("%6.2f %6.2f %6d" % (numpy.mean(event_data),
                                                numpy.mean(event_data_abs),
-                                               len(event_data))),
-            print ""
-        print "%-15s" % "Average (CA)",
+                                               len(event_data)), end="")
+            print()
+        print("%-15s" % ("Average (CA)"), end="")
         for per_data in all_data_ca:
             per_data_abs = [abs(x) for x in per_data]
             if not len(per_data):
-                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
             else:
                 print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                            numpy.mean(per_data_abs),
-                                           len(per_data))),
-        print ""
-        print "%-15s" % "Average (CENA)",
+                                           len(per_data)), end="")
+        print()
+        print("%-15s" % ("Average (CENA)"), end="")
         for per_data in all_data_cena:
             per_data_abs = [abs(x) for x in per_data]
             if not len(per_data):
-                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
             else:
                 print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                            numpy.mean(per_data_abs),
-                                           len(per_data))),
-        print ""
-        print "%-15s" % "Average (All)",
+                                           len(per_data)), end="")
+        print()
+        print("%-15s" % ("Average (All)"), end="")
         for per_data in all_data:
             per_data_abs = [abs(x) for x in per_data]
             if not len(per_data):
-                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
             else:
                 print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                            numpy.mean(per_data_abs),
-                                           len(per_data))),
-        print ""
-        print ""
+                                           len(per_data)), end="")
+        print()
+        print()
 
-    print "Mechanism"
+    print("Mechanism")
     all_data = [[] for _ in PERIODS]
     all_data_ca = [[] for _ in PERIODS]
     all_data_cena = [[] for _ in PERIODS]
     for mech in MECH:
-        print "%-15s" % (mech[0]),
+        print("%-15s" % (mech[0]), end="")
         events = mech[1]
         for per_range, _ in enumerate(PERIODS):
             event_data = []
@@ -202,42 +203,41 @@ def write_output_file(data):
                             all_data_cena[per_range].append(val)
             event_data_abs = [abs(x) for x in event_data]
             if not len(event_data):
-                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
             else:
                 print("%6.2f %6.2f %6d" % (numpy.mean(event_data),
                                            numpy.mean(event_data_abs),
-                                           len(event_data))),
-        print ""
-    print "%-15s" % "Average (CA)",
+                                           len(event_data)), end="")
+        print()
+    print("%-15s" % ("Average (CA)"), end="")
     for per_data in all_data_ca:
         per_data_abs = [abs(x) for x in per_data]
         print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                    numpy.mean(per_data_abs),
-                                   len(per_data))),
-    print ""
-    print "%-15s" % "Average (CENA)",
+                                   len(per_data)), end="")
+    print()
+    print("%-15s" % ("Average (CENA)"), end="")
     for per_data in all_data_cena:
         per_data_abs = [abs(x) for x in per_data]
         print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                    numpy.mean(per_data_abs),
-                                   len(per_data))),
-    print ""
-    print "%-15s" % "Average (All)",
+                                   len(per_data)), end="")
+    print()
+    print("%-15s" % ("Average (All)"), end="")
     for per_data in all_data:
         per_data_abs = [abs(x) for x in per_data]
         print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                    numpy.mean(per_data_abs),
-                                   len(per_data))),
-    print ""
-    print ""
+                                   len(per_data)), end="")
+    print()
+    print()
 
 def main():
     """
     Get input file from the command-line
     """
     if len(sys.argv) < 2:
-        print ("Usage: %s input_file" %
-               (sys.argv[0]))
+        print("Usage: %s input_file" % (sys.argv[0]))
         sys.exit(1)
 
     input_file = sys.argv[1]

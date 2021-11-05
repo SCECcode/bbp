@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ with warnings.catch_warnings():
 # Import Broadband modules
 import bband_utils
 from install_cfg import InstallCfg
+from plot_utils import get_srf_num_segments, get_srf_params
 
 # Import plot config file
 import plot_config
@@ -54,84 +55,12 @@ def read_xy_file(input_file, numx, numy):
     data = np.arange(numx * numy, dtype=float).reshape(numy, numx)
 
     # Data is x-fast
-    for y in xrange(0, numy):
-        for x in xrange(0, numx):
+    for y in range(0, numy):
+        for x in range(0, numx):
             tokens = slips[y * (numx) + x].split()
             data[y][x] = tokens[2]
 
     return data
-
-def get_srf_num_segments(srf_file):
-    """
-    Returns number of segments in a SRF file
-    """
-    srf_segments = None
-
-    srf = open(srf_file, 'r')
-    for line in srf:
-        if line.startswith("PLANE"):
-            # Found the plane line, read number of segments
-            srf_segments = int(line.split()[1])
-            break
-    srf.close()
-
-    if srf_segments is None:
-        print("ERROR: Could not read number of segments from "
-              "SRF file: %s" % (src_file))
-        sys.exit(1)
-
-    # Return number of segments
-    return srf_segments
-
-def get_srf_params(srf_file, segment=0):
-    """
-    Reads fault_len, width, dlen, dwid, and azimuth from the srf_file
-    Segment allows users to specify segment of interest (0-based)
-    """
-    srf_params1 = None
-    srf_params2 = None
-    srf = open(srf_file, 'r')
-    for line in srf:
-        if line.startswith("PLANE"):
-            # Found the plane line, read number of segments
-            srf_segments = int(line.split()[1])
-            if srf_segments < segment + 1:
-                print("ERROR: Requested parameters from segment %d, "
-                      "       SRF file only has %d segment(s)!" %
-                      (segment + 1, srf_segments))
-                sys.exit(1)
-            for _ in range(segment):
-                # Skip lines to get to the segment we want
-                _ = srf.next()
-                _ = srf.next()
-            # The next line should have what we need
-            srf_params1 = srf.next()
-            srf_params2 = srf.next()
-            break
-    srf.close()
-    if srf_params1 is None or srf_params2 is None:
-        print("ERROR: Cannot determine parameters from SRF file %s" %
-              (srf_file))
-        sys.exit(1)
-    srf_params1 = srf_params1.strip()
-    srf_params1 = srf_params1.split()
-    srf_params2 = srf_params2.strip()
-    srf_params2 = srf_params2.split()
-    # Make sure we have the correct number of pieces
-    if len(srf_params1) != 6 or len(srf_params2) != 5:
-        print("ERROR: Cannot parse params from SRF file %s" %
-              (srf_file))
-        sys.exit(1)
-
-    # Pick the parameters that we need
-    params = {}
-    params["dim_len"] = int(srf_params1[2])
-    params["dim_wid"] = int(srf_params1[3])
-    params["fault_len"] = float(srf_params1[4])
-    params["fault_width"] = float(srf_params1[5])
-    params["azimuth"] = int(float(srf_params2[0]))
-
-    return params
 
 def plot_multi_srf_files(plottitle, srffiles, outdir):
     """
@@ -168,8 +97,8 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
         sumslip = 0.0
         minslip = 100000.0
         maxslip = 0.0
-        for y in xrange(0, dims[1]):
-            for x in xrange(0, dims[0]):
+        for y in range(0, dims[1]):
+            for x in range(0, dims[0]):
                 if slips[y][x] > maxslip:
                     maxslip = slips[y][x]
                 if slips[y][x] < minslip:
@@ -244,7 +173,7 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
          extents) in zip(subfigs, srf_params, srf_dims,
                          srf_slips, srf_tinits, srf_extents):
 
-        subfig.set_adjustable('box-forced')
+        subfig.set_adjustable('box')
 
         # Plot slips
         im = subfig.imshow(slips, cmap=cmap, norm=norm, extent=extents,
@@ -267,8 +196,8 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
         # Setup tinit contours
         mintinit = 100000.0
         maxtinit = 0.0
-        for y in xrange(0, dims[1]):
-            for x in xrange(0, dims[0]):
+        for y in range(0, dims[1]):
+            for x in range(0, dims[0]):
                 if tinits[y][x] > maxtinit:
                     maxtinit = tinits[y][x]
                 if tinits[y][x] < mintinit:
@@ -279,14 +208,14 @@ def plot_multi_srf_files(plottitle, srffiles, outdir):
         # Plot tinit contours
         subfig.contour(tinits,
                        pylab.linspace(mintinit, maxtinit,
-                                      round(contour_intervals)),
+                                      int(round(contour_intervals))),
                        origin='upper', extent=extents, colors='k')
 
     # Setup slip color scale
     colorbar_ax = fig.add_axes([0.2, 0.1, 0.6, 0.02])
     cb = fig.colorbar(im, cax=colorbar_ax, orientation='horizontal',
                       ticks=pylab.linspace(colormin, colormax,
-                                           (colormax/colorint) + 1))
+                                           int(colormax/colorint) + 1))
     cb.set_label('Slip (cm)', fontsize=8)
     for tick in cb.ax.get_xticklabels():
         tick.set_fontsize(8)
@@ -365,7 +294,7 @@ def plot_multi_plot(num_segments, srf_params, srf_dims,
          extents) in zip(subfigs, srf_params, srf_dims,
                          srf_slips, srf_tinits, srf_extents):
 
-        subfig.set_adjustable('box-forced')
+        subfig.set_adjustable('box')
 
         # Plot slips
         im = subfig.imshow(slips, cmap=cmap, norm=norm, extent=extents,
@@ -388,8 +317,8 @@ def plot_multi_plot(num_segments, srf_params, srf_dims,
         # Setup tinit contours
         mintinit = 100000.0
         maxtinit = 0.0
-        for y in xrange(0, dims[1]):
-            for x in xrange(0, dims[0]):
+        for y in range(0, dims[1]):
+            for x in range(0, dims[0]):
                 if tinits[y][x] > maxtinit:
                     maxtinit = tinits[y][x]
                 if tinits[y][x] < mintinit:
@@ -409,7 +338,7 @@ def plot_multi_plot(num_segments, srf_params, srf_dims,
     colorbar_ax = fig.add_axes([0.2, 0.1, 0.6, 0.02])
     cb = fig.colorbar(im, cax=colorbar_ax, orientation='horizontal',
                       ticks=pylab.linspace(colormin, colormax,
-                                           (colormax/colorint) + 1))
+                                           int((colormax/colorint) + 1)))
     cb.set_label('Slip (cm)', fontsize=8)
     for tick in cb.ax.get_xticklabels():
         tick.set_fontsize(8)
@@ -462,8 +391,8 @@ def plot(plottitle, srffile, outdir):
         sumslip = 0.0
         minslip = 100000.0
         maxslip = 0.0
-        for y in xrange(0, dims[1]):
-            for x in xrange(0, dims[0]):
+        for y in range(0, dims[1]):
+            for x in range(0, dims[0]):
                 if slips[y][x] > maxslip:
                     maxslip = slips[y][x]
                 if slips[y][x] < minslip:
@@ -544,7 +473,7 @@ def plot(plottitle, srffile, outdir):
     # Setup slip color scale
     cb = pylab.colorbar(orientation='horizontal', shrink=0.5,
                         ticks=pylab.linspace(colormin, colormax,
-                                             (colormax/colorint) + 1))
+                                             int(colormax/colorint) + 1))
     cb.set_label('Slip (cm)', fontsize=8)
     for tick in cb.ax.get_xticklabels():
         tick.set_fontsize(8)
@@ -552,8 +481,8 @@ def plot(plottitle, srffile, outdir):
     # Setup tinit contours
     mintinit = 100000.0
     maxtinit = 0.0
-    for y in xrange(0, dims[1]):
-        for x in xrange(0, dims[0]):
+    for y in range(0, dims[1]):
+        for x in range(0, dims[0]):
             if tinits[y][x] > maxtinit:
                 maxtinit = tinits[y][x]
             if tinits[y][x] < mintinit:
@@ -566,7 +495,7 @@ def plot(plottitle, srffile, outdir):
     # Plot tinit contours
     pylab.contour(tinits,
                   pylab.linspace(mintinit, maxtinit,
-                                 round(contour_intervals)),
+                                 int(round(contour_intervals))),
                   origin='upper', extent=extents, colors='k')
 
     outfile = os.path.join(outdir,

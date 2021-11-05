@@ -90,17 +90,16 @@ integer(kind=i_single)                  :: mmb,i
 complex(kind=r_single),allocatable,dimension(:)   :: u2
 complex(kind=r_single),allocatable,dimension(:,:) :: u1
 complex(kind=r_single),allocatable,dimension(:)   :: u
-
 !---------------------------------------------------------------------
 
 ! compute some parameters
 kappa_local=kappa(station)*0.5
-!dt = lf_len/(npts-1)
+!!dt = lf_len/(npts-1)
 dt = lf_len/(v_npts-1)
 
 ! df is set to avoid time aliasing
-!df = 1 / (2 * npts * dt)                                        
-df = 1 / (2 * v_npts * dt)                                        
+df = 1 / (2 * npts * dt)
+!!!df = 1 / (2 * v_npts * dt)
 dw=pi_double*df
 
 ! index of Fnyq 
@@ -132,7 +131,7 @@ enddo
 u1 = zero
 
 do l=1,nscat
-   x=aveVs*(t0+random_array(1,l)*lf_len)
+   x=aveVs*(t0+random_array(1,l)*tmp_lf_len) !!!x=aveVs*(t0+random_array(1,l)*lf_len)
    c1=random_array(2,l)*2.0-1.0
    c2=random_array(3,l)*2.0-1.0
    c3=random_array(4,l)*2.0-1.0
@@ -145,7 +144,8 @@ do l=1,nscat
    enddo
 
 enddo  
-      
+
+
 !  filter the low frequency
 ml = nint(hpass/df) + 1          
 mlb = nint((hpass-trans)/df) + 1 
@@ -261,7 +261,7 @@ SUBROUTINE scoda(dist,dt,station)
 !
 use constants; use def_kind; use scattering
 use waveform, only: lf_len, scattgram
-! use tmp_para
+use tmp_para
 use vel_model, only: tinit
 
 implicit none
@@ -275,6 +275,7 @@ real(kind=r_single),dimension(npts) :: tmp_scatt ! for scattgram shifting, v162
 real(kind=r_single):: c0,c1,dt1,t1,pp
 integer(kind=i_single):: i1,i2,ii,i,i0,n1
 integer(kind=i_single):: sft ! number of scattgram shifting, v162
+!---------------------------------------------------------
 
 !	parameter (mm1=8192,mm2=800)
 !	dimension pcoda(mm1,3),t(mm2),p(mm2)
@@ -283,11 +284,12 @@ integer(kind=i_single):: sft ! number of scattgram shifting, v162
 
 !  generate the coda waves (1.05 is to avoid noise at time-series end) 
 
-call coda(1.05*lf_len,dist,t,p,dt)
+call coda(1.05*tmp_lf_len,dist,t,p,dt) !!!coda(1.05*lf_len,dist,t,p,dt)
 
 c0=0.85/(pi*4.*dist*aveVs)*sqrt(srcVs*srcR/(siteVs(station)*siteR(station)))
 
-c1=sqrt(3.0*lf_len/float(nscat))*c0
+c1=sqrt(3.0*tmp_lf_len/float(nscat))*c0 !!c1=sqrt(3.0*lf_len/float(nscat))*c0
+
 
 ! dt1=t(2)-t(1) ! change v162
 
@@ -317,8 +319,8 @@ do ii=1,3
           n1=n1+1
           ! check if n1 <= ncoda (v1552)
           if (n1 .gt. ncoda) then
-             ! n1=ncoda
-             print*,'should be n1<=ncoda in scoda,n1,ncoda, STOP'
+              n1=ncoda
+             !print*,'should be n1<=ncoda in scoda,n1,ncoda, STOP'
           endif
        endif
        if(n1>1) then
@@ -329,6 +331,7 @@ do ii=1,3
        endif
        scattgram(i,ii)=pp*(c1*scattgram(i,ii))
    enddo
+
 
 !   do i=i0+1,npts
 !      t1=t1+dt

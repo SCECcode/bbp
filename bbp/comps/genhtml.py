@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ class GenHTML(object):
         a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
         a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
+        a_outdir_fas = os.path.join(a_outdir, "FAS")
         self.log = os.path.join(install.A_OUT_LOG_DIR, str(sim_id),
                                 "%d.genhtml.log" % (sim_id))
         a_statfile = os.path.join(a_indir, self.r_stations)
@@ -185,6 +186,8 @@ class GenHTML(object):
         rd50plot = glob.glob(os.path.join(a_outdir, "gof*-rd50.png"))
         gmpegofplot = glob.glob(os.path.join(a_outdir, "gof*-GMPE-*.png"))
         mapgofplot = glob.glob(os.path.join(a_outdir, "gof-map-*.png"))
+        vs30gofplot = glob.glob(os.path.join(a_outdir, "gof-vs30*.png"))
+        fasgofplot = glob.glob(os.path.join(a_outdir, "gof*-fas.png"))
         if len(gmpegofplot) == 1:
             gmpegofplot = gmpegofplot[0]
         else:
@@ -193,6 +196,10 @@ class GenHTML(object):
             mapgofplot = mapgofplot[0]
         else:
             mapgofplot = ""
+        if len(vs30gofplot) == 1:
+            vs30gofplot = vs30gofplot[0]
+        else:
+            vs30gofplot = ""
         if len(dist_lin_plot) == 1:
             dist_lin_plot = dist_lin_plot[0]
         else:
@@ -201,6 +208,10 @@ class GenHTML(object):
             dist_log_plot = dist_log_plot[0]
         else:
             dist_log_plot = ""
+        if len(fasgofplot) == 1:
+            fasgofplot = fasgofplot[0]
+        else:
+            fasgofplot = ""
         if len(rd50plot) == 1:
             rd50plot = rd50plot[0]
         else:
@@ -208,6 +219,8 @@ class GenHTML(object):
                 rd50plot = [plot for plot in rd50plot if plot != gmpegofplot]
             if mapgofplot:
                 rd50plot = [plot for plot in rd50plot if plot != mapgofplot]
+            if vs30gofplot:
+                rd50plot = [plot for plot in rd50plot if plot != vs30gofplot]
             if dist_lin_plot:
                 rd50plot = [plot for plot in rd50plot if plot != dist_lin_plot]
             if dist_log_plot:
@@ -218,9 +231,11 @@ class GenHTML(object):
                 rd50plot = ""
         gmpegofplot = os.path.basename(gmpegofplot)
         mapgofplot = os.path.basename(mapgofplot)
+        vs30gofplot = os.path.basename(vs30gofplot)
         rd50plot = os.path.basename(rd50plot)
         dist_lin_plot = os.path.basename(dist_lin_plot)
         dist_log_plot = os.path.basename(dist_log_plot)
+        fasgofplot = os.path.basename(fasgofplot)
 
         # Add RotD50 bias plot
         if rd50plot:
@@ -259,6 +274,20 @@ class GenHTML(object):
             idxout.write("<td>RotD50 Dist Bias Log</td>\n")
             idxout.write('<td><a href="%s">%s</a></td>\n' %
                          (os.path.join(".", "%s" % (dist_log_plot)),
+                          "PNG"))
+            idxout.write("</tr>\n")
+        if vs30gofplot:
+            idxout.write("<tr>\n")
+            idxout.write("<td>RotD50 Vs30 GOF Plot</td>\n")
+            idxout.write('<td><a href="%s">%s</a></td>\n' %
+                         (os.path.join(".", "%s" % (vs30gofplot)),
+                          "PNG"))
+            idxout.write("</tr>\n")
+        if fasgofplot:
+            idxout.write("<tr>\n")
+            idxout.write("<td>FAS GOF Plot</td>\n")
+            idxout.write('<td><a href="%s">%s</a></td>\n' %
+                         (os.path.join(".", "%s" % (fasgofplot)),
                           "PNG"))
             idxout.write("</tr>\n")
         # Add station map
@@ -309,6 +338,9 @@ class GenHTML(object):
             rd100file = "%d.%s.rd100" % (sim_id, site)
             rd50file_vertical = "%d.%s.rd50.vertical" % (sim_id, site)
             rd100file_vertical = "%d.%s.rd100.vertical" % (sim_id, site)
+            fassimfile = "%d.%s.fas.png" % (sim_id, site)
+            fasobsfile = "obs.%s.fas.png" % (site)
+            fascompfile = "%d.%s.fas.comparison.png" % (sim_id, site)
 
             # RotD50 Plot
             rd50plot = glob.glob(os.path.join(a_outdir,
@@ -391,6 +423,21 @@ class GenHTML(object):
                 idxout.write('<td><a href="%s">%s</a></td>\n' %
                              (os.path.join(".", overlayfile),
                               "PNG"))
+                idxout.write("</tr>\n")
+            if os.path.exists(os.path.join(a_outdir_fas, fassimfile)):
+                idxout.write("<tr>\n")
+                idxout.write("<td>FAS</td>\n")
+                idxout.write('<td><a href="%s">%s</a></td>\n' %
+                             (os.path.join(".", "FAS", fassimfile),
+                              "Sim"))
+                if os.path.exists(os.path.join(a_outdir_fas, fasobsfile)):
+                    idxout.write('<td><a href="%s">%s</a></td>\n' %
+                                 (os.path.join(".", "FAS", fasobsfile),
+                                  "Obs"))
+                if os.path.exists(os.path.join(a_outdir_fas, fascompfile)):
+                    idxout.write('<td><a href="%s">%s</a></td>\n' %
+                                 (os.path.join(".", "FAS", fascompfile),
+                                  "Comp"))
                 idxout.write("</tr>\n")
             if gmpeplot:
                 idxout.write("<tr>\n")

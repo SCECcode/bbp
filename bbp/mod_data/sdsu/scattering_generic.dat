@@ -21,5 +21,5 @@
 5.0e+07 \* str_fac - Brune stress parameter (50 bars) G&P (2010) eqn (12) -> [0.0]:default value (50.e6), [real]:user-defined
 2       \* ngaw_flag - GMPEs NGA-west1 or NGA-west2 -> [1]:default value NGA-west1, [2]:NGA-west2
 2       \* merging_flag - merging LFs and HFs in -> [1]: the frequency domain, [2]: the time domain
-1       \* infcorr_flag - inter-frequency correlation -> [0]: not include correlation, [1]: include correlation
+1       \* corr_flag - correlation -> [0]: not include correlation, [1]: include only inter-frequency correlation, [2]: include spatial correlation
 307776   \* cseed - seed number for inter-frequency correlation -> [-1]:random value, [int]:user-defined

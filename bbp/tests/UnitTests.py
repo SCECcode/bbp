@@ -26,6 +26,7 @@ import unittest
 # Import Broadband modules
 from install_cfg import InstallCfg
 from test_bband_core import CoreTestSuite
+from test_pynga import TestPyNGA
 from test_genslip import TestGenslip
 from test_jbsim import TestJbsim
 from test_hfsims import TestHfsims
@@ -58,6 +59,9 @@ class Logger(object):
     def write(self, string):
         self.out_fp.write(string)
 
+    def flush(self):
+        self.out_fp.flush()
+
     def close(self):
         self.out_fp.flush()
         self.out_fp.close()
@@ -69,6 +73,7 @@ TS = unittest.TestSuite()
 
 # Add broadband platform generic tests
 TS.addTests(CoreTestSuite())
+TS.addTest(unittest.makeSuite(TestPyNGA))
 TS.addTest(unittest.makeSuite(TestVm2vm))
 TS.addTest(unittest.makeSuite(TestCC))
 

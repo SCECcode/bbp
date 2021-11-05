@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -81,8 +81,8 @@ class TestGenSRF(unittest.TestCase):
         a_newfile = os.path.join(a_res_dir, self.outsrf)
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
-        self.failIf(not cmp_bbp.cmp_srf(a_ref_file, a_newfile,
-                                        tolerance=0.0011) == 0, errmsg)
+        self.assertFalse(not cmp_bbp.cmp_srf(a_ref_file, a_newfile,
+                                             tolerance=0.0011) == 0, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestGenSRF)

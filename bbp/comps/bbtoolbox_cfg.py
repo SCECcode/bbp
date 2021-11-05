@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -156,6 +156,9 @@ class BBToolboxCfg(object):
         # Note: Setting FMAX = 20.00 Hz will
         # cause BBtoolbox to produce NaNs in 000 and 090 seismograms.
         self.FMAX = 100.00
+
+        # 09/22/2020: Correlation flag
+        self.corr_flag = 2
 
 if __name__ == "__main__":
     BBCODA2 = BBToolboxCfg()

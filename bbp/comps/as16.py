@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2020 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ def calculate_as16(m, r, mech, vs30, z1, cj):
                                            (1360.0**4+570.94**4)) -
                         math.log(1000))
     else:
-        muz1 = math.exp(-5.23/4.0*math.log((vs30**2+412.39**2) /
+        muz1 = math.exp(-5.23/2.0*math.log((vs30**2+412.39**2) /
                                            (1360.0**2+412.39**2)) -
                         math.log(1000))
     if z1 == -999:
@@ -71,7 +71,7 @@ def calculate_as16(m, r, mech, vs30, z1, cj):
     m1 = 5.35
     m2 = 7.15
     b00 = 1.280
-    b01 = 1.603
+    b01 = 1.555
     b02 = 0.7806
     b03 = 1.279
     b10 = 5.576
@@ -160,9 +160,11 @@ def calculate_as16(m, r, mech, vs30, z1, cj):
     b13 = 3.467
     b2 = 0.9443
     b3 = -3.911
+    mstar = 6
     # Path
     c1 = 0.3165
     # ee1 = 10.0
+    rr1 = 10.0
     rr2 = 50.0
     c2 = 0.2539
     c3 = 0.0932
@@ -227,10 +229,10 @@ def calculate_as16(m, r, mech, vs30, z1, cj):
     # Source
     m1 = 5.2
     m2 = 7.4
-    b00 = 0.8851
-    b01 = 1.413
-    b02 = 0.7754
-    b03 = 0.8833
+    b00 = 0.8822
+    b01 = 1.409
+    b02 = 0.7729
+    b03 = 0.8804
     b10 = 6.182
     b11 = 4.778
     b12 = 6.579
@@ -304,9 +306,9 @@ def calculate_as16(m, r, mech, vs30, z1, cj):
     # Parameters
     phi1575 = 0.54
     phi2575 = 0.41
-    phi1595 = 0.47
+    phi1595 = 0.43
     phi2595 = 0.35
-    phi12080 = 0.62
+    phi12080 = 0.56
     phi22080 = 0.45
 
     if m < 5.5:
@@ -324,21 +326,21 @@ def calculate_as16(m, r, mech, vs30, z1, cj):
 
     # Between-site standard deviation
     # Parameters
-    tau1575 = 0.31
+    tau1575 = 0.28
     tau2575 = 0.25
-    tau1595 = 0.24
-    tau2595 = 0.23
+    tau1595 = 0.25
+    tau2595 = 0.19
     tau12080 = 0.3
-    tau22080 = 0.22
+    tau22080 = 0.19
 
-    if m < 6.25:
+    if m < 6.5:
         tau575 = tau1575
         tau595 = tau1595
         tau2080 = tau12080
-    elif m < 6.5:
-        tau575 = tau1575 + (tau2575-tau1575)*(m-6.25)/(6.5-6.25)
-        tau595 = tau1595 + (tau2595-tau1595)*(m-6.25)/(6.5-6.25)
-        tau2080 = tau12080 + (tau22080-tau12080)*(m-6.25)/(6.5-6.25)
+    elif m < 7.0:
+        tau575 = tau1575 + (tau2575-tau1575)*(m-6.5)/(7.0-6.5)
+        tau595 = tau1595 + (tau2595-tau1595)*(m-6.5)/(7.0-6.5)
+        tau2080 = tau12080 + (tau22080-tau12080)*(m-6.5)/(7.0-6.5)
     else:
         tau575 = tau2575
         tau595 = tau2595
