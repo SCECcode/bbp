@@ -144,7 +144,7 @@ References, citations, and acknowledgements help us obtain continued support for
 
 * Example Acknowlegement: We would like to acknowledge the use of the SCEC Broadband Platform Software (Maechling 2015) in this research. 
 
-Along with citing the BBP software, researchers should also cite the appropriate publication for any of the ground motion models they use in their research. Citations for individual velocity models are included in the [Credits](CREDITS.md) file in this repository, and in the GitHub repository that has been created for each model.
+Along with citing the BBP software, researchers should also cite the appropriate publication for any of the ground motion models they use in their research. Citations for individual ground motion methods are included in the [Credits.md](CREDITS.md) file in this repository.
 
 ## Contributing
 We welcome contributions to the BBP software framework. 
