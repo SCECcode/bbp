@@ -30,10 +30,6 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-This module takes care of building a workflow using either user
-choices interactively, or an option file containing all needed
-parameters.
-
 This module compiles results from a single simulation and creates
 a csv file containing information about all stations.
 """
