@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2020 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -265,8 +265,8 @@ class IrikuraHF(object):
         out_file.write("1.0 \t\t# Q-VALUE(A3)\n")
         out_file.write("100.0 \t\t# Q-VALUE(A4)\n")
         out_file.write("# green scale param\n")
-        out_file.write("2.0 \t\t# L\n")
-        out_file.write("2.0 \t\t# W\n")
+        out_file.write("%.3f \t\t# L\n" % (dlen))
+        out_file.write("%.3f \t\t# W\n" % (dwid))
         out_file.write("%f \t\t# Ds\n" % (ds_m))
         myu_string = "%.2E \t\t# myu\n" % (myu)
         myu_string = myu_string.replace('E+0', 'E+')

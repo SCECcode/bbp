@@ -53,7 +53,7 @@ SUBROUTINE simcoda(station)
 !    from srcV1.4_OLSEN
 !
 ! Updated: March 2013 (v1.4.2)
-!    Add chack if Fmax < Fnyq after calculating nw (Fnyq) and nwm (Fmax).
+!    Add check if Fmax < Fnyq after calculating nw (Fnyq) and nwm (Fmax).
 !    When fmax is a certain number, nwm will be larger than npts.
 !    This leads u2, u1 and u having NaN or Infinity, generating NaN
 !    in the horizontal components in the BroadBand-synthetics.

@@ -332,7 +332,7 @@ do station=1,n_stat
          if (allocated(in_temp)) deallocate(in_temp)
       endif
       call write_disk(station,'ocd',scattgram(:,:))   !coda before convolution
-      call write_disk(station,'ccd',conv_seis(:,:))   !coda after convolution
+      call write_disk(station,'ccd',conv_seis(:,:))   !coda after convolution (unscaled)
    endif
 
    ! write other informations on log-file

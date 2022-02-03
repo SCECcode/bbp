@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+Copyright 2010-2021 University Of Southern California
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -43,6 +43,15 @@ class SongRMGMSCfg(object):
         self.CFGDICT = []
         for a_srcname in a_srcfiles:
             self.CFGDICT.append(bband_utils.parse_src_file(a_srcname))
+        # Check SRC files to determine which segment has the hypocenter
+        print()
+        print("*** Default hypocenter segment: %d" % (self.seg_hypocenter))
+        for segment in range(0, self.num_srcfiles):
+            if "true_hypo" in self.CFGDICT[segment]:
+                if self.CFGDICT[segment]["true_hypo"] == 1:
+                    self.seg_hypocenter = segment
+                    print("*** Updated hypocenter segment: %d" % (self.seg_hypocenter))
+                    break
 
 if __name__ == "__main__":
     RMG_CFG = SongRMGMSCfg(sys.argv[1:])
