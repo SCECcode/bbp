@@ -931,20 +931,6 @@ class FAS(object):
             t2 = time.time()
             print("%10.2f s" % (t2 - t1))
 
-            ## Create comparison plot
-            #max_syn_freq = 1.0 / (syn_dt * 2)
-            #hfreq = min(max_syn_freq, site.high_freq_corner)
-            #sim_file = os.path.join(a_outdir_fas,
-            #                        "%d.%s.smc8.smooth.fs.col" %
-            #                        (self.sim_id, site.scode))
-            #outfile = os.path.join(a_outdir_fas,
-            #                       "%d.%s.fas.plot.png" %
-            #                       (self.sim_id, site.scode))
-            #plot_fas_comparison(site.scode, sim_file,
-            #                    self.sim_id, outfile,
-            #                    lfreq=site.low_freq_corner,
-            #                    hfreq=hfreq)
-
         # All done, restore working directory
         os.chdir(old_cwd)
 
