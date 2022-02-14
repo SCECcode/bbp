@@ -64,12 +64,18 @@ import pynga.utils as putils
 
 def summarize_rotd50(tmpdir, outdir, combined_resid_file,
                      comp_label, num_stations, num_realization,
-                     codebase):
+                     codebase, output_mode):
     """
     This function summarizes all rotd50 data and creates the combined
     rotd50 GOF plot
     """
     config = GPGofCfg()
+
+    # Set output mode
+    if output_mode == "periods":
+        mode = "rd50-single"
+    elif output_mode == "freq":
+        mode = "rd50-single-freq"
 
     # Figure out where out binaries are
     if "BBP_DIR" in os.environ:
@@ -98,7 +104,7 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
     fileroot = "%s-%s-combined-rd50" % (codebase, comp_label)
     plotter = PlotGoF()
     plotter.plot(plottitle, fileroot, tmpdir, outdir,
-                 cutoff=0, mode="rd50-single", colorset="combined")
+                 cutoff=0, mode=mode, colorset="combined")
 
     print("Stations used: %s" % (num_stations))
 
@@ -117,6 +123,9 @@ def read_resid_file(resid_file, resid_data):
         pieces = line.split()
         station = pieces[2]
         comp = pieces[12]
+
+        #print("%s %s %s" % (station, comp, " ".join(pieces[13:])))
+
         if station not in resid_data:
             resid_data[station] = {}
         if comp not in resid_data[station]:
@@ -199,6 +208,8 @@ PARSER.add_option("-o", "--output_dir", dest="output_dir",
                   help="Output file")
 PARSER.add_option("-c", "--codebase", dest="codebase",
                   help="Method used for the simulation")
+PARSER.add_option("-f", "--freq", action="store_true", dest="freq",
+                  help="Use frequencies on X axis instead of periods")
 (OPTIONS, ARGS) = PARSER.parse_args()
 
 
@@ -210,6 +221,12 @@ if not os.path.isdir(TOP_INPUT_DIR):
 if not "Sims" in os.listdir(TOP_INPUT_DIR):
     PARSER.error("Please provide the top-level simulation directory!\n"
                  "This is the directory given to the cluster script")
+
+# Select output format
+OUTPUT_MODE = "periods"
+if OPTIONS.freq:
+    OUTPUT_MODE = "freq"
+
 INPUT_OUTDIR = os.path.join(TOP_INPUT_DIR, "Sims" , "outdata")
 INPUT_TMPDIR = os.path.join(TOP_INPUT_DIR, "Sims" , "tmpdata")
 INPUT_INDIR = os.path.join(TOP_INPUT_DIR, "Sims" , "indata")
@@ -241,7 +258,8 @@ summarize_rotd50(TMPDIR, OUTPUT_DIR,
                  COMP_LABEL,
                  NUM_STAT,
                  NUM_REALIZATIONS,
-                 OPTIONS.codebase)
+                 OPTIONS.codebase,
+                 OUTPUT_MODE)
 
 print("All Done!")
 # Clean-up, all done!
