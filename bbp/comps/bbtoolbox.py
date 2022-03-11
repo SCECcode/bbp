@@ -387,7 +387,7 @@ class BBToolbox(object):
         parfile_fp.write("/* DOMINANT SOURCE MECHANISM [SS RS NS AL] */\n")
         parfile_fp.write("%s\n" % conv_par_data[3].split(":")[1].strip())
         parfile_fp.write("/* SOURCE TIME FUNCTION "
-                         "[TRI BOX YOF DREG LIU USER-DEF] */\n")
+                         "[TRI BOX YOF DREG LIU NEW USER-DEF] */\n")
         parfile_fp.write("%s\n" % (self.source_func))
         parfile_fp.write("/* VERBOSE MODE [ON OFF] */\n")
         parfile_fp.write("off\n")
