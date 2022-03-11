@@ -64,7 +64,8 @@ Program stitch
      call ReadVel(ism,stan_h1,stan_h2,st_name,path1D,path3D)
      call align(freq_join,time0)
      call stitch_wt(freq_join)
-     call time_history(id_motion,freq_max)
+!     call time_history(id_motion,freq_max)
+     call time_history(id_motion)
      call output3(ism,stan_h1,stan_h2,st_name)
    enddo  ! end loop of source model (ism)
  enddo  ! end loop of station (ks)
@@ -346,7 +347,8 @@ end subroutine time_history
 subroutine output3(ism,stan_h1,stan_h2,st_name)
  use synths_comm
  implicit NONE
- character(len=*), intent(IN):: st_name
+! character(len=*), intent(IN):: st_name
+ character(len=*), intent(INOUT):: st_name
  integer, intent(IN):: ism
  real, intent(IN):: stan_h1,stan_h2
  character(len=72):: fout,chsm
