@@ -567,3 +567,57 @@ for(it=0;it<nstf;it++)
 
 return(nstf);
 }
+
+int gen_ji2003_stf(float *slip,float *ts,float *te,float *stf,int nt,float *dt)
+{
+int it, nstf;
+float tau, tau1, tau2, tau1x2, arg1, arg2;
+float sum, t, alpha;
+float pi = 3.141592654;
+
+zapit(stf,nt);
+
+tau = *ts + *te;
+
+nstf = (int)((tau)/(*dt) + 0.5);
+if(nstf > nt)
+   nstf = nt;
+
+if(nstf == 0)
+   return(0);
+
+for(it=0;it<nstf;it++)
+   {
+   t = it*(*dt);
+
+   alpha = 0.0;
+   if(t < *ts)
+      {
+      arg1 = pi*t/(*ts);
+      alpha = 1.0 - cos(arg1);
+      }
+   else if(t < tau)
+      {
+      arg1 = pi*(tau-t)/(*te);
+      alpha = 1.0 - cos(arg1);
+      }
+   else
+      alpha = 0.0;
+
+   stf[it] = alpha;
+   }
+
+sum = 0.0;
+for(it=0;it<nstf;it++)
+   sum = sum + (*dt)*stf[it];
+
+if(sum <= 0.0)
+   return(0);
+
+/* scale STF by slip */
+sum = (*slip)/sum;
+for(it=0;it<nstf;it++)
+   stf[it] = stf[it]*sum;
+
+return(nstf);
+}

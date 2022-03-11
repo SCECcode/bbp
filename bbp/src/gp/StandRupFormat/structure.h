@@ -168,12 +168,23 @@ struct slippars
    float tau1_ratio;
    float vs;
    float den;
+   float rt_s;
+   float rt_e;
+   };
+
+struct segpars
+   {
+   int nstk;
+   int ndip;
+   float dstk;
+   float ddip;
    };
 
 struct generic_slip
    {
    int np;
    struct slippars *spar;
+   struct segpars *gpar;
    };
 
 #ifndef STRUCT_VELMODEL

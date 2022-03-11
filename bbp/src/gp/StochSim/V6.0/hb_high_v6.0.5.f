@@ -454,7 +454,7 @@ c     ispar_adjust = 0, no adjustment
 c     ispar_adjust = 1, adjust to Leonard (2010) for active tectonic
 c     ispar_adjust = 2, adjust to Leonard (2010) for stable continent
 
-      read(5,*) ispar_adjust,targ_mag,fault_area
+      read(5,*) ispar_adjust,targ_mag,fault_area,spar_exp
 
 c Check to see if top layer of vel model has very thin "air" layer
 c this is necessary to get the correct FS reflection coefficient if
@@ -497,6 +497,7 @@ c avg Subfault dimensions (dlm) and max slip
 
 C         dlm = 0.5*(dx(iv)+dw(iv)) + dlm
          dlm = sqrt(dx(iv)*dw(iv)) + dlm
+Cccc         dlm = sqrt(dx(iv)*dw(iv)/pai) + dlm
 
          do j=1,nw(iv)
             do i=1,nx(iv)
@@ -696,11 +697,11 @@ c standard scaling relation
 c     stress parameter adjustment options:
 c
 c     ispar_adjust = 0, no adjustment
-c     ispar_adjust = 1, adjust to Leonard (2010) for active tectonic
+c     ispar_adjust = 1, adjust to average of Leonard (2010) and Hanks-Bakun (2014) for active tectonic
 c     ispar_adjust = 2, adjust to Leonard (2010) for stable continent
 
       if(targ_mag.le.0.0) then
-         targ_mag = 2.0*(alog(sm)/alog(10.0))/3.0 - 10.7
+         targ_mag = 2.0*(alog(sm)/alog(10.0))/3.0 - 10.73
       endif
 
       if(fault_area.le.0.0) then
@@ -709,7 +710,13 @@ c     ispar_adjust = 2, adjust to Leonard (2010) for stable continent
 
       if(ispar_adjust.eq.1) then
 
-         spar_fac = exp((targ_mag-3.99)*alog(10.0))/fault_area
+         targ_area = exp((targ_mag-3.99)*alog(10.0))
+
+         if(targ_mag.ge.6.71) then
+            targ_area = 0.5*(targ_area + exp(3.0*(targ_mag-3.07)*alog(10.0)/4.0))
+         endif
+
+         spar_fac = targ_area/fault_area
 
       else if(ispar_adjust.eq.2) then
 
@@ -721,9 +728,8 @@ c     ispar_adjust = 2, adjust to Leonard (2010) for stable continent
 
       endif
 
-C scale by sqrt(Area_standard/area), don't know if this makes physical sense
+      spar_fac = exp((spar_exp)*alog(spar_fac))
 
-      spar_fac = sqrt(spar_fac)
       stress_average = spar_fac*stress_average
 
 CCC END 2018-08-30
@@ -976,7 +982,7 @@ c 20131120 RWG added alphaT adjustment
             alphaT = 1.0/(1.0 + fD*fR*Calpha)
 c End alphaT
 
-            zz = zz*(1.0 + fcfac)/alphaT
+            zz = Czero*(1.0 + fcfac)/alphaT
 
 CCC RWG modified 2014-09-19
 c
@@ -1152,7 +1158,7 @@ c 20131120 RWG added alphaT adjustment
             alphaT = 1.0/(1.0 + fD*fR*Calpha)
 c End alphaT
 
-      zz = zz*(1.0 + fcfac)/alphaT
+      zz = Czero*(1.0 + fcfac)/alphaT
 
       fce=zz*rvf*bet/dlm/pai
 
@@ -1708,6 +1714,7 @@ C RWG
       cw(I)=AC(I)*AS(I)*AMP     
       cw(np2-I+1)=CONJG(AC(I+1)*AS(I+1))*AMP   
   100 CONTINUE                                                                  
+      cw(1)=CMPLX(0.0,0.0) 
       cw(NF)=AC(NF)*AS(NF)*AMP        
 
       return                                                                    

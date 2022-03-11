@@ -18,6 +18,15 @@ struct srf_apointvalues *apval_ptr1, *apval_ptr2;
 int inbin = 0;
 int outbin = 0;
 
+int scale_moment = 0;
+double mom1, mom2;
+float vslip, momfac;
+
+int stk_off = 0;
+int dip_off = 0;
+
+int print_command = 1;
+
 sprintf(infile,"stdin");
 sprintf(outfile,"stdout");
 
@@ -28,12 +37,22 @@ getpar("outfile","s",outfile);
 getpar("outbin","d",&outbin);
 mstpar("ncoarsestk","d",&ncoarsestk);
 mstpar("ncoarsedip","d",&ncoarsedip);
+getpar("stk_off","d",&stk_off);
+getpar("dip_off","d",&dip_off);
+
+getpar("scale_moment","d",&scale_moment);
+
+getpar("print_command","d",&print_command);
+
 endpar();
 
 read_srf(&srf1,infile,inbin);
 
 strcpy(srf2.version,srf1.version);
 copy_hcmnt(&srf2,&srf1);
+
+if(print_command && atof(srf2.version) >= 2.0)
+   load_command_srf(&srf2,ac,av);
 
 if(strncmp(srf1.type,"PLANE",5) == 0)
    {
@@ -54,8 +73,15 @@ if(strncmp(srf1.type,"PLANE",5) == 0)
       {
       prseg_ptr2[ig].elon = prseg_ptr1[ig].elon;
       prseg_ptr2[ig].elat = prseg_ptr1[ig].elat;
+
       prseg_ptr2[ig].nstk = (int)((1.0*prseg_ptr1[ig].nstk/ncoarsestk + 0.5));
+      while(prseg_ptr2[ig].nstk*ncoarsestk > prseg_ptr1[ig].nstk)
+         prseg_ptr2[ig].nstk--;
+
       prseg_ptr2[ig].ndip = (int)((1.0*prseg_ptr1[ig].ndip/ncoarsedip + 0.5));
+      while(prseg_ptr2[ig].ndip*ncoarsedip > prseg_ptr1[ig].ndip)
+         prseg_ptr2[ig].ndip--;
+
       prseg_ptr2[ig].flen = prseg_ptr2[ig].nstk*ncoarsestk*(prseg_ptr1[ig].flen/prseg_ptr1[ig].nstk);
       prseg_ptr2[ig].fwid = prseg_ptr2[ig].ndip*ncoarsedip*(prseg_ptr1[ig].fwid/prseg_ptr1[ig].ndip);
       prseg_ptr2[ig].stk  = prseg_ptr1[ig].stk;
@@ -101,16 +127,43 @@ srf2.srf_apnts.apntvals = (struct srf_apointvalues *)check_malloc((srf2.srf_apnt
 apval_ptr1 = srf1.srf_apnts.apntvals;
 apval_ptr2 = srf2.srf_apnts.apntvals;
 
+if(scale_moment == 1 && atof(srf2.version) >= 2.0)
+   {
+   ntot1 = 0;
+   mom1 = 0.0;
+   for(ig=0;ig<srf1.nseg;ig++)
+      {
+      for(iy=0;iy<old_ndip[ig];iy++)
+         {
+         for(ix=0;ix<old_nstk[ig];ix++)
+            {
+            i = ix + iy*old_nstk[ig] + ntot1;
+
+	    vslip = sqrt(apval_ptr1[i].slip1*apval_ptr1[i].slip1 + apval_ptr1[i].slip2*apval_ptr1[i].slip2 + apval_ptr1[i].slip3*apval_ptr1[i].slip3);
+	    mom1 = mom1 + vslip*apval_ptr1[i].vs*apval_ptr1[i].vs*apval_ptr1[i].den*apval_ptr1[i].area;
+            }
+         }
+      ntot1 = ntot1 + srf1.np_seg[ig];
+      }
+   }
+
 ntot1 = 0;
 ntot2 = 0;
+mom2 = 0.0;
 for(ig=0;ig<srf2.nseg;ig++)
    {
    for(iy=0;iy<new_ndip[ig];iy++)
       {
-      iyp = (int)((float)(iy + 0.5)*ncoarsedip);
+      /*
+      iyp = (int)((float)(iy + 0.5)*ncoarsedip) + dip_off;
+      */
+      iyp = iy*ncoarsedip + dip_off;
       for(ix=0;ix<new_nstk[ig];ix++)
          {
-         ixp = (int)((float)(ix + 0.5)*ncoarsestk);
+	 /*
+         ixp = (int)((float)(ix + 0.5)*ncoarsestk) + stk_off;
+	 */
+         ixp = ix*ncoarsestk + stk_off;
 
          i = ix + iy*new_nstk[ig] + ntot2;
          ip = ixp + iyp*old_nstk[ig] + ntot1;
@@ -152,10 +205,48 @@ for(ig=0;ig<srf2.nseg;ig++)
          stf2 = apval_ptr2[i].stf3;
          for(it=0;it<apval_ptr2[i].nt3;it++)
             stf2[it] = stf1[it];
+
+	 vslip = sqrt(apval_ptr2[i].slip1*apval_ptr2[i].slip1 + apval_ptr2[i].slip2*apval_ptr2[i].slip2 + apval_ptr2[i].slip3*apval_ptr2[i].slip3);
+	 mom2 = mom2 + vslip*apval_ptr2[i].vs*apval_ptr2[i].vs*apval_ptr2[i].den*apval_ptr2[i].area;
          }
       }
    ntot1 = ntot1 + srf1.np_seg[ig];
    ntot2 = ntot2 + srf2.np_seg[ig];
+   }
+
+if(scale_moment == 1 && atof(srf2.version) >= 2.0)
+   {
+   ntot2 = 0;
+   momfac = mom1/mom2;
+   for(ig=0;ig<srf2.nseg;ig++)
+      {
+      for(iy=0;iy<new_ndip[ig];iy++)
+         {
+         for(ix=0;ix<new_nstk[ig];ix++)
+            {
+            i = ix + iy*new_nstk[ig] + ntot2;
+
+            apval_ptr2[i].slip1 = momfac*apval_ptr2[i].slip1;
+            apval_ptr2[i].slip2 = momfac*apval_ptr2[i].slip2;
+            apval_ptr2[i].slip3 = momfac*apval_ptr2[i].slip3;
+
+            stf2 = apval_ptr2[i].stf1;
+            for(it=0;it<apval_ptr2[i].nt1;it++)
+               stf2[it] = momfac*stf2[it];
+
+            stf2 = apval_ptr2[i].stf2;
+            for(it=0;it<apval_ptr2[i].nt2;it++)
+               stf2[it] = momfac*stf2[it];
+
+            stf2 = apval_ptr2[i].stf3;
+            for(it=0;it<apval_ptr2[i].nt3;it++)
+               stf2[it] = momfac*stf2[it];
+            }
+         }
+      ntot2 = ntot2 + srf2.np_seg[ig];
+      }
+
+   fprintf(stderr,"momfac= %f\n",momfac);
    }
 
 write_srf(&srf2,outfile,outbin);
