@@ -316,6 +316,149 @@ for(it=0;it<nstf;it++)
 return(nstf);
 }
 
+/* original Liu, should be identical to ucsb */
+int gen_Oliu_stf(float *slip,float *t0,float *stf,int nt,float *dt)
+{
+int it, nstf;
+float tau, tau1, tau2, tau1x2, arg1, arg2;
+float sum, t, alpha;
+float pi = 3.141592654;
+
+zapit(stf,nt);
+
+tau = (*t0);
+tau1 = 0.13*tau;
+tau2 = tau - tau1;
+tau1x2 = 2.0*tau1;
+
+nstf = (int)((tau)/(*dt) + 0.5);
+if(nstf > nt)
+   nstf = nt;
+
+if(nstf == 0)
+   return(0);
+
+if(nstf == 1)
+   stf[0] = 1.0;
+else
+   stf[0] = 0.0;
+
+/*
+stf[0] = 0.0;
+*/
+
+for(it=1;it<nstf;it++)
+   {
+   t = it*(*dt);
+
+   alpha = 0.0;
+   if(t < tau1)
+      {
+      arg1 = pi*t/tau1;
+      arg2 = 0.5*arg1;
+      alpha = 0.7 - 0.7*cos(arg1) + 0.6*sin(arg2);
+      }
+   else if(t < tau1x2)
+      {
+      arg1 = pi*t/tau1;
+      arg2 = pi*(t - tau1)/tau2;
+      alpha = 1.0 - 0.7*cos(arg1) + 0.3*cos(arg2);
+      }
+   else if(t < tau) 
+      {
+      arg1 = pi*(t - tau1)/tau2;
+      alpha = 0.3 + 0.3*cos(arg1);
+      }
+
+   stf[it] = alpha;
+   }
+
+sum = 0.0;
+for(it=0;it<nstf;it++)
+   sum = sum + (*dt)*stf[it];
+
+if(sum <= 0.0)
+   return(0);
+
+/* scale STF by slip */
+sum = (*slip)/sum;
+for(it=0;it<nstf;it++)
+   stf[it] = stf[it]*sum;
+
+return(nstf);
+}
+
+int gen_OliuP_stf(float *slip,float *t0,float *beta,float *stf,int nt,float *dt)
+{
+int it, nstf;
+float tau, tau1, tau2, tau1x2, arg1, arg2;
+float sum, t, alpha;
+float pi = 3.141592654;
+
+zapit(stf,nt);
+
+tau = (*t0);
+tau1 = (*beta)*tau;
+tau2 = tau - tau1;
+tau1x2 = 2.0*tau1;
+
+nstf = (int)((tau)/(*dt) + 0.5);
+if(nstf > nt)
+   nstf = nt;
+
+if(nstf == 0)
+   return(0);
+
+if(nstf == 1)
+   stf[0] = 1.0;
+else
+   stf[0] = 0.0;
+
+/*
+stf[0] = 0.0;
+*/
+
+for(it=1;it<nstf;it++)
+   {
+   t = it*(*dt);
+
+   alpha = 0.0;
+   if(t < tau1)
+      {
+      arg1 = pi*t/tau1;
+      arg2 = 0.5*arg1;
+      alpha = 0.7 - 0.7*cos(arg1) + 0.6*sin(arg2);
+      }
+   else if(t < tau1x2)
+      {
+      arg1 = pi*t/tau1;
+      arg2 = pi*(t - tau1)/tau2;
+      alpha = 1.0 - 0.7*cos(arg1) + 0.3*cos(arg2);
+      }
+   else if(t < tau) 
+      {
+      arg1 = pi*(t - tau1)/tau2;
+      alpha = 0.3 + 0.3*cos(arg1);
+      }
+
+   stf[it] = alpha;
+   }
+
+sum = 0.0;
+for(it=0;it<nstf;it++)
+   sum = sum + (*dt)*stf[it];
+
+if(sum <= 0.0)
+   return(0);
+
+/* scale STF by slip */
+sum = (*slip)/sum;
+for(it=0;it<nstf;it++)
+   stf[it] = stf[it]*sum;
+
+return(nstf);
+}
+
 int gen_tri_stf(float *slip,float *t0,float *stf,int nt,float *dt)
 {
 int it, nstf;

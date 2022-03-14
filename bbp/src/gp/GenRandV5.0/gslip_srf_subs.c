@@ -1278,7 +1278,20 @@ for(iseg=0;iseg<nseg;iseg++)
 
                apval_ptr[ip].nt1 = gen_Mliu_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
                }
-            else if(strcmp(spar->stype,"MliuP") == 0)
+            else if(strcmp(spar->stype,"OliuP") == 0) /* original form */
+               {
+               if(ps[ip0].dep <= b_dmin)
+                  beta = spar->beta_shal;
+               else if(ps[ip0].dep < b_dmax && ps[ip0].dep > b_dmin)
+                  beta = spar->beta_shal + delta_b*(ps[ip0].dep - b_dmin)/(b_dmax-b_dmin);
+               else
+                  beta = spar->beta_deep;
+
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_OliuP_stf(&(ps[ip0].slip),&tzero,&beta,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"MliuP") == 0) /* modified form */
                {
                if(ps[ip0].dep <= b_dmin)
                   beta = spar->beta_shal;

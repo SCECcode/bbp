@@ -657,11 +657,12 @@ stfparams.deep_risetimefac = 2.0;
 
 stfparams.rt_rand = 0.0;          /* ln(sigma) */
 
-/* default slip-rate function is modified UCSB sincos
+/* 2022-03-07: change default from Mliu (modified Liu) to Oliu (original Liu) */
+/* default slip-rate function is original UCSB sincos
    append "P" for change in function shape along shallow fault
    see also "beta_shal", "beta_deep", "beta_depth" and "beta_depth_range"
 */
-sprintf(stfparams.stype,"MliuP");
+sprintf(stfparams.stype,"OliuP");
 
 /* RWG 2014-02-20 randomized hypocenter
    default probability tapering for randomized hypocenter */
