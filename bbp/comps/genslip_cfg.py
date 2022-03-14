@@ -71,7 +71,7 @@ class GenslipCfg(object):
 
         self.RTDEP = 6.5
         self.RTDEP_RANGE = 1.5
-        self.MEAN_RVFAC = 0.75
+        self.MEAN_RVFAC = 0.775
         self.RANGE_RVFAC = 0.1
         self.SHAL_VRUP = 0.6
 
@@ -82,8 +82,9 @@ class GenslipCfg(object):
         # override in velocity model config file. This parameter used
         # to be set to 1.6, but was modified by RWG in November 2013
         # when the Rupture Generator was updated to version 3.3. The
-        # value was reset to 1.6 for Genslip 5.0.1
-        self.RISETIME_COEF = 1.6
+        # value was reset to 1.6 for Genslip 5.0.1, and then set to
+        # 2.3 for genslip-5.5.2
+        self.RISETIME_COEF = 2.3
 
         # self.EXTRA_RTFAC = 0.0
         self.RISETIME_FAC = 2

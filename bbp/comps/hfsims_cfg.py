@@ -109,7 +109,7 @@ class HfsimsCfg(object):
         self.DEFAULT_DY = 1.0
 
         self.RUPV = -1.0
-        self.MEAN_RVFAC = 0.75
+        self.MEAN_RVFAC = 0.775
         self.RANGE_RVFAC = 0.1
         self.SHAL_RVFAC = 0.6
         self.UNITS = -1

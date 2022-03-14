@@ -331,7 +331,7 @@ def plot_multi_plot(num_segments, srf_params, srf_dims,
         # Plot tinit contours
         subfig.contour(tinits,
                        pylab.linspace(mintinit, maxtinit,
-                                      round(contour_intervals)),
+                                      int(round(contour_intervals))),
                        origin='upper', extent=extents, colors='k')
 
     # Setup slip color scale

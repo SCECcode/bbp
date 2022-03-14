@@ -141,7 +141,7 @@ class IrikuraHFCfg(object):
         self.sdropout = "stress_drop.out"
         self.segments_midpoint = "segments.midpoint.txt"
 
-        self.VEL_RUP_FRAC = 0.72
+        self.VEL_RUP_FRAC = 0.8
         self.VEL_RUP_RANGE = 0.00
         self.DXX = 1000.0
         self.DYY = 1000.0

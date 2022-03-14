@@ -294,7 +294,11 @@ class GMPEComparison(object):
         fileroot = "%s-GMPE-%d_r%d-all-rd50-" % (self.comp_label, sim_id, 0)
         dataroot = ["%s%s" % (fileroot, model.lower()) for model in gmpe_models]
         plotter.multi_plot(plottitle, dataroot, a_outdir,
-                           a_outdir, gmpe_labels, len(site_list))
+                           a_outdir, gmpe_labels, len(site_list),
+                           "P")
+        plotter.multi_plot(plottitle, dataroot, a_outdir,
+                           a_outdir, gmpe_labels, len(site_list),
+                           "F")
 
         print("GMPE Comparison Completed".center(80, '-'))
 
