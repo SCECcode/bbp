@@ -1519,6 +1519,7 @@ class WorkflowBuilder(object):
                     gof_module.addStageFile(self.stations)
                     gof_module.addArg(os.path.basename(self.stations))
                     gof_module.addArg(self.val_obj.get_validation_name())
+                    gof_module.addArg(self.method)
                     gof_module.addArg(self.val_obj.get_cutoff())
                     gof_module.addArg(self.val_obj.get_gof_plot_limit())
                     if self.method == "EXSIM":
@@ -1571,6 +1572,7 @@ class WorkflowBuilder(object):
                     fas_gof_module.addStageFile(self.stations)
                     fas_gof_module.addArg(os.path.basename(self.stations))
                     fas_gof_module.addArg(self.val_obj.get_validation_name())
+                    fas_gof_module.addArg(self.method)
                     fas_gof_module.addArg(self.val_obj.get_cutoff())
                     self.workflow.append(fas_gof_module)
 

@@ -312,10 +312,22 @@ class PlotGoF(object):
         pylab.close()
 
     def plot_single_component_gof(self, plottitle, gof_fileroot, indir, outdir,
-                                  cutoff=0, min_period=0.01, colorset=None):
+                                  cutoff=0, min_period=0.01, colorset=None,
+                                  lfreq=None, hfreq=None):
         """
         Creates a single component GOF plot (e.g. RotD50)
         """
+        # Convert min/max frequencies to periods
+        if lfreq is None:
+            pmax = None
+        else:
+            pmax = 1.0 / float(lfreq)
+
+        if hfreq is None:
+            pmin = None
+        else:
+            pmin = 1.0 / float(hfreq)
+
         # Pick components and labels
         if min_period == 0.01:
             xtick_loc = XTICK_LOC_0_01
@@ -438,6 +450,13 @@ class PlotGoF(object):
         pylab.xticks(xtick_loc, xtick_label)
         pylab.tick_params(labelsize=8)
 
+        if pmin is not None:
+            pylab.vlines(pmin, min_y, max_y,
+                         color='violet', linestyles='--')
+        if pmax is not None:
+            pylab.vlines(pmax, min_y, max_y,
+                         color='r', linestyles='--')
+
         if cutoff == 0:
             pylab.suptitle('%s' % (plottitle), size=11)
         else:
@@ -449,7 +468,8 @@ class PlotGoF(object):
         pylab.close()
 
     def plot_single_component_freq_gof(self, plottitle, gof_fileroot, indir, outdir,
-                                       cutoff=0, min_period=0.01, colorset=None):
+                                       cutoff=0, min_period=0.01, colorset=None,
+                                       lfreq=None, hfreq=None):
         """
         Creates a single component GOF plot using frequencies instead of periods
         """
@@ -596,6 +616,13 @@ class PlotGoF(object):
         pylab.xticks(xtick_loc, xtick_label)
         pylab.tick_params(labelsize=8)
 
+        if lfreq is not None:
+            pylab.vlines(lfreq, min_y, max_y,
+                         color='r', linestyles='--')
+        if hfreq is not None:
+            pylab.vlines(hfreq, min_y, max_y,
+                         color='violet', linestyles='--')
+
         if cutoff == 0:
             pylab.suptitle('%s' % (plottitle), size=11)
         else:
@@ -607,10 +634,22 @@ class PlotGoF(object):
         pylab.close()
 
     def plot_three_component_gof(self, plottitle, gof_fileroot, indir, outdir,
-                                 cutoff=0, min_period=0.01, mode=None, colorset=None):
+                                 cutoff=0, min_period=0.01, mode=None, colorset=None,
+                                 lfreq=None, hfreq=None):
         """
         Creates a GOF plot with three subplots (e.g. RotD50/PSA5n/PSA5e)
         """
+        # Convert min/max frequencies to periods
+        if lfreq is None:
+            pmax = None
+        else:
+            pmax = 1.0 / float(lfreq)
+
+        if hfreq is None:
+            pmin = None
+        else:
+            pmin = 1.0 / float(hfreq)
+
         # Pick components and labels
         if min_period == 0.01:
             xtick_loc = XTICK_LOC_0_01
@@ -737,13 +776,24 @@ class PlotGoF(object):
             pylab.xlim(min_x, max_x)
             if comp == 'ratio':
                 pylab.ylim(MIN_Y_AXIS_RATIO, MAX_Y_AXIS_RATIO)
+                min_horiz_y = MIN_Y_AXIS_RATIO
+                max_horiz_y = MAX_Y_AXIS_RATIO
             else:
                 pylab.ylim(min_y, max_y)
+                min_horiz_y = min_y
+                max_horiz_y = max_y
             pylab.xlabel("Period (sec)", size=8)
             pylab.ylabel("ln (data/model)", size=8)
             pylab.xscale('log')
             pylab.xticks(xtick_loc, xtick_label)
             pylab.tick_params(labelsize=8)
+
+            if pmin is not None:
+                pylab.vlines(pmin, min_horiz_y, max_horiz_y,
+                             color='violet', linestyles='--')
+            if pmax is not None:
+                pylab.vlines(pmax, min_horiz_y, max_horiz_y,
+                             color='r', linestyles='--')
 
         if cutoff == 0:
             pylab.suptitle('%s' % (plottitle), size=11)
@@ -756,7 +806,8 @@ class PlotGoF(object):
         pylab.close()
 
     def plot(self, plottitle, gof_fileroot, indir, outdir,
-             cutoff=0, min_period=0.01, mode=None, colorset=None):
+             cutoff=0, min_period=0.01, mode=None, colorset=None,
+             lfreq=None, hfreq=None):
         """
         Creates the GOF plot
         """
@@ -765,25 +816,29 @@ class PlotGoF(object):
                                                 indir, outdir,
                                                 cutoff=cutoff,
                                                 min_period=min_period,
-                                                colorset=colorset)
+                                                colorset=colorset,
+                                                lfreq=lfreq, hfreq=hfreq)
         elif mode == "rd50-single":
             self.plot_single_component_gof(plottitle, gof_fileroot,
                                            indir, outdir,
                                            cutoff=cutoff,
                                            min_period=min_period,
-                                           colorset=colorset)
+                                           colorset=colorset,
+                                           lfreq=lfreq, hfreq=hfreq)
         elif mode == "rd50" or mode == "rd100":
             self.plot_three_component_gof(plottitle, gof_fileroot,
                                           indir, outdir,
                                           cutoff=cutoff,
                                           min_period=min_period,
-                                          mode=mode, colorset=colorset)
+                                          mode=mode, colorset=colorset,
+                                          lfreq=lfreq, hfreq=hfreq)
         else:
             raise bband_utils.ParameterError("plot mode %s unsupported" %
                                              (mode))
 
     def plot_fas_gof(self, plottitle, gof_fileroot, indir,
-                     outdir, cutoff=0, colorset=None):
+                     outdir, cutoff=0, colorset=None,
+                     lfreq=None, hfreq=None):
         """
         Creates a FAS GOF plot with three subplots (SEAS, FAS_H1, FAS_H2)
         """
@@ -910,13 +965,24 @@ class PlotGoF(object):
             pylab.xlim(min_x, max_x)
             if comp == 'ratio':
                 pylab.ylim(MIN_Y_AXIS_RATIO, MAX_Y_AXIS_RATIO)
+                min_horiz_y = MIN_Y_AXIS_RATIO
+                max_horiz_y = MAX_Y_AXIS_RATIO
             else:
                 pylab.ylim(min_y, max_y)
+                min_horiz_y = min_y
+                max_horiz_y = max_y
             pylab.xlabel("Frequency (Hz)", size=8)
             pylab.ylabel("ln (data/model)", size=8)
             pylab.xscale('log')
             pylab.xticks(xtick_loc, xtick_label)
             pylab.tick_params(labelsize=8)
+
+            if lfreq is not None:
+                pylab.vlines(lfreq, min_horiz_y, max_horiz_y,
+                             color='r', linestyles='--')
+            if hfreq is not None:
+                pylab.vlines(hfreq, min_horiz_y, max_horiz_y,
+                             color='violet', linestyles='--')
 
         if cutoff == 0:
             pylab.suptitle('%s' % (plottitle), size=11)

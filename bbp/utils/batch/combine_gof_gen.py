@@ -51,6 +51,7 @@ import tempfile
 
 # Import Broadband modules
 import bband_utils
+import plot_config
 from PlotGOF import PlotGoF
 from gp_gof_cfg import GPGofCfg
 from station_list import StationList
@@ -70,6 +71,10 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
     rotd50 GOF plot
     """
     config = GPGofCfg()
+    method = codebase.lower()
+    freq_ranges = plot_config.PSA_GOF_FREQ
+    lfreq=freq_ranges[method]['freq_low']
+    hfreq=freq_ranges[method]['freq_high']
 
     # Set output mode
     if output_mode == "periods":
@@ -104,7 +109,8 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
     fileroot = "%s-%s-combined-rd50" % (codebase, comp_label)
     plotter = PlotGoF()
     plotter.plot(plottitle, fileroot, tmpdir, outdir,
-                 cutoff=0, mode=mode, colorset="combined")
+                 cutoff=0, mode=mode, lfreq=lfreq, hfreq=hfreq,
+                 colorset="combined")
 
     print("Stations used: %s" % (num_stations))
 
