@@ -116,18 +116,18 @@ class ObsSeismograms(object):
             stat = site.scode
             print("==> Processing data for station: %s" % (stat))
 
-            # Look for the files we need
-            expected_rd50_file = os.path.join(a_outdir,
-                                              "%d.%s.rd50" %
-                                              (sim_id, stat))
-            if not os.path.exists(expected_rd50_file):
-                # just skip it
-                print("Couldn't find file %s. " %
-                      (expected_rd50_file) +
-                      "This is not necessarily an error, as you may have " +
-                      "run with a subset of a stations. Continuing " +
-                      "with available stations.")
-                continue
+#            # Look for the files we need
+#            expected_rd50_file = os.path.join(a_outdir,
+#                                              "%d.%s.rd50" %
+#                                              (sim_id, stat))
+#            if not os.path.exists(expected_rd50_file):
+#                # just skip it
+#                print("Couldn't find file %s. " %
+#                      (expected_rd50_file) +
+#                      "This is not necessarily an error, as you may have " +
+#                      "run with a subset of a stations. Continuing " +
+#                      "with available stations.")
+#                continue
 
             # Ok, we have a calculated rd50/rd100 files for this station,
             # let's look for the observed file
