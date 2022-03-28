@@ -111,7 +111,7 @@ class TestGPGof(unittest.TestCase):
         Test GP GOF Code
         """
         gof_obj = GPGof(self.srcfile, self.stations,
-                        "NR", 25, sim_id=self.sim_id)
+                        "NR", 'gp', 25, sim_id=self.sim_id)
         gof_obj.run()
         resid_ref_file = os.path.join(self.install.A_TEST_REF_DIR,
                                       "gp", "GoF", "nr-rd50-resid.txt")
