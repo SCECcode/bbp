@@ -54,7 +54,7 @@ class TestJbsim(unittest.TestCase):
         """
         self.velmodel = "nr02-vs500.fk1d"
         self.srffile = "m5.89-0.20x0.20_s2379646.srf"
-        self.stations = "one_stat.txt"
+        self.stations = "test_stat.txt"
         self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
 
@@ -82,7 +82,7 @@ class TestJbsim(unittest.TestCase):
         jbsim_obj = Jbsim(self.velmodel, "", self.srffile, self.stations,
                           self.vmodel_name, sim_id=self.sim_id)
         jbsim_obj.run()
-        for i in range(1, 2):
+        for i in range(1, 6):
             ref_file = os.path.join(self.install.A_TEST_REF_DIR,
                                     "gp",
                                     "s%02d-lf.bbp" % (i))
