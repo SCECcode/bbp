@@ -1,0 +1,5 @@
+# BBP Station List to test FAS code
+# Lon    Lat     StationId     Vs30(m/s) HP_Freq(Hz)   LP_Freq(Hz)
+-118.496 34.312  s11   373 0.1250  16.0000
+-118.303 34.269  s12   402 0.1250  23.9998
+-117.709 33.869  s13   367 0.3750  18.3999
