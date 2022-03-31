@@ -126,10 +126,6 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
 
     fp1 = open(filename1, 'r')
     fp2 = open(filename2, 'r')
-#    data1 = fp1.readlines()
-#    data2 = fp2.readlines()
-#    fp1.close()
-#    fp2.close()
 
     file1_version = float(read_srf_line(fp1).strip().split()[0])
     file2_version = float(read_srf_line(fp2).strip().split()[0])
@@ -433,6 +429,51 @@ def cmp_bbp(filename1, filename2, tolerance=0.0015):
         if i > 1000:
             return returncode
     return returncode
+
+def cmp_fas(filename1, filename2, tolerance=0.0015):
+    """
+    Compare two fas output files
+    """
+    return_code = 0
+
+    fp1 = open(filename1, 'r')
+    fp2 = open(filename2, 'r')
+
+    for line1, line2 in zip(fp1, fp2):
+        line1 = line1.strip()
+        line2 = line2.strip()
+        if line1.startswith("#") and line2.startswith("#"):
+            continue
+        pieces1 = line1.split()
+        pieces2 = line2.split()
+        if not ENFORCE_TOLERANCE:
+            continue
+        for token1, token2 in zip(pieces1, pieces2):
+            token1 = float(token1)
+            token2 = float(token2)
+
+            if math.fabs(token1) < 1.0 or math.fabs(token2) < 1.0:
+                if math.fabs(token1 - token2) > tolerance:
+                    if return_code == 0:
+                        print("FAS file comparison: %s, %s" %
+                              (filename1, filename2))
+                    print("%f and %f differ by more than %f tolerance." %
+                          (token1, token2, tolerance))
+                    return_code = 1
+            else:
+                if math.fabs(token1 - token2) / token1 > tolerance:
+                    if return_code == 0:
+                        print("FAS file comparison: %s, %s" %
+                              (filename1, filename2))
+                    print("%f and %f differ by more than %f%% tolerance." %
+                          (token1, token2, tolerance * 100.0))
+                    return_code = 1
+
+    # All done, close files
+    fp1.close()
+    fp2.close()
+
+    return return_code
 
 def cmp_bias(filename1, filename2, tolerance=0.0015):
     fp1 = open(filename1, 'r')
