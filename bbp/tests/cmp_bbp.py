@@ -99,6 +99,20 @@ def cmp_ffsp(filename1, filename2, tolerance=0.01):
     # All good!
     return 0
 
+def read_srf_line(srf_fh):
+    """
+    This function returns the next line from a SRF file,
+    skipping lines with comments as needed
+    """
+    while True:
+        line = srf_fh.readline()
+        if len(line) == 0:
+            # End of file
+            break
+        if not line.strip().startswith("#"):
+            break
+    return line
+
 def cmp_srf(filename1, filename2, tolerance=0.0011):
     """
     Compare two SRF files.  A tolerance is accepted for floating-point
@@ -108,154 +122,185 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
     Count up the number of times it happens;  if it's more than 1% of the
     number of points reject it.
     """
+    return_code = 0
 
     fp1 = open(filename1, 'r')
     fp2 = open(filename2, 'r')
-    data1 = fp1.readlines()
-    data2 = fp2.readlines()
-    fp1.close()
-    fp2.close()
+#    data1 = fp1.readlines()
+#    data2 = fp2.readlines()
+#    fp1.close()
+#    fp2.close()
 
-    returncode = 0
+    file1_version = float(read_srf_line(fp1).strip().split()[0])
+    file2_version = float(read_srf_line(fp2).strip().split()[0])
 
-    if not data1[0] == data2[0]:
-        #incompatible versions
-        print("SRF versions don't match.")
+    if file1_version != file2_version:
+        # SRF files have different version numbers
+        print("SRF versions don't match!")
+        fp1.close()
+        fp2.close()
         return 1
 
-    i1 = 1
-    i2 = 1
-    line1 = data1[i1]
-    line2 = data2[i2]
-    pieces1 = line1.split()
-    #first PLANE section
-    if pieces1[0] == "PLANE":
-        if not line1 == line2:
-            print("Line 0: mismatched planes.")
-            return 1
-        num_planes = int(float(pieces1[1]))
-        #for each plane
-        for j in range(0, num_planes):
-            #for each line of plane data
-            for k in range(0, 2):
-                if not data1[i1 + 2 * j + k] == data2[i2 + 2 * j + k]:
-                    print("Line %d: plane data doesn't match." %
-                          (i1 + 2 * j + k))
+    file1_planes = int(read_srf_line(fp1).strip().split()[1])
+    file2_planes = int(read_srf_line(fp2).strip().split()[1])
+
+    if file1_planes != file2_planes:
+        # SRF files have different numbers of planes
+        print("Number of planes mismatch for the two SRF files!")
+        fp1.close()
+        fp2.close()
+        return 1
+
+    # Compare data for each plane
+    for plane in range(0, file1_planes):
+        file1_plane_header = []
+        file2_plane_header = []
+        file1_plane_header.append(read_srf_line(fp1).strip().split())
+        file1_plane_header.append(read_srf_line(fp1).strip().split())
+        file2_plane_header.append(read_srf_line(fp2).strip().split())
+        file2_plane_header.append(read_srf_line(fp2).strip().split())
+        for plane1, plane2 in zip(file1_plane_header, file2_plane_header):
+            for token1, token2 in zip(plane1, plane2):
+                if token1 != token2:
+                    # Token mismatch
+                    print("Tokens in plane header mismatch! %s != %s" % (token1, token2))
+                    fp1.close()
+                    fp2.close()
                     return 1
-        i1 = i1 + 1 + 2 * num_planes
-        i2 = i2 + 1 + 2 * num_planes
-    else:
-        print("Malformed SRF file; no PLANEs")
-        return -1
-    #then POINTS
+
+    # Compare points
     NT_INDEX = 2
     NT_TOLERANCE = 1
     LL_TOLERANCE = 0.00011
     PP_TOLERANCE = 0.011
     RAKE_TOLERANCE = 1
     SKIP_TOLERANCE = 0.0001
-    line1 = data1[i1]
-    line2 = data2[i2]
-    pieces1 = line1.split()
-    if pieces1[0] == "POINTS":
-        if not line1 == line2:
-            print("Line %d: points line doesn't match." % (i1))
+    total_points = 0
+    
+    for plane in range(0, file1_planes):
+        tokens1 = read_srf_line(fp1).strip().split()
+        tokens2 = read_srf_line(fp2).strip().split()
+        if tokens1[0] != tokens2[0] != "POINTS":
+            # Token mismatch
+            print("Cannot find matching POINTS line!")
+            fp1.close()
+            fp2.close()
             return 1
-        num_points = int(float(pieces1[1]))
+        if tokens1[1] != tokens2[1]:
+            # Token mismatch
+            print("Number of points mismatch!")
+            fp1.close()
+            fp2.close()
+            return 1
+        num_points = int(float(tokens1[1]))
+        total_points = total_points + num_points
         points_skipped = 0
+
         for j in range(0, num_points):
-            #if any of the params are different, skip the slip values
+            # If any of the params are different, skip the slip values
             skip_slips = False
-            #each point has 2 lines + ceil(NT1/6) lines
-            #will permit tolerance in lat/lon points
-            #and tolerance in NT values
-            line1 = data1[i1 + 1]
-            line2 = data2[i2 + 1]
-            pieces1 = line1.split()
-            pieces2 = line2.split()
-            #check line length
+            # each point has 2 lines + ceil(NT1/6) lines
+            # will permit tolerance in lat/lon points
+            # and tolerance in NT values
+            pieces1 = read_srf_line(fp1).strip().split()
+            pieces2 = read_srf_line(fp2).strip().split()
+            # Check line length
             if not len(pieces1) == len(pieces2):
-                print("Line %d (point %d): files have different number of point parameters." %
-                      (i1 + 1, j))
-                print(line1, line2)
+                print("Plane %d, point %d: files have different number of point parameters." % (plane, j))
+                fp1.close()
+                fp2.close()
                 return 1
-            #check lons
+            # Check longitudes
             lon1 = float(pieces1[0])
             lon2 = float(pieces2[0])
             if math.fabs(lon1 - lon2) > LL_TOLERANCE:
-                print("Line %d/%d (point %d): longitudes %f and %f differ by more than the accepted tolerance %f." %
-                      (i1 + 1, i2 + 1, j, lon1, lon2, LL_TOLERANCE))
+                print("Plane %d, point %d: longitudes %f and %f differ by more than the accepted tolerance %f." %
+                      (plane, j, lon1, lon2, LL_TOLERANCE))
+                fp1.close()
+                fp2.close()
                 return 2
-            #check lats
+            # Check latitudes
             lat1 = float(pieces1[1])
             lat2 = float(pieces2[1])
             if math.fabs(lat1 - lat2) > LL_TOLERANCE:
-                print("Line %d/%d (point %d):  latitudes %f and %f differ by more than the accepted tolerance %f." %
-                      (i1 + 1, i2 + 1, j, lat1, lat2, LL_TOLERANCE))
+                print("Plane %d, point %d: latitudes %f and %f differ by more than the accepted tolerance %f." %
+                      (plane, j, lat1, lat2, LL_TOLERANCE))
+                fp1.close()
+                fp2.close()
                 return 3
-            #check rest of line
+            # Check rest of line
             for k in range(2, len(pieces1)):
                 if math.fabs(float(pieces1[k]) - float(pieces2[k])) > PP_TOLERANCE:
-                    print("Line %d/%d (point %d):  point parameters in field %d disagree." %
-                          (i1 + 1, i2 + 1, j, k + 1))
-                    print(line1, line2)
+                    print("Plane %d, point %d: point parameters in field %d disagree." %
+                          (plane, j, k + 1))
+                    fp1.close()
+                    fp2.close()
                     return 4
                 if math.fabs(float(pieces1[k]) - float(pieces2[k])) > SKIP_TOLERANCE:
                     #don't compare the slip values, they'll be different
                     skip_slips = True
-            #second line
-            line1 = data1[i1 + 2]
-            line2 = data2[i2 + 2]
-            pieces1 = line1.split()
-            pieces2 = line2.split()
-            #check line length
+
+            # Second line
+            pieces1 = read_srf_line(fp1).strip().split()
+            pieces2 = read_srf_line(fp2).strip().split()
+
+            # Check line length
             if not len(pieces1) == len(pieces2):
-                print("Line %d/%d (point %d): files have different number of point parameters." %
-                      (i1 + 2, i2 + 2, j))
-                print(line1, line2)
+                print("Plane %d, point %d: files have different number of point parameters." % (plane, j))
+                fp1.close()
+                fp2.close()
                 return 1
-            #check rake
+            # Check rake
             r1 = int(float(pieces1[0]))
             r2 = int(float(pieces2[0]))
             if r1 != r2:
                 skip_slips = True
             if abs(r1 - r2) > RAKE_TOLERANCE:
-                print("Line %d/%d (point %d): rakes %d and %d differ by more than the accepted tolerance of 1." %
-                      (i1 + 2, i2 + 2, j, r1, r2))
-                print(line1, line2)
+                print("Plane %d, point %d: rakes %d and %d differ by more than the accepted tolerance of 1." %
+                      (plane, j, r1, r2))
+                fp1.close()
+                fp2.close()
                 return 4
             for k in range(1, NT_INDEX):
                 if math.fabs(float(pieces1[k]) - float(pieces2[k])) > PP_TOLERANCE:
-                    print("Line %d/%d (point %d): point parameters in field %d disagree." %
-                          (i1 + 2, i2 + 2, j, k+1))
-                    print(line1, line2)
+                    print("Plane %d, point %d: point parameters in field %d disagree." %
+                          (plane, j, k+1))
+                    fp1.close()
+                    fp2.close()
                     return 4
                 if math.fabs(float(pieces1[k]) - float(pieces2[k])) > SKIP_TOLERANCE:
                     #ok, but skip comparisons
                     skip_slips = True
-            #compare NTs
+
+            # Compare NTs
             nt1 = int(float(pieces1[NT_INDEX]))
             nt2 = int(float(pieces2[NT_INDEX]))
+
             if not nt1 == nt2:
                 skip_slips = True
                 if abs(nt1 - nt2) > NT_TOLERANCE:
-                    print("Line %d/%d (point %d): NT values %d and %d differ by %f, more than the accepted tolerance %d." %
-                          (i1 + 2, i2 + 2, j, nt1, nt2, abs(nt1 - nt2), NT_TOLERANCE))
+                    print("Plane %d, point %d: NT values %d and %d differ by %f, more than the accepted tolerance %d." %
+                          (plane, j, nt1, nt2, abs(nt1 - nt2), NT_TOLERANCE))
+                    fp1.close()
+                    fp2.close()
                     return 5
+
             if not int(float(pieces1[4])) == 0 or not int(float(pieces1[6])) == 0:
-                print("Line %d: SRF has NT2 or NT3, need to alter parser." %
-                      (i1 + 2))
+                print("SRF has NT2 or NT3, need to alter parser.")
+                fp1.close()
+                fp2.close()
                 sys.exit(0)
+
             if skip_slips == False:
                 num_rows = int(math.ceil(nt1 / 6.0))
                 for k in range(0, num_rows):
-                    line1 = data1[i1 + 3 + k]
-                    line2 = data2[i2 + 3 + k]
-                    pieces1 = line1.split()
-                    pieces2 = line2.split()
+
+                    pieces1 = read_srf_line(fp1).strip().split()
+                    pieces2 = read_srf_line(fp2).strip().split()
+
                     if not len(pieces1) == len(pieces2):
-                        print("Line %d/%d: mismatch in entries in line." %
-                              (i1 + 3 + k, i2 + 3 + k))
+                        print("Plane %d, point %d, line %d: mismatch in entries in line." %
+                              (plane, j, k))
                         continue
                     if not ENFORCE_TOLERANCE:
                         continue
@@ -264,35 +309,29 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
                         p2 = float(pieces2[p])
                         if p1 < 1.0 or p2 < 1.0:
                             if math.fabs(p1 - p2) > tolerance:
-                                print("Line %d/%d (point %d): %f and %f differ by more than the accepted tolerance %f (%f)." %
-                                      (i1 + 3 + k, i2 + 3 + k, j,
-                                       float(pieces1[p]), float(pieces2[p]),
+                                print("Plane %d, point %d, line %d: %f and %f differ by more than the accepted tolerance %f (%f)." %
+                                      (plane, j, k, float(pieces1[p]), float(pieces2[p]),
                                        tolerance, math.fabs(p1 - p2)))
-                                returncode = 1
+                                return_code = 1
                         else:
-                            if  math.fabs(p1-p2) / p1 > tolerance:
-                                print("Line %d/%d (point %d): %f and %f differ by more than the accepted tolerance %f%% (%f%%)." %
-                                      (i1 + 3 + k, i2 + 3 + k, j,
-                                       float(pieces1[p]), float(pieces2[p]),
+                            if math.fabs(p1-p2) / p1 > tolerance:
+                                print("Plane %d, point %d, line %d: %f and %f differ by more than the accepted tolerance %f%% (%f%%)." %
+                                      (plane, j, k, float(pieces1[p]), float(pieces2[p]),
                                        tolerance * 100.0,
                                        math.fabs(p1 - p2) / p1 * 100.0))
-                                returncode = 1
-                i1 += 2 + num_rows
-                i2 += 2 + num_rows
+                                return_code = 1
             else:
                 points_skipped += 1
-                i1 += 2 + int(math.ceil(nt1 / 6.0))
-                i2 += 2 + int(math.ceil(nt2 / 6.0))
-    else:
-        print("Malformed SRF file; no POINTS.")
-        return -2
-    if points_skipped > num_points / 50:
-        print("Too many points with different parameters. "
-              "Of %d total points %d had different parameters." %
-              (num_points, points_skipped))
-        returncode = 2
 
-    return returncode
+        if points_skipped > num_points / 50:
+            print("Too many points with different parameters. "
+                  "Of %d total points %d had different parameters." %
+                  (num_points, points_skipped))
+            return_code = 2
+
+    #print("Total points compared %d!" % (total_points))
+
+    return return_code
 
 def cmp_resid(filename1, filename2, tolerance=0.0015):
     """
