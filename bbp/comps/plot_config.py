@@ -52,7 +52,7 @@ PLOT_SRF_DEFAULT_CONTOUR_INTERVALS = 2.0 # Contour intervals (in seconds)
 
 # Per-method ranges for PSA and FAS GoF plots
 PSA_GOF_FREQ = {'gp': {'freq_low' : 0.1, 'freq_high' : 10.0},
-                'sdsu': {'freq_low' : 0.1, 'freq_high' : 8.0},
+                'sdsu': {'freq_low' : 0.1, 'freq_high' : 10.0},
                 'ucsb': {'freq_low' : 0.1, 'freq_high' : 15.0},
                 'exsim': {'freq_low' : 0.2, 'freq_high' : 100.0},
                 'irikura1': {'freq_low' : 0.1, 'freq_high' : 10.0},
@@ -61,10 +61,10 @@ PSA_GOF_FREQ = {'gp': {'freq_low' : 0.1, 'freq_high' : 10.0},
                 }
 
 FAS_GOF_FREQ = {'gp': {'freq_low' : 0.08, 'freq_high' : 12.5},
-                'sdsu': {'freq_low' : 0.1, 'freq_high' : 10.0},
+                'sdsu': {'freq_low' : 0.08, 'freq_high' : 12.5},
                 'ucsb': {'freq_low' : 0.1, 'freq_high' : 9.0},
                 'exsim': {'freq_low' : 0.1, 'freq_high' : 40.0},
-                'irikura1': {'freq_low' : 0.1, 'freq_high' : 10.0},
-                'irikura2': {'freq_low' : 0.1, 'freq_high' : 10.0},
+                'irikura1': {'freq_low' : 0.08, 'freq_high' : 12.5},
+                'irikura2': {'freq_low' : 0.08, 'freq_high' : 12.5},
                 'song': {'freq_low' : 0.1, 'freq_high' : 10.0}
                 }
