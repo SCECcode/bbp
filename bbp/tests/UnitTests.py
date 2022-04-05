@@ -67,6 +67,7 @@ from test_anderson_gof import TestAndersonGof
 from test_rzz2015 import TestRZZ2015
 from test_as16 import TestAS16
 from test_fas import TestFAS
+from test_fas_gof import TestFASGof
 
 class Logger(object):
     def __init__(self, filename):
@@ -129,6 +130,7 @@ TS.addTest(unittest.makeSuite(TestRotD50))
 TS.addTest(unittest.makeSuite(TestRotD100))
 TS.addTest(unittest.makeSuite(TestGPGof))
 TS.addTest(unittest.makeSuite(TestFAS))
+TS.addTest(unittest.makeSuite(TestFASGof))
 TS.addTest(unittest.makeSuite(TestSDSUMOGof))
 TS.addTest(unittest.makeSuite(TestAndersonGof))
 TS.addTest(unittest.makeSuite(TestRZZ2015))
