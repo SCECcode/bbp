@@ -4,7 +4,6 @@ on:
   push:
     branches: [ dev ]
 
-
 jobs:
   bbp-build-linux:
     runs-on: ubuntu-latest
@@ -12,4 +11,15 @@ jobs:
       matrix:
         python-version: [ 3.7 ]
     steps:
-
+    - name: set BBP_DIR
+      run: echo "BBP_BASE_DIR=$RUNNER_WORKSPACE/bbp" >> $GITHUB_ENV
+    - name: checkout bbp dev
+      uses: actions/checkout@v2
+      with:
+	ref: dev
+    - name: build bbp
+      run: ./.github/scripts/bbp-build-ci.sh
+      shell: bash
+    - name: test bbp
+      run: ./.github/scripts/bbp-test-ci.sh
+      shell: bash
