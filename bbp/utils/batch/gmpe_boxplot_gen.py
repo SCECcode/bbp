@@ -710,7 +710,7 @@ def create_plot(codebase, mag, vel, dist, mech, sim_data, output_file):
                  color=COLOR_NGA, lw=0.8, ls='--')
     # Now plot the data
     plt.boxplot(sim_data, positions=box_positions,
-                widths=box_width, whis='range',
+                widths=box_width, whis=[0, 100],
                 boxprops=dict(linewidth=1.5, color='b'),
                 whiskerprops=dict(linewidth=1.1,
                                   linestyle='-',
