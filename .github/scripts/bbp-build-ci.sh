@@ -2,9 +2,9 @@
 
 echo "==> Installing Python packages needed by BBP..."
 
-sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba python3-pyproj
+sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba python3-pyproj libfftw3-dev libfftw3-doc
 
-echo $BBP_BASE_DIR
+echo
 
 echo "======================GCC===================="
 gcc --version
