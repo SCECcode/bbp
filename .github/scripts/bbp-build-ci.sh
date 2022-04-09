@@ -22,7 +22,7 @@ python3 -c "import pyproj; print('PyProj: ', pyproj.__version__)"
 
 # Set basic parameters
 VERSION=22.4.0
-BASEDIR="${RUNNER_WORKSPACE"
+BASEDIR="${RUNNER_WORKSPACE}"
 BBPDIR="${BASEDIR}/bbp"
 SRCDIR="${BBPDIR}/src"
 
