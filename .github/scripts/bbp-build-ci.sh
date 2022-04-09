@@ -1,6 +1,15 @@
 #!/bin/bash
 
+echo "==> Installing Python packages needed by BBP..."
+
+sudo apt install python3-numpy python3-scipy
+
 echo $BBP_DIR
+
+
+gcc --version
+
+gfortran --version
 
 python --version
 
