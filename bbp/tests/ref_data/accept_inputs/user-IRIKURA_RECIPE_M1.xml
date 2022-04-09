@@ -102,6 +102,15 @@
 				</arguments>
 			</BBP_Module>
 			<BBP_Module>
+				<name>FAS</name>
+				<staged_files>
+					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>
+				</staged_files>
+				<arguments>
+					<argument type="str">northridge_3_sta.stl</argument>
+				</arguments>
+			</BBP_Module>
+			<BBP_Module>
 				<name>GenHTML</name>
 				<staged_files>
 					<file>$BBP_DATA_DIR/run/northridge_3_sta.stl</file>

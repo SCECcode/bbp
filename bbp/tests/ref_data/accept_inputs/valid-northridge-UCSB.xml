@@ -106,6 +106,7 @@
 					<argument type="str">nr_v21_03_0_ucsb.src</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">NR</argument>
+					<argument type="str">UCSB</argument>
 					<argument type="int">120</argument>
 					<argument type="float">0.01</argument>
 				</arguments>
