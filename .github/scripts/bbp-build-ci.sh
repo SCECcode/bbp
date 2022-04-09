@@ -2,7 +2,7 @@
 
 echo "==> Installing Python packages needed by BBP..."
 
-sudo apt install python3-numpy python3-scipy
+sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba python3-pyproj
 
 echo $BBP_DIR
 
