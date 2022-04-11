@@ -1,5 +1,27 @@
 #!/bin/bash
 
+die () {
+    echo >&2 "$@"
+    exit 1
+}
+
+download_untar () {
+    URL=$1
+
+    # Download
+    wget $URL 2>/dev/null || curl -O $URL 2>/dev/null
+
+    URL_NO_PROTO=${URL:7}
+    URL_REL=${URL_NO_PROTO#*/}
+    FILE=`basename "/${URL_REL%%\?*}"`
+
+    # Untar
+    tar -xzf ${FILE}
+
+    # Clean up as we go
+    rm ${FILE}
+}
+
 echo "==> Installing Python packages needed by BBP..."
 
 sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba python3-pyproj libfftw3-dev libfftw3-doc
@@ -46,12 +68,10 @@ echo "==> Installed!"
 # Install LABasin500 (CI) region and NR validation packages
 echo "==> LA Basin"
 cd ${BASEDIR}/bbp_gf
-
-# download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/labasin500-velocity-model-${VERSION}.tar.gz ${MD5FILE}
+download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/labasin500ci-velocity-model-${VERSION}.tar.gz
 
 echo "==> NR"
 cd ${BASEDIR}/bbp_val
-
-# download_untar http://hypocenter.usc.edu/research/bbp/versions/${VERSION}/nr-validation-${VERSION}.tar.gz ${MD5FILE}
+download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/nr-validation-${VERSION}.tar.gz
 
 echo "==> Completed!"
