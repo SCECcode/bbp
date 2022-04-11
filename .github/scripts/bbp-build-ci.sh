@@ -63,15 +63,22 @@ cd ${SRCDIR}
 make
 cd ${OLD_DIR}
 # Done with main source distribution
-echo "==> Installed!"
+echo "==> Source code compiled!"
+echo
 
 # Install LABasin500 (CI) region and NR validation packages
-echo "==> LA Basin"
+echo "==> Installing LA Basin CI region..."
 cd ${BASEDIR}/bbp_gf
 download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/labasin500ci-velocity-model-${VERSION}.tar.gz
+echo
+ls ${BASEDIR}/bbp_gf
+echo
 
-echo "==> NR"
+echo "==> Installing NR validation package..."
 cd ${BASEDIR}/bbp_val
 download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/nr-validation-${VERSION}.tar.gz
+echo
+ls ${BASEDIR}/bbp_val
+echo
 
-echo "==> Completed!"
+echo "==> Build steps completed!"
