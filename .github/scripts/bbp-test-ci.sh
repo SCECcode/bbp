@@ -6,12 +6,13 @@ BASEDIR="${RUNNER_WORKSPACE}"
 BBPDIR="${BASEDIR}/bbp/bbp"
 SRCDIR="${BBPDIR}/src"
 
-BBP_DIR=${BBPDIR}
-BBP_GF_DIR=${BASEDIR}/bbp_gf
-BBP_VAL_DIR=${BASEDIR}/bbp_val
-PYTHONPATH=${BBPDIR}/comps:${PYTHONPATH}
-BBP_DATA_DIR=${BASEDIR}/bbp_data
-PATH=${BBPDIR}/comps:${BBPDIR}/utils/batch:$PATH
+export BBP_DIR=${BBPDIR}
+export BBP_GF_DIR=${BASEDIR}/bbp_gf
+export BBP_VAL_DIR=${BASEDIR}/bbp_val
+export PYTHONPATH=${BBPDIR}/comps:${PYTHONPATH}
+export BBP_DATA_DIR=${BASEDIR}/bbp_data
+export PATH=${BBPDIR}/comps:${BBPDIR}/utils/batch:$PATH
+ulimit -s unlimited
 
 echo
 echo "===> Running Unit Tests..."
