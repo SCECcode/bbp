@@ -24,10 +24,11 @@ download_untar () {
 
 echo "==> Installing Python packages needed by BBP..."
 
-sudo apt-get update
-sudo apt-get install g++-8 -y
-sudo apt-get install gfortran-8 -y
-sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba python3-pyproj libfftw3-dev libfftw3-doc
+#sudo apt-get update
+#sudo apt-get install g++-8 -y
+#sudo apt-get install gfortran-8 -y
+#sudo apt-get update
+#sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba python3-pyproj libfftw3-dev libfftw3-doc
 
 echo
 
@@ -40,10 +41,6 @@ cd ${OLD_DIR}
 export PATH=${RUNNER_WORKSPACE}/bin:$PATH
 
 echo "======================GCC===================="
-
-which gcc
-which gcc-8
-
 gcc --version
 
 echo "===================GFORTRAN=================="
