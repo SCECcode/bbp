@@ -31,11 +31,18 @@ sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba py
 
 echo
 
+OLD_DIR=`pwd`
+mkdir ${RUNNER_WORKSPACE}/bin
+cd ${RUNNER_WORKSPACE}/bin
+ln -s /usr/bin/gcc-8 gcc
+ln -s /usr/bin/gfortran-8 gfortran
+cd ${OLD_DIR}
+export PATH=${RUNNER_WORKSPACE}/bin:$PATH
+
 echo "======================GCC===================="
 
 which gcc
 which gcc-8
-which gcc8
 
 gcc --version
 
