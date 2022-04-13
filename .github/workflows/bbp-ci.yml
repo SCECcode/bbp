@@ -19,15 +19,15 @@ jobs:
         python-version: 3.7
     - name: configure Python
       run: |
-      sudo apt-get update
-      sudo apt-get install g++-8 -y
-      sudo apt-get install gfortran-8 -y
-      pip install numpy
-      pip instlal scipy
-      pip install matplotlib
-      pip install pyproj
-      pip install numba
-      sudo apt-get install libfftw3-dev libfftw3-doc
+        sudo apt-get update
+        sudo apt-get install g++-8 -y
+        sudo apt-get install gfortran-8 -y
+        pip install numpy
+        pip instlal scipy
+        pip install matplotlib
+        pip install pyproj
+        pip install numba
+        sudo apt-get install libfftw3-dev libfftw3-doc
 #    - name: set up Python 3.7
 #      uses: actions/setup-python@v3
 #      with:
