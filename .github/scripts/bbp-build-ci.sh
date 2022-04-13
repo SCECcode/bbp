@@ -32,6 +32,11 @@ sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba py
 echo
 
 echo "======================GCC===================="
+
+which gcc
+which gcc-8
+which gcc8
+
 gcc --version
 
 echo "===================GFORTRAN=================="

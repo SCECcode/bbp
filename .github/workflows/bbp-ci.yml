@@ -9,10 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ 3.7 ]
+        python-version: [ 3.7.6 ]
     steps:
     - name: set BBP_DIR
       run: echo "BBP_BASE_DIR=$RUNNER_WORKSPACE/bbp" >> $GITHUB_ENV
+    - name: set up Python 3.7
+      uses: actions/setup-python@v3
+      with: python-version: '3.7.6'
     - name: checkout bbp dev
       uses: actions/checkout@v2
       with:
