@@ -18,6 +18,27 @@ echo
 echo "===> Running Unit Tests..."
 
 cd $BBP_DIR/tests
-./UnitTestsCI.py
+#./UnitTestsCI.py
+
+./test_genslip.py
+
+echo
+
+./test_hfsims.py
+
+echo
+
+./test_rmg.py
+
+echo
+
+./test_irikura_hf.py
+
+echo
+
+./test_bbtoolbox.py
+
+echo
+
 
 
