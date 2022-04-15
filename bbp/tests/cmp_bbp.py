@@ -283,6 +283,8 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
 
             if not int(float(pieces1[4])) == 0 or not int(float(pieces1[6])) == 0:
                 print("SRF has NT2 or NT3, need to alter parser.")
+                print(pieces1)
+                print(pieces2)
                 fp1.close()
                 fp2.close()
                 sys.exit(0)
