@@ -20,15 +20,11 @@ echo "===> Running Unit Tests..."
 cd $BBP_DIR/tests
 #./UnitTestsCI.py
 
-./test_genslip.py
-
-echo
-
 ./test_hfsims.py
 
 echo
 
-./test_rmg.py
+cat $BBP_DATA_DIR/logs/*/*hfsims*.log
 
 echo
 
@@ -36,9 +32,14 @@ echo
 
 echo
 
+cat $BBP_DATA_DIR/logs/*/*irikura_hf*.log
+
+echo
+
+ulimit -s unlimited
 ./test_bbtoolbox.py
 
 echo
 
-
+cat $BBP_DATA_DIR/logs/*/*bbtoolbox*.log
 
