@@ -295,14 +295,21 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
                 fp2.close()
                 sys.exit(0)
 
-            # How many slip lines we need to read
-            num_rows = int(math.ceil(nt1 / 6.0))
-            for k in range(0, num_rows):
-                # Read slips
-                pieces1 = read_srf_line(fp1).strip().split()
-                pieces2 = read_srf_line(fp2).strip().split()
-
-                if skip_slips == False:
+            if skip_slips:
+                points_skipped += 1
+                num_rows1 = int(math.ceil(nt1 / 6.0))
+                num_rows2 = int(math.ceil(nt2 / 6.0))
+                for k in range(0, num_rows1):
+                    pieces1 = read_srf_line(fp1).strip().split()
+                for k in range(0, num_rows2):
+                    pieces2 = read_srf_line(fp2).strip().split()
+            else:
+                # How many slip lines we need to read
+                num_rows = int(math.ceil(nt1 / 6.0))
+                for k in range(0, num_rows):
+                    # Read slips
+                    pieces1 = read_srf_line(fp1).strip().split()
+                    pieces2 = read_srf_line(fp2).strip().split()
 
                     if not len(pieces1) == len(pieces2):
                         print("Plane %d, point %d, line %d: mismatch in entries in line." %
@@ -326,8 +333,6 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
                                        tolerance * 100.0,
                                        math.fabs(p1 - p2) / p1 * 100.0))
                                 return_code = 1
-                else:
-                    points_skipped += 1
 
         if points_skipped > num_points / 50:
             print("Too many points with different parameters. "
