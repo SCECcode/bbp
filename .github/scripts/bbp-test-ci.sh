@@ -36,12 +36,15 @@ cat $BBP_DATA_DIR/logs/*/*irikura_hf*.log
 md5sum $BBP_DATA_DIR/outdata/*/param_files/*.txt
 md5sum $BBP_DATA_DIR/outdata/*/param_files/*.dat
 
+cat $BBP_DATA_DIR/outdata/*/param_files/dtrandom_input.txt
+cat $BBP_DATA_DIR/outdata/*/param_files/*_rndt.dat
+
 echo
 
 ulimit -s unlimited
-./test_bbtoolbox.py
+#./test_bbtoolbox.py
 
 echo
 
-cat $BBP_DATA_DIR/logs/*/*bbtoolbox*.log
+#cat $BBP_DATA_DIR/logs/*/*bbtoolbox*.log
 
