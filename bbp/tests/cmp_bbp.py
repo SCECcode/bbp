@@ -200,6 +200,9 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
             # and tolerance in NT values
             pieces1 = read_srf_line(fp1).strip().split()
             pieces2 = read_srf_line(fp2).strip().split()
+            print("Set 1f: ", pieces1)
+            print("Set 2f: ", pieces2)
+
             # Check line length
             if not len(pieces1) == len(pieces2):
                 print("Plane %d, point %d: files have different number of point parameters." % (plane, j))
@@ -240,6 +243,9 @@ def cmp_srf(filename1, filename2, tolerance=0.0011):
             pieces1 = read_srf_line(fp1).strip().split()
             pieces2 = read_srf_line(fp2).strip().split()
 
+            print("Set 1s: ", pieces1)
+            print("Set 2s: ", pieces2)
+            
             # Check line length
             if not len(pieces1) == len(pieces2):
                 print("Plane %d, point %d: files have different number of point parameters." % (plane, j))
