@@ -20,11 +20,11 @@ echo "===> Running Unit Tests..."
 cd $BBP_DIR/tests
 #./UnitTestsCI.py
 
-./test_hfsims.py
+#./test_hfsims.py
 
 echo
 
-cat $BBP_DATA_DIR/logs/*/*hfsims*.log
+#cat $BBP_DATA_DIR/logs/*/*hfsims*.log
 
 echo
 
@@ -33,6 +33,8 @@ echo
 echo
 
 cat $BBP_DATA_DIR/logs/*/*irikura_hf*.log
+md5sum $BBP_DATA_DIR/outdata/*/param_files/*.txt
+md5sum $BBP_DATA_DIR/outdata/*/param_files/*.dat
 
 echo
 
