@@ -24,8 +24,8 @@ subroutine readsrf
 
   read(10,*) elon,elat,nstk,ndip,len,wid
   read(10,*)
-  dx=len*1000./float(nstk) ! subfault length (m)
-  dy=wid*1000./float(ndip) ! subfault width (m)
+  dx=(int(len*10))*100./float(nstk) ! subfault length (m)
+  dy=(int(wid*10))*100./float(ndip) ! subfault width (m)
      ! Data block
   read(10,*) chara,np
   write(6,*) 'SRF  number of subfaults : ',np, dx, dy
