@@ -20,31 +20,11 @@ echo "===> Running Unit Tests..."
 cd $BBP_DIR/tests
 #./UnitTestsCI.py
 
-#./test_hfsims.py
-
-echo
-
-#cat $BBP_DATA_DIR/logs/*/*hfsims*.log
+./test_hfsims.py
 
 echo
 
 ./test_irikura_hf.py
 
 echo
-
-cat $BBP_DATA_DIR/logs/*/*irikura_hf*.log
-md5sum $BBP_DATA_DIR/outdata/*/param_files/*.txt
-md5sum $BBP_DATA_DIR/outdata/*/param_files/*.dat
-
-cat $BBP_DATA_DIR/outdata/*/param_files/dtrandom_input.txt
-cat $BBP_DATA_DIR/outdata/*/param_files/*_rndt.dat
-
-echo
-
-ulimit -s unlimited
-#./test_bbtoolbox.py
-
-echo
-
-#cat $BBP_DATA_DIR/logs/*/*bbtoolbox*.log
 

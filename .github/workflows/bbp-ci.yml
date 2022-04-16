@@ -28,10 +28,6 @@ jobs:
         pip install pyproj
         pip install numba
         sudo apt-get install libfftw3-dev libfftw3-doc
-#    - name: set up Python 3.7
-#      uses: actions/setup-python@v3
-#      with:
-#        python-version: '3.7.6'
     - name: checkout bbp dev
       uses: actions/checkout@v2
       with:

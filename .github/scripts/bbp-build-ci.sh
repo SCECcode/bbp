@@ -22,14 +22,6 @@ download_untar () {
     rm ${FILE}
 }
 
-echo "==> Installing Python packages needed by BBP..."
-
-#sudo apt-get update
-#sudo apt-get install g++-8 -y
-#sudo apt-get install gfortran-8 -y
-#sudo apt-get update
-#sudo apt install python3-numpy python3-scipy python3-matplotlib python3-numba python3-pyproj libfftw3-dev libfftw3-doc
-
 echo
 
 OLD_DIR=`pwd`
