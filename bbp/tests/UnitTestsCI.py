@@ -115,7 +115,8 @@ if sys.platform == 'darwin':
     print("*** Mac OS X detected: skipping SDSU BBToolbox unit test.")
 else:
     # Don't add on Mac OS X since test will fail due to raytracer issue
-    TS.addTest(unittest.makeSuite(TestBBToolbox))
+    #TS.addTest(unittest.makeSuite(TestBBToolbox))
+    pass
 
 # Add ExSIM tests
 TS.addTest(unittest.makeSuite(TestExsim))
