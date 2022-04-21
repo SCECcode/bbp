@@ -130,6 +130,24 @@ def combine_realizations_data(input_dir, temp_dir):
 
     return event_label, len(realizations), len(stations)
 
+def select_src_file(a_srcfiles):
+    """
+    Returns the src file that contains the hypocenter
+    """
+    for a_srcfile in a_srcfiles:
+        src_keys = bband_utils.parse_src_file(a_srcfile)
+        if 'true_hypo' in src_keys:
+            # If event has true_hypo key and it is set to 1, use this segment
+            if int(float(src_keys['true_hypo'])) == 1:
+                return a_srcfile
+        fault_len = float(src_keys['fault_length']) / 2.0
+        hypo_along_strike = abs(float(src_keys['hypo_along_stk']))
+        if hypo_along_strike <= fault_len:
+            # Use this segment
+            return a_srcfile
+
+    raise bband_utils.ProcessingError("Cannot parse src files!")
+
 def create_resid_data_file(comp_label, input_indir, input_obsdir,
                            combined_file, temp_dir):
     """
@@ -167,8 +185,9 @@ def create_resid_data_file(comp_label, input_indir, input_obsdir,
     # Get source file
     a_srcfile = glob.glob("%s%s*.src" % (basedir, os.sep))
     if len(a_srcfile) != 1:
-        raise bband_utils.ProcessingError("Cannot get src file!")
-    a_srcfile = a_srcfile[0]
+        a_srcfile = select_src_file(a_srcfile)
+    else:
+        a_srcfile = a_srcfile[0]
 
     # Parse it!
     src_keys = bband_utils.parse_src_file(a_srcfile)
