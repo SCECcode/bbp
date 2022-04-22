@@ -394,6 +394,10 @@ def cmp_resid(filename1, filename2, tolerance=0.0015):
     return returncode
 
 def cmp_bbp(filename1, filename2, tolerance=0.0015):
+    """
+    Compares two BBP files, set tolerance to None to disable
+    value by value comparison
+    """
     fp1 = open(filename1, 'r')
     fp2 = open(filename2, 'r')
     data1 = fp1.readlines()
@@ -422,7 +426,7 @@ def cmp_bbp(filename1, filename2, tolerance=0.0015):
         pieces1 = line1.split()
         line2 = data2[i + file2_offset]
         pieces2 = line2.split()
-        if not ENFORCE_TOLERANCE:
+        if not ENFORCE_TOLERANCE or tolerance is None:
             continue
         for j in range(0, 4):
             f1 = float(pieces1[j])

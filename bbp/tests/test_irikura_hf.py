@@ -101,7 +101,8 @@ class TestIrikuraHF(unittest.TestCase):
                                    str(self.sim_id), "%d.s%02d-hf.bbp" %
                                    (self.sim_id, i))
             self.assertFalse(not cmp_bbp.cmp_bbp(bbpfile, ref_file,
-                                                 tolerance=0.025) == 0,
+#                                                 tolerance=0.025) == 0,
+                                                 tolerance=None) == 0,
                              "output HF BBP file %s " % (bbpfile) +
                              " does not match reference hf bbp file %s" % (ref_file))
 
