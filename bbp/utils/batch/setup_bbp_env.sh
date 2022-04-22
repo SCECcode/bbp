@@ -7,10 +7,10 @@
 # BBP_DIR should point to the top-level Broadband distribution directory
 BBP_DIR=/project/scec_608/$USER/19_4_DEV/19.4.0/bbp;export BBP_DIR
 # BBP_GF_DIR should point to the Green's Functions top-level directory
-BBP_GF_DIR=/scratch/$USER/bbp_gf;export BBP_GF_DIR
+BBP_GF_DIR=/scratch1/$USER/bbp_gf;export BBP_GF_DIR
 # BBP_VAL_DIR should point to the Validation packages' top-level directory
 BBP_VAL_DIR=/project/scec_608/$USER/19_4_DEV/bbp_val;export BBP_VAL_DIR
-BBP_DATA_DIR=/scratch/$USER/bbp_sims/$SLURM_JOB_ID;export BBP_DATA_DIR
+BBP_DATA_DIR=/scratch1/$USER/bbp_sims/$SLURM_JOB_ID;export BBP_DATA_DIR
 
 # Do not change anything below this line
 PYTHONPATH=$BBP_DIR/comps:$BBP_DIR/comps/PySeismoSoil;export PYTHONPATH
