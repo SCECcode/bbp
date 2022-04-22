@@ -37,6 +37,9 @@ import os
 import sys
 import glob
 import numpy
+import warnings
+
+# warnings.simplefilter('error')
 
 # Period bins
 PERIODS = [[0.01, 0.1],
@@ -55,19 +58,28 @@ MECH = [("REV", ["Niigata", "NR", "WHITTIER",
                  "SanSimeon", "Iwate",
                  "RDL1K", "Mineral", "Saguenay1k"]),
         ("ROBL", ["NORTHPS", "LOMAP", "CHINOH", "Chuetsu"]),
-        ("SS", ["Tottori", "Landers", "ALUMR", "Parkfield"]),
+        ("SS", ["Tottori", "Landers", "ALUMR",
+                "Parkfield", "HectorMine", "Ridgecrest19A",
+                "Ridgecrest19B", "Ridgecrest19C"]),
         ("NM", [])]
 
 # Event list
 EVENTS = ["CHINOH", "ALUMR", "WHITTIER", "Parkfield",
           "NORTHPS", "Tottori", "SanSimeon", "Niigata",
           "Chuetsu", "NR", "Iwate", "LOMAP", "Landers",
-          "RDL1K", "Mineral", "Saguenay1k"]
+          "Ridgecrest19A", "Ridgecrest19B", "Ridgecrest19C",
+          "RDL1K", "Mineral", "Saguenay1k", "HectorMine"]
 
 EVENTS_CA = ["WHITTIER", "NORTHPS", "NR", "LOMAP", "Landers",
-             "CHINOH", "ALUMR", "SanSimeon", "Parkfield"]
+             "CHINOH", "ALUMR", "SanSimeon", "Parkfield",
+             "HectorMine", "Ridgecrest19A", "Ridgecrest19B",
+             "Ridgecrest19C"]
 
 EVENTS_CENA = ["Mineral", "RDL1K", "Saguenay1k"]
+
+EVENTS_EQUIV = {"LandersMSDr" : "Landers",
+                "LandersMS" : "Landers",
+                "Ridgecrest19CMS" : "Ridgecrest19C"}
 
 def compile_input_data(input_file):
     """
@@ -107,6 +119,9 @@ def compile_input_data(input_file):
         line = line.strip()
         items = line.split()
         event = items[0]
+        # Map multi-segment events properly
+        if event in EVENTS_EQUIV:
+            event = EVENTS_EQUIV[event]
         dist = float(items[7])
         tmin = float(items[10])
         tmax = float(items[11])
