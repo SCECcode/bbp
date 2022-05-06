@@ -158,5 +158,5 @@ Development of BBP is a group effort. A list of developers that have contributed
 are listed in the [Credits.md](CREDITS.md) file in this repository.
 
 ## License
-The UCVM software is distributed under the BSD 3-Clause open-source license. 
-Please see the [LICENSE.txt](LICENSE.txt) file for more information.
+The SCEC-developed portions of the Broadband platform software is distributed under the BSD 3-Clause open-source license. 
+Please see the [LICENSE.txt](LICENSE.txt) file for more information. Individual models codes may be offered under their own open-source software licenses.
