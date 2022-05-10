@@ -53,8 +53,8 @@ class TestGenslip(unittest.TestCase):
         os.chdir(self.install.A_COMP_DIR)
         self.sim_id = int(seqnum.get_seq_num())
         self.velmodel = "nr02-vs500.fk1d"
-        self.srcfile = "test_wh.src"
-        self.outsrf = "%d_test_eq.srf" % self.sim_id
+        self.test_srcfile = "test_wh.src"
+        self.nr_srcfile = "nr_v14_02_1.src"
 
         indir = os.path.join(self.install.A_IN_DATA_DIR, str(self.sim_id))
         tmpdir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
@@ -70,7 +70,12 @@ class TestGenslip(unittest.TestCase):
                                        self.sim_id)
         bband_utils.runprog(cmd, print_cmd=False)
         cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
-                                       self.srcfile,
+                                       self.test_srcfile,
+                                       self.install.A_IN_DATA_DIR,
+                                       self.sim_id)
+        bband_utils.runprog(cmd, print_cmd=False)
+        cmd = "cp %s/gp/%s %s/%d/." % (self.install.A_TEST_REF_DIR,
+                                       self.nr_srcfile,
                                        self.install.A_IN_DATA_DIR,
                                        self.sim_id)
         bband_utils.runprog(cmd, print_cmd=False)
@@ -84,9 +89,10 @@ class TestGenslip(unittest.TestCase):
         """
         a_ref_dir = os.path.join(self.install.A_TEST_REF_DIR, "gp")
         a_res_dir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
+        outsrf = "%d_test_eq.srf" % (self.sim_id)
 
-        gen = Genslip(self.velmodel, self.srcfile,
-                      self.outsrf, "LABasin500",
+        gen = Genslip(self.velmodel, self.test_srcfile,
+                      outsrf, "LABasin500",
                       sim_id=self.sim_id)
         gen.run()
         #
@@ -95,7 +101,31 @@ class TestGenslip(unittest.TestCase):
 
         a_ref_file = os.path.join(a_ref_dir,
                                   "m5.89-0.20x0.20_s2379646.srf")
-        a_newfile = os.path.join(a_res_dir, self.outsrf)
+        a_newfile = os.path.join(a_res_dir, outsrf)
+        errmsg = ("Output file %s does not match reference file %s" %
+                  (a_newfile, a_ref_file))
+        self.assertFalse(not cmp_bbp.cmp_srf(a_ref_file, a_newfile,
+                                             tolerance=0.0011) == 0, errmsg)
+
+    def test_genslip_fftw(self):
+        """
+        Test GP rupture generator for the correct FFTW behavior
+        """
+        a_ref_dir = os.path.join(self.install.A_TEST_REF_DIR, "gp")
+        a_res_dir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
+        outsrf = "%d_nr_eq.srf" % (self.sim_id)
+
+        gen = Genslip(self.velmodel, self.nr_srcfile,
+                      outsrf, "LABasin500",
+                      sim_id=self.sim_id)
+        gen.run()
+        #
+        # Test conversion from genslip to srf file
+        #
+
+        a_ref_file = os.path.join(a_ref_dir,
+                                  "m6.73-0.10x0.10_s2379646.srf")
+        a_newfile = os.path.join(a_res_dir, outsrf)
         errmsg = ("Output file %s does not match reference file %s" %
                   (a_newfile, a_ref_file))
         self.assertFalse(not cmp_bbp.cmp_srf(a_ref_file, a_newfile,
