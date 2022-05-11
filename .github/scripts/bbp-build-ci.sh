@@ -51,17 +51,17 @@ VERSION=22.4.0
 BASEDIR="${RUNNER_WORKSPACE}"
 BBPDIR="${BASEDIR}/bbp/bbp"
 SRCDIR="${BBPDIR}/src"
-FFTW_BUILD_DIR="${BBPDIR}/fftbuild"
-FFTW_INSTALL_DIR="${BBP_DIR}/fftw-3.3.8"
+FFTW_BUILD_DIR="${BASEDIR}/fftbuild"
+FFTW_INSTALL_DIR="${BASEDIR}/fftw-3.3.8"
 export FFTW_INCDIR=${FFTW_INSTALL_DIR}/include
 export FFTW_LIBDIR=${FFTW_INSTALL_DIR}/lib
 
+echo "===================FFTW=================="
 # Compile FFTW library
 mkdir -p ${FFTW_BUILD_DIR}
 OLD_DIR=`pwd`
 cd ${FFTW_BUILD_DIR}
 download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/fftw-3.3.8.tar.gz
-tar -xzvf fftw-3.3.8.tar.gz
 cd fftw-3.3.8
 ./configure --prefix=${FFTW_INSTALL_DIR} --enable-float
 make
