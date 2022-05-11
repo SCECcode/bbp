@@ -63,6 +63,9 @@ OLD_DIR=`pwd`
 cd ${FFTW_BUILD_DIR}
 download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/fftw-3.3.8.tar.gz
 cd fftw-3.3.8
+./configure --prefix=${FFTW_INSTALL_DIR}
+make
+make install
 ./configure --prefix=${FFTW_INSTALL_DIR} --enable-float
 make
 make install
