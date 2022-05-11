@@ -27,7 +27,6 @@ jobs:
         pip install matplotlib
         pip install pyproj
         pip install numba
-        sudo apt-get install libfftw3-dev libfftw3-doc
     - name: checkout bbp dev
       uses: actions/checkout@v2
       with:
