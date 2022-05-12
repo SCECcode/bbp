@@ -138,4 +138,5 @@ TS.addTest(unittest.makeSuite(TestAS16))
 
 # Done, run the tests
 print("==> Running BBP Unit Tests...")
-unittest.TextTestRunner(verbosity=2).run(TS)
+RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(TS)
+sys.exit(not RETURN_CODE.wasSuccessful())
