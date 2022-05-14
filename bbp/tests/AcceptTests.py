@@ -34,6 +34,10 @@ These are acceptance tests for the broadband platforms
 """
 from __future__ import division, print_function
 
+# Works for both Python 2 and 3
+try: input = raw_input
+except NameError: pass
+
 # Import Python modules
 import os
 import sys
@@ -100,8 +104,8 @@ def find_tests(test, rerun):
             if ((test is None) and
                 (completed_test_count >= len(test_files))):
                 print("All the acceptance tests have passed previously!")
-                proceed = raw_input("Would you like to re-run "
-                                    "all the acceptance tests? (y/n)")
+                proceed = input("Would you like to re-run "
+                                "all the acceptance tests? (y/n) ")
                 if str.lower(proceed) == 'y':
                     os.remove(resume_file)
                     resume_list = ""
@@ -245,5 +249,6 @@ if __name__ == '__main__':
 
     find_tests(test, rerun)
     suite = unittest.TestLoader().loadTestsFromTestCase(BBPAcceptanceTests)
-    print("==> Number of tests to run: %d" % suite.countTestCases())
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    print("==> Number of tests to run: %d" % (suite.countTestCases()))
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(suite)
+    sys.exit(not RETURN_CODE.wasSuccessful())
