@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 """
 BSD 3-Clause License
 
@@ -36,6 +36,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import sys
 
 # Import BBP modules
 import vm2vm
@@ -111,4 +112,5 @@ class TestVm2vm(unittest.TestCase):
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestVm2vm)
-    unittest.TextTestRunner(verbosity=2).run(SUITE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(SUITE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

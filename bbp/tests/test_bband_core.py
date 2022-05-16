@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 """
 BSD 3-Clause License
 
@@ -35,6 +35,7 @@ These are unit tests for the broadband platform core
 from __future__ import division, print_function
 
 # Import Python modules
+import sys
 import unittest
 
 # Import Broadband modules
@@ -59,4 +60,5 @@ class CoreTestSuite(unittest.TestSuite):
 
 if __name__ == '__main__':
     CORE = CoreTestSuite()
-    unittest.TextTestRunner(verbosity=2).run(CORE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(CORE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

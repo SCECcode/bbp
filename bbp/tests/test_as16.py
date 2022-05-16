@@ -198,4 +198,5 @@ if __name__ == '__main__':
     else:
         sim_id = None
     suite = unittest.TestLoader().loadTestsFromTestCase(TestAS16)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(suite)
+    sys.exit(not RETURN_CODE.wasSuccessful())
