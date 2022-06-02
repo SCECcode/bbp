@@ -141,19 +141,33 @@ echo "=> Creating directory tree..."
 mkdir -p ${BASEDIR}/bbp_val
 mkdir -p ${BASEDIR}/bbp_gf
 mkdir -p ${BASEDIR}/bbp_data
-echo
 
 # Compile source distribution
-echo "=> Main Broadband Platform Source Distribution"
-echo "==> Compiling... (it may take a while)"
+echo
+echo " ====== Setting up Broadband Platform ${VERSION} Source Distribution ======"
+echo
+echo "==> Compiling... (it may take a few minutes)"
 OLD_DIR=`pwd`
 cd ${SRCDIR}
-make > /dev/null 2>&1
+make > bbp-build.log 2>&1
+make_ret_val=$?
+# Check if build was successful
+if [ $make_ret_val -ne 0 ]; then
+    echo
+    echo "****** ERROR: BBP build failed, for more details please check:"
+    echo "****** ERROR: ${SRCDIR}/bbp-build.log"
+    echo
+    cd ${OLD_DIR}
+    exit 1
+fi
+
 cd ${OLD_DIR}
 # Done with main source distribution
-echo "==> Installed!"
+echo "==> Build completed!"
 
 # Install velocity model packages
+echo
+echo " ====== Setting up Broadband Platform ${VERSION} Simulation Regions  ======"
 echo
 echo " Please select what velocity models (regions) you would like to install,"
 echo " using '1' for Yes, or '2' for No:"
@@ -161,7 +175,7 @@ echo
 
 # Ask questions first
 echo "==> Would you like to install the LA Basin region (25GB)"
-echo "    needed for unit and acceptance tests to run?"
+echo "    REQUIRED for unit and acceptance tests to run?"
 select yn in "Yes" "No"; do
     case $yn in
 	Yes ) LABASIN=y; break;;
@@ -217,7 +231,9 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "=> Installing Broadband Platform Velocity Model Packages"
+echo
+echo " ======    Installing Broadband Platform Velocity Model Packages     ======"
+echo
 
 if [ "${LABASIN}" == "y" ]; then
     cd ${BASEDIR}/bbp_gf
@@ -261,9 +277,12 @@ if [ "${WJAPAN}" == "y" ]; then
     download_untar ${BASEURL}/westernjapan500-velocity-model-${VERSION}.tar.gz ${MD5FILE}
 fi
 
+echo
 echo "==> Completed!"
 
-echo "=> Installing Broadband Platform Validation Packages"
+echo
+echo " ======   Installing Broadband Platform Validation Event Packages    ======"
+echo
 
 if [ "${NOCAL}" == "y" ]; then
     cd ${BASEDIR}/bbp_val
