@@ -52,19 +52,20 @@ download_untar () {
     MD5=$2
 
     # Download
+    echo "===> Downloading..."
     #wget $URL 2>&1 | grep '%' || curl -O $URL
-    curl -o -# ${URL}
+    curl -O ${URL}
 
     URL_NO_PROTO=${URL:7}
     URL_REL=${URL_NO_PROTO#*/}
     FILE=`basename "/${URL_REL%%\?*}"`
 
     # Untar
-    echo "=> Uncompressing file..."
+    echo "===> Uncompressing file..."
     tar -xzf ${FILE}
 
     # Check MD5SUM
-    echo "=> Checking md5sum..."
+    echo "===> Checking md5sum..."
     PREV_SUM=`cat ${MD5} | grep ${FILE} | cut -d\  -f1`
     SYSTEM="linux"
     md5sum --help > /dev/null 2>&1 || SYSTEM="mac"
