@@ -370,7 +370,7 @@ echo
 echo "export BBP_DIR=${BBPDIR}"
 echo "export BBP_GF_DIR=${BASEDIR}/bbp_gf"
 echo "export BBP_VAL_DIR=${BASEDIR}/bbp_val"
-echo "export PYTHONPATH=${BBPDIR}/comps:${BBP_DIR}/comps/PySeismoSoil:${PYTHONPATH}"
+echo "export PYTHONPATH=${BBPDIR}/comps:${BBPDIR}/comps/PySeismoSoil:${PYTHONPATH}"
 echo "export BBP_DATA_DIR=${BASEDIR}/bbp_data"
 echo "export PATH=${BBPDIR}/comps:${BBPDIR}/utils/batch:\$PATH"
 if [ "$(uname)" != "Darwin" ]; then
