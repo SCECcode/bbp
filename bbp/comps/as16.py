@@ -470,7 +470,7 @@ class AS16(object):
             results = calculate_as16(src_keys['magnitude'], rrup,
                                      mechanism, vs30, -999.0, cj)
 
-            out_file.write("%s, %3.2f, %3.2f" % (stat, rrup, vs30))
+            out_file.write("%s, %3.5f, %3.2f" % (stat, rrup, vs30))
             for piece in results:
                 out_file.write(", %7.5f" % (piece))
             out_file.write("\n")
