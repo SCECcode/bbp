@@ -16,7 +16,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.7
+        python-version: ${{ matrix.python-version }}
     - name: configure Python
       run: |
         sudo apt-get update
