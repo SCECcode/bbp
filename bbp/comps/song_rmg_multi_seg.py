@@ -2,7 +2,8 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2022, Korea Institute of Geoscience and Mineral Resources and
+University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
