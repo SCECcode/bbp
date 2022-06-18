@@ -2,11 +2,12 @@
 
 <a href="https://github.com/sceccode/bbp.git"><img src="https://github.com/sceccode/bbp/wiki/images/SRL_Cover_v8.png"></a>
 
+[![Python](https://img.shields.io/badge/python-%3E%3D3.7-blue)](https://www.python.org)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ![GitHub repo size](https://img.shields.io/github/repo-size/sceccode/bbp)
 [![bbp-ci Actions Status](https://github.com/SCECcode/bbp/workflows/bbp-ci/badge.svg)](https://github.com/SCECcode/bbp/actions)
 
-## Description 
+## Description
 The Southern California Earthquake Center (SCEC) Broadband Platform (BBP) is a software system that can generate 0-20+ Hz seismograms for historical and scenario earthquakes in California, Eastern North America, and Japan using several alternative computational methods.
 
 ## Table of Contents
@@ -21,20 +22,20 @@ The Southern California Earthquake Center (SCEC) Broadband Platform (BBP) is a s
 
 ## Installation
 
-BBP was developed to support ground simulations run on Linux servers and high-performance computing systems, 
+BBP was developed to support ground simulations run on Linux servers and high-performance computing systems,
 so it is designed to compile and run on Linux-based computers. Before installing BBP, they should be aware that it is
-possible to run some versions of the BBP software without installing the software on a Linux computer. 
+possible to run some versions of the BBP software without installing the software on a Linux computer.
 Below we outline the two options for running the BBP software:
 
-1. [BBP Docker Images](https://github.com/sceccode/bbp_docker) Users can run a version of BBP using Docker on their 
+1. [BBP Docker Images](https://github.com/sceccode/bbp_docker) Users can run a version of BBP using Docker on their
 local computers including laptops. The BBP Docker version contains an LA-Basin region velocity model, and three validation events in that regeion.
-Users can install free Docker software on most computers (e.g. Linux, MacOS, Windows) then run a BBP Docker image in a terminal window on their computer. 
+Users can install free Docker software on most computers (e.g. Linux, MacOS, Windows) then run a BBP Docker image in a terminal window on their computer.
 2. [Installation Instructions for Linux Systems](https://github.com/SCECcode/bbp/wiki/Installation)
-Advanced users that want to install many or all of the BBP simulation regions models, or that want to run large 
-parallel queries of the CVM models, should install the BBP software on a Linux system. BBP software is developed 
+Advanced users that want to install many or all of the BBP simulation regions models, or that want to run large
+parallel queries of the CVM models, should install the BBP software on a Linux system. BBP software is developed
 on USC Center for Advanced Research Computing (CARC) Linux cluster.
 
-## Usage 
+## Usage
 
 To get a list of the current available options, run run_bbp.py with the -h flag.
 
@@ -139,25 +140,25 @@ Support for BBP is provided by that Southern California Earthquake Center (SCEC)
 2. Email Contact: software@scec.usc.edu
 
 ## Citation
-References, citations, and acknowledgements help us obtain continued support for the development of the BBP software. If you use the BBP software in your research, please include the citation of the BBP paper in the references/bibliography section of your publication. This is more effective than you providing in-text acknowledgements. 
+References, citations, and acknowledgements help us obtain continued support for the development of the BBP software. If you use the BBP software in your research, please include the citation of the BBP paper in the references/bibliography section of your publication. This is more effective than you providing in-text acknowledgements.
 
 * Preferred Reference: Maechling, P. J., F. Silva, S. Callaghan, and T. H. Jordan (2015). SCEC Broadband Platform: System Architecture and Software Implementation, Seismol. Res. Lett., 86, no. 1, doi: 10.1785/0220140125.
 
-* Example Acknowlegement: We would like to acknowledge the use of the SCEC Broadband Platform Software (Maechling 2015) in this research. 
+* Example Acknowlegement: We would like to acknowledge the use of the SCEC Broadband Platform Software (Maechling 2015) in this research.
 
 Along with citing the BBP software, researchers should also cite the appropriate publication for any of the ground motion models they use in their research. Citations for individual ground motion methods are included in the [Credits.md](CREDITS.md) file in this repository.
 
 ## Contributing
-We welcome contributions to the BBP software framework. 
-Geoscientists can register their ground motion models into BBP and software developers can 
-improve and extend the BBP software. An overview of the process for contributing seismic models or 
-software updates to the BBP Project is provided in the BBP [contribution guidelines](CONTRIBUTING.md). 
+We welcome contributions to the BBP software framework.
+Geoscientists can register their ground motion models into BBP and software developers can
+improve and extend the BBP software. An overview of the process for contributing seismic models or
+software updates to the BBP Project is provided in the BBP [contribution guidelines](CONTRIBUTING.md).
 BBP contributors agree to abide by the code of conduct found in our [Code of Conduct](CODE_OF_CONDUCT.md) guidelines.
 
 ## Credits
-Development of BBP is a group effort. A list of developers that have contributed to the BBP Software framework 
+Development of BBP is a group effort. A list of developers that have contributed to the BBP Software framework
 are listed in the [Credits.md](CREDITS.md) file in this repository.
 
 ## License
-The SCEC-developed portions of the Broadband platform software is distributed under the BSD 3-Clause open-source license. 
+The SCEC-developed portions of the Broadband platform software is distributed under the BSD 3-Clause open-source license.
 Please see the [LICENSE.txt](LICENSE.txt) file for more information. Individual models codes may be offered under their own open-source software licenses.
