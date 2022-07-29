@@ -7,6 +7,8 @@ int croptrfile(char *);
 int reed(int, void *, int);
 int rite(int, void *, int);
 
+void srf2stoch(int param_string_len, char** param_string, struct standrupformat* srf, struct slipfile* sfile, int debug);
+
 double frand(void);
 double sfrand(long *);
 double gaussian_rand(float *,float *,long *);

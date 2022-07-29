@@ -21,12 +21,19 @@ FC = gfortran
 
 ##### make options
 
-hb_high_v6.0.4: hb_high_v6.0.5.f
-	${FC} ${FFLAGS} -o hb_high_v6.0.5 hb_high_v6.0.5.f
+all:  hb_high_v6.0.5
+
+#hb_high_v6.0.5_orig : hb_high_v6.0.5.f
+#	${FC} ${FFLAGS} -o hb_high_v6.0.5_orig hb_high_v6.0.5.f
+#	cp -rp hb_high_v6.0.5_orig ../../bin/
+
+hb_high_v6.0.5 : hb_high_v6.0.5_sub.o hb_high_v6.0.5_main.f
+	${FC} ${FFLAGS} -o hb_high_v6.0.5 hb_high_v6.0.5_sub.o hb_high_v6.0.5_main.f
 	cp -rp hb_high_v6.0.5 ../../bin/
+
+# Generate object file for use in linking
+hb_high_v6.0.5_sub.o : hb_high_v6.0.5_sub.f
+	${FC} ${FFLAGS} -c -o hb_high_v6.0.5_sub.o hb_high_v6.0.5_sub.f
 
 clean:
 	rm -f *.o hb_high_v6.0.5
-
-%.c : ${MODLIB}
-	touch $@
