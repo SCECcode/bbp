@@ -30,7 +30,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Program to set up BBP validation runs on USC/CARC's Discovery computing cluster
+Program to set up a full BBP scenario simulation run on HPCC
 """
 from __future__ import division, print_function
 
@@ -49,9 +49,8 @@ import tempfile
 
 # Import Broadband modules
 from install_cfg import InstallCfg
-import validation_cfg
+import velocity_models
 import bband_utils
-import gmpe_config
 
 # Constants
 BATCH_SIM_FILE = "batch_run_bbp_sims.log"
@@ -64,7 +63,7 @@ CODEBASES_SRF = ["gp", "sdsu", "song", "ucsb"]
 SITE_MODULES = ["gp", "seismosoil"]
 
 def generate_src_files(numsim, source_file, srcdir,
-                       prefix, hypo_rand,
+                       prefix, hypo_rand, hypo_area,
                        variation, multiseg,
                        segment, first_seg_dir):
     """
@@ -84,6 +83,16 @@ def generate_src_files(numsim, source_file, srcdir,
     except KeyError:
         raise bband_utils.ParameterError("Cannot read fault_length/fault_width"
                                          " parameters from SRC file!")
+    # Figure out are where hypocenter should go, by default we want to
+    # cut 20% in each side and place the hypocenter in the center area
+    if hypo_area["hdd_min"] is None:
+        hypo_area["hdd_min"] = 0.2 * fwid
+    if hypo_area["hdd_max"] is None:
+        hypo_area["hdd_max"] = 0.8 * fwid
+    if hypo_area["has_min"] is None:
+        hypo_area["has_min"] = -(0.5 - 0.2) * flen
+    if hypo_area["has_max"] is None:
+        hypo_area["has_max"] = (0.5 - 0.2) * flen
     if hypo_rand:
         # Delete HYPO_ALONG_STK and HYPO_DOWN_DIP
         if "hypo_along_stk" in src_props:
@@ -112,8 +121,10 @@ def generate_src_files(numsim, source_file, srcdir,
         random.seed((sim + 1) + (variation - 1) * 500)
         seed = int(math.exp(7 * math.log(10.0)) * random.random())
         all_seeds.append(seed)
-        hypo_along_stk = flen * (0.2 + 0.6 * random.random() - 0.5)
-        hypo_down_dip = fwid * (0.2 + 0.6 * random.random())
+        hypo_along_stk = ((hypo_area["has_max"] - hypo_area["has_min"]) *
+                          random.random()) + hypo_area["has_min"]
+        hypo_down_dip = ((hypo_area["hdd_max"] - hypo_area["hdd_min"]) *
+                         random.random()) + hypo_area["hdd_min"]
         if multiseg:
             srcfile = os.path.join(srcdir,
                                    "%s-%04d_seg%02d.src" %
@@ -140,10 +151,10 @@ def generate_src_files(numsim, source_file, srcdir,
 
 def generate_multi_segment_src_files(numsim, source_files,
                                      srcdir, prefix):
-    """
-    Generates num_sim source files in the srcdir using different
-    random seeds, make sure we keep the common_seed constant for
-    all indivual segments in the multi-segment run
+    """                                                                                                               
+    Generates num_sim source files in the srcdir using different                                                      
+    random seeds, make sure we keep the common_seed constant for                                                      
+    all indivual segments in the multi-segment run                                                                    
     """
     src_props = []
     all_seeds = []
@@ -152,21 +163,21 @@ def generate_multi_segment_src_files(numsim, source_files,
     for source_file in source_files:
         src_props.append(bband_utils.parse_properties(source_file))
 
-    # Delete "seed" and "common_seed" from the property set
+    # Delete "seed" and "common_seed" from the property set                                                           
     for props in src_props:
         if "seed" in props:
             props.pop("seed")
         if "common_seed" in props:
             props.pop("common_seed")
 
-    # Start preparing output
+    # Start preparing output                                                                                          
     for idx, props in enumerate(src_props):
-        # Create common list of keys for all realizations
+        # Create common list of keys for all realizations                                                             
         output.append("")
         for key in props:
             output[idx] = output[idx] + "%s = %s\n" % (key.upper(), props[key])
 
-    # Generate seeds for all source files and realizations
+    # Generate seeds for all source files and realizations                                                            
     for variation in range(1, (len(source_files) + 1)):
         seeds = []
         for sim in range(0, numsim):
@@ -174,35 +185,34 @@ def generate_multi_segment_src_files(numsim, source_files,
             seeds.append(int(math.exp(7 * math.log(10.0)) * random.random()))
         all_seeds.append(seeds)
 
-    # Write seeds file
+    # Write seeds file                                                                                                
     seed_file = open(os.path.join(srcdir, "seeds.txt"), 'w')
     seed_file.write("%d\n" % (numsim))
     for seed in all_seeds[0]:
         seed_file.write("%d\n" % (seed))
     seed_file.close()
 
-    # Generate the numsim SRC files
+    # Generate the numsim SRC files                                                                                   
     for sim in range(0, numsim):
         for segment in range(0, len(source_files)):
             srcfile = os.path.join(srcdir,
                                    "%s-%04d_seg%02d.src" %
                                     (prefix, sim, (segment + 1)))
             outfile = open(srcfile, 'w')
-            # Write common part to all realizations
+            # Write common part to all realizations                                                                   
             outfile.write(output[segment])
-            # Write seed
+            # Write seed                                                                                              
             outfile.write("SEED = %d\n" % (all_seeds[segment][sim]))
-            # Write common seed except for segment 1
+            # Write common seed except for segment 1                                                                  
             if segment > 0:
                 outfile.write("COMMON_SEED = %d\n" % (all_seeds[0][sim]))
             outfile.close()
 
 def generate_xml(install, numsim, srcdir, xmldir,
-                 logdir, event, codebase, prefix,
-                 skip_rupgen, srf_prefix, only_rup,
-                 gmpe_group_name, allmetrics,
+                 logdir, vmodel, codebase, prefix,
+                 station_list, only_rup, srf_prefix,
                  site_response, multiseg, segment,
-                 source_file, fasgof):
+                 source_file):
     """
     Generates xml files in the xmldir for numsim simulations whose
     source files are in the srcdir using the validation event and
@@ -213,17 +223,17 @@ def generate_xml(install, numsim, srcdir, xmldir,
     bfn = os.path.join(xmldir, BATCH_SIM_FILE)
     batchfile = open(bfn, 'w')
     for sim in range(0, numsim):
-        # Figure out if this is a multi-segment run with
-        # multiple SRC files
+        # Figure out if this is a multi-segment run with                                                              
+        # multiple SRC files                                                                                          
         if source_file is not None:
             if not isinstance(source_file, str):
-                # Yes!
+                # Yes!                                                                                                
                 srcfile = []
                 for seg in range(0, len(source_file)):
                     srcfile.append(os.path.join(srcdir,
                                                 "%s-%04d_seg%02d.src" %
                                                 (prefix, sim, (seg + 1))))
-                # Now create a string representation of the list
+                # Now create a string representation of the list                                                      
                 srcfile = str(srcfile)
             else:
                 if multiseg:
@@ -241,24 +251,20 @@ def generate_xml(install, numsim, srcdir, xmldir,
                 sys.exit(1)
         ofn = os.path.join(tmpdir, "bbp.optfile")
         optfile = open(ofn, 'w')
-        optfile.write('y\n') # Validation
-        optfile.write('%s\n' % (event)) # Validation event
+        optfile.write('n\n') # Scenario
+        optfile.write('%s\n' % (vmodel)) # Velocity model
         optfile.write('%s\n' % (codebase)) # Codebase to use
-        # Source file, all codes need it!
-        optfile.write('y\n') # Provide custom source file
-        optfile.write('2\n') # Enter path to source file
+        optfile.write('2\n') # Enter path to src file
         optfile.write('%s\n' % (srcfile)) # Source file
         if codebase != "exsim" and codebase != "csm":
-            # Run rupture generator?
-            if skip_rupgen:
-                optfile.write('n\n') # Skip rupture generator
-            else:
+            if srf_prefix is None:
                 optfile.write('y\n') # Run rupture generator
-        optfile.write('1\n') # All validation stations
-        if skip_rupgen:
-            # We should provide SRF file
-            optfile.write('2\n') # Enter path to src/srf file
-            optfile.write('%s\n' % (srffile)) # SRF file
+            else:
+                optfile.write('n\n') # Skip rupture generator
+                optfile.write('2\n') # Enter path to srf file
+                optfile.write('%s\n' % (srffile)) # SRF file
+        optfile.write('2\n') # Enter path to station list
+        optfile.write('%s\n' % (station_list)) # Station list
         if codebase == "exsim":
             # Don't specify custom ExSIM template file
             optfile.write('n\n')
@@ -272,24 +278,6 @@ def generate_xml(install, numsim, srcdir, xmldir,
                 optfile.write('n\n')
         optfile.write('y\n') # Plot velocity seismograms
         optfile.write('y\n') # Plot acceleration seismograms
-        if gmpe_group_name is None:
-            optfile.write('n\n') # Do not generate GMPE comparison plot
-        else:
-            optfile.write('y\n') # Generate GMPE comparison plot
-            optfile.write('%s\n' % (gmpe_group_name))
-        optfile.write('y\n') # Yes for GOF
-        if fasgof:
-            optfile.write('4\n') # Run both GP and FAS GOFs
-        else:
-            optfile.write('1\n') # Run GP GOF only
-        if not allmetrics:
-            optfile.write('n\n') # No additional metrics
-        else:
-            optfile.write('y\n') # We want more metrics
-            optfile.write('y\n') # RZZ2015
-            optfile.write('y\n') # AS2016
-            optfile.write('y\n') # RotD100
-            optfile.write('y\n') # AndersonGOF
         optfile.flush()
         optfile.close()
         # Run BBP and generate the xml file
@@ -319,7 +307,7 @@ def generate_xml(install, numsim, srcdir, xmldir,
                         end_module = " -e SongRMGSS "
                 else:
                     end_module = " -e SongRMGSS "
-            elif codebase == "irikura1"or codebase == "irikura2":
+            elif codebase == "irikura1" or codebase == "irikura2":
                 end_module = " -e IrikuraGenSrf "
             elif codebase == "ucsb":
                 end_module = " -e UCrmg "
@@ -412,7 +400,6 @@ def write_slurm(install, numsim, simdir, xmldir, email,
 #                            (dir_to_copy, dir_to_copy))
             slurmfile.write('cp -frp $BBP_DATA_DIR/%s/* $HOME/Sims/%s/.\n' %
                             (dir_to_copy, dir_to_copy))
-
     slurmfile.write("\n")
     slurmfile.write('echo "Jobs end"\n')
     slurmfile.write("date\n")
@@ -434,10 +421,6 @@ def main():
     # Detect BBP installation
     bbp_install = InstallCfg.getInstance()
 
-    # Get GMPE group names
-    gmpe_groups_available = list(gmpe_config.GMPES.keys())
-    gmpe_groups_available_lc = [gmpe.lower() for gmpe in gmpe_groups_available]
-
     prog_base = os.path.basename(sys.argv[0])
     usage = "usage: %s [options]" % (prog_base)
     parser = optparse.OptionParser(usage)
@@ -445,12 +428,15 @@ def main():
                       dest="codebase",
                       help="Codebase for the simulation: %s" %
                       (CODEBASES))
-    parser.add_option("-e", "--event", type="string", action="store",
-                      dest="event",
-                      help="Validation event (should be configured in BBP)")
-    parser.add_option("-d", "--dir", type="string", action="store",
-                      dest="simdir",
-                      help="Simulation directory")
+    parser.add_option("-v", "--velocity-model", type="string", action="store",
+                      dest="vmodel",
+                      help="Velocity model (region) for this simulation")
+    parser.add_option("--src", "--source", type="string", action="store",
+                      dest="source",
+                      help="Source description file for the simulation")
+    parser.add_option("--stl", "--station-list", type="string", action="store",
+                      dest="station_list",
+                      help="Station list file for the simulation")
     parser.add_option("--skip-rupgen", action="store_true", dest="skiprupgen",
                       help="Skip the rupture generator, run only 1 simulation,"
                       " unless the --srf option below is provided.")
@@ -459,27 +445,37 @@ def main():
                       help="Prefix of SRF files to use, "
                       "only for GP, SDSU and UCSB methods. "
                       "Simulations begin after the rupture generator.")
+    parser.add_option("-d", "--dir", type="string", action="store",
+                      dest="simdir",
+                      help="Simulation directory")
     parser.add_option("--hypo-rand", action="store_true", dest="hyporand",
                       help="Enables hypocenter randomization")
     parser.add_option("--no-hypo-rand", action="store_false", dest="hyporand",
                       help="Disables hypocenter randomization")
     parser.add_option("-n", "--num-simulations", type="int", action="store",
                       dest="numsim", help="Number of simulations to run")
-    parser.add_option("-w", "--walltime", type="int", action="store",
-                      dest="walltime", help="Number of hours for walltime")
     parser.add_option("--email", type="string", action="store",
                       dest="email", help="Email for job notifications")
+    parser.add_option("-w", "--walltime", type="int", action="store",
+                      dest="walltime", help="Number of hours for walltime")
     parser.add_option("--scec-nodes", action="store_true", dest="scecnodes",
                       help="Schedule the job in the SCEC nodes")
     parser.add_option("--save-tmpdata", action="store_true", dest="savetemp",
                       help="Save the contents of the tmpdata directory")
+    parser.add_option("--hdd-min", type="float",
+                      action="store", dest="hdd_min",
+                      help="Min value for hypo down dip in randomization")
+    parser.add_option("--hdd-max", type="float",
+                      action="store", dest="hdd_max",
+                      help="Max value for hypo down dip in randomization")
+    parser.add_option("--has-min", type="float",
+                      action="store", dest="has_min",
+                      help="Min value for hypo along strike in randomization")
+    parser.add_option("--has-max", type="float",
+                      action="store", dest="has_max",
+                      help="Max value for hypo along strike in randomization")
     parser.add_option("--only-rup", action="store_true", dest="only_rup",
                       help="Only runs the rupture generator")
-    parser.add_option("-g", "--gmpe-group", type="string", action="store",
-                      dest="gmpe_group_name",
-                      help="GMPE group: %s" % (gmpe_groups_available_lc))
-    parser.add_option("-a", "--all-metrics", action="store_true",
-                      dest="allmetrics", help="Calculate all metrics")
     parser.add_option("--var", "--variation", type="int", action="store",
                       dest="variation", help="seed variation (default 1)")
     parser.add_option("--seg", "--segment", type="int",
@@ -491,10 +487,8 @@ def main():
     parser.add_option("-s", "--site", type="string", action="store",
                       dest="site_response",
                       help="Use a site response module: %s" % (SITE_MODULES))
-    parser.add_option("--fas", action="store_true", dest="fasgof",
-                      help="Run both FAS and PSA validations")
 
-    (options, args) = parser.parse_args()
+    (options, _) = parser.parse_args()
 
     # Check if using SCEC nodes
     if options.scecnodes:
@@ -514,7 +508,7 @@ def main():
     if options.first_seg_dir is not None:
         first_seg_dir = os.path.abspath(options.first_seg_dir)
         if not os.path.exists(first_seg_dir):
-            print("First segment directory does not exist: %s" %
+            print("First segment directory for exists: %s" %
                   (first_seg_dir))
             sys.exit(1)
     else:
@@ -528,10 +522,10 @@ def main():
         variation = options.variation
     else:
         if multiseg:
-            # If a multisegment run, variation defaults to the segment number
+            # If a multisegment run, variation defaults to the segment number                                         
             variation = segment
         else:
-            # Otherwise, we use 1
+            # Otherwise, we use 1     
             variation = 1
 
     # Check if user specified custom walltime
@@ -545,18 +539,6 @@ def main():
             walltime = 300
         else:
             walltime = 24
-
-    # Check if we need to calculate extra metrics
-    if options.allmetrics:
-        allmetrics = True
-    else:
-        allmetrics = False
-
-    # Check if user wants to perform both FAS and PSA validations
-    if options.fasgof:
-        fasgof = True
-    else:
-        fasgof = False
 
     # Check if user wants to save the contents of tmpdata
     if options.savetemp:
@@ -580,6 +562,23 @@ def main():
         print("Codebase needs to be one of: %s" % (CODEBASES))
         sys.exit(1)
 
+    # Check for velocity model
+    vmodel_names = velocity_models.get_all_names()
+    vmodel = options.vmodel
+    if vmodel is None:
+        print("Please provide a velocity model (region) for this simulation!")
+        print("Available options are: %s" % (vmodel_names))
+        sys.exit(1)
+    vmodels = [v_model.lower() for v_model in vmodel_names]
+    if vmodel.lower() not in vmodels:
+        print("Velocity model %s does not appear to be available on BBP" %
+              (vmodel))
+        print("Available options are: %s" % (vmodel_names))
+        print("Please provide another velocity model or check your BBP installation.")
+        sys.exit(1)
+    # Now get the name with the correct case
+    vmodel = vmodel_names[vmodels.index(vmodel.lower())]
+
     # Check if users wants to run site response module
     site_response = options.site_response
     if site_response is not None:
@@ -593,29 +592,6 @@ def main():
     else:
         site_response = False
 
-    # Check for event
-    event = options.event
-    if event is None:
-        print("Please provide a validation event!")
-        sys.exit(1)
-    event_names = validation_cfg.VE_EVENTS.get_all_names()
-    events = [v_event.lower() for v_event in event_names]
-    if event.lower() not in events:
-        print("Event %s does not appear to be properly configured on BBP" %
-              (event))
-        print("Available options are: %s" % (event_names))
-        print("Please provide another event or check your BBP installation.")
-        sys.exit(1)
-    val_obj = validation_cfg.VE_EVENTS.get_event_by_print_name(event)
-
-    # Check if we want to run the rupture generator
-    skip_rupgen = options.skiprupgen
-    srf_prefix = options.srf_prefix
-    if skip_rupgen is not None:
-        if codebase not in CODEBASES_SRF:
-            print("Cannot use SRF files with method: %s" % (codebase))
-            sys.exit(1)
-
     # Check for hypocenter randomization
     if options.hyporand is None:
         print("Please specify --hypo-rand or --no-hypo-rand!")
@@ -626,57 +602,87 @@ def main():
     else:
         hypo_rand = False
 
-    try:
-        source_file = val_obj.get_input(codebase, "source")
-    except KeyError:
-        print("Unable to get source file for event %s, codebase %s!" %
-              (event, codebase))
+    # Define area where hypocenter will be randomized
+    hypo_area = {}
+    hypo_area["hdd_min"] = options.hdd_min
+    hypo_area["hdd_max"] = options.hdd_max
+    hypo_area["has_min"] = options.has_min
+    hypo_area["has_max"] = options.has_max
+
+    # Get the source file
+    source_file = options.source
+    if source_file is None:
+        print("Please provide a source description (src file)!")
         sys.exit(1)
-    if not source_file:
-        print("Source file for event %s, codebase %s not specified!" %
-              (event, codebase))
-        sys.exit(1)
-    # Check for multisegment events
+
+    # Make list
+    pieces = source_file.split(",")
+    pieces = [piece.strip() for piece in pieces]
+
+    # Check if single file or list of files
+    if len(pieces) == 1:
+        source_file = pieces[0]
+    else:
+        source_file = pieces
+
+    skip_rupgen = options.skiprupgen
+    srf_prefix = options.srf_prefix
+    if skip_rupgen is not None:
+        if codebase not in CODEBASES_SRF:
+            print("Cannot use SRF files with method: %s" % (codebase))
+            sys.exit(1)
+
+    # Check for multisegment events                                                                                   
     if isinstance(source_file, str):
         source_file = source_file.strip()
         if multiseg:
             print("This event doesn't look like a multisegment event!")
             sys.exit(1)
+        else:
+            prefix = ("%s-%s" %
+                      (os.path.splitext(os.path.basename(source_file))[0],
+                       codebase.lower()))
     else:
-        # Multisegment event
+        # Multisegment event                                                                                          
         if multiseg:
             source_file = source_file[segment - 1]
+            # Create a prefix
+            prefix = ("%s-%s" %
+                      (os.path.splitext(os.path.basename(source_file))[0],
+                       codebase.lower()))
         else:
-            if codebase != "song" and codebase != "irikura1" and codebase != "irikura2" and codebase != "gp" and codebase != "sdsu":
+            if codebase == "ucsb" or codebase == "exsim":
                 print("This is a multisegment event! Please specify segment!")
                 sys.exit(1)
             else:
-                # For song and irikura1 and 2, we keep source_file with all segments
-                # as this methods can work with multiple SRC files
-                pass
+                # Other methods can work with multisegment files directly
+                # Create a prefix
+                prefix = ("%s-%s" %
+                          (os.path.splitext(os.path.basename(source_file[0]))[0],
+                           codebase.lower()))
 
-    if skip_rupgen:
-        if not srf_prefix:
-            try:
-                srf_file = val_obj.get_input(codebase, "srf").strip()
-            except KeyError:
-                print("Event %s does not have a srf file for codebase %s!" %
-                      (event, codebase))
-                sys.exit(1)
-            except AttributeError:
-                print("Event %s does not have a srf file for codebase %s!" %
-                      (event, codebase))
-                sys.exit(1)
-            if not srf_file:
-                print("Event %s does not have a srf file for codebase %s!" %
-                      (event, codebase))
-                sys.exit(1)
-            # Force number of simulations to 1
-            options.numsim = 1
-        else:
-            # Use the SRF prefix to find the SRF files we need
-            # Make it a full path
-            srf_prefix = os.path.realpath(srf_prefix)
+    # If user specified a SRF prefix
+    if srf_prefix is not None:
+        # Make it a full path
+        srf_prefix = os.path.realpath(srf_prefix)
+        # Create a prefix
+        prefix = os.path.splitext(os.path.basename(srf_prefix))[0]
+
+    # Make sure we remove spaces from prefix
+    prefix = prefix.replace(" ", '')
+
+    # Get the station list
+    station_list = options.station_list
+    if station_list is None:
+        print("Please provide a station list (stl file)!")
+        sys.exit(1)
+    # Make it a full path
+    station_list = os.path.realpath(station_list)
+    # Make sure station list exists and is readable
+    if (not os.path.isfile(station_list) or
+        not os.access(station_list, os.R_OK)):
+        print("Station list foes not seem to be accessible!")
+        sys.exit(1)
 
     # Check for the simulation directory
     simdir = options.simdir
@@ -699,6 +705,9 @@ def main():
 
     # Pick up number of simulations to run
     numsim = options.numsim
+    if numsim is None:
+        print("Please provide the number of simulations to run!")
+        sys.exit(1)
     if numsim < 1 or numsim > MAX_SIMULATIONS:
         print("Number of simulations should be between 1 and %d" %
               (MAX_SIMULATIONS))
@@ -710,16 +719,6 @@ def main():
         print("Please provide an e-mail address for job notifications")
         sys.exit(1)
 
-    # Figure out which gmpe group to use
-    gmpe_group_name = options.gmpe_group_name
-    if gmpe_group_name is not None:
-        if not gmpe_group_name.lower() in gmpe_groups_available_lc:
-            print("Invalid gmpe group name!")
-            print("Options are: %s" % (gmpe_groups_available_lc))
-            sys.exit(1)
-        gmpe_group_index = gmpe_groups_available_lc.index(gmpe_group_name.lower())
-        gmpe_group_name = gmpe_groups_available[gmpe_group_index]
-
     # Make sure user has configured the setup_bbp_env.sh script
     setup_bbp_env = os.path.join(bbp_install.A_INSTALL_ROOT,
                                  "utils/batch/setup_bbp_env.sh")
@@ -727,10 +726,8 @@ def main():
         print("Cannot find setup_bbp_env.sh script!")
         print("Expected at: %s" % (setup_bbp_env))
         sys.exit(1)
+
     # Create simulation directories
-    prefix = "%s-%s" % (event.lower(), codebase.lower())
-    # Make sure we remove spaces from prefix (e.g. for the "Loma Prieta" event)
-    prefix = prefix.replace(" ", '')
     os.makedirs(simdir)
     indir = os.path.join(simdir, "Sims", "indata")
     outdir = os.path.join(simdir, "Sims", "outdata")
@@ -740,22 +737,21 @@ def main():
     srcdir = os.path.join(simdir, "Src")
     for mdir in [indir, outdir, tmpdir, logsdir, xmldir, srcdir]:
         os.makedirs(mdir)
-    # Generate source files if needed
-    if source_file is not None:
-        if isinstance(source_file, str):
-            generate_src_files(numsim, source_file, srcdir,
-                               prefix, hypo_rand,
-                               variation, multiseg,
-                               segment, first_seg_dir)
-        else:
-            generate_multi_segment_src_files(numsim, source_file,
-                                             srcdir, prefix)
+    if isinstance(source_file, str):
+        # Generate source files
+        generate_src_files(numsim, source_file, srcdir,
+                           prefix, hypo_rand, hypo_area,
+                           variation, multiseg,
+                           segment, first_seg_dir)
+    else:
+        generate_multi_segment_src_files(numsim, source_file,
+                                         srcdir, prefix)
     # Generate xml files
     generate_xml(bbp_install, numsim, srcdir, xmldir,
-                 logsdir, event, codebase, prefix,
-                 skip_rupgen, srf_prefix, only_rup,
-                 gmpe_group_name, allmetrics, site_response,
-                 multiseg, segment, source_file, fasgof)
+                 logsdir, vmodel, codebase, prefix,
+                 station_list, only_rup, srf_prefix,
+                 site_response, multiseg, segment,
+                 source_file)
     # Write slurm file
     write_slurm(bbp_install, numsim, simdir, xmldir,
                 email, prefix, scecnodes, walltime,

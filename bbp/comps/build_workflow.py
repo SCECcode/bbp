@@ -87,7 +87,7 @@ class WorkflowBuilder(object):
         self.method = None
         self.gp_lf_vel_file = None
         self.gp_hf_vel_file = None
-        self.multisegment_validation = False
+        self.multisegment_simulation = False
         self.multisegment_src_files = None
 
     def select_simulation_method(self, sim_type):
@@ -191,7 +191,7 @@ class WorkflowBuilder(object):
                             method == "SONG" or
                             method == "IRIKURA1" or
                             method == "IRIKURA2"):
-            self.multisegment_validation = True
+            self.multisegment_simulation = True
             self.multisegment_src_files = src_file
             return src_file[0]
 
@@ -275,7 +275,7 @@ class WorkflowBuilder(object):
                                            "source",
                                            self.src_file)
                     if isinstance(self.src_file, list):
-                        self.multisegment_validation = True
+                        self.multisegment_simulation = True
                         if (self.method == "GP"
                             or self.method == "SDSU"
                             or self.method == "SONG"
@@ -314,6 +314,18 @@ class WorkflowBuilder(object):
                 print()
             self.src_file = self.get_input_file("source description",
                                                 ".src")
+            if isinstance(self.src_file, list):
+                self.multisegment_simulation = True
+                if (self.method == "GP"
+                    or self.method == "SDSU"
+                    or self.method == "SONG"
+                    or self.method == "IRIKURA1"
+                    or self.method == "IRIKURA2"):
+                    self.multisegment_src_files = self.src_file
+                    self.src_file = self.src_file[0]
+                else:
+                    print("ERROR: Method does not accept "
+                          "multiple SRC files!")
 
     def infer_site_response(self):
         """
@@ -718,7 +730,7 @@ class WorkflowBuilder(object):
         hf_module.addStageFile(self.stations)
         hf_module.addArg(os.path.basename(self.stations))
         hf_module.addArg(self.vmodel_name)
-        if self.multisegment_validation:
+        if self.multisegment_simulation:
             for idx, val in enumerate(self.multisegment_src_files):
                 hf_module.addStageFile(val)
                 hf_module.addKeywordArg('src%d' % (idx), val)
@@ -951,7 +963,7 @@ class WorkflowBuilder(object):
         hf_module.addStageFile(self.stations)
         hf_module.addArg(os.path.basename(self.stations))
         hf_module.addArg(self.vmodel_name)
-        if self.multisegment_validation:
+        if self.multisegment_simulation:
             for idx, val in enumerate(self.multisegment_src_files):
                 hf_module.addStageFile(val)
                 hf_module.addKeywordArg('src%d' % (idx), val)
@@ -2032,7 +2044,7 @@ class WorkflowBuilder(object):
                 rupture_module = Module()
                 if self.method == "GP" or self.method == "SDSU":
                     # add GP rupture generator
-                    if self.multisegment_validation:
+                    if self.multisegment_simulation:
                         for idx, val in enumerate(self.multisegment_src_files):
                             rupture_module.addStageFile(val)
                             rupture_module.addKeywordArg('src%d' % (idx), val)
@@ -2040,7 +2052,7 @@ class WorkflowBuilder(object):
                     codebase = "GP"
                 elif self.method == "SONG":
                     # add Song RMG rupture generator
-                    if self.multisegment_validation:
+                    if self.multisegment_simulation:
                         rupture_module.setName("SongRMGMS")
                         for idx, val in enumerate(self.multisegment_src_files):
                             rupture_module.addStageFile(val)
@@ -2051,7 +2063,7 @@ class WorkflowBuilder(object):
                 elif (self.method == "IRIKURA1" or
                       self.method == "IRIKURA2"):
                     # add Irikura rupture generator
-                    if self.multisegment_validation:
+                    if self.multisegment_simulation:
                         for idx, val in enumerate(self.multisegment_src_files):
                             rupture_module.addStageFile(val)
                             rupture_module.addKeywordArg('src%d' % (idx), val)

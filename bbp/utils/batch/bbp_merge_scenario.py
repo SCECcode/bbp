@@ -76,7 +76,7 @@ def copy_sim_data(sim_in_dir, sim_out_dir,
     # Now loop through all stations
     for station in stations:
         # Copy files
-        for ftype in [".acc.bbp", ".vel.bbp", ".rd50", ".rsp",
+        for ftype in [".acc.bbp", ".vel.bbp", ".rd50",
                       "_acceleration_seis.png", "_velocity_seis.png"]:
             src_file = os.path.join(sim_out_dir,
                                     "%s.%s%s" % (sim, station, ftype))
