@@ -28,4 +28,4 @@ f4e63f97ecfc11c6713f90a4b49a0d2d  sansimeon-validation-22.4.0.tar.gz
 392c870f5407f9f8916cf8829927d0ef  tottori-validation-22.4.0.tar.gz
 489b2e211a3ed3701f759572a8733628  westernjapan500-velocity-model-22.4.0.tar.gz
 f2358e0e92b1294c0926ceb76b9c4c3e  whittier-validation-22.4.0.tar.gz
-
+8aac833c943d8e90d51b697b27d4384d  fftw-3.3.8.tar.gz

@@ -47,6 +47,17 @@ die () {
     exit 1
 }
 
+fftw_build_failed () {
+    LOG_FILE=$1
+    OLD_DIR=$2
+    echo
+    echo "****** ERROR: FFTW library build failed, for more details please check:"
+    echo "****** ERROR: ${LOG_FILE}"
+    echo
+    cd ${OLD_DIR}
+    exit 1
+}
+
 download_untar () {
     URL=$1
     MD5=$2
@@ -93,6 +104,8 @@ BASEBBP=`echo ${DIR} | rev | cut -d'/' -f2- | rev`
 BBPDIR="`echo ${DIR} | rev | cut -d'/' -f2- | rev`/bbp"
 SRCDIR="${BBPDIR}/src"
 MD5FILE="${BASEBBP}/setup/bbp-${VERSION}-md5.txt"
+FFTW_BUILD_DIR="${BASEDIR}/fftbuild"
+FFTW_INSTALL_DIR="${BASEDIR}/fftw-3.3.8"
 
 echo
 echo " ====== Welcome to Broadband Platform ${VERSION} installation script ======"
@@ -137,10 +150,62 @@ if [ -d "${BASEDIR}/bbp_data" ]; then
 fi
 
 # Create installation directories
-echo "=> Creating directory tree..."
+echo "==> Creating directory tree..."
 mkdir -p ${BASEDIR}/bbp_val
 mkdir -p ${BASEDIR}/bbp_gf
 mkdir -p ${BASEDIR}/bbp_data
+mkdir -p ${FFTW_BUILD_DIR}
+mkdir -p ${FFTW_INSTALL_DIR}
+
+# Compile FFTW package
+echo
+echo " ====== Setting up FFTW 3.3.8 library,... it takes a minute..... ======"
+echo
+OLD_DIR=`pwd`
+cd ${FFTW_BUILD_DIR}
+FFTW_BUILD_LOG="${FFTW_BUILD_DIR}/fftw-build.log"
+download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/fftw-3.3.8.tar.gz ${MD5FILE}
+cd fftw-3.3.8
+echo "===> Building single-precision library..."
+./configure --prefix=${FFTW_INSTALL_DIR} > ${FFTW_BUILD_LOG} 2>&1
+make_ret_val=$?
+if [ $make_ret_val -ne 0 ]; then
+    fftw_build_failed ${FFTW_BUILD_LOG} ${OLD_DIR}
+fi
+make >> ${FFTW_BUILD_LOG} 2>&1
+make_ret_val=$?
+if [ $make_ret_val -ne 0 ]; then
+    fftw_build_failed ${FFTW_BUILD_LOG} ${OLD_DIR}
+fi
+make install >> ${FFTW_BUILD_LOG} 2>&1
+make_ret_val=$?
+if [ $make_ret_val -ne 0 ]; then
+    fftw_build_failed ${FFTW_BUILD_LOG} ${OLD_DIR}
+fi
+echo "===> Building double-precision library..."
+./configure --prefix=${FFTW_INSTALL_DIR} --enable-float >> ${FFTW_BUILD_LOG} 2>&1
+make_ret_val=$?
+if [ $make_ret_val -ne 0 ]; then
+    fftw_build_failed ${FFTW_BUILD_LOG} ${OLD_DIR}
+fi
+make >> ${FFTW_BUILD_LOG} 2>&1
+make_ret_val=$?
+if [ $make_ret_val -ne 0 ]; then
+    fftw_build_failed ${FFTW_BUILD_LOG} ${OLD_DIR}
+fi
+make install >> ${FFTW_BUILD_LOG} 2>&1
+make_ret_val=$?
+if [ $make_ret_val -ne 0 ]; then
+    fftw_build_failed ${FFTW_BUILD_LOG} ${OLD_DIR}
+fi
+cd ${OLD_DIR}
+# Done with fftw library
+echo "===> Cleaning up..."
+rm -rf ${FFTW_BUILD_DIR}
+echo "==> FFTW Built successfully!"
+
+export FFTW_INCDIR=${FFTW_INSTALL_DIR}/include
+export FFTW_LIBDIR=${FFTW_INSTALL_DIR}/lib
 
 # Compile source distribution
 echo
