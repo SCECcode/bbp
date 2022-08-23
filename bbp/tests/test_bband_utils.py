@@ -41,6 +41,7 @@ import unittest
 
 # Import Broadband modules
 import bband_utils
+from install_cfg import InstallCfg
 
 class TestBBandUtils(unittest.TestCase):
     """
@@ -48,10 +49,11 @@ class TestBBandUtils(unittest.TestCase):
     """
 
     def setUp(self):
-        os.chdir('..')
+        self.install = InstallCfg()
+        os.chdir(self.install.A_COMP_DIR)
 
     def tearDown(self):
-        os.chdir('./tests')
+        os.chdir(self.install.A_TEST_DIR)
 
     def test_runprog(self):
         """
