@@ -29,7 +29,7 @@ read_Fvelmodel(velfile,&vmod);
 read_srf(&srf,infile,inbin);
 
 if(moment_rate)
-   get_moment_rate(&srf,&vmod);
+   get_moment_rate(&srf,&vmod,use_srf_mu);
 else
    get_moment(&srf,&vmod,use_srf_mu);
 }

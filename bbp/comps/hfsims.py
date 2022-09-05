@@ -1,18 +1,34 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Broadband Platform Version of Rob hfsim-stats
 Outputs velocity (cm/s)
@@ -53,7 +69,6 @@ class Hfsims(object):
         self.sdrop = None
         self.default_dx = None
         self.default_dy = None
-        self.default_fcfac = None
         self.rayset = None
         self.tlen = None
         self.dt = None
@@ -64,6 +79,7 @@ class Hfsims(object):
         self.path_dur_model = None
         self.deep_rvfac = None
         self.rvsig = None
+        self.c_zero = None
 
     def run(self):
         """
@@ -126,11 +142,6 @@ class Hfsims(object):
             self.c1 = int(vmodel_params['C1'])
         else:
             self.c1 = config.DEFAULT_C1
-        # Look for DEFAULT_FCFAC
-        if 'DEFAULT_FCFAC' in vmodel_params:
-            self.default_fcfac = float(vmodel_params['DEFAULT_FCFAC'])
-        else:
-            self.default_fcfac = config.DEFAULT_FCFAC
         # Look for rayset
         if 'RAYSET' in vmodel_params:
             self.rayset = ast.literal_eval(vmodel_params['RAYSET'])
@@ -191,6 +202,11 @@ class Hfsims(object):
             ispar_adjust = int(vmodel_params['ISPAR_ADJUST'])
         else:
             ispar_adjust = config.ISPAR_ADJUST
+        # Look for C_ZERO
+        if 'C_ZERO' in vmodel_params:
+            self.c_zero = float(vmodel_params['C_ZERO'])
+        else:
+            self.c_zero = config.C_ZERO
 
         # Calculate rvfac
         if "common_seed" in config.CFGDICT:
@@ -208,18 +224,14 @@ class Hfsims(object):
 
         # Start with some default values
         moment = -1
-        extra_fcfac = config.DEFAULT_EXTRA_FCFAC
 
         if self.val_obj is not None:
-            extra_fcfac = float(self.val_obj.get_input("GP", "EXTRA_FCFAC"))
             try:
                 tlen = float(self.val_obj.get_input("GP", "TLEN"))
                 self.tlen = tlen
             except (ValueError, KeyError, TypeError):
                 # No problem, just use the default TLEN for this simulation
                 pass
-
-        fcfac = round((1 + self.default_fcfac) * (1 + extra_fcfac) - 1, 4)
 
         a_slipfile = os.path.join(a_tmpdir, "%s.%s.%fx%f" % (self.r_srffile,
                                                              sta_base,
@@ -300,7 +312,7 @@ class Hfsims(object):
                        self.kappa, self.qfexp) +
                       "%f %f %f %f %f\n" %
                       (rvfac, self.shal_rvfac, self.deep_rvfac,
-                       config.C_ZERO, config.C_ALPHA) +
+                       self.c_zero, config.C_ALPHA) +
                       "%s %f\n" % (moment, config.RUPV) +
                       "%s\n" % a_slipfile +
                       "%s\n" % a_velmod +
@@ -309,7 +321,8 @@ class Hfsims(object):
                       "-1\n" +
                       "%f 0.0 %f\n" % (config.FA_SIG1, self.rvsig) +
                       "%d\n" % (self.path_dur_model) +
-                      "%d -1 -1\n" % (ispar_adjust) +
+                      "%d -1 -1 %f\n" % (ispar_adjust,
+                                         config.SPAR_EXP) +
                       "END")
         bband_utils.runprog(progstring)
 

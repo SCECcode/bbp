@@ -1,0 +1,54 @@
+
+================================================================================
+Sun 21 Aug 2022 08:50:32 PDT
+================================================================================
+
+uname: posix.uname_result(sysname='Linux', nodename='broadband.hpc.usc.edu', release='3.10.0-1062.4.1.el7.x86_64', version='#1 SMP Fri Oct 18 17:15:30 UTC 2019', machine='x86_64')
+
+id: uid=501(sarah) gid=20(staff) groups=20(staff)
+
+Environment Variables
+
+HOSTNAME = broadband.hpc.usc.edu
+BBP_DATA_DIR = /home/sarah/bbp/bbp_data
+LOGNAME = sarah
+USER = sarah
+PATH = /usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/sarah/bbp/bbp-19.4.0/bbp/comps
+LANG = en_US.UTF-8
+TERM = xterm-256color
+SHELL = /bin/bash
+BBP_DIR = /home/sarah/bbp/bbp
+SHLVL = 1
+HOME = /home/sarah
+PYTHONPATH = /home/sarah/bbp/bbp//bbp/comps:/home/sarah/bbp/bbp//bbp/comps:PySeismoSoil
+BBP_GF_DIR = /home/sarah/bbp/bbp_gf
+MPLCONFIGDIR = /tmp/tmpvlcptnwq
+FFTW_INCDIR = /home/sarah/bbp/fftw-3.3.8/include
+FFTW_LIBDIR = /home/sarah/bbp/fftw-3.3.8/lib
+LOADEDMODULES = usc:gcc/8.3.0:openblas/0.3.8:pmix/3.1.3:openmpi/4.0.2:python/3.7.6:emacs/27.1:git/2.25.0
+GCC_ROOT = /spack/apps/gcc/8.3.0
+BBP_VAL_DIR = /home/sarah/bbp/bbp_val
+PWD = /home/sarah
+BASH_FUNC_module() = () {  eval $($LMOD_CMD bash "$@") && eval $(${LMOD_SETTARG_CMD:-:} -s sh)
+}
+BASH_FUNC_ml() = () {  eval $($LMOD_DIR/ml_cmd "$@")
+}
+_ = /home/sarah/bbp/bbp/comps/run_bbp.py
+
+Resource Information (ulimit -a)
+core file size          (blocks, -c) 0
+data seg size           (kbytes, -d) unlimited
+scheduling priority             (-e) 0
+file size               (blocks, -f) unlimited
+pending signals                 (-i) 257232
+max locked memory       (kbytes, -l) 64
+max memory size         (kbytes, -m) unlimited
+open files                      (-n) 1024
+pipe size            (512 bytes, -p) 8
+POSIX message queues     (bytes, -q) 819200
+real-time priority              (-r) 0
+stack size              (kbytes, -s) unlimited
+cpu time               (seconds, -t) unlimited
+max user processes              (-u) 4096
+virtual memory          (kbytes, -v) unlimited
+file locks                      (-x) unlimited

@@ -1,18 +1,34 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Broadband Platform Version of SDSU MO-GOF
 """
@@ -85,7 +101,7 @@ class SDSUMOGoF(object):
         try:
             fp = open(filename, 'r')
             files = fp.readlines()
-            for i in xrange(0, len(files)):
+            for i in range(0, len(files)):
                 files[i] = os.path.abspath(files[i].strip())
             fp.close()
         except:
@@ -115,7 +131,7 @@ class SDSUMOGoF(object):
             tstart = -1.0
             while samples[num_samples - 1] == "":
                 num_samples = num_samples - 1
-            for i in xrange(0, num_samples):
+            for i in range(0, num_samples):
                 tokens = samples[i].split()
                 if tokens[0] != '#':
                     if len(tokens) != 4:
@@ -198,7 +214,7 @@ class SDSUMOGoF(object):
 
             pp.write("%s\n" % (self.config.cfggof["low_cut"]))
             pp.write("%s\n" % (self.config.cfggof["high_cut"]))
-#            for n in xrange(0, 12):
+#            for n in range(0, 12):
 #                pp.write("%f\n" % (1.0))
             pp.write("%s\n" % (self.config.cfggof["weights"]["pga"]))
             pp.write("%s\n" % (self.config.cfggof["weights"]["pgv"]))
@@ -267,25 +283,35 @@ class SDSUMOGoF(object):
         return 0
 
     def get_sample_data(self, bbpfile):
+        """
+        This function reads a BBP file and determines its DT, it also
+        returns the number of samples in dcount
+        """
         dt = Decimal(0)
         dcount = 0
-        bfile = self.open_file(bbpfile, 'rb')
-        lines = bfile.readlines()
-        for line in lines:
-            tokens = line.strip().split()
-            if tokens[0] != '#':
-                if len(tokens) != 4:
-                    print("ERROR (sdsu_mogof): "
-                          "Seismogram %s is incorrectly formatted" % (bbpfile))
-                    print(tokens)
-                    sys.exit(-1)
-                else:
-                    dcount += 1
-                    if dcount < 2:
-                        dt = Decimal(tokens[0])
-                    elif dcount == 2:
-                        dt = Decimal(tokens[0]) - dt
-#        print "get_sample_data: bbpfile: %s, dt: %f, dcount: %d" % (bbpfile, dt, dcount)
+        bbp_file = self.open_file(bbpfile, 'r')
+        for line in bbp_file:
+            line = line.strip()
+            if line.startswith("#") or line.startswith("%"):
+                # Skip comments
+                continue
+            tokens = line.split()
+            if len(tokens) != 4:
+                print("ERROR (sdsu_mogof): "
+                      "Seismogram %s is incorrectly formatted" % (bbpfile))
+                print(tokens)
+                sys.exit(-1)
+
+            dcount += 1
+            if dcount < 2:
+                dt = Decimal(tokens[0])
+            elif dcount == 2:
+                dt = Decimal(tokens[0]) - dt
+
+        # Close file
+        bbp_file.close()
+
+        # All done!
         return dt, dcount
 
     def match_sample_rate(self, bbpfile, newdt):

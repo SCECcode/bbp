@@ -1,0 +1,39 @@
+name: bbp-ci
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  bbp-build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.7.6", "3.8", "3.9", "3.10" ]
+    steps:
+    - name: set BBP_DIR
+      run: echo "BBP_BASE_DIR=$RUNNER_WORKSPACE/bbp" >> $GITHUB_ENV
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: configure Python
+      run: |
+        sudo apt-get update
+        sudo apt-get install g++-8 -y
+        sudo apt-get install gfortran-8 -y
+        pip install numpy
+        pip install scipy
+        pip install matplotlib
+        pip install pyproj
+        pip install numba
+    - name: checkout bbp dev
+      uses: actions/checkout@v2
+      with:
+        ref: dev
+    - name: build bbp
+      run: ./.github/scripts/bbp-build-ci.sh
+      shell: bash
+    - name: test bbp
+      run: ./.github/scripts/bbp-test-ci.sh
+      shell: bash

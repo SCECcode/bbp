@@ -6,8 +6,16 @@ FDRT_OBJS = wafront2d-rwg.o
 GETPAR = ../getpar/lib
 INCPAR = -I ../getpar/include
 
+ifdef FFTW_INCDIR
+FFTW_INCFLAGS = -I ${FFTW_INCDIR}
+endif
+ifdef FFTW_LIBDIR
+FFTW_LIBFLAGS = -L ${FFTW_LIBDIR}
+endif
+
 LIBS = -lm ${GETPAR}/libget.a
-LDLIBS = ${OBJS} ${LIBS} -I ${FFTW_INCDIR} -lfftw3 -lfftw3f
+#LDLIBS = ${OBJS} ${LIBS} ${FFTW_INCFLAGS} ${FFTW_LIBFLAGS} -lfftw3f
+LDLIBS = ${OBJS} ${LIBS} ${FFTW_INCFLAGS} ${FFTW_LIBFLAGS} -lfftw3 -lfftw3f
 
 #LF_FLAGS = -D_FILE_OFFSET_BITS=32
 #
@@ -19,20 +27,20 @@ UFLAGS = -O3
 CC = gcc
 FC = gfortran
 
-CFLAGS = ${UFLAGS} ${LF_FLAGS}
+CFLAGS = ${UFLAGS} ${LF_FLAGS} ${FFTW_INCFLAGS}
 FFLAGS = ${UFLAGS} -ffixed-line-length-none
 
 ##### make options
 
-all : genslip-v5.4.1 srf_gethypo get_rvfrac
+all : genslip-v5.5.2 srf_gethypo get_rvfrac
 
-genslip-v5.4.1 : genslip-v5.4.1.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
-	${CC} ${CFLAGS} -o genslip-v5.4.1 genslip-v5.4.1.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
-	cp genslip-v5.4.1 ../bin/.
+genslip-v5.5.2 : genslip-v5.5.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
+	${CC} ${CFLAGS} -o genslip-v5.5.2 genslip-v5.5.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
+	cp genslip-v5.5.2 ../bin/.
 
-genslip-v5.2.2 : genslip-v5.2.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
-	${CC} ${CFLAGS} -o genslip-v5.2.2 genslip-v5.2.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
-	cp genslip-v5.2.2 ../bin/.
+#genslip-v5.2.2 : genslip-v5.2.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
+#	${CC} ${CFLAGS} -o genslip-v5.2.2 genslip-v5.2.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
+#	cp genslip-v5.2.2 ../bin/.
 
 srf_gethypo : srf_gethypo.c
 	${CC} ${CFLAGS} -o srf_gethypo srf_gethypo.c ${LDLIBS} ${INCPAR} ${SRF_OBJS}
@@ -44,4 +52,4 @@ get_rvfrac : get_rvfrac.c ${OBJS}
 ${OBJS} : ${HEADS}
 
 clean :
-	-rm -f *.o genslip-v5.4.1 srf_gethypo get_rvfrac
+	-rm -f *.o genslip-v5.5.2 srf_gethypo get_rvfrac

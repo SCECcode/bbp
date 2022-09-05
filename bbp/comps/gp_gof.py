@@ -1,20 +1,37 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Broadband Platform Version of Rob Graves gen_resid_table.csh and resid2uncer.csh
+for generating the GP GoF plot
 """
 from __future__ import division, print_function
 
@@ -24,12 +41,14 @@ import sys
 
 # Import Broadband modules
 import bband_utils
+import plot_config
 from gp_gof_cfg import GPGofCfg
 from install_cfg import InstallCfg
 from station_list import StationList
 from PlotGOF import PlotGoF
 from plot_dist_gof import plot_dist_gof
 from plot_map_gof import plot_map_gof
+from plot_vs30_gof import plot_vs30_gof
 
 # Import Pynga and its utilities
 import pynga.utils as putils
@@ -40,8 +59,9 @@ class GPGof(object):
     """
 
     def __init__(self, i_r_srcfile, i_r_stations,
-                 i_comparison_label, cutoff=None,
-                 single_component=False, sim_id=0):
+                 i_comparison_label, method, cutoff=None,
+                 gof_plot_limit=None, single_component=False,
+                 sim_id=0):
         """
         Initialize class instance variables
         """
@@ -49,7 +69,12 @@ class GPGof(object):
         self.r_srcfile = i_r_srcfile
         self.r_stations = i_r_stations
         self.comp_label = i_comparison_label
+        self.method = method.lower()
         self.max_cutoff = cutoff
+        if gof_plot_limit is not None:
+            self.gof_plot_limit = gof_plot_limit
+        else:
+            self.gof_plot_limit = 0.01
         self.install = None
         self.config = None
         self.src_keys = None
@@ -58,13 +83,17 @@ class GPGof(object):
         else:
             self.single_component = False
 
-    def summarize_rotd50(self, site_list, a_outdir, a_outdir_gmpe):
+    def summarize_rotd50(self, site_list, a_outdir):
         """
         Summarizes all rotd50 data and creates the rotd50 GOF plot
         """
         sim_id = self.sim_id
         install = self.install
         config = self.config
+
+        freq_ranges = plot_config.PSA_GOF_FREQ
+        lfreq=freq_ranges[self.method]['freq_low']
+        hfreq=freq_ranges[self.method]['freq_high']
 
         rd50_residfile = os.path.join(a_outdir, "%s-%d.rd50-resid.txt" %
                                       (self.comp_label, sim_id))
@@ -93,13 +122,14 @@ class GPGof(object):
                      (self.comp_label, sim_id))
         plotter = PlotGoF()
         plotter.plot(plottitle, fileroot, a_outdir, a_outdir,
-                     cutoff=self.max_cutoff, mode=plot_mode, colorset='single')
+                     cutoff=self.max_cutoff, min_period=self.gof_plot_limit,
+                     mode=plot_mode, colorset='single', lfreq=lfreq, hfreq=hfreq)
 
         # Finally, plot the distance and map GOFs
-        plot_dist_gof(rd50_residfile, self.comp_label,
-                      a_outdir_gmpe, sim_id=self.sim_id)
+        plot_dist_gof(rd50_residfile, self.comp_label, sim_id=self.sim_id)
         plot_map_gof(self.r_srcfile, self.r_stations, rd50_residfile,
                      self.comp_label, sim_id=self.sim_id)
+        plot_vs30_gof(rd50_residfile, self.comp_label, sim_id=self.sim_id)
 
     def run(self):
         """
@@ -125,8 +155,6 @@ class GPGof(object):
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_outdir_seis = os.path.join(install.A_OUT_DATA_DIR, str(sim_id),
                                      "obs_seis_%s" % (sta_base))
-        a_outdir_gmpe = os.path.join(install.A_OUT_DATA_DIR, str(sim_id),
-                                     "gmpe_data_%s" % (sta_base))
 
         # Source file, parse it!
         a_srcfile = os.path.join(install.A_IN_DATA_DIR,
@@ -225,7 +253,7 @@ class GPGof(object):
 
         # Finished per station processing, now summarize and plot the data
         if os.path.exists(rd50_resid_output):
-            self.summarize_rotd50(site_list, a_outdir, a_outdir_gmpe)
+            self.summarize_rotd50(site_list, a_outdir)
 
         print("GP GoF Completed".center(80, '-'))
 
@@ -234,12 +262,13 @@ if __name__ == "__main__":
     if len(sys.argv) != 8:
         print("Usage: %s " % (PROG_BASE) +
               "source_file station_list magnitude "
-              "comp_label cut_off sim_id")
+              "comp_label method cut_off sim_id")
         sys.exit(1)
     print("Testing Module: %s" % (PROG_BASE))
-    ME = GPGof(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],
-               cutoff=int(sys.argv[5]),
-               single_component=int(sys.argv[6]),
-               sim_id=int(sys.argv[7]))
+    ME = GPGof(sys.argv[1], sys.argv[2], sys.argv[3],
+               sys.argv[4], sys.argv[5],
+               cutoff=int(sys.argv[6]),
+               single_component=int(sys.argv[7]),
+               sim_id=int(sys.argv[8]))
     ME.run()
     sys.exit(0)

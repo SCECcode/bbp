@@ -60,6 +60,13 @@ SUBROUTINE scattering_parameters
 !   Add cseed, for inter-frequency correlation random seed
 !              if cseed = -1, seed defined by system-time
 !              else, seed defined by user
+!
+! Update: April 2020 (v2.1)
+! Author: N. Wang
+!   Add corr_flag, for correlation flag
+!                     if corr_flag = 0, no correlation
+!                     if corr_flag = 1, apply only inter-frequency correlation
+!                     if corr_flag = 2, apply spatial correlation
 
 use def_kind; use interfaces, only: rand_pdf 
 use io_file, only: scat_file; use scattering 
@@ -85,7 +92,7 @@ real(kind=r_scat),parameter                    :: kappa_min=0.010, kappa_max=0.1
 !real(kind=r_scat)                              :: tmp_fmax,tmp_str_fac,tmp_fac
 integer(kind=i_single)                         :: tmp_iseed,tmp_sseed,tmp_imerg,tmp_gsf
 integer(kind=i_single)                         :: seed_size,i,tmp_time_step,tmp_ngawf
-integer(kind=i_single)                         :: tmp_merging,tmp_infcorr
+integer(kind=i_single)                         :: tmp_merging,tmp_corr
 real(kind=r_scat)                              :: tmp_Q,tmp_scatcoeff,tmp_kappa
 real(kind=r_scat)                              :: tmp_hpass,tmp_fdec
 real(kind=r_scat)                              :: tmp_fmax,tmp_str_fac
@@ -307,22 +314,19 @@ else
    print*,'change merging_flag'
 endif
 
-! infcorr_flag section
-read(1,*) tmp_infcorr
-if (tmp_infcorr == 0 .or. tmp_infcorr == 1) then
-   infcorr_flag=tmp_infcorr
+! corr_flag section
+read(1,*) tmp_corr
+if (tmp_corr == 0 .or. tmp_corr == 1 .or. tmp_corr == 2) then
+   corr_flag=tmp_corr
 else
-   print*,'change infcorr_flag'
+   print*,'change corr_flag'
 endif
 
-! seed number for inter-frequency correlation section
+! seed number for correlation section
 read(1,*) cseed
 
 
-!! set iseed if infcorr_flag = 1, do inter-frequency correlation
-!if (infcorr_flag == 1) iseed=3071
-!print*,'iseed',iseed
-!print*,'tmp_iseed',tmp_iseed
+
 
 ! jump to the third part of the scattering file
 !read(1,*);read(1,*);read(1,*)

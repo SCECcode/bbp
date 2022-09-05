@@ -1,18 +1,34 @@
 #!/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Broadband Platform Version of Martin Mai BBcoda2.csh
 """
@@ -32,17 +48,20 @@ import velocity_models
 from station_list import StationList
 from install_cfg import InstallCfg
 from bbtoolbox_cfg import BBToolboxCfg
+from bbtoolbox_correlation import generate_matrices
 
 class BBToolbox(object):
 
     def __init__(self, i_r_scattering, i_r_velmodel, i_r_srcfile,
-                 i_r_srffile, i_r_stations, vmodel_name, sim_id=0):
+                 i_r_srffile, i_r_stations, vmodel_name, sim_id=0,
+                 **kwargs):
         """
         This function initializes basic class objects
         """
         self.sim_id = sim_id
         self.r_velmodel = i_r_velmodel
         self.r_srcfile = i_r_srcfile
+        self.r_srcfiles = []
         self.r_scattering = i_r_scattering
         self.r_srffile = i_r_srffile
         self.r_xyz_srffile = 'xyz_' + i_r_srffile
@@ -62,7 +81,15 @@ class BBToolbox(object):
         self.bfac = None
         self.str_fac = None
         self.correlation_file = None
-        self.infcorr_flag = None
+        self.corr_flag = None
+
+        # Get all src files that were passed to us
+        if kwargs is not None and len(kwargs) > 0:
+            for idx in range(len(kwargs)):
+                self.r_srcfiles.append(kwargs['src%d' % (idx)])
+        else:
+            # Not a multisegment run, just use the single src file
+            self.r_srcfiles.append(i_r_srcfile)
 
     def create_bbtoolbox_files(self, stat_file):
         """
@@ -92,21 +119,12 @@ class BBToolbox(object):
         if 'SOURCE_FUNC' in vmodel_params:
             self.source_func = vmodel_params['SOURCE_FUNC']
 
-        # Look for correlation file parameter
-        if "CORRELATION_FILE" in vmodel_params:
-            # Set flag
-            self.infcorr_flag = 1
-            # Find correlation file
-            self.correlation_file = os.path.join(vel_obj.base_dir,
-                                                 vmodel_params['CORRELATION_FILE'])
-            # Also copy file to bbtoolbox directory
-            shutil.copy2(self.correlation_file,
-                         os.path.join(a_tmpdir_mod,
-                                      os.path.basename(self.correlation_file)))
-        else:
-            # Disable flag
-            self.infcorr_flag = 0
-            self.correlation_file = "correlation_file_not_used.txt"
+        # Set up correlation parameter
+        self.corr_flag = self.config.corr_flag
+        # Create correlation matrices
+        if self.corr_flag > 0:
+            generate_matrices(self.install.A_SDSU_DATA_DIR, a_tmpdir,
+                              stat_file, a_tmpdir_mod, self.sim_id)
 
         # Take care of scattering file
         if not self.r_scattering:
@@ -222,11 +240,11 @@ class BBToolbox(object):
                     scat_out.write("%d   %s" %
                                    (self.config.SEED,
                                    line[pos:]))
-                elif line.find(r"\* infcorr_flag") >= 0:
+                elif line.find(r"\* corr_flag") >= 0:
                     # This is the line, insert here
-                    pos = line.find(r"\* infcorr_flag")
+                    pos = line.find(r"\* corr_flag")
                     scat_out.write("%d    %s" %
-                                   (int(self.infcorr_flag),
+                                   (int(self.corr_flag),
                                     line[pos:]))
                 else:
                     scat_out.write(line)
@@ -385,18 +403,19 @@ class BBToolbox(object):
         parfile_fp.write("/* DOMINANT SOURCE MECHANISM [SS RS NS AL] */\n")
         parfile_fp.write("%s\n" % conv_par_data[3].split(":")[1].strip())
         parfile_fp.write("/* SOURCE TIME FUNCTION "
-                         "[TRI BOX YOF DREG LIU USER-DEF] */\n")
+                         "[TRI BOX YOF DREG LIU NEW USER-DEF] */\n")
         parfile_fp.write("%s\n" % (self.source_func))
         parfile_fp.write("/* VERBOSE MODE [ON OFF] */\n")
         parfile_fp.write("off\n")
         parfile_fp.write("/* SRF FILE */\n")
         parfile_fp.write('"%s"\n' %
                          (os.path.join(a_indir, self.r_xyz_srffile)))
-        parfile_fp.write("/* CORRELATION FILE */\n")
-        parfile_fp.write("%s\n" %
-                         (os.path.basename(self.correlation_file)))
         parfile_fp.write("/* RAKE */\n")
         parfile_fp.write("%.2f\n" % (self.config.RAKE))
+        parfile_fp.write("/* CORRELATION FILE FOR INTER-FREQUENCY CORRELATION*/\n")
+        parfile_fp.write("Kinf.bin\n")
+        parfile_fp.write("/* CORRELATION FILE FOR SPATIAL CORRELATION*/\n")
+        parfile_fp.write("Ksp1.bin Ksp2.bin Ksp3.bin\n")
         parfile_fp.flush()
         parfile_fp.close()
 

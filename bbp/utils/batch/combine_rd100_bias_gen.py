@@ -1,18 +1,34 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Python version of Ronnie Kamai Matlab scripts to generate a combined
 bias plot. It collects information from the rd100 files for each
@@ -22,6 +38,7 @@ data. This single residuals file uses the same resid2uncer_varN
 program used in single bias plots to generate data for the combined
 plot.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -81,7 +98,7 @@ def summarize_rotd50(tmpdir, outdir, combined_resid_file,
     plotter.plot(plottitle, fileroot, tmpdir, outdir,
                  cutoff=0, mode="rd100", colorset="combined")
 
-    print "Stations used: %s" % (num_stations)
+    print("Stations used: %s" % (num_stations))
 
 def combine_station_data(station, input_dir, temp_dir):
     """
@@ -157,7 +174,7 @@ def combine_realizations_data(input_dir, temp_dir):
 
     # Now walk through all realizations and combine stations data
     for station in stations:
-        print "working on station: %s" % (station)
+        print("working on station: %s" % (station))
         combine_station_data(station, input_dir, temp_dir)
 
     return event_label, len(realizations), len(stations)
@@ -338,6 +355,6 @@ summarize_rotd50(TMPDIR, OUTPUT_DIR,
                  NUM_REALIZATIONS,
                  OPTIONS.codebase)
 
-print "All Done!"
+print("All Done!")
 # Clean-up, all done!
 shutil.rmtree(TMPDIR)

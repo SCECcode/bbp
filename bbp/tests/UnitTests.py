@@ -1,18 +1,34 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Top level test suites for BB Platform
 """
@@ -26,6 +42,7 @@ import unittest
 # Import Broadband modules
 from install_cfg import InstallCfg
 from test_bband_core import CoreTestSuite
+from test_pynga import TestPyNGA
 from test_genslip import TestGenslip
 from test_jbsim import TestJbsim
 from test_hfsims import TestHfsims
@@ -49,6 +66,8 @@ from test_sdsu_mogof import TestSDSUMOGof
 from test_anderson_gof import TestAndersonGof
 from test_rzz2015 import TestRZZ2015
 from test_as16 import TestAS16
+from test_fas import TestFAS
+from test_fas_gof import TestFASGof
 
 class Logger(object):
     def __init__(self, filename):
@@ -57,6 +76,9 @@ class Logger(object):
 
     def write(self, string):
         self.out_fp.write(string)
+
+    def flush(self):
+        self.out_fp.flush()
 
     def close(self):
         self.out_fp.flush()
@@ -69,6 +91,7 @@ TS = unittest.TestSuite()
 
 # Add broadband platform generic tests
 TS.addTests(CoreTestSuite())
+TS.addTest(unittest.makeSuite(TestPyNGA))
 TS.addTest(unittest.makeSuite(TestVm2vm))
 TS.addTest(unittest.makeSuite(TestCC))
 
@@ -106,6 +129,8 @@ TS.addTest(unittest.makeSuite(TestRMG))
 TS.addTest(unittest.makeSuite(TestRotD50))
 TS.addTest(unittest.makeSuite(TestRotD100))
 TS.addTest(unittest.makeSuite(TestGPGof))
+TS.addTest(unittest.makeSuite(TestFAS))
+TS.addTest(unittest.makeSuite(TestFASGof))
 TS.addTest(unittest.makeSuite(TestSDSUMOGof))
 TS.addTest(unittest.makeSuite(TestAndersonGof))
 TS.addTest(unittest.makeSuite(TestRZZ2015))
@@ -113,4 +138,5 @@ TS.addTest(unittest.makeSuite(TestAS16))
 
 # Done, run the tests
 print("==> Running BBP Unit Tests...")
-unittest.TextTestRunner(verbosity=2).run(TS)
+RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(TS)
+sys.exit(not RETURN_CODE.wasSuccessful())

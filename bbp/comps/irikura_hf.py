@@ -1,19 +1,36 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+
 from __future__ import division, print_function
 
 # Import Python modules
@@ -27,9 +44,10 @@ import shutil
 
 # Import Broadband modules
 import bband_utils
+import velocity_models
 from station_list import StationList
 from install_cfg import InstallCfg
-from irikura_hf_cfg import IrikuraHFCfg
+from irikura_hf_cfg import IrikuraHFCfg, calculate_rvfac
 
 class IrikuraHF(object):
     """
@@ -37,7 +55,8 @@ class IrikuraHF(object):
     Irikura Recipe Method 2 High Frequency and the Broadband Platform.
     """
     def __init__(self, i_r_srcfile, i_r_srffile, i_r_velmodel,
-                 i_r_stations, vmodel_name, sim_id=0):
+                 i_r_stations, vmodel_name, sim_id=0,
+                 **kwargs):
         """
         This function initializes basic class objects
         """
@@ -47,26 +66,85 @@ class IrikuraHF(object):
         self.r_velmodel = i_r_velmodel
         self.r_stations = i_r_stations
         self.vmodel_name = vmodel_name
+        self.r_srcfiles = []
         self.stat_list = None
         self.install = None
         self.config = None
         self.log = None
+        self.mean_rvfac = None
+        self.range_rvfac = None
 
-    def create_irikura_files(self, fault_param_dat_file):
+        # Get all src files that were passed to us
+        if kwargs is not None and len(kwargs) > 0:
+            for idx in range(len(kwargs)):
+                self.r_srcfiles.append(kwargs['src%d' % (idx)])
+        else:
+            # Not a multisegment run, just use the single src file
+            self.r_srcfiles.append(i_r_srcfile)
+
+    def read_srf_header(self, a_srffile):
+        """
+        This function reads the SRF file header, returning a dictionary
+        with the parameters found.
+        """
+        srf_dict = {}
+
+        input_file = open(a_srffile, 'r')
+        # Skip first two lines
+        _ = input_file.readline()
+        _ = input_file.readline()
+        first_line_pieces = input_file.readline().strip().split()
+        second_line_pieces = input_file.readline().strip().split()
+        input_file.close()
+        srf_dict["LON_TOP_CENTER"] = float(first_line_pieces[0])
+        srf_dict["LAT_TOP_CENTER"] = float(first_line_pieces[1])
+        srf_dict["WIDTH"] = float(first_line_pieces[5])
+        srf_dict["STRIKE"] = float(second_line_pieces[0])
+        srf_dict["DIP"] = float(second_line_pieces[1])
+        srf_dict["DEPTH_TO_TOP"] = float(second_line_pieces[2])
+        srf_dict["HYPO_ALONG_STK"] = float(second_line_pieces[3])
+        srf_dict["HYPO_DOWN_DIP"] = float(second_line_pieces[4])
+
+        return srf_dict
+
+    def create_irikura_files(self, fault_param_dat_file, a_srffile):
         """
         This function creates the other files needed by the Irikura
         recipe after doing some math with the input parameters
         provided by the platform.
         """
+        # Get pointer to the velocity model object
+        vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
+        if vel_obj is None:
+            raise bband_utils.ParameterError("Cannot find velocity model: %s" %
+                                             (self.vmodel_name))
+        # Check for velocity model-specific parameters
+        vmodel_params = vel_obj.get_codebase_params('gp')
+
+        # Look for MEAN_RVFAC
+        if 'MEAN_RVFAC' in vmodel_params:
+            self.mean_rvfac = float(vmodel_params['MEAN_RVFAC'])
+        else:
+            self.mean_rvfac = self.config.VEL_RUP_FRAC
+        # Look for RANGE_RVFAC
+        if 'RANGE_RVFAC' in vmodel_params:
+            self.range_rvfac = float(vmodel_params['RANGE_RVFAC'])
+        else:
+            self.range_rvfac = self.config.VEL_RUP_RANGE
+
+        rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac, self.config.SEED)
+
+        # Read SRF header
+        srf_dict = self.read_srf_header(a_srffile)
         # Earth radius in km
         radius = 6371
         # Convert to radians
-        tclat1 = math.pi / 180 * self.config.LAT_TOP_CENTER
-        tclon1 = math.pi / 180 * self.config.LON_TOP_CENTER
+        tclat1 = math.pi / 180 * srf_dict["LAT_TOP_CENTER"]
+        tclon1 = math.pi / 180 * srf_dict["LON_TOP_CENTER"]
 
         # Determine coodinate of center of fault plane
-        azim = self.config.STRIKE + 90
-        dist2 = self.config.WIDTH / 2 * math.cos(self.config.DIP *
+        azim = srf_dict["STRIKE"] + 90
+        dist2 = srf_dict["WIDTH"] / 2 * math.cos(srf_dict["DIP"] *
                                                  math.pi / 180)
 
         cent_lat = 180 / math.pi * (math.asin(math.sin(tclat1) *
@@ -82,22 +160,22 @@ class IrikuraHF(object):
                                                math.sin(tclat1) *
                                                math.sin(cent_lat *
                                                         math.pi / 180)))
-        cent_dep = (self.config.DEPTH_TO_TOP * 1000 +
-                    self.config.WIDTH / 2 * math.sin(self.config.DIP * math.pi /
+        cent_dep = (srf_dict["DEPTH_TO_TOP"] * 1000 +
+                    srf_dict["WIDTH"] / 2 * math.sin(srf_dict["DIP"] * math.pi /
                                                      180) * 1000) # In meters
 
         # Determine coordinate of hypocenter
-        ddip = self.config.HYPO_DOWN_DIP * math.cos(self.config.DIP * math.pi /
+        ddip = srf_dict["HYPO_DOWN_DIP"] * math.cos(srf_dict["DIP"] * math.pi /
                                                     180)
         # As HYPO_ALONG_STK --> 0.0, ddip/HYPO_ALONG_STK --> Inf,
         # atan(ddip/HYPO_ALONG_STK) --> pi/2
-        if self.config.HYPO_ALONG_STK == 0.0:
-            azim2 = self.config.STRIKE + math.pi / 2 * 180 / math.pi
+        if srf_dict["HYPO_ALONG_STK"] == 0.0:
+            azim2 = srf_dict["STRIKE"] + math.pi / 2 * 180 / math.pi
         else:
-            azim2 = (self.config.STRIKE +
-                     math.atan(ddip / self.config.HYPO_ALONG_STK) *
+            azim2 = (srf_dict["STRIKE"] +
+                     math.atan(ddip / srf_dict["HYPO_ALONG_STK"]) *
                      180 / math.pi)
-        dist3 = math.sqrt(self.config.HYPO_ALONG_STK ** 2 + ddip ** 2)
+        dist3 = math.sqrt(srf_dict["HYPO_ALONG_STK"] ** 2 + ddip ** 2)
 
         hyp_lat = 180 / math.pi * (math.asin(math.sin(tclat1) *
                                              math.cos(dist3/radius) +
@@ -112,27 +190,41 @@ class IrikuraHF(object):
                                               math.sin(tclat1) *
                                               math.sin(hyp_lat *
                                                        math.pi / 180)))
-        hyp_dep = (self.config.DEPTH_TO_TOP * 1000 +
-                   self.config.HYPO_DOWN_DIP * 1000 *
-                   math.sin(self.config.DIP * math.pi / 180))
+        hyp_dep = (srf_dict["DEPTH_TO_TOP"] * 1000 +
+                   srf_dict["HYPO_DOWN_DIP"] * 1000 *
+                   math.sin(srf_dict["DIP"] * math.pi / 180))
 
         # Determine density/Vs at "fault" and at "bedrock" (defined as
         # top of fault plane for now)
-        d_goto = cent_dep
 
-        # As per Pylint, this variable is not used
-        # depth = self.config.vmodel["depth"]
+        # modified by A.I. 2019.7 =======
+        #   depth of "ELEMENT FAULT" = cent_dep
+        #   d_goto = Depth of "SEISMIC-BEDROCK"
+
         vs_m = self.config.vmodel["vs_m"]
         rho = self.config.vmodel["rho"]
 
-        index = bisect.bisect_left(self.config.vmodel["depth0"], d_goto)
+        # ELEMENT-FAULT
+        index = bisect.bisect_left(self.config.vmodel["depth0"], cent_dep)
         density = rho[index] # g/cm3
-        density_bed = density
-        fault_vs = float(vs_m[index]) / 1000
-        fault_vs_bed = fault_vs
 
-        dwid = 2
-        dlen = 2
+        # density_bed = density
+        fault_vs = float(vs_m[index]) / 1000
+        # fault_vs_bed = fault_vs
+
+        # Depth of SEISMIC-BEDROCK
+        if srf_dict["DEPTH_TO_TOP"] < 1.0:
+            d_goto = 1000
+        else:
+            d_goto = srf_dict["DEPTH_TO_TOP"] * 1000
+
+        index_bed = bisect.bisect_left(self.config.vmodel["depth0"], d_goto)
+        density_bed = rho[index_bed] # g/cm3
+        fault_vs_bed = float(vs_m[index_bed]) / 1000
+        # ==== A.I. 2019.7 END
+
+        dlen = self.config.DXX / 1000.0
+        dwid = self.config.DYY / 1000.0
 
         # AI: stress drop on element = 10MPa 2018.7.25
         sigma_s = 1.0e7  # Pa
@@ -150,7 +242,7 @@ class IrikuraHF(object):
         ds_m = mo_elem / myu / dwid / dlen / 1000 / 1000 # Units m
 
         # Units km/s
-        desvel = vs_pq * 0.72
+        desvel = vs_pq * rvfac
 
         # AI: radiation pattern 0.63/sqrt(2) and m_elem 2018.7.25
         #radpatt = 0.4384
@@ -166,7 +258,7 @@ class IrikuraHF(object):
         out_file.write("%.8f \t\t# HYPOCENTER-LATITUDE\n" % (hyp_lat))
         out_file.write("%.8f \t\t# HYPOCENTER-LONGITUDE\n" % (hyp_lon))
         out_file.write("%.4f \t\t# HYPOCENTER-DEPTH(GL-m)\n" % (hyp_dep))
-        out_file.write("120.0 \t\t# SAMPLING-FREQUENCY(Hz)\n")
+        out_file.write("100.0 \t\t# SAMPLING-FREQUENCY(Hz)\n")
         out_file.write("120.0 \t\t# SAMPLING-TIME(sec)\n")
         out_file.write("%.2f \t\t# ELEMENT-DENSITY(g/cm3)\n" % (density))
         out_file.write("%.2f \t\t# SEISMIC-BEDROCK-DENSITY(g/cm3)\n" %
@@ -190,8 +282,8 @@ class IrikuraHF(object):
         out_file.write("1.0 \t\t# Q-VALUE(A3)\n")
         out_file.write("100.0 \t\t# Q-VALUE(A4)\n")
         out_file.write("# green scale param\n")
-        out_file.write("2.0 \t\t# L\n")
-        out_file.write("2.0 \t\t# W\n")
+        out_file.write("%.3f \t\t# L\n" % (dlen))
+        out_file.write("%.3f \t\t# W\n" % (dwid))
         out_file.write("%f \t\t# Ds\n" % (ds_m))
         myu_string = "%.2E \t\t# myu\n" % (myu)
         myu_string = myu_string.replace('E+0', 'E+')
@@ -488,10 +580,12 @@ class IrikuraHF(object):
         irikura_hor_dir = os.path.join(irikura_dir, "HOR")
         irikura_ver_dir = os.path.join(irikura_dir, "VER")
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
+        a_param_outdir = os.path.join(a_outdir, "param_files")
+
         #
         # Make sure the output and two tmp directories exist
         #
-        bband_utils.mkdirs([a_tmpdir, irikura_dir, a_outdir,
+        bband_utils.mkdirs([a_tmpdir, irikura_dir, a_outdir, a_param_outdir,
                             irikura_hor_dir, irikura_ver_dir])
 
         a_velmodel = os.path.join(a_indir, self.r_velmodel)
@@ -509,6 +603,10 @@ class IrikuraHF(object):
         random.seed(self.config.SEED)
 
         # Create filenames for all intermediate files
+        a_sdropout = os.path.join(a_tmpdir,
+                                  self.config.sdropout)
+        a_segments_midpoint = os.path.join(a_tmpdir,
+                                           self.config.segments_midpoint)
         vel_file = os.path.join(irikura_dir,
                                 "%d_soil.dat" %
                                 (sim_id))
@@ -524,32 +622,72 @@ class IrikuraHF(object):
         elem_param_dat_file = os.path.join(irikura_dir,
                                            "%s_elem_param.dat" %
                                            (sim_id))
-        srf2grns_input_file = os.path.join(irikura_dir,
-                                           "input.txt")
-        phase_file = os.path.join(irikura_dir, "phase.dat")
-        phase2_file = os.path.join(irikura_dir, "phase2.dat")
+        elem_param_rndt_dat_file = os.path.join(irikura_dir,
+                                                "%s_elem_param_rndt.dat" %
+                                                (sim_id))
+
+        # Copy needed files to Irikura Directory
+        #  - velocity model
+        #  - segments_midpoint
+        #  - sdropout
+        #  - srf file(s)
+        shutil.copy2(a_velmodel,
+                     os.path.join(irikura_dir, self.r_velmodel))
+        shutil.copy2(a_sdropout,
+                     os.path.join(irikura_dir, self.config.sdropout))
+        shutil.copy2(a_segments_midpoint,
+                     os.path.join(irikura_dir, self.config.segments_midpoint))
+        shutil.copy2(a_srffile,
+                     os.path.join(irikura_dir, self.r_srffile))
+        if len(self.r_srcfiles) == 1:
+            # No need to copy anything else, set up filenames for all SRF files
+            r_single_seg_srf = self.r_srffile
+        else:
+            # Copy all SRF files
+            r_single_seg_srf = "single_seg.%s" % (self.r_srffile)
+            a_single_seg_srf = os.path.join(a_tmpdir, r_single_seg_srf)
+            shutil.copy2(a_single_seg_srf,
+                         os.path.join(irikura_dir, r_single_seg_srf))
+            for segnum in range(len(self.r_srcfiles)):
+                r_seg_srf = "seg%d.%s" % ((segnum + 1), self.r_srffile)
+                a_seg_srf = os.path.join(a_tmpdir, r_seg_srf)
+                shutil.copy2(a_seg_srf,
+                             os.path.join(irikura_dir, r_seg_srf))
 
         # Create Irikura velocity model file
         self.create_velocity_file(vel_file, vel_file_p)
+        shutil.copy2(vel_file,
+                     os.path.join(a_param_outdir, "%d_soil.dat" % (sim_id)))
+        shutil.copy2(vel_file_p,
+                     os.path.join(a_param_outdir, "%d_soil_p.dat" % (sim_id)))
 
         # Create Irikura station list
         self.create_station_list(station_file)
+        shutil.copy2(station_file,
+                     os.path.join(a_param_outdir, "%d_station.dat" % (sim_id)))
 
         # Create other input files
-        self.create_irikura_files(fault_param_dat_file)
+        self.create_irikura_files(fault_param_dat_file,
+                                  os.path.join(irikura_dir, r_single_seg_srf))
+        shutil.copy2(fault_param_dat_file,
+                     os.path.join(a_param_outdir, "%d_fault_param.dat" % (sim_id)))
 
         # Create phase files
-        self.create_phase_files(phase_file, phase2_file)
+        r_phase_file = "phase.dat"
+        r_phase2_file = "phase2.dat"
+        a_phase_file = os.path.join(irikura_dir, r_phase_file)
+        a_phase2_file = os.path.join(irikura_dir, r_phase2_file)
+        self.create_phase_files(a_phase_file, a_phase2_file)
 
-        # Copy velocity model and srf file to Irikura dir
-        shutil.copy2(a_velmodel,
-                     os.path.join(irikura_dir, self.r_velmodel))
-        shutil.copy2(a_srffile,
-                     os.path.join(irikura_dir, self.r_srffile))
+        # Save a copy in param_dir
+        shutil.copy2(a_phase_file, os.path.join(a_param_outdir, r_phase_file))
+        shutil.copy2(a_phase2_file, os.path.join(a_param_outdir, r_phase2_file))
 
         # Irikura binaries
         srf2grns_bin = os.path.join(install.A_IRIKURA_BIN_DIR,
                                     "srf2grns")
+        dtrandom_bin = os.path.join(install.A_IRIKURA_BIN_DIR,
+                                    "dtrandom")
         statgreen_bin = os.path.join(install.A_IRIKURA_BIN_DIR,
                                      "statgreen")
         statgreen2_bin = os.path.join(install.A_IRIKURA_BIN_DIR,
@@ -562,17 +700,105 @@ class IrikuraHF(object):
         old_cwd = os.getcwd()
         os.chdir(irikura_dir)
 
-        # Run the srf2grns code
-        config_file = open(srf2grns_input_file, 'w')
-        config_file.write("%s\n" % (self.r_srffile))
-        config_file.write("%s\n" % (os.path.basename(elem_param_dat_file)))
-        config_file.close()
-        cmd = ("%s < %s >> %s 2>&1" %
-               (srf2grns_bin,
-                os.path.basename(srf2grns_input_file),
-                self.log))
+        # Mesh size parameters
+        dxx = self.config.DXX
+        dyy = self.config.DYY
 
+        # Open combined elem_param.dat file
+        elem_param_file = open(elem_param_dat_file, 'w')
+        istart = 0
+
+        for segnum in range(len(self.r_srcfiles)):
+            if len(self.r_srcfiles) == 1:
+                # Single segment simulation
+                r_seg_srf = self.r_srffile
+            else:
+                # Multi segment simulation
+                r_seg_srf = "seg%d.%s" % ((segnum + 1), self.r_srffile)
+
+            current_elem_param_dat_file = os.path.join(irikura_dir,
+                                                        "%s_elem_param_seg%d.dat" %
+                                                        (sim_id, segnum + 1))
+            srf2grns_input_file = os.path.join(irikura_dir,
+                                               "input%d.txt" % (segnum + 1))
+
+            # Write config file for srf2grns
+            config_file = open(srf2grns_input_file, 'w')
+            config_file.write("%d\n" % (segnum + 1))
+            config_file.write("%s\n" % (r_single_seg_srf))
+            config_file.write("%s\n" % (r_seg_srf))
+            config_file.write("%s\n" % (self.config.segments_midpoint))
+            config_file.write("%s\n" % (self.config.sdropout))
+            config_file.write("%s\n" % (os.path.basename(current_elem_param_dat_file)))
+            config_file.write("%f %f\n" % (dxx, dyy))
+            config_file.close()
+
+            # Run the srf2grns code
+            cmd = ("%s < %s >> %s 2>&1" %
+                   (srf2grns_bin,
+                    os.path.basename(srf2grns_input_file),
+                    self.log))
+            bband_utils.runprog(cmd, abort_on_error=True)
+
+            # Save copy
+            shutil.copy2(current_elem_param_dat_file,
+                         os.path.join(a_param_outdir,
+                                      os.path.basename(current_elem_param_dat_file)))
+
+            current_elem_file = open(current_elem_param_dat_file, 'r')
+            for line in current_elem_file:
+                line = line.strip()
+                if not line:
+                    continue
+                pieces = line.split()
+                pieces[0] = int(float(pieces[0]))
+                pieces[0] = pieces[0] + istart
+                elem_param_file.write("%d %s %s %s %s %s %s\n" % (pieces[0],
+                                                                  pieces[1],
+                                                                  pieces[2],
+                                                                  pieces[3],
+                                                                  pieces[4],
+                                                                  pieces[5],
+                                                                  pieces[6]))
+            current_elem_file.close()
+            istart = pieces[0]
+
+        elem_param_file.close()
+
+        # Save copy
+        shutil.copy2(elem_param_dat_file,
+                     os.path.join(a_param_outdir,
+                                  os.path.basename(elem_param_dat_file)))
+
+        # Now add rupture perturbations by using the dtrandom code
+        dtrandom_input_file = os.path.join(irikura_dir, "dtrandom_input.txt")
+        dtrdm = open(dtrandom_input_file, 'w')
+        dtrdm.write("%d\n" % (self.config.SEED))
+        dtrdm.write("%d\n" % (istart))
+        elem_param_file = open(elem_param_dat_file, 'r')
+        for line in elem_param_file:
+            line = line.strip()
+            if not line:
+                continue
+            dtrdm.write("%s\n" % (line))
+        elem_param_file.close()
+        dtrdm.close()
+
+        # Save copy
+        shutil.copy2(dtrandom_input_file, os.path.join(a_param_outdir,
+                                                       "dtrandom_input.txt"))
+
+        # Run the dtrandom code
+        cmd = ("%s < %s > %s" %
+               (dtrandom_bin,
+                dtrandom_input_file,
+                elem_param_rndt_dat_file))
         bband_utils.runprog(cmd, abort_on_error=True)
+
+        # Save copy
+        shutil.copy2(elem_param_rndt_dat_file,
+                     os.path.join(a_param_outdir,
+                                  os.path.basename(elem_param_rndt_dat_file)))
 
         # Run the statgreen program
         os.chdir(irikura_hor_dir)
@@ -618,7 +844,7 @@ class IrikuraHF(object):
             os.chdir(working_dir)
 
             cmd = ("%s SAS %s %s %s LogGS.dat HP 1.0 0 >> %s 2>&1" %
-                   (greenscale_bin, station_file, elem_param_dat_file,
+                   (greenscale_bin, station_file, elem_param_rndt_dat_file,
                     fault_param_dat_file, self.log))
             bband_utils.runprog(cmd, abort_on_error=True)
 

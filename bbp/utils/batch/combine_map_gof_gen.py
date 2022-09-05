@@ -1,23 +1,40 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This program created a map-based GOF, combining information from all
 realizations into a single map plot where the color of each station is
 the average bias from all realizations.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -262,7 +279,7 @@ def create_combined_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
     num_plots = len(DIST_PERIODS)
     if len(DIST_PERIODS) % 2:
         num_plots = num_plots + 1
-    num_columns = num_plots / 2
+    num_columns = num_plots // 2
     fig, axs = pylab.plt.subplots(2, num_columns)
     fig.set_size_inches(12, 6.5)
     fig.autofmt_xdate()
@@ -293,15 +310,15 @@ def create_combined_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
         subfig.set_autoscale_on(False)
 
         # Plot coast lines
-        for idx in xrange(0, len(coast_x)):
+        for idx in range(0, len(coast_x)):
             subfig.plot(coast_x[idx], coast_y[idx], linestyle='-', color='0.75')
 
         # Plot borders
-        for idx in xrange(0, len(bord_x)):
+        for idx in range(0, len(bord_x)):
             subfig.plot(bord_x[idx], bord_y[idx], linestyle='-', color='0.75')
 
         # Plot fault trace
-        subfig.plot(fault_x, fault_y, linestyle='-', color='k')
+        subfig.plot(fault_x, fault_y, linestyle='-', color='k', linewidth=1.0)
 
         # Plot hypocenter
         if hypo_lat is not None and hypo_lon is not None:
@@ -312,7 +329,8 @@ def create_combined_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
 
         # Plot the stations
         im = subfig.scatter(sta_x_data, sta_y_data, s=20, c=sta_resid_data,
-                            cmap=cm.jet_r, vmin=vmin, vmax=vmax, marker='o')
+                            cmap=cm.jet_r, vmin=vmin, vmax=vmax, marker='o',
+                            edgecolors='k')
 
         # Set degree formatting of tick values
         major_formatter = FormatStrFormatter(u'%.1f\u00b0')
@@ -337,7 +355,7 @@ def create_combined_map_gof(all_sta_x_data, all_sta_y_data, all_sta_resid_data,
     colorbar_ax = fig.add_axes([0.93, 0.17, 0.02, 0.6])
     fig.colorbar(im, cax=colorbar_ax)
     fig.suptitle('%s' % (plottitle), size=12)
-    print "Saving map GoF plot to %s" % (outfile)
+    print("Saving map GoF plot to %s" % (outfile))
     fig.savefig(outfile, format="png", transparent=False, dpi=plot_config.dpi)
 
 # --------------------------------------------------------------------------
@@ -379,4 +397,4 @@ if OPTIONS.codebase is None:
 plot_combined_map_gof(INPUT_INDIR, INPUT_OUTDIR, OUTPUT_DIR, OPTIONS.codebase)
 
 # All done!
-print "All Done!"
+print("All Done!")

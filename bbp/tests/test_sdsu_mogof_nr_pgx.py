@@ -1,18 +1,34 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from __future__ import division, print_function
 
@@ -26,7 +42,7 @@ import seqnum
 import cmp_bbp
 import bband_utils
 from install_cfg import InstallCfg
-from sdsu_mogof import SDSU_MOGof
+from sdsu_mogof import SDSUMOGoF
 
 class Test_SDSU_MOGof_PGX(unittest.TestCase):
     """
@@ -91,11 +107,11 @@ class Test_SDSU_MOGof_PGX(unittest.TestCase):
         for f in file_list:
             shutil.copy2(f, '%s/%d.%s' % (work_dir, self.sim_id, os.path.basename(f)))
 #    print "Test_mogof_pga self.r_format is %s" % self.r_format
-        site_obj = SDSU_MOGof(self.r_stations, self.gof_weights,
-                              self.plot_map, ref_inputs_obs_dir,
-                              self.r_format, self.r_mag,
-                              self.r_comparison_label, self.r_cutoff,
-                              sim_id=self.sim_id)
+        site_obj = SDSUMOGoF(self.r_stations, self.gof_weights,
+                             self.plot_map, ref_inputs_obs_dir,
+                             self.r_format, self.r_mag,
+                             self.r_comparison_label, self.r_cutoff,
+                             sim_id=self.sim_id)
         site_obj.run()
 
         # Compare individual output files:
@@ -121,40 +137,40 @@ class Test_SDSU_MOGof_PGX(unittest.TestCase):
             a_newfile = os.path.join(test_datadir, "GOF_PGA.list")
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
         if self.gof_weights["pgv"] == 1.0:
             a_ref_file = os.path.join(ref_datadir, "GOF_PGV.list")
             a_newfile = os.path.join(test_datadir, "GOF_PGV.list")
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
         if self.gof_weights["pgd"] == 1.0:
             a_ref_file = os.path.join(ref_datadir, "GOF_PGD.list")
             a_newfile = os.path.join(test_datadir, "GOF_PGD.list")
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
         if self.gof_weights["psa"] == 1.0:
             a_ref_file = os.path.join(ref_datadir, "GOF_PSA.list")
             a_newfile = os.path.join(test_datadir, "GOF_PSA.list")
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
             a_ref_file = os.path.join(ref_datadir, "GOF.list")
             a_newfile = os.path.join(test_datadir, "GOF.list")
 
             errmsg = ("Output file %s does not match reference file %s" %
                       (a_newfile, a_ref_file))
-            self.failIf(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
-                                        0, 4, tolerance=0.035) != 0, errmsg)
+            self.assertFalse(cmp_bbp.cmp_gof(a_ref_file, a_newfile,
+                                             0, 4, tolerance=0.035) != 0, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(Test_SDSU_MOGof_PGX)

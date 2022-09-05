@@ -1,18 +1,34 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # This is PYTHON port of Walter Imperatori GeoBB_srf.m matlab code
 # Function to calculate stations position in CompSyn geometry convention.
@@ -22,8 +38,6 @@ limitations under the License.
 # INPUT:
 #
 #        stat_file   - file with coordinates (lon/lat) of the stations
-#        flag        - flag for plots ('y' or 'n')
-#             Note: Plotting feature is not implemented in this version.
 #        filename    - srf input filename
 #        extended    - flag for extended fault computations ('y' or 'n')
 #
@@ -62,11 +76,11 @@ class GeoBBSRF(object):
         self.sim_id = sim_id
         self.mw = 0.0
         self.mecha = ''
-        self.f_len = 0.0
-        self.f_width = 0.0
-        self.f_dip = 0.0
-        self.f_strike = 0.0
-        self.depth = 0.0
+        self.f_len = []
+        self.f_width =[]
+        self.f_dip = []
+        self.f_strike = []
+        self.f_depth = []
         self.rake = 0.0
         self.hyp = []
         self.fault_maxlon = 0.0
@@ -76,6 +90,7 @@ class GeoBBSRF(object):
         self.corn = []
         self.projobj = None
         self.extended = 'n'
+        self.n_total_cels = 0
 
     def geo2cart(self, lon, lat, lonmin=0, latmin=0):
         """
@@ -110,6 +125,20 @@ class GeoBBSRF(object):
         T[:3, 3] = direction[:3]
         return T
 
+    def read_srf_line(self, srf_fh):
+        """
+        This function returns the next line from a SRF file,
+        skipping lines with comments as needed
+        """
+        while True:
+            line = srf_fh.readline()
+            if len(line) == 0:
+                # End of file
+                break
+            if not line.strip().startswith("#"):
+                break
+        return line
+
     def read_srf(self, srffile):
         if os.path.exists(srffile):
             srff = open(srffile, 'r')
@@ -118,106 +147,111 @@ class GeoBBSRF(object):
                                              (srffile))
 
         # Check number of planes
-        version = float(srff.readline().strip().split()[0])
-        tokens = srff.readline().strip().split()
+        line = self.read_srf_line(srff).strip()
+        version = float(line.split()[0])
+        line = self.read_srf_line(srff).strip()
+        tokens = line.split()
         # Make sure we have a valid SRF file
         if len(tokens) != 2:
             raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
                                               (srffile))
+        # Number of planes
         planes = int(tokens[1])
-        # Make sure we have only 1 plane
-        if planes > 1:
-            raise bband_utils.ProcessingError("Only one plane is supported!" +
-                                              " Found %d planes in SRF file!" %
-                                              (planes))
 
-        # Read Fault Data
-        tokens = srff.readline().strip().split()
-        if len(tokens) != 6:
-            raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
-                                              (srffile))
-        self.f_len = float(tokens[4])
-        self.f_width = float(tokens[5])
-        tokens = srff.readline().strip().split()
-        if len(tokens) != 5:
-            raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
-                                              (srffile))
-        self.f_strike = float(tokens[0])
-        self.f_dip = float(tokens[1])
-        self.f_depth = float(tokens[2])
+        # Read fault data for each fault plane
+        for plane in range(0, planes):
 
-        tokens = srff.readline().strip().split()
-        if len(tokens) != 2:
-            raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
-                                              (srffile))
-        n_cels = int(tokens[1])
-        # print ("F_len: %f, F_width: %f, F_Strike: %f" %
-        #        (self.f_len, self.f_width, self.f_strike))
-        # print ("F_dip: %f, F_depth: %f, n_cells: %d" %
-        #        (self.f_dip, self.f_depth, n_cels))
+            tokens = self.read_srf_line(srff).strip().split()
+            if len(tokens) != 6:
+                raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
+                                                  (srffile))
+            self.f_len.append(float(tokens[4]))
+            self.f_width.append(float(tokens[5]))
+            tokens = self.read_srf_line(srff).strip().split()
+            if len(tokens) != 5:
+                raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
+                                                  (srffile))
+            self.f_strike.append(float(tokens[0]))
+            self.f_dip.append(float(tokens[1]))
+            self.f_depth.append(float(tokens[2]))
+
+        # Now read data
         M0 = 0.0
         lon = []
         lat = []
         dep = []
         tinit = []
         rake = []
-        for i in range(0, n_cels):
-            tokens = srff.readline().strip().split()
-            if version == 1.0 and len(tokens) != 8:
-                raise bband_utils.ProcessingError("Invalid SRF version 1 "
-                                                  "file (%s)!" %
-                                                  (srffile))
-            if version == 2.0 and len(tokens) != 10:
-                raise bband_utils.ProcessingError("Invalid SRF version 2 "
-                                                  "file (%s)!" %
-                                                  (srffile))
-            lon.append(float(tokens[0]))
-            lat.append(float(tokens[1]))
-            dep.append(float(tokens[2]))
-            area = float(tokens[5])
-            tinit.append(float(tokens[6]))
-            tokens = srff.readline().strip().split()
-            if len(tokens) != 7:
+
+        self.n_total_cels = 0
+        for plane in range(0, planes):
+            tokens = self.read_srf_line(srff).strip().split()
+            if len(tokens) != 2:
                 raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
                                                   (srffile))
-            rake.append(float(tokens[0]))
-            slip1 = float(tokens[1])
-            slip2 = float(tokens[3])
-            slip3 = float(tokens[5])
-            nt1 = float(tokens[2])
-            nt2 = float(tokens[4])
-            nt3 = float(tokens[6])
-            if nt1 > 0:
-                for k in range(0, int(math.ceil(nt1 / 6.0))):
-                    token = srff.readline()
-                    if token == "":
-                        raise bband_utils.ProcessingError("Invalid SRF "
-                                                          "file (%s)!" %
-                                                          (srffile))
-            if nt2 > 0:
-                for k in range(0, int(math.ceil(nt2 / 6.0))):
-                    token = srff.readline()
-                    if token == "":
-                        raise bband_utils.ProcessingError("Invalid SRF "
-                                                          "file (%s)!" %
-                                                          (srffile))
-            if nt3 > 0:
-                for k in range(0, int(math.ceil(nt3 / 6.0))):
-                    token = srff.readline()
-                    if token == "":
-                        raise bband_utils.ProcessingError("Invalid SRF "
-                                                          "file (%s)!" %
-                                                          (srffile))
+            n_cels = int(tokens[1])
+            self.n_total_cels = self.n_total_cels + n_cels
 
-            M0 = M0 + (area *
-                       (math.sqrt(slip1**2 + slip2**2 + slip3**2))*3)*(10**11)
+            for i in range(0, n_cels):
+                tokens = self.read_srf_line(srff).strip().split()
+                if version == 1.0 and len(tokens) != 8:
+                    raise bband_utils.ProcessingError("Invalid SRF version 1 "
+                                                      "file (%s)!" %
+                                                      (srffile))
+                if version == 2.0 and len(tokens) != 10:
+                    raise bband_utils.ProcessingError("Invalid SRF version 2 "
+                                                      "file (%s)!" %
+                                                      (srffile))
+                lon.append(float(tokens[0]))
+                lat.append(float(tokens[1]))
+                dep.append(float(tokens[2]))
+                area = float(tokens[5])
+                tinit.append(float(tokens[6]))
+                tokens = self.read_srf_line(srff).strip().split()
+                if len(tokens) != 7:
+                    raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
+                                                      (srffile))
+                rake.append(float(tokens[0]))
+                slip1 = float(tokens[1])
+                slip2 = float(tokens[3])
+                slip3 = float(tokens[5])
+                nt1 = float(tokens[2])
+                nt2 = float(tokens[4])
+                nt3 = float(tokens[6])
+                if nt1 > 0:
+                    for k in range(0, int(math.ceil(nt1 / 6.0))):
+                        token = self.read_srf_line(srff)
+                        if token == "":
+                            raise bband_utils.ProcessingError("Invalid SRF "
+                                                              "file (%s)!" %
+                                                              (srffile))
+                if nt2 > 0:
+                    for k in range(0, int(math.ceil(nt2 / 6.0))):
+                        token = self.read_srf_line(srff)
+                        if token == "":
+                            raise bband_utils.ProcessingError("Invalid SRF "
+                                                              "file (%s)!" %
+                                                              (srffile))
+                if nt3 > 0:
+                    for k in range(0, int(math.ceil(nt3 / 6.0))):
+                        token = self.read_srf_line(srff)
+                        if token == "":
+                            raise bband_utils.ProcessingError("Invalid SRF "
+                                                              "file (%s)!" %
+                                                              (srffile))
+
+                M0 = M0 + (area *
+                           (math.sqrt(slip1**2 + slip2**2 + slip3**2))*3)*(10**11)
+
+        # Close SRF file
         srff.close()
 
+        # Figure out lowest tinit
         np_tinit = np.array(tinit)
         tinit_index = []
         [tinit_index] = np.nonzero(np_tinit == np.min(np_tinit))
 
-        # Find hypocenter
+        # and now find the hypocenter
         hyp = []
         hyp.append(lon[tinit_index[0]])
         hyp.append(lat[tinit_index[0]])
@@ -312,125 +346,128 @@ class GeoBBSRF(object):
             # Cannot mix for line in infile with readline...
             if line is None:
                 break
-            outfile.write(line)
+            # Don't copy comments
+            if line.strip().startswith("#"):
+                continue
             # Until we find the plane line
             if line.find("PLANE") >= 0:
+                tokens = line.strip().split()
+                outfile.write("PLANE %d %d\n" %
+                              (int(tokens[1]), self.n_total_cels))
                 break
 
+            outfile.write(line)
+
         tokens = line.strip().split()
+
         # Make sure we have a valid SRF file
         if len(tokens) != 2:
             raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
                                               (srf_file))
         planes = int(tokens[1])
-        # Make sure we have only 1 plane
-        if planes > 1:
-            raise bband_utils.ProcessingError("Only one plane is " +
-                                              "supported!" +
-                                              " Found %d " % (planes) +
-                                              " in SRF file!")
-        line = infile.readline()
-        tokens = line.strip().split()
-        if len(tokens) != 6:
-            raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
-                                              (srf_file))
-        # Convert to XYZ
-        lon = float(tokens[0])
-        lat = float(tokens[1])
-        [x_cart, y_cart] = self.geo2cart(lon, lat, self.min_lon, self.min_lat)
-        tmp = T3M * np.mat([x_cart, y_cart, 0, 1]).transpose()
-        tokens[0] = str(float(tmp[0]))
-        tokens[1] = str(float(tmp[1]))
-        outfile.write(" %s\n" % "   ".join(tokens))
 
-        # Continue copying
-        while True:
-            line = infile.readline()
-            # Cannot mix for line in infile with readline...
-            if line is None:
-                break
-            outfile.write(line)
-            if line.find("POINTS") >= 0:
-                break
-        # Figure out how many cells
-        tokens = line.strip().split()
-        if len(tokens) != 2:
-            raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
-                                              (srf_file))
-        n_cels = int(tokens[1])
-
-        # Go through each cell
-        for i in range(0, n_cels):
-            tokens = infile.readline().strip().split()
-            if version == 1.0 and len(tokens) != 8:
-                raise bband_utils.ProcessingError("Invalid SRF version 1 "
-                                                  "file (%s)!" %
-                                                  (srffile))
-            if version == 2.0 and len(tokens) != 10:
-                raise bband_utils.ProcessingError("Invalid SRF version 2 "
-                                                  "file (%s)!" %
-                                                  (srffile))
+        for plane in range(0, planes):
+            line = self.read_srf_line(infile)
+            tokens = line.strip().split()
+            if len(tokens) != 6:
+                raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
+                                                  (srf_file))
+            # Convert to XYZ
             lon = float(tokens[0])
             lat = float(tokens[1])
-            [x_cart, y_cart] = self.geo2cart(lon, lat,
-                                             self.min_lon, self.min_lat)
+            [x_cart, y_cart] = self.geo2cart(lon, lat, self.min_lon, self.min_lat)
             tmp = T3M * np.mat([x_cart, y_cart, 0, 1]).transpose()
             tokens[0] = str(float(tmp[0]))
             tokens[1] = str(float(tmp[1]))
             outfile.write(" %s\n" % "   ".join(tokens))
-            line = infile.readline()
+
+            # Copy next line without any changes
+            line = self.read_srf_line(infile)
+            outfile.write(line)
+
+        for plane in range(0, planes):
+            line = self.read_srf_line(infile)
+
+            # Figure out how many cells
             tokens = line.strip().split()
-            if len(tokens) != 7:
+            if len(tokens) != 2:
                 raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
                                                   (srf_file))
-            nt1 = float(tokens[2])
-            nt2 = float(tokens[4])
-            nt3 = float(tokens[6])
-            # Write line
             outfile.write(line)
-            if nt1 > 0:
-                for k in range(0, int(math.ceil(nt1 / 6.0))):
-                    token = infile.readline()
-                    if token == "":
-                        raise bband_utils.ProcessingError("Invalid SRF "
-                                                          "file (%s)!" %
-                                                          (srf_file))
-                    outfile.write(token)
-            if nt2 > 0:
-                for k in range(0, int(math.ceil(nt2 / 6.0))):
-                    token = infile.readline()
-                    if token == "":
-                        raise bband_utils.ProcessingError("Invalid SRF "
-                                                          "file (%s)!" %
-                                                          (srf_file))
-                    outfile.write(token)
-            if nt3 > 0:
-                for k in range(0, int(math.ceil(nt3 / 6.0))):
-                    token = infile.readline()
-                    if token == "":
-                        raise bband_utils.ProcessingError("Invalid SRF "
-                                                          "file (%s)!" %
-                                                          (srf_file))
-                    outfile.write(token)
+            n_cels = int(tokens[1])
+
+            # Go through each cell
+            for i in range(0, n_cels):
+                tokens = self.read_srf_line(infile).strip().split()
+                if version == 1.0 and len(tokens) != 8:
+                    raise bband_utils.ProcessingError("Invalid SRF version 1 "
+                                                      "file (%s)!" %
+                                                      (srffile))
+                if version == 2.0 and len(tokens) != 10:
+                    raise bband_utils.ProcessingError("Invalid SRF version 2 "
+                                                      "file (%s)!" %
+                                                      (srffile))
+                lon = float(tokens[0])
+                lat = float(tokens[1])
+                [x_cart, y_cart] = self.geo2cart(lon, lat,
+                                                 self.min_lon, self.min_lat)
+                tmp = T3M * np.mat([x_cart, y_cart, 0, 1]).transpose()
+                tokens[0] = str(float(tmp[0]))
+                tokens[1] = str(float(tmp[1]))
+                outfile.write(" %s\n" % "   ".join(tokens))
+                line = self.read_srf_line(infile)
+                tokens = line.strip().split()
+                if len(tokens) != 7:
+                    raise bband_utils.ProcessingError("Invalid SRF file (%s)!" %
+                                                      (srf_file))
+                nt1 = float(tokens[2])
+                nt2 = float(tokens[4])
+                nt3 = float(tokens[6])
+                # Write line
+                outfile.write(line)
+                if nt1 > 0:
+                    for k in range(0, int(math.ceil(nt1 / 6.0))):
+                        token = self.read_srf_line(infile)
+                        if token == "":
+                            raise bband_utils.ProcessingError("Invalid SRF "
+                                                              "file (%s)!" %
+                                                              (srf_file))
+                        outfile.write(token)
+                if nt2 > 0:
+                    for k in range(0, int(math.ceil(nt2 / 6.0))):
+                        token = self.read_srf_line(infile)
+                        if token == "":
+                            raise bband_utils.ProcessingError("Invalid SRF "
+                                                              "file (%s)!" %
+                                                              (srf_file))
+                        outfile.write(token)
+                if nt3 > 0:
+                    for k in range(0, int(math.ceil(nt3 / 6.0))):
+                        token = self.read_srf_line(infile)
+                        if token == "":
+                            raise bband_utils.ProcessingError("Invalid SRF "
+                                                              "file (%s)!" %
+                                                              (srf_file))
+                        outfile.write(token)
 
         # All done, close input and output files
         infile.close()
         outfile.close()
 
-    def run(self, slo, coord_out_file, fault_out_file, flag,
+    def run(self, slo, coord_out_file, fault_out_file,
             srf_file, xyz_srf_file, extended='y'):
         """
         Reads the SRF file and extracts needed parameters for BBToolbox
         """
         self.extended = extended
+        # Read SRF file
         self.read_srf(srf_file)
-        # read GEOGRAPHIC stations coordinates (lon/lat)
 
+        # Read station list
         if slo is None:
             raise bband_utils.ParameterError("Cannot open station list")
 
         site_list = slo.getStationList()
-        # print "Opening Station list %s." % stat_file
         slon = []
         slat = []
         site = []
@@ -457,14 +494,12 @@ class GeoBBSRF(object):
             self.min_lat = min([self.min_lat, self.fault_minlat])
             self.max_lon = max([self.max_lon, self.fault_maxlon])
             self.max_lat = max([self.max_lat, self.fault_maxlat])
-        # print ("max_lon: %f, min_lon: %f, max_lat: %f, min_lat: %f" %
-        #        (self.max_lon, self.min_lon, self.max_lat, self.min_lat))
-        # compute average values for projection transformation (center of
-        # transformation)
+
+        # compute average values for projection transformation (center
+        # of transformation)
         ave_lon = (self.max_lon + self.min_lon) / 2.0
         ave_lat = (self.max_lat + self.min_lat) / 2.0
-        # print "ave_lon, ave_lat:", ave_lon, ave_lat
-        # print "proj obj", self.projobj
+
         self.projobj = pyproj.Proj(proj='tmerc', lon_0=ave_lon, lat_0=ave_lat,
                                    k=0.001, ellps='WGS72')#, e=0.08181881)
 
@@ -474,30 +509,19 @@ class GeoBBSRF(object):
         y_stat = []
         for i in range(0, n_stat):
             [x, y] = self.geo2cart(slon[i], slat[i], self.min_lon, self.min_lat)
-            # print x,y, slon[i], slat[i], self.min_lon,self.min_lat
             x_stat.append(x)
             y_stat.append(y)
-            # x_stat(i) = x_stat(i)./1000; y_stat(i) = y_stat(i)./1000
-            #(k=0.001 takes care of this)
-        # print "x_stat:", x_stat
-        # print "y_stat:", y_stat
+
         [hypo_x_cart, hypo_y_cart] = self.geo2cart(self.hyp[0], self.hyp[1],
                                                    self.min_lon, self.min_lat)
-        # hypo_x_cart = hypo_x_cart/1000;hypo_y_cart = hypo_y_cart/1000;
-        # print "hypo_x_cart, hypo_y_cart", hypo_x_cart,hypo_y_cart
         [x_min, y_min] = self.geo2cart(self.min_lon, self.min_lat,
                                        self.min_lon, self.min_lat)
-        # print "x_min,y_min:" ,x_min, y_min
-        # x_min = x_min./1000; y_min = y_min./1000;
         [x_max, y_max] = self.geo2cart(self.max_lon, self.max_lat,
                                        self.min_lon, self.min_lat)
-        # x_max = x_max./1000; y_max = y_max./1000;
-        # print "x_max,y_max :" ,x_max, y_max
+
         if extended == 'y':
             [corn_x, corn_y] = self.geo2cart(self.corn[0], self.corn[1],
                                              self.min_lon, self.min_lat)
-        # print "corn_x,corn_y :", corn_x, corn_y
-        # corn_x = corn_x/1000; corn_y = corn_y/1000;
 
         # ** objects coordinates in BROAD-BAND TOOLBOX code reference system **
         # NOTE: here X and Y are intented as standard cartesian axes
@@ -521,20 +545,18 @@ class GeoBBSRF(object):
         tmp = T3M * np.mat([x_max, y_max, 0, 1]).transpose()
         bbextent = [float(tmp[0]), float(tmp[1])]
 
-        # print "Writing Station coord_out_file:", coord_out_file
-        sfile = open(coord_out_file, 'w')
-        # % shift stations
+        # Write station coord_out file
         BBx_stat = []
         BBy_stat = []
+
+        sfile = open(coord_out_file, 'w')
         for i in range(0, n_stat):
             tmp = T3M * np.mat([x_stat[i], y_stat[i], 0, 1]).transpose()
             BBx_stat.append(float(tmp[0]))
             BBy_stat.append(float(tmp[1]))
-            # print "%8.4f\t%8.4f\n" % (BBx_stat[i],BBy_stat[i])
-            # write Broad-Band Toolbox code stations coordinates to disk
             sfile.write("%8.4f\t%8.4f\n" % (BBx_stat[i], BBy_stat[i]))
-
         sfile.close()
+
         tmp = T3M * np.mat([hypo_x_cart, hypo_y_cart, 0, 1]).transpose()
         BBx_hypo = float(tmp[0])
         BBy_hypo = float(tmp[1])
@@ -542,19 +564,21 @@ class GeoBBSRF(object):
         # Write a XYZ SRF file
         self.write_xyz_srf(srf_file, xyz_srf_file, T3M)
 
-        # compute number of subfaults (only INTEGER numbers!!)
+        # Compute number of subfaults (only INTEGER numbers!!)
         if extended == 'y':
-            num_strike = int(round(self.f_len))
-            num_dip = int(round(self.f_width))
-            # num_cell = num_strike * num_dip
+            # Open extended_fault file
+            ffile = open("%s.tmp" % (fault_out_file), 'w')
+
+            # Write number of planes and subfaults
+            ffile.write("%8i     %8i\n" % (len(self.f_len), 0))
 
             # < put the 'where' point at the axis origin >
             T1 = self.translation_matrix([-corn_x, -corn_y, 0])
             T1M = np.mat(T1)
 
             # < align the fault plane to the north axis >
-            c = np.cos(np.pi / 180 * self.f_strike)
-            s = np.sin(np.pi / 180 * self.f_strike)
+            c = np.cos(np.pi / 180 * self.f_strike[0])
+            s = np.sin(np.pi / 180 * self.f_strike[0])
             T2 = np.array([[c, -s, 0, 0], [s, c, 0, 0],
                            [0, 0, 1, 0], [0, 0, 0, 1]])
             T2M = np.mat(T2)
@@ -563,50 +587,73 @@ class GeoBBSRF(object):
             T1M_inv = np.linalg.inv(T1M)
             T2M_inv = np.linalg.inv(T2M)
 
-            # ...and their coordinates
-            sub_coord = []
-            for j in range(0, num_dip):
-                sub_coord.append([])
-                for i in range(0, num_strike):
-                    x_term = (0 + 0.5 * math.cos(math.radians(self.f_dip)) +
-                              j * math.cos(math.radians(self.f_dip)))
-                    y_term = (0 + 0.5 + i)
-                    z_term = (self.f_depth +
-                              0.5 * math.sin(math.radians(self.f_dip)) +
-                              j * math.sin(math.radians(self.f_dip)))
-                    tmp = (T1M_inv * T2M_inv *
-                           np.mat([x_term, y_term, 0, 1]).transpose())
-                    sub_coord[j].append([float(tmp[0]), float(tmp[1]), z_term])
+            # Add subfaults from all planes
+            total_subfaults = 0
 
-            # Now let's make this into a 1km grid
-            data = []
-            for j in range(0, num_dip):
-                for i in range(0, num_strike):
-                    point = sub_coord[j][i]
-                    point[0] = round(float(point[0]))
-                    point[1] = round(float(point[1]))
-                    point[2] = round(float(point[2]))
-                    if (point[0], point[1], point[2]) in data:
-                        continue
-                    data.append((point[0], point[1], point[2]))
+            for plane in range(0, len(self.f_len)):
+                num_strike = int(round(self.f_len[plane]))
+                num_dip = int(round(self.f_width[plane]))
 
-            # and finally, write the extended_fault file
-            ffile = open(fault_out_file, 'w')
-            ffile.write('%8i\n' % len(data))
-            for point in data:
-                ffile.write('%8.4f %8.4f %8.4f\n' % (point[0],
-                                                     point[1],
-                                                     point[2]))
+                # ...and their coordinates
+                sub_coord = []
+                for j in range(0, num_dip):
+                    sub_coord.append([])
+                    for i in range(0, num_strike):
+                        x_term = (0 + 0.5 *
+                                  math.cos(math.radians(self.f_dip[plane])) +
+                                  j * math.cos(math.radians(self.f_dip[plane])))
+                        y_term = (0 + 0.5 + i)
+                        z_term = (self.f_depth[plane] +
+                                  0.5 *
+                                  math.sin(math.radians(self.f_dip[plane])) +
+                                  j * math.sin(math.radians(self.f_dip[plane])))
+                        tmp = (T1M_inv * T2M_inv *
+                               np.mat([x_term, y_term, 0, 1]).transpose())
+                        sub_coord[j].append([float(tmp[0]),
+                                             float(tmp[1]),
+                                             z_term])
+
+                # Now let's make this into a 1km grid
+                data = []
+                for j in range(0, num_dip):
+                    for i in range(0, num_strike):
+                        point = sub_coord[j][i]
+                        point[0] = round(float(point[0]))
+                        point[1] = round(float(point[1]))
+                        point[2] = round(float(point[2]))
+                        if (point[0], point[1], point[2]) in data:
+                            continue
+                        data.append((point[0], point[1], point[2]))
+
+                # Write the extended_fault file
+                total_subfaults = total_subfaults + len(data)
+                ffile.write('%8i     %8i\n' % (plane + 1, len(data)))
+                for point in data:
+                    ffile.write('%8.4f %8.4f %8.4f\n' % (point[0],
+                                                         point[1],
+                                                         point[2]))
+            # All done, close file
             ffile.close()
 
-        # par.subfault = sub_coord;
-        fname = '%s.param' % coord_out_file
-        # print "Writing Param file: ", fname
+            # Nowm rewrite header
+            ffile_in = open("%s.tmp" % (fault_out_file), 'r')
+            ffile_out = open(fault_out_file, 'w')
+            tokens = ffile_in.readline().strip().split()
+            ffile_out.write("%8i     %8i\n" %
+                            (int(tokens[0]), total_subfaults))
+            # Copy rest of file
+            for line in ffile_in:
+                ffile_out.write(line)
+            ffile_in.close()
+            ffile_out.close()
+
+        # Write param file
+        fname = '%s.param' % (coord_out_file)
         pfile = open(fname, 'w')
         pfile.write('bbextent: %f %f\n' % (bbextent[0], bbextent[1]))
         pfile.write('bbhypo: %f %f %f\n' % (BBx_hypo, BBy_hypo, self.hyp[2]))
-        pfile.write('bbMw: %f\n' % self.mw)
-        pfile.write('mecha: %s\n' % self.mecha)
+        pfile.write('bbMw: %f\n' % (self.mw))
+        pfile.write('mecha: %s\n' % (self.mecha))
         pfile.close()
 
         return 0

@@ -34,7 +34,7 @@ float depmax = 1.0e+15;
 sprintf(infile,"stdin");
 sprintf(outfile,"stdout");
 sprintf(type,"slip");
-nseg = 0;
+nseg = -1;
 
 setpar(ac,av);
 getpar("infile","s",infile);
@@ -62,7 +62,7 @@ endpar();
 read_srf(&srf,infile,inbin);
 
 if(lonlatdep)
-   write_lld(outfile,&srf,nseg,&depmin,&depmax,type);
+   write_lld(outfile,&srf,nseg,&depmin,&depmax,type,dump_slip);
 else
    write_xyz(outfile,&srf,type,nseg,calc_xy,&xoff,&yoff,tsstr,tsend,tsinc,&svmin,&slipmin,keepsign,dump_slip);
 }

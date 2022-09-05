@@ -1,3 +1,30 @@
+//for compatibility with params.h                                             
+#define LV 10
+#define NQ 2000
+#define NP 500
+
+//This structure contains the output from srf2stoch                           
+struct slipfile
+{
+  int nseg;
+  float elon[LV];
+  float elat[LV];
+  int nx[LV];
+  int ny[LV];
+  float dx[LV];
+  float dy[LV];
+  float strike[LV];
+  float dip[LV];
+  float ravg[LV];
+  float dtop[LV];
+  float dhypo[LV];
+  float shypo[LV];
+  float* sp;
+  float* tr;
+  float* ti;
+  float qfexp;
+};
+
 struct stfparOLD
    {
    int nt;
@@ -168,12 +195,23 @@ struct slippars
    float tau1_ratio;
    float vs;
    float den;
+   float rt_s;
+   float rt_e;
+   };
+
+struct segpars
+   {
+   int nstk;
+   int ndip;
+   float dstk;
+   float ddip;
    };
 
 struct generic_slip
    {
    int np;
    struct slippars *spar;
+   struct segpars *gpar;
    };
 
 #ifndef STRUCT_VELMODEL

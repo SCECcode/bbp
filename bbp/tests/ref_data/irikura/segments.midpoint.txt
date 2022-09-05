@@ -1,0 +1,3 @@
+segm  lon       lat    depth   fleng fwidth shypo zhypo strike dip rake
+1
+seg1    -118.088500 34.012000 12.0 0.0 10.0 10.0 0.0 5.2 280 30 90

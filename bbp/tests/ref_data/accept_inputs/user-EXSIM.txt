@@ -7,5 +7,6 @@ northridge_eq_gp.src
 1
 n
 y
+1
 n
 n

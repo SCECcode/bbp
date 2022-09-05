@@ -1,18 +1,34 @@
 #!/usr/bin/python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This module contains functions to plot rotD50 output files
 """
@@ -22,7 +38,7 @@ from __future__ import division, print_function
 import os
 import sys
 import matplotlib as mpl
-mpl.use('AGG', warn=False)
+mpl.use('AGG')
 import pylab
 
 # Import plot config file
@@ -96,6 +112,15 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
     else:
         pmin = 1.0 / float(hfreq)
 
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['lines.linewidth'] = 1.0
+    mpl.rcParams['lines.dashed_pattern'] = [6, 6]
+    mpl.rcParams['lines.dashdot_pattern'] = [3, 5, 1, 5]
+    mpl.rcParams['lines.dotted_pattern'] = [1, 3]
+    mpl.rcParams['lines.scale_dashes'] = False
+
     # Start plot
     pylab.clf()
     min_x = min([min((periods1)), min(periods2)])
@@ -124,14 +149,16 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
 
     # First plot
     ax1 = pylab.subplot(131)
-    pylab.plot(periods1, pseudo_aa_ns1, label=str(label1))
+    pylab.plot(periods1, pseudo_aa_ns1, label=str(label1),
+               linewidth=1.0, color='C0')
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_horiz_y, max_horiz_y)
     pylab.ylabel("PSA (g)")
     ax1.set_title('%s, N/S' % (label1), fontsize='small')
     if rotd50_file2 != "-":
-        pylab.plot(periods2, pseudo_aa_ns2, label=str(label2))
+        pylab.plot(periods2, pseudo_aa_ns2, label=str(label2),
+                   linewidth=1.0, color='C2')
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,
@@ -142,14 +169,16 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
 
     # Second plot
     ax2 = pylab.subplot(132)
-    pylab.plot(periods1, pseudo_aa_ew1, label=str(label1))
+    pylab.plot(periods1, pseudo_aa_ew1, label=str(label1),
+               linewidth=1.0, color='C0')
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_horiz_y, max_horiz_y)
     pylab.ylabel("PSA (g)")
     ax2.set_title('%s, E/W' % (label1), fontsize='small')
     if rotd50_file2 != "-":
-        pylab.plot(periods2, pseudo_aa_ew2, label=str(label2))
+        pylab.plot(periods2, pseudo_aa_ew2, label=str(label2),
+                   linewidth=1.0, color='C2')
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,
@@ -160,14 +189,16 @@ def plot_rd50(stat, rotd50_file1, rotd50_file2, label1, label2,
 
     # Third plot
     ax3 = pylab.subplot(133)
-    pylab.plot(periods1, rd50_aa1, label=str(label1))
+    pylab.plot(periods1, rd50_aa1, label=str(label1),
+               linewidth=1.0, color='C0')
     pylab.xlim(min_x, max_x)
     pylab.xscale('log')
     pylab.ylim(min_vert_y, max_vert_y)
     pylab.ylabel("PSA (g)")
     ax3.set_title('%s, RotD50' % (label1), fontsize='small')
     if rotd50_file2 != "-":
-        pylab.plot(periods2, rd50_aa2, label=str(label2))
+        pylab.plot(periods2, rd50_aa2, label=str(label2),
+                   linewidth=1.0, color='C2')
     pylab.xlabel('Period (s)')
     if pmin is not None:
         pylab.vlines(pmin, min_horiz_y, max_horiz_y,

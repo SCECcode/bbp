@@ -1,20 +1,36 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
 
-Broadband Platform Version of Rob Graves jbsim script
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Broadband Platform Program to merge low and high-frequency seismograms
 """
 from __future__ import division, print_function
 
@@ -36,13 +52,11 @@ class Match(object):
     Implement Rob Graves match.csh as a python component
     """
 
-    def __init__(self, i_r_stations, i_vmodel_name, sim_id=0,
-                 acc=True, pow2=False):
+    def __init__(self, i_r_stations, i_vmodel_name, sim_id=0, acc=True):
         self.sim_id = sim_id
         self.r_stations = i_r_stations
         self.vmodel_name = i_vmodel_name
         self.acc = acc
-        self.pow2 = pow2
         self.phase = None
         self.hf_fhi = None
         self.lf_flo = None
@@ -72,10 +86,6 @@ class Match(object):
         # Make sure tmpdir exists
         dirs = [a_tmpdir]
         bband_utils.mkdirs(dirs, print_cmd=False)
-
-        pow2_param = 0
-        if self.pow2:
-            pow2_param = 1
 
         # Start with defaults
         self.phase = config.PHASE
@@ -156,7 +166,7 @@ class Match(object):
             # Got to first timestamp. Now, pick two consecutive
             # timestamps values
             lf_t1 = float(line.strip().split()[0])
-            lf_t2 = float(lf_file.next().strip().split()[0])
+            lf_t2 = float(next(lf_file).strip().split()[0])
             # Subtract the two times
             lf_dt = lf_t2 - lf_t1
             # All done!
@@ -175,7 +185,7 @@ class Match(object):
             # Got to first timestamp. Now, pick two consecutive
             # timestamps values
             hf_t1 = float(line.strip().split()[0])
-            hf_t2 = float(hf_file.next().strip().split()[0])
+            hf_t2 = float(next(hf_file).strip().split()[0])
             # Subtract the two times
             hf_dt = hf_t2 - hf_t1
             # All done!
@@ -489,8 +499,8 @@ class Match(object):
                 progstring = ("%s newdt=%f " %
                               (os.path.join(install.A_GP_BIN_DIR,
                                             "wcc_resamp_arbdt"), new_dt) +
-                              "pow2=%d infile=%s outfile=%s >> %s 2>&1" %
-                              (pow2_param, infile, outfile, self.log))
+                              "infile=%s outfile=%s >> %s 2>&1" %
+                              (infile, outfile, self.log))
                 bband_utils.runprog(progstring, abort_on_error=True,
                                     print_cmd=False)
 
@@ -540,8 +550,7 @@ class Match(object):
                 progstring = ("%s " %
                               (os.path.join(install.A_GP_BIN_DIR,
                                             "wcc_resamp_arbdt")) +
-                              "newdt=%f pow2=%d " %
-                              (new_dt, pow2_param) +
+                              "newdt=%f " % (new_dt) +
                               "infile=%s outfile=%s >> %s 2>&1" %
                               (infile, outfile, self.log))
                 bband_utils.runprog(progstring, abort_on_error=True,

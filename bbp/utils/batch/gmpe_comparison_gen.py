@@ -1,24 +1,41 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2017 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Python program to generate PSAs using the various NGA methods for any
 simulation. This code uses Pynga to calculate the PSAs using the SRC
 file and a station list. It then compares the generated results
 against PSAs from synthetic seismograms.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
@@ -96,7 +113,7 @@ def calculate_gmpe(src_keys, station, output_file, rrups, gmpe_group_name):
                                                         lower_seis_depth,
                                                         ave_dip)
 
-    print "station: %s, Rrup: %f" % (station.scode, rrup)
+    print("station: %s, Rrup: %f" % (station.scode, rrup))
     rrups.append(rrup)
 
     vs30 = 1000
@@ -152,7 +169,7 @@ def create_gmpe_data_file(indata_dir, tmpdir,
     basedir = os.path.join(indata_dir, os.listdir(indata_dir)[0])
     src_file = glob.glob("%s%s*.src" % (basedir, os.sep))
     if not len(src_file):
-        print "Unable to find SRC file!"
+        print("Unable to find SRC file!")
         sys.exit(1)
     src_file = src_file[0]
     # Now parse SRC file
@@ -161,7 +178,7 @@ def create_gmpe_data_file(indata_dir, tmpdir,
     # Find station list
     stl_file = glob.glob("%s%s*.stl" % (basedir, os.sep))
     if len(stl_file) != 1:
-        print "Unable to find STL file!"
+        print("Unable to find STL file!")
         sys.exit(1)
     stl_file = stl_file[0]
     # Parse station list
@@ -309,15 +326,15 @@ indata_dir = os.path.join(top_input_dir, "Sims", "indata")
 # Validate codebase to use
 codebase = options.codebase
 if codebase is None:
-    print "Please specify a codebase!"
+    print("Please specify a codebase!")
     sys.exit(1)
 codebase = codebase.lower()
 if codebase not in CODEBASES:
-    print "Codebase needs to be one of: %s" % (CODEBASES)
+    print("Codebase needs to be one of: %s" % (CODEBASES))
     sys.exit(1)
 label = options.label
 if label is None:
-    print "Please specify simulation label!"
+    print("Please specify simulation label!")
     sys.exit(1)
 if options.output_file is None:
     output_file = ("gmpe-comparison-%s-%s" % (codebase, label))
@@ -327,11 +344,11 @@ else:
 # Figure out which gmpe group to use
 gmpe_group_name = options.gmpe_group_name
 if gmpe_group_name is None:
-    print "Please specify gmpe group name!"
+    print("Please specify gmpe group name!")
     sys.exit(1)
 if not gmpe_group_name.lower() in gmpe_groups_available_lc:
-    print "Invalid gmpe group name!"
-    print "Options are: %s" % (gmpe_groups_available_lc)
+    print("Invalid gmpe group name!")
+    print("Options are: %s" % (gmpe_groups_available_lc))
     sys.exit(1)
 gmpe_group_index = gmpe_groups_available_lc.index(gmpe_group_name.lower())
 gmpe_group_name = gmpe_groups_available[gmpe_group_index]
@@ -362,6 +379,6 @@ bband_utils.runprog('export MATLABPATH=%s; ' % (SCRIPT_PATH) +
                     (label, codebase.upper(), mag, mean_rrup) +
                     '%s"' % (BOXPLOT) +
                     '>/dev/null; stty echo')
-print "All Done!"
+print("All Done!")
 # Clean-up, all done!
 shutil.rmtree(tmpdir)

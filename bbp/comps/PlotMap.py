@@ -1,18 +1,34 @@
 #!/bin/env python
 """
-Copyright 2010-2018 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This module plots station map and fault trace
 """
@@ -143,11 +159,11 @@ def read_coastal(filename, plotregion):
 def read_topo(filename, plotregion):
     """
     Reads in topo data that is saved in GMT format:
-    bf   GMT native, C-binary format (float)
+    bf GMT native, C-binary format (float)
     Header size is 892 bytes
     """
     # Open input file
-    topo_file = open(filename, 'r')
+    topo_file = open(filename, 'rb')
 
     # Parse header
     buf = topo_file.read(struct.calcsize(GMT_HDR_FORMAT))
@@ -165,8 +181,8 @@ def read_topo(filename, plotregion):
     topo_file.close()
 
     # Data is x-fast
-    for y in xrange(0, topo_dims[1]):
-        for x in xrange(0, topo_dims[0]):
+    for y in range(0, topo_dims[1]):
+        for x in range(0, topo_dims[0]):
             offset = ((y * topo_dims[0] + x) *
                       struct.calcsize(GMT_DATA_FORMAT))
             data[y][x] = struct.unpack(GMT_DATA_FORMAT,
@@ -182,8 +198,8 @@ def read_topo(filename, plotregion):
     subdata = np.arange((x1 - x0) * (y1 - y0),
                         dtype=float).reshape(y1 - y0, x1 - x0)
 
-    for y in xrange(y0, y1):
-        for x in xrange(x0, x1):
+    for y in range(y0, y1):
+        for x in range(x0, x1):
             if ((y >= 0) and (y < topo_dims[1]) and
                 (x >= 0) and (x < topo_dims[0])):
                 subdata[y - y0][x - x0] = data[y][x]
@@ -215,6 +231,14 @@ def plot_station_map(plottitle, plotregion, topo, coastal, border,
     # Read borders
     bord_x, bord_y = read_coastal(border, plotregion)
 
+    # Set up ticks to match matplotlib 1.x style
+    mpl.rcParams['xtick.direction'] = 'in'
+    mpl.rcParams['ytick.direction'] = 'in'
+    mpl.rcParams['xtick.top'] = True
+    mpl.rcParams['ytick.right'] = True
+    mpl.rcParams['patch.force_edgecolor'] = True
+    mpl.rcParams['patch.facecolor'] = 'b'
+
     # Set plot dims
     pylab.gcf().set_size_inches(6, 6)
     pylab.gcf().clf()
@@ -235,18 +259,18 @@ def plot_station_map(plottitle, plotregion, topo, coastal, border,
     pylab.gca().set_autoscale_on(False)
 
     # Plot coast lines
-    for i in xrange(0, len(coast_x)):
+    for i in range(0, len(coast_x)):
         pylab.plot(coast_x[i], coast_y[i], linestyle='-', color='0.5')
 
     # Plot borders
-    for i in xrange(0, len(bord_x)):
+    for i in range(0, len(bord_x)):
         pylab.plot(bord_x[i], bord_y[i], linestyle='-', color='0.75')
 
     # Plot fault trace
-    pylab.plot(fault_x, fault_y, linestyle='-', color='k')
+    pylab.plot(fault_x, fault_y, linestyle='-', color='k', linewidth=1.0)
 
     # Plot stations
-    pylab.plot(sta_x, sta_y, marker='o', color='r', linewidth=0)
+    pylab.plot(sta_x, sta_y, marker='o', color='r', linewidth=0, markersize=4)
 
     # Plot hypocenter if provided
     if hypocenter_list is not None:

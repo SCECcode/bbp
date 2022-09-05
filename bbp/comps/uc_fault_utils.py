@@ -1,18 +1,34 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 UCSB makeFault Global (mfg) file
 """
@@ -43,7 +59,7 @@ def uc_create_ffsp_inp(a_ffsp_inp, a_srcfile, i_vmodel_name):
     cyp = cfg.CFGDICT["hypo_down_dip"]
     depth_hypc = (cfg.CFGDICT["depth_to_top"] +
                   cfg.CFGDICT["hypo_down_dip"] *
-                  numpy.sin(cfg.CFGDICT["dip"] * deg2rad))
+                  numpy.sin(cfg.CFGDICT["dip"] * deg2rad)) + 0.01
 
     # Top center of fault is in the origin
     xref_hypc = (numpy.cos(cfg.CFGDICT["strike"] * deg2rad) *
@@ -72,13 +88,16 @@ def uc_create_ffsp_inp(a_ffsp_inp, a_srcfile, i_vmodel_name):
 
     # Now, write the ffsp_inp file
     ffsp_inp_file = open(a_ffsp_inp, "w")
-    ffsp_inp_file.write("8 %.2f\n" % (cfg.FMAX / 2.0))
+    ffsp_inp_file.write("8 0.2 %.2f\n" % (cfg.FMAX / 2.0))
     ffsp_inp_file.write("%.2f %.2f\n" % (cfg.CFGDICT["fault_length"],
                                          cfg.CFGDICT["fault_width"]))
     ffsp_inp_file.write("%.2f %.2f %.2f\n" % (cxp, cyp, depth_hypc))
     ffsp_inp_file.write("%.2f, %.2f\n" % (xref_hypc, yref_hypc))
-    ffsp_inp_file.write("%1.2e %.2f %.2f\n" %
-                        (moment, cfg.CFGDICT['corner_freq'], cfg.RV_AVG))
+    ffsp_inp_file.write("%1.2e %.3f, %.3f %.2f\n" %
+                        (moment, cfg.CFGDICT['corner_freq_1'],
+                         cfg.CFGDICT['corner_freq_2'], cfg.RV_AVG))
+    #ffsp_inp_file.write("%1.2e %.2f %.2f\n" %
+    #                    (moment, cfg.CFGDICT['corner_freq'], cfg.RV_AVG))
     ffsp_inp_file.write("%.2f\n" % (cfg.TP_TR))
     ffsp_inp_file.write("%.f. %.f. %.f.\n" % (cfg.CFGDICT["strike"],
                                               cfg.CFGDICT["dip"],
@@ -87,7 +106,7 @@ def uc_create_ffsp_inp(a_ffsp_inp, a_srcfile, i_vmodel_name):
     ffsp_inp_file.write("%d   %d\n" % (nsubx, nsuby))
     ffsp_inp_file.write("5  5  5  5\n")
     ffsp_inp_file.write("%d %d %d\n" % (-rdm1, -rdm2, -rdm3))
-    ffsp_inp_file.write("1 1\n")
+    ffsp_inp_file.write("1 25\n")
     ffsp_inp_file.write("%s\n" % (os.path.basename(cfg.A_UC_LF_VELMODEL)))
     ffsp_inp_file.write("0.0\n")
     ffsp_inp_file.write("1\n")

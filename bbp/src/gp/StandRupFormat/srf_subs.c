@@ -104,11 +104,16 @@ else
       srf[0].srf_hcmnt.nline++;
       srf[0].srf_hcmnt.cbuf = (char *)check_realloc(srf[0].srf_hcmnt.cbuf,(srf[0].srf_hcmnt.nline)*MAXLINE*sizeof(char));
 
+      /* get rid of annoying newline */
+      i = 0;
+      while(str[i] != '\n' && str[i] != '\0')
+         i++;
+      str[i] = '\0';
+
       sptr = srf[0].srf_hcmnt.cbuf + (srf[0].srf_hcmnt.nline-1)*MAXLINE;
       sprintf(sptr,"%s",str);
 
       /* just to make sure string ends without issue */
-      sptr[MAXLINE-2] = '\n';
       sptr[MAXLINE-1] = '\0';
 
       if(fgets(str,MAXLINE,fpr) == NULL) 
@@ -569,7 +574,8 @@ else
    for(i=0;i<srf->srf_hcmnt.nline;i++)
       {
       sptr = (srf->srf_hcmnt.cbuf) + i*MAXLINE;
-      fprintf(fpw,"%s",sptr);
+      if(sptr[0] != '\0')
+         fprintf(fpw,"%s\n",sptr);
       }
 
    if(strcmp(srf->type,"PLANE") == 0)
@@ -1579,4 +1585,66 @@ strcpy(srf2[0].version,srf0[0].version);
 
       npoff = npoff + srf2[0].np_seg[ig];
       }
+}
+
+void load_command_srf(struct standrupformat *srf,int ac,char **av)
+{
+int i, nb;
+char *sptr1, *sptr2;
+
+if(srf[0].srf_hcmnt.nline == 0)
+   {
+   srf[0].srf_hcmnt.cbuf = (char *)check_malloc(2*MAXLINE*sizeof(char));
+   srf[0].srf_hcmnt.nline = 2;
+   }
+else
+   {
+   srf[0].srf_hcmnt.cbuf = (char *)check_realloc(srf[0].srf_hcmnt.cbuf,(2+srf[0].srf_hcmnt.nline)*MAXLINE*sizeof(char));
+
+   for(i=srf[0].srf_hcmnt.nline-1;i>=0;i--)
+      {
+      sptr1 = srf[0].srf_hcmnt.cbuf + (i)*MAXLINE;
+      sptr2 = srf[0].srf_hcmnt.cbuf + (i+2)*MAXLINE;
+      strcpy(sptr2,sptr1);
+      }
+
+   srf[0].srf_hcmnt.nline = srf[0].srf_hcmnt.nline + 2;
+   }
+
+sptr1 = srf[0].srf_hcmnt.cbuf;
+nb = sprintf(sptr1,"# Command:");
+sptr1 = sptr1 + nb;
+for(i=0;i<ac;i++)
+   {
+   nb = sprintf(sptr1," %s",av[i]);
+   sptr1 = sptr1 + nb;
+   }
+
+sptr1 = srf[0].srf_hcmnt.cbuf + MAXLINE;
+sprintf(sptr1,"#");
+}
+
+void load_seed_srf(struct standrupformat *srf,int starting_seed,int ending_seed)
+{
+int i, nb;
+char *sptr1;
+
+if(srf[0].srf_hcmnt.nline == 0)
+   {
+   srf[0].srf_hcmnt.cbuf = (char *)check_malloc(2*MAXLINE*sizeof(char));
+   srf[0].srf_hcmnt.nline = 3;
+   }
+else
+   {
+   srf[0].srf_hcmnt.nline = srf[0].srf_hcmnt.nline + 3;
+
+   srf[0].srf_hcmnt.cbuf = (char *)check_realloc(srf[0].srf_hcmnt.cbuf,(srf[0].srf_hcmnt.nline)*MAXLINE*sizeof(char));
+   }
+
+sptr1 = srf[0].srf_hcmnt.cbuf + (srf[0].srf_hcmnt.nline-3)*MAXLINE;
+nb = sprintf(sptr1,"# starting_seed= %lld",starting_seed);
+sptr1 = sptr1 + MAXLINE;
+nb = sprintf(sptr1,"# ending_seed= %lld",ending_seed);
+sptr1 = sptr1 + MAXLINE;
+sprintf(sptr1,"#");
 }

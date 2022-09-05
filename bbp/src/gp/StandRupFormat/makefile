@@ -41,8 +41,13 @@ all: srf2stoch generic_slip2srf fault_seg2gsf srf2moment srf2xyz
 test_header : test_header.c ${OBJS} ${GEOPROJ_OBJS}
 	$(CC) $(CFLAGS) -o test_header test_header.c ${LDLIBS} ${GEOPROJ_OBJS}
 
-srf2stoch : srf2stoch.c ${OBJS} ${GEOPROJ_OBJS}
-	${CC} ${CFLAGS} -o srf2stoch srf2stoch.c ${LDLIBS} ${INCPAR} ${GEOPROJ_OBJS}
+#srf2stoch : srf2stoch.c ${OBJS} ${GEOPROJ_OBJS}
+#	${CC} ${CFLAGS} -o srf2stoch srf2stoch.c ${LDLIBS} ${INCPAR} ${GEOPROJ_OBJS}
+#	cp srf2stoch ../bin/
+
+srf2stoch : srf2stoch_sub.c srf2stoch_main.c ${OBJS} ${GEOPROJ_OBJS}
+	${CC} ${CFLAGS} -c -o srf2stoch_sub.o srf2stoch_sub.c ${INCPAR}
+	${CC} ${CFLAGS} -o srf2stoch srf2stoch_sub.o srf2stoch_main.c ${LDLIBS} ${INCPAR} ${GEOPROJ_OBJS}
 	cp srf2stoch ../bin/
 
 generic_slip2srf : generic_slip2srf.c ${OBJS} ${BAILEY_OBJS} ${GEOPROJ_OBJS}

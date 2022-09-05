@@ -43,7 +43,7 @@ std::string format( const char* pszFormat, ... )
 		return tmp._ptr; // ¬Œ÷
 	}
 
-	return '\0';
+	return std::string();
 }
 
 }

@@ -1,25 +1,45 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+from __future__ import division, print_function
 
 # Import Python modules
 import os
 import sys
 import glob
 import numpy
+import warnings
+
+# warnings.simplefilter('error')
 
 # Period bins
 PERIODS = [[0.01, 0.1],
@@ -38,19 +58,28 @@ MECH = [("REV", ["Niigata", "NR", "WHITTIER",
                  "SanSimeon", "Iwate",
                  "RDL1K", "Mineral", "Saguenay1k"]),
         ("ROBL", ["NORTHPS", "LOMAP", "CHINOH", "Chuetsu"]),
-        ("SS", ["Tottori", "Landers", "ALUMR", "Parkfield"]),
+        ("SS", ["Tottori", "Landers", "ALUMR",
+                "Parkfield", "HectorMine", "Ridgecrest19A",
+                "Ridgecrest19B", "Ridgecrest19C"]),
         ("NM", [])]
 
 # Event list
 EVENTS = ["CHINOH", "ALUMR", "WHITTIER", "Parkfield",
           "NORTHPS", "Tottori", "SanSimeon", "Niigata",
           "Chuetsu", "NR", "Iwate", "LOMAP", "Landers",
-          "RDL1K", "Mineral", "Saguenay1k"]
+          "Ridgecrest19A", "Ridgecrest19B", "Ridgecrest19C",
+          "RDL1K", "Mineral", "Saguenay1k", "HectorMine"]
 
 EVENTS_CA = ["WHITTIER", "NORTHPS", "NR", "LOMAP", "Landers",
-             "CHINOH", "ALUMR", "SanSimeon", "Parkfield"]
+             "CHINOH", "ALUMR", "SanSimeon", "Parkfield",
+             "HectorMine", "Ridgecrest19A", "Ridgecrest19B",
+             "Ridgecrest19C"]
 
 EVENTS_CENA = ["Mineral", "RDL1K", "Saguenay1k"]
+
+EVENTS_EQUIV = {"LandersMSDr" : "Landers",
+                "LandersMS" : "Landers",
+                "Ridgecrest19CMS" : "Ridgecrest19C"}
 
 def compile_input_data(input_file):
     """
@@ -90,11 +119,14 @@ def compile_input_data(input_file):
         line = line.strip()
         items = line.split()
         event = items[0]
+        # Map multi-segment events properly
+        if event in EVENTS_EQUIV:
+            event = EVENTS_EQUIV[event]
         dist = float(items[7])
         tmin = float(items[10])
         tmax = float(items[11])
         if event not in EVENTS:
-            print "Unknown event %s, skipping..." % event
+            print("Unknown event %s, skipping..." % (event))
             continue
         # Make sure we filter the psa5e and psa5n components out
         if line.find("psa5e") > 0 or line.find("psa5n") > 0:
@@ -125,13 +157,13 @@ def write_output_file(data):
     This function writes the output data file
     """
     for idx, vals in enumerate(DIST):
-        print "Rrup = %.2f-%.2f km" % (vals[0], vals[1])
+        print("Rrup = %.2f-%.2f km" % (vals[0], vals[1]))
         # Initialize data for calculating mean
         all_data = [[] for _ in PERIODS]
         all_data_ca = [[] for _ in PERIODS]
         all_data_cena = [[] for _ in PERIODS]
         for event in EVENTS:
-            print "%-15s" % (event),
+            print("%-15s" % (event), end="")
             for per_range, _ in enumerate(PERIODS):
                 event_data = []
                 for val in data[event][idx][per_range]:
@@ -144,50 +176,50 @@ def write_output_file(data):
                         all_data_cena[per_range].append(val)
                 event_data_abs = [abs(x) for x in event_data]
                 if not len(event_data):
-                    print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                    print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
                 else:
                     print("%6.2f %6.2f %6d" % (numpy.mean(event_data),
                                                numpy.mean(event_data_abs),
-                                               len(event_data))),
-            print ""
-        print "%-15s" % "Average (CA)",
+                                               len(event_data)), end="")
+            print()
+        print("%-15s" % ("Average (CA)"), end="")
         for per_data in all_data_ca:
             per_data_abs = [abs(x) for x in per_data]
             if not len(per_data):
-                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
             else:
                 print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                            numpy.mean(per_data_abs),
-                                           len(per_data))),
-        print ""
-        print "%-15s" % "Average (CENA)",
+                                           len(per_data)), end="")
+        print()
+        print("%-15s" % ("Average (CENA)"), end="")
         for per_data in all_data_cena:
             per_data_abs = [abs(x) for x in per_data]
             if not len(per_data):
-                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
             else:
                 print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                            numpy.mean(per_data_abs),
-                                           len(per_data))),
-        print ""
-        print "%-15s" % "Average (All)",
+                                           len(per_data)), end="")
+        print()
+        print("%-15s" % ("Average (All)"), end="")
         for per_data in all_data:
             per_data_abs = [abs(x) for x in per_data]
             if not len(per_data):
-                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
             else:
                 print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                            numpy.mean(per_data_abs),
-                                           len(per_data))),
-        print ""
-        print ""
+                                           len(per_data)), end="")
+        print()
+        print()
 
-    print "Mechanism"
+    print("Mechanism")
     all_data = [[] for _ in PERIODS]
     all_data_ca = [[] for _ in PERIODS]
     all_data_cena = [[] for _ in PERIODS]
     for mech in MECH:
-        print "%-15s" % (mech[0]),
+        print("%-15s" % (mech[0]), end="")
         events = mech[1]
         for per_range, _ in enumerate(PERIODS):
             event_data = []
@@ -202,42 +234,41 @@ def write_output_file(data):
                             all_data_cena[per_range].append(val)
             event_data_abs = [abs(x) for x in event_data]
             if not len(event_data):
-                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A")),
+                print("%6s %6s %6s" % ("  N/A", "  N/A", "  N/A"), end="")
             else:
                 print("%6.2f %6.2f %6d" % (numpy.mean(event_data),
                                            numpy.mean(event_data_abs),
-                                           len(event_data))),
-        print ""
-    print "%-15s" % "Average (CA)",
+                                           len(event_data)), end="")
+        print()
+    print("%-15s" % ("Average (CA)"), end="")
     for per_data in all_data_ca:
         per_data_abs = [abs(x) for x in per_data]
         print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                    numpy.mean(per_data_abs),
-                                   len(per_data))),
-    print ""
-    print "%-15s" % "Average (CENA)",
+                                   len(per_data)), end="")
+    print()
+    print("%-15s" % ("Average (CENA)"), end="")
     for per_data in all_data_cena:
         per_data_abs = [abs(x) for x in per_data]
         print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                    numpy.mean(per_data_abs),
-                                   len(per_data))),
-    print ""
-    print "%-15s" % "Average (All)",
+                                   len(per_data)), end="")
+    print()
+    print("%-15s" % ("Average (All)"), end="")
     for per_data in all_data:
         per_data_abs = [abs(x) for x in per_data]
         print("%6.2f %6.2f %6d" % (numpy.mean(per_data),
                                    numpy.mean(per_data_abs),
-                                   len(per_data))),
-    print ""
-    print ""
+                                   len(per_data)), end="")
+    print()
+    print()
 
 def main():
     """
     Get input file from the command-line
     """
     if len(sys.argv) < 2:
-        print ("Usage: %s input_file" %
-               (sys.argv[0]))
+        print("Usage: %s input_file" % (sys.argv[0]))
         sys.exit(1)
 
     input_file = sys.argv[1]

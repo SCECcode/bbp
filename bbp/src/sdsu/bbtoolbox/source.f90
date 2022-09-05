@@ -169,23 +169,6 @@ do i=1,(npts_stf-1)
    t_stf(i+1)=t_stf(i)+dt
 enddo
 
-! setting up the taper (Hanning window): only the end (last 20%) of convolved time series will
-! be tapered
-!taper_len=nint(npts*0.5)
-
-! setting up the taper (Hanning window): only the end (10 sec) of convolved time series will
-! be tapered
-taper_len=nint(10.0/dt)
-
-! allocate local array for building taper
-if(.not.allocated(han_win)) allocate(han_win(taper_len))
-
-! equation of Hanning window: h(i)=0.5*(1-cos(2*pi*i)/N) ---> see Numerical Recipes, page: 547
-! taking only the second (decaying) half 
-do i=taper_len,1,-1
-   han_win(taper_len-i+1) = 0.5 * (1 - cos(2 * pi * (i-1) / (2*taper_len)) )
-enddo
-
 ! deallocate memory
 if (allocated(h)) deallocate(h)
 
@@ -531,6 +514,12 @@ use fault_area
    ! 
    ! Modified: January 2009 (v1.3)
    !
+   ! Updated: Dec 2021 [Ke Xu: kxu4143@sdsu.edu]
+   !   Add Tr_sca, moved the unused parameter here
+   !   formerly used in stf_new, now Tau=Tr*Tr_sca 
+   !
+
+   use stf_data, only: Tr_sca 
 
    implicit none
 
@@ -538,21 +527,21 @@ use fault_area
    real(kind=r_single),dimension(npts_stf)        :: t,s,ds,randm
    real(kind=r_single),allocatable,dimension(:)   :: heal
    real(kind=r_single),parameter                  :: ksi=0.1
-   real(kind=r_single)                            :: max_ss,dss,t1_heal,t2_heal,max_ran
+   real(kind=r_single)                            :: max_ss,dss,t1_heal,t2_heal,max_ran,Tau
    integer(kind=i_single)                         :: i,n_t1,n_t2
    integer(kind=i_single)                         :: seed,seed_size
    integer(kind=i_single),allocatable,dimension(:):: tmp_seed
 
    !-------------------------------------------------------------------------
 
-   Tr=Tr*0.3        ! reviewed
+   Tau=Tr*Tr_sca	! controlled by scattering.dat
 
    t(1)=0.0
    do i=1,npts_stf-1
       t(i+1)=t(i)+dt
    enddo
 
-   s=(t**ksi)*exp(-t/Tr)
+   s=(t**ksi)*exp(-t/Tau)
 
    !linear healing front between t1_heal and t2_heal
    t1_heal=3.0; t2_heal=3.2;
@@ -1160,18 +1149,68 @@ real(kind=r_single)                            :: arcu
 !real(kind=r_single)                            :: dtop
 real(kind=r_single),allocatable,dimension(:)   :: slip1
 real(kind=r_single),allocatable,dimension(:)   :: slip1cu,mu_tmp,mo_tmp
-real(kind=r_single)                            :: Ca,Fd,Fr ! from Graves and Pitarka 2015 (eqn. 3-5) 
+real(kind=r_single)                            :: Ca,Fd,Fr ! from Graves and Pitarka 2015 (eqn. 3-5)
+! multi-segement modification
+integer(kind=i_single)                         :: plane_num
+integer(kind=i_single)                         :: plane, k
+integer(kind=i_single)                         :: nsub_tmp
+real(kind=r_single)                            :: dip_tmp, dtop_tmp
 !-------------------------------------------------------------------------------
 
 !open file with srf and read values
 
 open(1,file=trim(srf_name),status='old')
 read(1,*) ! read version e.g. 1.0
-read(1,*) ! read header block line1 e.g. PLANE 1
-read(1,*) ! read header block line2, elon in x,elat in y,nstk,ndp,len,wid
-!read(1,*) r_dum,dip,r_dum,r_dum,r_dum ! read header block line3, stk,dip,dtop,shyp,dhyp
-read(1,*) r_dum,dip,dtop,r_dum,r_dum ! read header block line3, stk,dip,dtop,shyp,dhyp
-read(1,*) s_dum,nsub ! read data block e.g. POINTS, np
+! multi-segement modification
+read(1,*) s_dum, plane_num, nsub
+print*,'plane_num, nsub', plane_num, nsub
+
+dip = 0.0
+dtop = 0.0
+do plane = 1, plane_num
+    read(1,*) ! read header block line2, elon in x,elat in y,nstk,ndp,len,wid
+    read(1,*) r_dum,dip_tmp,dtop_tmp,r_dum,r_dum ! read header block line3, stk,dip,dtop,shyp,dhyp
+    dip = dip + dip_tmp
+    dtop = dtop + dtop_tmp
+enddo
+dip = dip/plane_num
+dtop = dtop/plane_num
+
+! initiation time would be 0 for 1 segment for multi-segments
+tinit=0
+
+if(.not.allocated(dt)) then
+   allocate(dt(nsub),tony(nsub),slip1(nsub))
+endif
+if(.not.allocated(fx)) allocate(fx(nsub),fy(nsub),fz(nsub),areas(nsub))
+
+i = 0
+do plane = 1, plane_num
+
+    read(1,*) s_dum,nsub_tmp ! read data block e.g. POINTS, np
+    print*,'nsub_tmp', nsub_tmp
+    !loop over srf' # of points
+    do k = 1, nsub_tmp
+       i = i+1
+       read(1,*) fx(i),fy(i),fz(i),i_dum,i_dum,areas(i),tony(i),dt(i)
+       read(1,*) i_dum,slip1(i),nt_loc,r_dum,i_dum,r_dum,i_dum
+
+       ! avoid negative number of depth
+       if(fz(i) < 0.0) fz(i)=0.0
+
+       if(.not.allocated(sv)) allocate(sv(nt_loc))
+
+       if (nt_loc /= 0) then
+          read(1,*) (sv(j), j=1,nt_loc)
+       endif
+
+       if(allocated(sv)) deallocate(sv)
+
+    enddo
+
+enddo
+close(1)
+
 
 !compute str_fac for eastern CA events
 if (str_fac == 0.0) then
@@ -1240,38 +1279,12 @@ elseif (ngaw_flag == 2) then
 endif
 print*,'Ca,Fd,Fr,alt for WNA=',Ca,Fd,Fr,alt
 
-! initiation time would be 0 for 1 segment for multi-segments
-tinit=0
 
-if(.not.allocated(dt)) then
-   allocate(dt(nsub),tony(nsub),slip1(nsub))
-endif
-if(.not.allocated(fx)) allocate(fx(nsub),fy(nsub),fz(nsub),areas(nsub))
-
-!loop over srf' # of points
-do i = 1, nsub
-   read(1,*) fx(i),fy(i),fz(i),i_dum,i_dum,areas(i),tony(i),dt(i)
-   read(1,*) i_dum,slip1(i),nt_loc,r_dum,i_dum,r_dum,i_dum
-
-   ! avoid negative number of depth
-   if(fz(i) < 0.0) fz(i)=0.0
-
-   if(.not.allocated(sv)) allocate(sv(nt_loc))
-
-   if (nt_loc /= 0) then
-      read(1,*) (sv(j), j=1,nt_loc)
-   endif
-
-   if(allocated(sv)) deallocate(sv)
-
-enddo
 
 sum_area=sum(areas)
 ave_slip=sum(slip1)/nsub
 tinit=minval(tony) ! add v162
 print*,'minimum initiation time = ',tinit
-
-close(1)
 
 
 ! compute mu (shear modulus) and moment

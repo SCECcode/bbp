@@ -1,22 +1,42 @@
 #!/usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
 
-Program to set up a full validation run on HPCC
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Program to set up a full validation run on USC's HPC
 """
 from __future__ import division, print_function
+
+# Works for both Python 2 and 3
+try: input = raw_input
+except NameError: pass
 
 # Import Python modules
 import os
@@ -37,10 +57,11 @@ import gmpe_config
 BATCH_SIM_FILE = "batch_run_bbp_sims.log"
 CORES_PER_NODE = 16
 CORES_PER_NODE_NEW = 16
-MAX_SIMULATIONS = 200
+MAX_SIMULATIONS = 500
 CODEBASES = ["gp", "ucsb", "sdsu", "exsim", "csm", "song", "irikura1", "irikura2"]
 CODEBASES_SITE = ["gp", "sdsu", "song", "irikura1", "irikura2", "exsim", "ucsb"]
 CODEBASES_SRF = ["gp", "sdsu", "song", "ucsb"]
+SITE_MODULES = ["gp", "seismosoil"]
 
 def generate_src_files(numsim, source_file, srcdir,
                        prefix, hypo_rand,
@@ -245,6 +266,7 @@ def generate_xml(install, numsim, srcdir, xmldir,
             if site_response:
                 # Use site response
                 optfile.write('y\n')
+                optfile.write('%s\n' % (site_response))
             else:
                 # Skip site response
                 optfile.write('n\n')
@@ -400,7 +422,7 @@ def main():
     bbp_install = InstallCfg.getInstance()
 
     # Get GMPE group names
-    gmpe_groups_available = gmpe_config.GMPES.keys()
+    gmpe_groups_available = list(gmpe_config.GMPES.keys())
     gmpe_groups_available_lc = [gmpe.lower() for gmpe in gmpe_groups_available]
 
     prog_base = os.path.basename(sys.argv[0])
@@ -424,6 +446,10 @@ def main():
                       help="Prefix of SRF files to use, "
                       "only for GP, SDSU and UCSB methods. "
                       "Simulations begin after the rupture generator.")
+    parser.add_option("--src", "--source", type="string", action="store",
+                      dest="source",
+                      help="source description that replaces "
+                      "one in validation")
     parser.add_option("--hypo-rand", action="store_true", dest="hyporand",
                       help="Enables hypocenter randomization")
     parser.add_option("--no-hypo-rand", action="store_false", dest="hyporand",
@@ -453,8 +479,9 @@ def main():
     parser.add_option("--first-seg-dir", type="string", action="store",
                       dest="first_seg_dir",
                       help="required for multi-segment segments 2..n")
-    parser.add_option("-s", "--site", action="store_true",
-                      dest="site_response", help="Use site response module")
+    parser.add_option("-s", "--site", type="string", action="store",
+                      dest="site_response",
+                      help="Use a site response module: %s" % (SITE_MODULES))
 
     (options, args) = parser.parse_args()
 
@@ -537,10 +564,14 @@ def main():
         sys.exit(1)
 
     # Check if users wants to run site response module
-    if options.site_response:
-        site_response = True
+    site_response = options.site_response
+    if site_response is not None:
         if codebase not in CODEBASES_SITE:
             print("Cannot use site response with method: %s" % (codebase))
+            sys.exit(1)
+        site_response = site_response.lower()
+        if site_response not in SITE_MODULES:
+            print("Site response needs to be one of: %s" % (SITE_MODULES))
             sys.exit(1)
     else:
         site_response = False
@@ -578,12 +609,15 @@ def main():
     else:
         hypo_rand = False
 
-    try:
-        source_file = val_obj.get_input(codebase, "source")
-    except KeyError:
-        print("Unable to get source file for event %s, codebase %s!" %
-              (event, codebase))
-        sys.exit(1)
+    if options.source is not None:
+        source_file = options.source
+    else:
+        try:
+            source_file = val_obj.get_input(codebase, "source")
+        except KeyError:
+            print("Unable to get source file for event %s, codebase %s!" %
+                  (event, codebase))
+            sys.exit(1)
     if not source_file:
         print("Source file for event %s, codebase %s not specified!" %
               (event, codebase))
@@ -599,11 +633,11 @@ def main():
         if multiseg:
             source_file = source_file[segment - 1]
         else:
-            if codebase != "song" and codebase != "irikura1":
+            if codebase != "song" and codebase != "irikura1" and codebase != "irikura2" and codebase != "gp":
                 print("This is a multisegment event! Please specify segment!")
                 sys.exit(1)
             else:
-                # For song and irikura1, we keep source_file with all segments
+                # For song and irikura1 and 2, we keep source_file with all segments
                 # as this methods can work with multiple SRC files
                 pass
 
@@ -638,11 +672,11 @@ def main():
     simdir = os.path.abspath(simdir)
     if os.path.exists(simdir):
         print("Simulation directory exists: %s" % (simdir))
-        opt = raw_input("Do you want to delete its contents (y/n)? ")
+        opt = input("Do you want to delete its contents (y/n)? ")
         if opt.lower() != "y":
             print("Please provide another simulation directory!")
             sys.exit(1)
-        opt = raw_input("ARE YOU SURE (y/n)? ")
+        opt = input("ARE YOU SURE (y/n)? ")
         if opt.lower() != "y":
             print("Please provide another simulation directory!")
             sys.exit(1)

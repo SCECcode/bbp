@@ -1,23 +1,41 @@
 #! /usr/bin/env python
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2021, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from __future__ import division, print_function
 
 # Import Python modules
 import os
+import sys
+import shutil
 import unittest
 
 # Import Broadband modules
@@ -39,7 +57,7 @@ class TestUCrmg(unittest.TestCase):
         self.r_velmodel = "nr02-vs500_lf.vel"
         self.vmodel_name = "LABasin500"
         self.r_srcfile = "test_wh_ucsb.src"
-        self.r_srffile = "FFSP_OUTPUT.001"
+        self.r_srffile = "FFSP_OUTPUT.bst"
         self.sim_id = int(seqnum.get_seq_num())
         self.cfg = UCrmgCfg(self.vmodel_name)
 
@@ -49,19 +67,15 @@ class TestUCrmg(unittest.TestCase):
         a_logdir = os.path.join(self.install.A_OUT_LOG_DIR, str(self.sim_id))
         a_outdir = os.path.join(self.install.A_OUT_DATA_DIR, str(self.sim_id))
 
-        cmd = "mkdir -p %s" % (a_indir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_tmpdir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_outdir)
-        bband_utils.runprog(cmd)
-        cmd = "mkdir -p %s" % (a_logdir)
-        bband_utils.runprog(cmd)
+        # Create directories
+        bband_utils.mkdirs([a_indir, a_tmpdir, a_outdir, a_logdir],
+                           print_cmd=False)
 
-        cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_srcfile), a_indir)
-        bband_utils.runprog(cmd)
-        cmd = "cp %s %s" % (os.path.join(a_refdir, self.r_velmodel), a_indir)
-        bband_utils.runprog(cmd)
+        # Copy files
+        shutil.copy2(os.path.join(a_refdir, self.r_srcfile),
+                     os.path.join(a_indir, self.r_srcfile))
+        shutil.copy2(os.path.join(a_refdir, self.r_velmodel),
+                     os.path.join(a_indir, self.r_velmodel))
 
         os.chdir(a_tmpdir)
 
@@ -84,10 +98,11 @@ class TestUCrmg(unittest.TestCase):
         uc_obj.run()
 
         errmsg = "Output file does not match reference file: %s" % (a_newfile)
-        self.failIf(not cmp_bbp.cmp_ffsp(a_ref_file,
-                                         a_newfile,
-                                         tolerance=0.0025) == 0, errmsg)
+        self.assertFalse(not cmp_bbp.cmp_ffsp(a_ref_file,
+                                              a_newfile,
+                                              tolerance=0.0025) == 0, errmsg)
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestUCrmg)
-    unittest.TextTestRunner(verbosity=2).run(SUITE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(SUITE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

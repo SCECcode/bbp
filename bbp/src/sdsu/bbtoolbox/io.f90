@@ -280,7 +280,11 @@ real(kind=r_scat)                           :: tmp_siteR,tmp_siteVs
 real(kind=r_single),allocatable,dimension(:):: fre
 real(kind=r_single)                         :: xs,ys,vs_ave,d_ave,dpt
 real(kind=r_single)                         :: stt,dl
-
+! multi-segement modification
+integer(kind=i_single)                         :: plane_num
+integer(kind=i_single)                         :: plane, k
+integer(kind=i_single)                         :: ncell_tmp
+integer(kind=i_single)                         :: i_dum
 ! -----------------------------------------------------------------------------
 
 
@@ -479,14 +483,23 @@ if (ext_flag == 1 .and. modality_flag /=0) then
    ! check-point for file opening
    if (ierr /= 0) call error_handling(1,trim(ext_file),'raytracing_input (io.f90)')
    
-   read(1,*) n_cell   !first line specifies number of subfaults
-   
+   read(1,*) plane_num, n_cell   !first line specifies number of subfaults
+   print*,'plane_num, n_cell', plane_num, n_cell
    ! allocate extended fault arrays
    if (.not.allocated(x_cell)) allocate(x_cell(n_cell),y_cell(n_cell),z_cell(n_cell))
 
-   do i=1,n_cell         !row-wise ordered file (i.e. along strike)
-      read(1,*) x_cell(i),y_cell(i),z_cell(i)
+   i = 0
+   do plane = 1, plane_num
+
+      read(1,*) i_dum,ncell_tmp ! read data block e.g. POINTS, np
+      print*,'ncell_tmp', ncell_tmp
+      !loop over srf' # of points
+      do k = 1, ncell_tmp
+         i = i+1
+         read(1,*) x_cell(i),y_cell(i),z_cell(i)  !row-wise ordered file (i.e. along strike)
+      enddo
    enddo
+
    close(1)
 endif
 
@@ -897,9 +910,10 @@ read(1,*); read(1,*) stf_name                    !STF to be convolved with scatt
 read(1,*); read(1,*) verbose_flag                !flag for verbose output
 read(1,*); read(1,*) srf_name                    !SRF file name
 
-read(1,*); read(1,*) k_file                      !correlation matrix file
-
 read(1,*); read(1,*) rake                        ! read rake for alt factor
+
+read(1,*); read(1,*) corr_file_inf               !correlation matrix file
+read(1,*); read(1,*) corr_file_sp1, corr_file_sp2, corr_file_sp3
 
 close(1)
 
@@ -1195,6 +1209,7 @@ case('3SF')           !single ASCII files with 4 columns (time vector and 3 comp
    enddo
 
    wts_len=(wts_npts-1)*ts_dt  !compute time-series length
+   real_lf_len = wts_len  ! record real LF length
 
    ! adjust ts_npts and ts_len
    print*,'wts_npts,ts_dt,wts_len',wts_npts,ts_dt,wts_len
@@ -1340,11 +1355,14 @@ SUBROUTINE write_disk(station,type_flag,in_arr)
 !
 ! Updated: February 2019 (v2.0)
 !   Add to use v_npts for dt computation.
-
+!
+! Updated: November 2021 [kxu4143@sdsu.edu]
+!   Add format choice 'hfs' to ouput scaled HF timeseries
+!
 !
 use def_kind; use flags; use io_file, only: output_dir
 use scattering, only: npts,time_step; use source_receiver, only: stat_name
-use stf_data, only: npts_stf,total; use waveform, only: lf_len,lf_npts,v_npts
+use stf_data, only: npts_stf,total; use waveform, only: lf_len,lf_npts,v_npts,real_lf_len
 use tmp_para
 
 implicit none
@@ -1383,7 +1401,9 @@ case('hyb')
       suffix='.bin'
    else 
       suffix='.hyb'
-   endif     
+   endif
+case('hfs')
+   suffix='.hfs'     !hf time series before merging 
 case('ccd')
    suffix='.ccd'     !scatterogram after convolution
 case('ocd')
@@ -1399,16 +1419,17 @@ case('stf')
 case default
    !dt = lf_len/(npts-1)
    dt = lf_len/(v_npts-1)
-   print*,'lf_len,npts,dt in write_dist=',lf_len,npts,dt
-   d_npts=npts/time_step
+   print*,'lf_len,npts,dt,v_npts,real_lf_len in write_disk=',lf_len,npts,dt,v_npts,real_lf_len
+   !!!d_npts=v_npts/time_step  !!d_npts=npts/time_step
    tmp_dt = dt*time_step
+   d_npts = ceiling(real_lf_len/tmp_dt +1)
 end select
 
 ! binary output (only for broad-band)
 if (suffix == '.bin') then
    
    out_name=trim(output_dir)//'/BBhyb.bin'
-   
+  
    inquire(iolength=scratch) in_arr(1,1),in_arr(1,2),in_arr(1,3)
    if(station == 1) then
       open(1,file=out_name,status='unknown',access='direct',form='unformatted',recl=scratch)
@@ -1434,10 +1455,11 @@ else
  
    ! write HEADERS (8 lines)
    write(1,102) '% -----------------------------------------------'
-
    select case(type_flag)
    case('hyb')
       write(1,102) '% synthetic broadband seismogram (Mai&Olsen 2008) '
+   case('hfs')
+      write(1,102) '% HF seismogram before merging (Mai&Olsen 2008) '
    case('ccd')
       write(1,102) '% scatterogram after convolution (Mai&Olsen 2008) '
    case('ocd')
@@ -1450,16 +1472,15 @@ else
    write(1,100) '% site: ',trim(stat_name(station))
    select case(type_flag)
    case default
-      ! write(1,101) '% NPTS, DT: ',npts,dt
       write(1,101) '% NPTS, DT: ',d_npts,tmp_dt
    case('stf')
       write(1,101) '% NPTS, DT: ',npts_stf,dt
    case('ocd')
       write(1,101) '% NPTS, DT: ',npts,dt
-      !!!write(1,101) '% NPTS, DT: ',d_npts,tmp_dt
+   case('hfs')
+      write(1,101) '% NPTS, DT: ',npts,dt
    case('ccd')
       write(1,101) '% NPTS, DT: ',npts,dt
-      !!!write(1,101) '% NPTS, DT: ',d_npts,tmp_dt
    end select
 
    write(1,104) '%'
@@ -1573,40 +1594,125 @@ write(5,*) '--------------------------------------------------------------------
 
 END SUBROUTINE write_log
 
-!===================================================================================================
 
-SUBROUTINE read_KL
+!===================================================================================================
+SUBROUTINE read_correlation_matrix_inf
 !-----------------------------------------------------------------------
 !
 ! Description:
 !
-!   Read empirical correlation matrx
+!   Read spatical correlation matrices
 !
-! Author: N. Wang
+! Author: N. Wang, December 2018
 !
-! Modified: February 2019 (v2.0)
-!
-use read_Kemp
-use io_file, only: k_file
+use def_kind
+use io_file
+use read_correlation_files
 
 implicit none
 ! indexes
 integer(kind=i_single)                      :: i,j,k,ierr
+!-----------------------------------------------------------------------
 
-!! Read input Kemp, Cholesky factor of inter-frequency correlation matrix, lower triangular matrix
+!! Read input K, Cholesky factor of inter-frequency correlation matrix, lower triangular matrix
 !print*,'nk,nks in io.f90,before',nk,nks
-open(unit=3331,file=trim(k_file),access='direct',form='unformatted', recl=4,status='old')
+open(unit=3331,file=trim(corr_file_inf),access='direct',form='unformatted', recl=4,status='old')
 read(3331,rec=1,iostat=ierr) nk
 read(3331,rec=2,iostat=ierr) nks
-!print*,'nk,nks in io.f90',nk,nks
-if (.not.allocated(Kemp)) allocate(Kemp(nk,nk))
+print*,'nk nks in io.f90',nk, nks
+if (.not.allocated(Kinf)) allocate(Kinf(nk,nk))
 k = 2
 do j = 1,nk
    do i = 1,nk
       k = k+1
-      read(3331,rec=k,iostat=ierr) Kemp(i,j)
+      read(3331,rec=k,iostat=ierr) Kinf(i,j)
    enddo
 enddo
 close(unit=3331)
+print*,'Kinf(1:10,1) in io.f90',Kinf(1:10,1)
+print*,'Kinf(1:5,200) in io.f90',Kinf(1:5,200)
+print*,'Kinf(1,1:10) in io.f90',Kinf(1,1:10)
+END SUBROUTINE read_correlation_matrix_inf
 
-END SUBROUTINE read_KL
+
+
+!===================================================================================================
+SUBROUTINE read_correlation_matrix_sp
+!-----------------------------------------------------------------------
+!
+! Description:
+!
+!   Read spatical correlation matrices
+!
+! Author: N. Wang, December 2018
+!
+use def_kind
+use read_correlation_files
+use io_file
+!!use source_receiver, only: n_stat
+
+implicit none
+! indexes
+integer(kind=i_single)                      :: i,j,k,ierr
+!-----------------------------------------------------------------------
+
+!! Read input K1 K2 K3, Cholesky factor of frequency correlation matrix, lower triangular matrix
+open(unit=3332,file=trim(corr_file_sp1),access='direct',form='unformatted', recl=4,status='old')
+read(3332,rec=1,iostat=ierr) nk
+read(3332,rec=2,iostat=ierr) nks
+if (.not.allocated(Ksp1)) allocate(Ksp1(nk,nk))
+k = 2
+do j = 1,nk
+   do i = 1,nk
+      k = k+1
+      read(3332,rec=k,iostat=ierr) Ksp1(i,j)
+   enddo
+enddo
+close(unit=3332)
+
+do i=1,nk
+   do j=1,nk
+      if (Ksp1(i,j) /= Ksp1(i,j)) print*,'NaN found in Ksp1!'
+   enddo
+enddo
+
+if (.not.allocated(Ksp2)) allocate(Ksp2(nk,nk))
+open(unit=3333,file=trim(corr_file_sp2),access='direct',form='unformatted', recl=4*nk*nk,status='old')
+read(3333,rec=1,iostat=ierr) ((Ksp2(i,j), i=1,nk), j=1,nk)
+close(unit=3333)
+
+do i=1,nk
+   do j=1,nk
+      if (Ksp2(i,j) /= Ksp2(i,j)) print*,'NaN found in Ksp2!'
+   enddo
+enddo
+
+if (.not.allocated(Ksp3)) allocate(Ksp3(nk,nk))
+open(unit=3334,file=trim(corr_file_sp3),access='direct',form='unformatted', recl=4*nk*nk,status='old')
+read(3334,rec=1,iostat=ierr) ((Ksp3(i,j), i=1,nk), j=1,nk)
+close(unit=3334)
+
+do i=1,nk
+   do j=1,nk
+      if (Ksp3(i,j) /= Ksp3(i,j)) print*,'NaN found in Ksp3!'
+   enddo
+enddo
+
+print*,'Ksp1(200,1:5)', Ksp1(200,1:5)
+print*,'Ksp2(200,1:5)', Ksp2(200,1:5)
+print*,'Ksp3(200,1:5)', Ksp3(200,1:5)
+
+print*,'Done checking...'
+
+!!! Read input L1 L2, Cholesky factor of station correlation matrix, upper triangular matrix
+!if (.not.allocated(L1)) allocate(L1(n_stat,n_stat))
+!open(unit=3334,file='L1.bin',access='direct',form='unformatted', recl=4*n_stat*n_stat,status='old')
+!read(3334,rec=1,iostat=ierr) ((L1(i,j), i=1,n_stat), j=1,n_stat)
+!close(unit=3334)
+!
+!if (.not.allocated(L2)) allocate(L2(n_stat,n_stat))
+!open(unit=3335,file='L2.bin',access='direct',form='unformatted', recl=4*n_stat*n_stat,status='old')
+!read(3335,rec=1,iostat=ierr) ((L2(i,j), i=1,n_stat), j=1,n_stat)
+!close(unit=3335)
+
+END SUBROUTINE read_correlation_matrix_sp
