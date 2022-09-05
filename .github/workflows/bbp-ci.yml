@@ -2,7 +2,7 @@ name: bbp-ci
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ main ]
 
 jobs:
   bbp-build-linux:
@@ -27,10 +27,10 @@ jobs:
         pip install matplotlib
         pip install pyproj
         pip install numba
-    - name: checkout bbp dev
+    - name: checkout bbp main
       uses: actions/checkout@v2
       with:
-        ref: dev
+        ref: main
     - name: build bbp
       run: ./.github/scripts/bbp-build-ci.sh
       shell: bash
