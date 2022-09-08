@@ -3,13 +3,13 @@
     "@type": "SoftwareSourceCode",
     "license": "https://spdx.org/licenses/BSD-3-Clause",
     "codeRepository": "https://github.com/sceccode/bbp",
-    "dateCreated": "2007-06-01",
-    "datePublished": "2007-12-01",
-    "dateModified": "2021-12-01",
+    "dateCreated": "2022-09-08",
+    "datePublished": "2022-09-08",
+    "dateModified": "2022-09-08",
     "downloadUrl": "https://github.com/sceccode/bbp.git",
     "issueTracker": "https://github.com/sceccode/bbp/issues",
     "name": "The SCEC Broadband Platform",
-    "version": "v19.8.0-python3",
+    "version": "v22.4.0",
     "description": "The Southern California Earthquake Center (SCEC) Broadband Platform (BBP) is a software system that can generate 0-20+ Hz seismograms for historical and scenario earthquakes in California, Eastern North America, and Japan using several alternative computational methods.",
     "applicationCategory": "seismology, civil engineering",
     "releaseNotes": "This is an initial port of the BBP platform to Python3.",
@@ -30,17 +30,19 @@
         "Linux"
     ],
     "softwareRequirements": [
-        "Python v3.7",
-        "Matplotlib 1.4.3+",
-        "NumPy 1.14.2+",
-        "SciPy 1.0.0+",
-        "Pyproj 1.9.2+",
-        "GNU compilers (gcc, gfortran) 5.1.1+",
-        "FFTW library 3.3.4+"
+        "Python v3.6.7",
+        "Matplotlib 3.3.0+",
+        "NumPy 1.18.5+",
+        "SciPy 1.4.1+",
+        "Pyproj 2.6.1+",
+        "Numba 0.55.2+"
+        "GNU compilers (gcc, gfortran) 8+",
+        "FFTW library 3.3.8+"
     ],
     "author": [
         {
             "@type": "Person",
+            "@id": " http://orcid.org/0000-0002-6543-5705",
             "givenName": "Fabio",
             "familyName": "Silva",
             "email": "fsilva@usc.edu",
