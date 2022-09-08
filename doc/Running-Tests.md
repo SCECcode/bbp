@@ -7,7 +7,7 @@ Unit tests are designed to test each module separately, using a set of input fil
 In order to run the unit tests, users should go to the tests directory and type:
 
 ```
- $ cd /home/sarah/bbp/19.4.0/bbp/tests
+ $ cd /home/sarah/bbp/22.4.0/bbp/tests
 ```
 
 We recommend you run the Unit and Acceptance tests in the background using a command like:
@@ -49,12 +49,16 @@ Once the unit tests all pass, proceed to the acceptance tests. If there are any 
  test_bbp2peer (test_bbp_format.TestBBPFormat) ... ok
  test_exsim2bbp (test_bbp_format.TestBBPFormat) ... ok
  test_peer2bbp (test_bbp_format.TestBBPFormat) ... ok
+ test_pynga_ngae (test_pynga.TestPyNGA) ... ok
+ test_pynga_ngaw1 (test_pynga.TestPyNGA) ... ok
+ test_pynga_ngaw2 (test_pynga.TestPyNGA) ... ok
  test_vm2ucsb (test_vm2vm.TestVm2vm) ... ok
  test_vm2ucsb_nga (test_vm2vm.TestVm2vm) ... ok
  test_vm2vm (test_vm2vm.TestVm2vm) ... ok
  test_vm2vm_nga (test_vm2vm.TestVm2vm) ... ok
  test_xy2ll (test_cc.TestCC) ... ok
  test_genslip (test_genslip.TestGenslip) ... ok
+ test_genslip_fftw (test_genslip.TestGenslip) ... ok
  test_jbsim (test_jbsim.TestJbsim) ... ok
  test_hfsims (test_hfsims.TestHfsims) ... ok
  test_wcc_siteamp (test_wcc_siteamp.TestWccSiteamp) ... ok
@@ -71,15 +75,18 @@ Once the unit tests all pass, proceed to the acceptance tests. If there are any 
  test_rotd50 (test_rotd50.TestRotD50) ... ok
  test_rotd100 (test_rotd100.TestRotD100) ... ok
  test_gof (test_gp_gof.TestGPGof) ... ok
+ test_fas (test_fas.TestFAS) ... ok
+ test_fas_gof (test_fas_gof.TestFASGof) ... ok
  test_mogof_stat (test_sdsu_mogof.TestSDSUMOGof) ... ok
  test_anderson_gof (test_anderson_gof.TestAndersonGof) ... ok
  test_rzz2015 (test_rzz2015.TestRZZ2015) ... ok
  test_as16 (test_as16.TestAS16) ... ok
+ test_as16_testcases (test_as16.TestAS16) ... ok
 
-----------------------------------------------------------------------
-Ran 36 tests in 1455.138s
+ ----------------------------------------------------------------------
+ Ran 43 tests in 930.941s
 
-OK
+ OK
 ```
 
 ### Running Acceptance Tests
@@ -87,7 +94,7 @@ OK
 Make sure the unit tests pass before moving on to the acceptance tests. To run the acceptance tests, users should:
 
 ```
- $ cd /home/sarah/bbp/19.4.0/bbp/tests
+ $ cd /home/sarah/bbp/22.4.0/bbp/tests
 ```
 
 To run the acceptance tests in a terminal background process, on a Linux computer, the following command will run the tests as a background process, and redirect stderr and stdout to a "accept_tests.log" file.
@@ -128,8 +135,7 @@ Here is an example output from the tests.log file created by running this comman
  test_valid-northridge-UCSB (__main__.BBPAcceptanceTests) ... ok
 
  ----------------------------------------------------------------------
- Ran 14 tests in 25981.848s
-
+ Ran 14 tests in 9199.326s
  OK
 ```
 

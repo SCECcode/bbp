@@ -10,9 +10,9 @@ The platform can be run in multiple modes. The default is interactive mode, in w
 
 For a large number of runs, or if the user is repeating a specific run, this can be tedious. The platform provides two other ways to describe a run, with an option file or an XML description.
 
-An option file provides responses to all the questions that the platform poses. The format is described in [File Formats](./File-Format-Guide.md), but it's basically a text file, 1 entry per line, with support for comments. It can be fed to the platform using the -o option.
+An option file provides responses to all the questions that the platform poses. The format is described in [File Formats](./File-Format-Guide), but it's basically a text file, 1 entry per line, with support for comments. It can be fed to the platform using the -o option.
 
-The platform will also accept XML files containing a full description of a run. The schema for these files is given in [File Formats](./File-Format-Guide.md). These files are also produced by the platform after every simulation, and placed in xml/<simulation ID>.xml. So if you want to rerun a simulation, you can point the platform to the XML file from that simulation using the '-x' option. Note that a new simulation ID will be assigned to the run, so there is no risk of overwriting previous simulation results.
+The platform will also accept XML files containing a full description of a run. The schema for these files is given in [File Formats](./File-Format-Guide). These files are also produced by the platform after every simulation, and placed in xml/<simulation ID>.xml. So if you want to rerun a simulation, you can point the platform to the XML file from that simulation using the '-x' option. Note that a new simulation ID will be assigned to the run, so there is no risk of overwriting previous simulation results.
 
 ### Available Options
 
@@ -42,7 +42,7 @@ To run a validation simulation, go to the data/run directory and run run_bbp.py.
 
 ```
  $ run_bbp.py
- Welcome to the SCEC Broadband Platform version 19.4.0.
+ Welcome to the SCEC Broadband Platform version 22.4.0.
  ================================================================================
 
  Please select the Broadband Platform mode of operation:
@@ -63,15 +63,15 @@ To run a validation simulation, go to the data/run directory and run run_bbp.py.
  ...
 ```
 
-No input files are required by the user. However, you may wish to customize the validation simulation by selecting an alternate source description (src file) or a reduced station list to speed up the computations. You can put your own source description and/or station list into the run directory (the format is described in [File Formats](./File-Format-Guide.md)) or you can tell the platform where each file is located by using an absolute path. Note that any stations which do not have observed seismograms will not be included in the automatically generated goodness-of-fit comparison. To supply alternative source description and/or station list files, please run the Broadband Platform in 'expert' mode using the '--expert' command-line flag.
+No input files are required by the user. However, you may wish to customize the validation simulation by selecting an alternate source description (src file) or a reduced station list to speed up the computations. You can put your own source description and/or station list into the run directory (the format is described in [File Formats](./File-Format-Guide)) or you can tell the platform where each file is located by using an absolute path. Note that any stations which do not have observed seismograms will not be included in the automatically generated goodness-of-fit comparison. To supply alternative source description and/or station list files, please run the Broadband Platform in 'expert' mode using the '--expert' command-line flag.
 
 ### User-defined Simulations
 
-To run a user-defined simulation, two input files are required, a source description (src file) and a station list (stl file). A simple source description (src file) is always required, but, for certain methods, a source description in SRF format (the format is described in [File Formats](./File-Format-Guide.md) can be supplied as well and will be used for the seismogram computation modules in the Broadband Platform. To run a user-defined simulation, run run_bbp.py:
+To run a user-defined simulation, two input files are required, a source description (src file) and a station list (stl file). A simple source description (src file) is always required, but, for certain methods, a source description in SRF format (the format is described in [File Formats](./File-Format-Guide) can be supplied as well and will be used for the seismogram computation modules in the Broadband Platform. To run a user-defined simulation, run run_bbp.py:
 
 ```
  $ run_bbp.py
- Welcome to the SCEC Broadband Platform version 19.4.0.
+ Welcome to the SCEC Broadband Platform version 22.4.0.
  ================================================================================
 
  Please select the Broadband Platform mode of operation:
@@ -135,7 +135,7 @@ To help visualize the stations in relationship to the fault, the platform produc
 
 When running the Broadband Platform, you have the option to generate plots of velocity and acceleration seismograms for each station. Plots of these files can be found in `outdata/<simulation ID>/<simulation ID>.<station>_<velocity or acceleration>_seis.png`.
 
-The raw seismogram data is available in `outdata/<simulation ID>/<simulation ID>.<station>.vel.bbp` (velocity) and `outdata/<simulation ID>.<station>.acc.bbp` (acceleration).  Its format is described in [File Formats](./File-Format-Guide.md).
+The raw seismogram data is available in `outdata/<simulation ID>/<simulation ID>.<station>.vel.bbp` (velocity) and `outdata/<simulation ID>.<station>.acc.bbp` (acceleration).  Its format is described in [File Formats](./File-Format-Guide).
 
 #### Response Spectra
 
@@ -145,7 +145,7 @@ The RotD50 code, run during each simulation, calculates the response spectra for
  outdata/<simulation ID>/<simulation ID>.<station>.rd50
 ```
 
-in the format described in [File Formats](./File-Format-Guide.md).
+in the format described in [File Formats](./File-Format-Guide).
 
 #### Goodness-of-fit
 
@@ -171,7 +171,7 @@ You don't need to move any files for this example. Notice that we will be using 
 
 ```
  $ run_bbp.py
- Welcome to the SCEC Broadband Platform version 19.4.0
+ Welcome to the SCEC Broadband Platform version 22.4.0.
  ================================================================================
 
  Please select the Broadband Platform mode of operation:
@@ -206,14 +206,14 @@ You don't need to move any files for this example. Notice that we will be using 
  ================================================================================
  SRC file: /home/sarah/bbp/bbp_val/Northridge/common/nr_v14_02_1.src
  ================================================================================
- STL file: /home/sarah/bbp/bbp_val/Northridge/common/nr_v19_02_1.stl
+ STL file: /home/sarah/bbp/bbp_val/Northridge/common/nr_v19_06_2.stl
 
  -------------------------------------ExSIM--------------------------------------
  ==> Running ExSIM...
  ...
 ```
 
-This simulation should take about 30 minutes (as opposed to about 12+ hours if using some of the other methods). Once it completes, the platform will tell you:
+This simulation will take about 90 minutes to complete, or possibly more depending on how fast the computer is. Some of the other methods can take longer (and some up to about 12+ hours). Once the simulation completes, the platform will tell you:
 
 ```
  You can find results in $BBP_DATA_DIR/outdata/<simulation ID>
@@ -233,7 +233,7 @@ In that directory you will find:
 
 #### Sample Northridge Validation simulation, custom station list
 
-Validation runs can take a long time. The time needed to generate each low-frequency seismogram will generally increase with the magnitude of the event, taking more than 1 hour per station for earthquakes with Mw > 7.2. Sometimes you might want to run with a reduced station list so the simulation will run faster.
+Validation runs can take a long time. The time needed to generate each seismogram will generally increase with the magnitude of the event, potentially taking more than 1 hour per station for earthquakes with Mw > 7.2 for some of the simulation methods. Some of the post-processing modules, especially the FAS module, will also take a while to process each of the stations on the station list. Sometimes you might want to run with a reduced station list so the simulation will run faster.
 
 Copy the station list from `$BBP_DIR/../doc/examples/northridge_3_stations` into the run directory, which should be `$BBP_DATA_DIR/run`. Take a look at the format of the station file:
 
@@ -250,7 +250,7 @@ Now, run the platform using a different station list. To do this, you will need 
 
 ```
  $ run_bbp.py --expert
- Welcome to the SCEC Broadband Platform version 19.4.0.
+ Welcome to the SCEC Broadband Platform version 22.4.0.
  ================================================================================
 
  Please select the Broadband Platform mode of operation:
@@ -291,7 +291,7 @@ Now, run the platform using a different station list. To do this, you will need 
 
  Do you want to provide a custom source file (y/n)? n
  ================================================================================
- SRC file: /home/sarah/bbp/bbp_val/NR/common/nr_v14_02_1.src
+ SRC file: /home/sarah/bbp/bbp_val/NR/gp/nr_v20_07_1.src
  ================================================================================
 
  When starting a simulation from a source description (SRC) file, the Broadband
@@ -334,6 +334,11 @@ You will see a list of station list files that you have in your run directory. F
  the Vs30 values for each station location.
 
  Do you want to run the site response module (y/n)? y
+
+ Please select a site response module to use in this Broadband simulation:
+ (1) GP (Graves & Pitarka)
+ (2) PySeismoSoil
+ ? 1
  ================================================================================
  Do you want to generate velocity seismograms' plots (y/n)? y
  ================================================================================
@@ -368,9 +373,10 @@ You will see a list of station list files that you have in your run directory. F
 
  Choose a Goodness of Fit (GOF) Module:
  (1) GP
- (2) SDSU
- (3) Both
- ? 1
+ (2) FAS
+ (3) GP and SDSU
+ (4) GP and FAS
+ ? 4
  ================================================================================
 
  Additional Metrics
@@ -381,15 +387,15 @@ You will see a list of station list files that you have in your run directory. F
  Do you want to calculate additional metrics (y/n)? n
 ```
 
-Again, when the run completes, in about 30-45 minutes, you can find results in the output directory. You'll notice far fewer files, as only 3 stations were used instead of 40. The goodness-of-fit plots won't look very good - more stations are really needed to get an accurate plot. In the `$BBP_DIR/../doc/examples/northridge_3_stations/results` directory you will find pre-calculated results for a few of the methods (GP and UCSB). You should obtain results equivalent to those.
+Again, when the run completes, in about 10-20 minutes, you can find results in the output directory. You'll notice far fewer files, as only 3 stations were used instead of 40. The goodness-of-fit plots won't look very good - more stations are really needed to get an accurate plot. In the `$BBP_DIR/../doc/examples/northridge_3_stations/results` directory you will find pre-calculated results for a few of the methods (GP and UCSB). You should obtain results equivalent to those.
 
 #### Sample User-defined Southern California simulation with source description
 
-Next let's try running a user-defined event. Copy the files `$BBP_DIR/../doc/examples/scenario_1_station/nr_one_stat.stl` and `$BBP_DIR/../doc/examples/scenario_1_station/user_eq.src` to the `$BBP_DATA_DIR/run` directory. user_eq.src is a simple source description. Its format is outlined in [File Formats](./File-Format-Guide.md).
+Next let's try running a user-defined event. Copy the files `$BBP_DIR/../doc/examples/scenario_1_station/nr_one_stat.stl` and `$BBP_DIR/../doc/examples/scenario_1_station/user_eq.src` to the `$BBP_DATA_DIR/run` directory. user_eq.src is a simple source description. Its format is outlined in [File Formats](./File-Format-Guide).
 
 ```
  $ run_bbp.py
- Welcome to the SCEC Broadband Platform version 19.4.0.
+ Welcome to the SCEC Broadband Platform version 22.4.0.
  ================================================================================
 
  Please select the Broadband Platform mode of operation:
@@ -463,7 +469,7 @@ Since we are running a Southern California event, we select the LABasin velocity
  ...
 ```
 
-Since this run only includes one station, it will run in about 5-10 minutes. In the output directory you'll notice there are no goodness-of-fit or files, since this is not a validation simulation. However, there is a map file (station_map.png), showing the fault plane and the station, and a plot of the rupture slip (user_eq.png). The SRF generated by the rupture generator is in user_eq.srf; this file could be used in future runs. The filenames of the rupture slip plot and SRF are taken from the rupture description filename.
+Since this run only includes one station, it will run in about 2-10 minutes. In the output directory you'll notice there are no goodness-of-fit or files, since this is not a validation simulation. However, there is a map file (station_map.png), showing the fault plane and the station, and a plot of the rupture slip (user_eq.png). The SRF generated by the rupture generator is in user_eq.srf; this file could be used in future runs. The filenames of the rupture slip plot and SRF are taken from the rupture description filename.
 
 #### Custom Southern California validation event with user-provided source description
 
@@ -473,7 +479,7 @@ First, we will run the standard Chino Hills validation event, for which we do no
 
 ```
  $ run_bbp.py
- Welcome to the SCEC Broadband Platform version 19.4.0
+ Welcome to the SCEC Broadband Platform version 22.4.0.
  ================================================================================
 
  Please select the Broadband Platform mode of operation:
@@ -508,13 +514,13 @@ First, we will run the standard Chino Hills validation event, for which we do no
  ================================================================================
  SRC file: /home/sarah/bbp/bbp_val/ChinoHills/common/ch_v14_2_2.src
  ================================================================================
- STL file: /home/sarah/bbp/bbp_val/ChinoHills/common/ch_v19_02_1.stl
+ STL file: /home/sarah/bbp/bbp_val/ChinoHills/common/ch_v19_06_2.stl
 
  --------------------------GP Rupture Generator GenSlip--------------------------
  ...
 ```
 
-This simulation should take about 60-90 minutes, once it completes, the platform will tell you:
+This simulation should take about 3-4 hourds, once it completes, the platform will tell you:
 
 ```
  You can find results in $BBP_DATA_DIR/outdata/<simulation ID>
@@ -522,7 +528,7 @@ This simulation should take about 60-90 minutes, once it completes, the platform
 
 We will now inspect the results. The html file is helpful to display all the results in an organized way. There should be a goodness-of-fit plot, a station map plot, and a rupture plot showing the slip distribution, followed by per-station results with acceleration and velocity seismograms and other comparison plots. Please take a look at the goodness-of-fit plot. It should be similar to the one available in the `$BBP_DIR/../doc/examples/chino_hills_larger_mag/results` directory for the default 5.39 magnitude used in Chino Hills, and also shown below:
 
-![Goodness-of-Fit Plot for Mag 5.39 Chino Hills event](images/gof-CHINOH-6917077_r0-180-rd50.png)
+![Goodness-of-Fit Plot for Mag 5.39 Chino Hills event](images/gof-CHINOH-1127156_r0-180-rd50.png)
 
 As an exercise (and for no scientific purpose whatsoever), we will modify the magnitude used for Chino Hills and see what happens to the results. We will increase the magnitude from 5.39 to 5.60. There is already a simple source description file with this modification in the `$BBP_DIR/../doc/examples/chino_hills_larger_mag` directory:
 
@@ -558,7 +564,7 @@ Please note the modification at the top, where magnitude was increased from 5.39
 
 ```
  $ run_bbp.py --expert
- Welcome to the SCEC Broadband Platform version 19.4.0.
+ Welcome to the SCEC Broadband Platform version 22.4.0.
  ================================================================================
 
  Please select the Broadband Platform mode of operation:
@@ -635,7 +641,7 @@ This is the only customization we want to make to this simulation, so just finis
   (2) provide a custom list with a subset of the stations
  ? 1
  ================================================================================
- STL file: /home/sarah/bbp/bbp_val/ChinoHills/common/ch_v19_02_1.stl
+ STL file: /home/sarah/bbp/bbp_val/ChinoHills/common/ch_v19_06_2.stl
  ================================================================================
 
  Site Response
@@ -645,6 +651,11 @@ This is the only customization we want to make to this simulation, so just finis
  for each station location.
 
  Do you want to run the site response module (y/n)? y
+
+ Please select a site response module to use in this Broadband simulation:
+ (1) GP (Graves & Pitarka)
+ (2) PySeismoSoil
+ ? 1
  ================================================================================
  Do you want to generate velocity seismograms' plots (y/n)? y
  ================================================================================
@@ -671,8 +682,9 @@ This is the only customization we want to make to this simulation, so just finis
 
  Choose a Goodness of Fit (GOF) Module:
  (1) GP
- (2) SDSU
- (3) Both
+ (2) FAS
+ (3) GP and SDSU
+ (4) GP and FAS
  ? 1
  ================================================================================
 
@@ -686,7 +698,7 @@ This is the only customization we want to make to this simulation, so just finis
  --------------------------GP Rupture Generator GenSlip--------------------------
 ```
 
-This simulation should again take about 60-90 minutes, once it completes, the platform will tell you:
+Note that because we selected only the GP GoF module, this simulation will run much faster, it should take about 15-30 minutes to complete. Once the Platform finishes, it will tell you:
 
 ```
  You can find results in $BBP_DATA_DIR/outdata/<simulation ID>
@@ -694,6 +706,6 @@ This simulation should again take about 60-90 minutes, once it completes, the pl
 
 Now that the simulation is finishes, we can go to the 'outdata' directory printed at the end of the run and look at the results. As before, we can open the html file for a more organized display of the results. Open the goodness of fit plot for this second simulation and compare it against the one we obtained before using the unmodified source description file. The new goodness of fit plot should be similar to the one available in the `$BBP_DIR/../doc/examples/chino_hills_larger_mag/results` directory for the modified Chino Hills event with magnitude 5.60, also shown below:
 
-![Goodness-of-Fit Plot for Mag 5.60 Chino Hills event](images/gof-CHINOH-6916980_r0-180-rd50.png)
+![Goodness-of-Fit Plot for Mag 5.60 Chino Hills event](images/gof-CHINOH-1147143_r0-180-rd50.png)
 
 When comparing the results for the 5.39 and 5.60 magnitudes against each other we can see the the changes to the goodness of fit plot. The red line appears lower for the higher magnitude simulation as a result of the higher ground motion intensity.  

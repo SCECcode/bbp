@@ -1,3 +1,25 @@
+### Broadband Platform 22.4.0
+
+This is a full release of the Broadband Platform, and includes several major updates and bug fixes. Below is a summary of the improvements and changes included in this release of the Broadband Platform.
+
+#### Method updates
+
+* Included multi-segment rupture support for GP, SDSU, Irikura 1, Irikura 2, and Song simulation methods. Currently provided multi-segment validation events are Landers, Ridgecrest 19C, and San Simeon.
+
+* Updated GP low-frequency module (jbsim) to perform time-shifting in the time domain instead of frequency domain. This avoids calculating numerous FFTs and results in a significant processing speedup of 10x, and benefits all simulation modules that use the GP low-frequency code.
+
+* Modified UCSB simulation method to include support for double corner frequency (DCF)
+
+#### Other improvements
+
+* Included FAS validation module that produces FAS Goodness-of-Fitness plots, for a better seismological interpretation of the results. This is in addition to the PSA validation that is the main metric for design in engineering.
+
+* Updated the GP rupture generator to genslip-5.5.2 and the high-frequency code to hb_high_6.0.5.
+
+* Added Green's Functions and validation events for the Southern Walker Lane region (Southern Sierra Nevada) of California. Validation events include the 2019 Ridgecrest sequence.
+
+* Expanded the GP GoF module to include a Vs30 GoF plot (similar to the distance and map GoF plots) that can be used to show GoF bias related to stations' Vs30s.
+
 ### Broadband Platform 19.4.0
 
 This full release of the Broadband Platform includes several new features and bug fixes. Below is a summary of the improvements and modifications included in this release of the Broadband Platform.

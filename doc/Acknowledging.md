@@ -4,7 +4,7 @@ The primary reference for the Broadband Platform software system (v15.3.0 and la
 
 * Maechling, P. J., F. Silva, S. Callaghan, and T. H. Jordan (2015). SCEC Broadband Platform: System Architecture and Software Implementation, Seismol. Res. Lett., 86, no. 1, doi: 10.1785/0220140125.
 
-The primary reference that describes the validation process developed by the Broadband Platform group to establish that the BBP platform software produces results suitable for use in engineering applications is:
+The primary reference that describes the validation process developed by the Broadband Platform group to establish that the BBP platform software produces results are suitable for use in engineering applications is:
 
 * Goulet, C.A., Abrahamson, N.A., Somerville, P.G. and K, E. Wooddell (2015) The SCEC Broadband Platform Validation Exercise: Methodology for Code Validation in the Context of Seismic-Hazard Analyses, Seismol. Res. Lett., 86, no. 1, doi: 10.1785/0220140104
 
@@ -12,7 +12,7 @@ The primary reference that describes the results of the validation process in 20
 
 * Dreger, D. S., Beroza, G.C., Day, S. M., Goulet, C. A., Jordan, T. H., Spudich, P. A., and Stewart, J. P. (2015). Validation of the SCEC Broadband Platform V14.3 Simulation Methods Using Pseudospectral Acceleration Data, Seismol. Res. Lett., 86, no. 1, doi:10.1785/0220140118.
 
-References for specific computational methods included in the Broadband Platform (v15.3.0 and later, including v16.5.0) and for the validation procedures developed by the Broadband Platform include:
+References for specific computational methods included in the Broadband Platform (v15.3.0 and later, including v16.5.0, v17.3.0, and v19.4.0) and for the validation procedures developed by the Broadband Platform include:
 
 * Anderson, J. G (2015) The Composite Source Model for Broadband Simulations of Strong Ground Motions Seismological Research Letters, January/February 2015, v. 86, p. 68-74, First published on December 17, 2014, doi:10.1785/0220140098
 * Atkinson, G. M., and Assatourians, K. (2015) Implementation and Validation of EXSIM (A Stochastic Finite‐Fault Ground‐Motion Simulation Algorithm) on the SCEC Broadband Platform Seismological Research Letters, January/February 2015, v. 86, p. 48-60, First published on December 17, 2014, doi:10.1785/0220140097
