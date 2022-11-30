@@ -14,7 +14,7 @@ CFLAGS = ${UFLAGS} -Xt -fsingle
 
 #CCOMPILE = cc ${CFLAGS} -o $@ $@.c ${LIBS}
 
-FFLAGS = ${UFLAGS} -ffixed-line-length-132
+FFLAGS = ${UFLAGS} -ffixed-line-length-132 -ffast-math
 
 FC = gfortran
 #FC = g77
