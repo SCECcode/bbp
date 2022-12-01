@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.7.6", "3.8", "3.9", "3.10" ]
+        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
     steps:
     - name: set BBP_DIR
       run: echo "BBP_BASE_DIR=$RUNNER_WORKSPACE/bbp" >> $GITHUB_ENV
