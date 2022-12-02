@@ -1944,4 +1944,5 @@ void wcc_siteamp14(int param_string_len, char** param_string, float** s1, struct
 	
 	invfft((struct complex *)(*s1),nt_p2,1);
 	norm(*s1,&(head1->dt),nt_p2);
+	free(ampf);
 }

@@ -314,6 +314,7 @@ for(i=1;i<ntrsmp/2;i++)  /* replicate with complex-conjugate */
    cs[(ntrsmp-i)][1] = -cs[i][1];
    }
 
+fftwf_destroy_plan(plan);
 plan = fftwf_plan_dft_1d(ntrsmp,cs,cs,FFTW_BACKWARD,FFTW_ESTIMATE);
 fftwf_execute(plan);
 
