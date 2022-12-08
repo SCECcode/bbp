@@ -489,10 +489,11 @@ struct srf_apointvalues *apval_ptr;
 struct srf_prectsegments *prseg_ptr;
 int i, j, ip, ip0, iseg, nseg, ioff, noff, ntot;
 
-/* 20191101: now done in init_plane_srf
+/* load hypo here just to be sure it's in header
+   (may have already been done in init_plane_srf if read_gsf=1)
+*/
 (srf->srf_prect).prectseg[0].shyp = *sh;
 (srf->srf_prect).prectseg[0].dhyp = *dh;
-*/
 
 apnts_ptr = &(srf->srf_apnts);
 apval_ptr = apnts_ptr->apntvals;
@@ -980,7 +981,11 @@ float rtfac, tzero;
 float rtfac1, rtfac2, sabs, slip_max, slip_avg, slip_min;
 float rtfac_min = 0.05;
 
-rtfac_min = spar->dt/spar->trise;
+float beta, b_dmin, b_dmax, delta_b;
+
+rtfac_min = 5.0*spar->dt/spar->trise;    /* so minimum rise time >= 5*dt */
+rtfac_min = 10.0*spar->dt/spar->trise;    /* so minimum rise time >= 10*dt */
+rtfac_min = spar->dt/spar->trise;    /* so minimum rise time >= dt */
 
 dmin1 = spar->risetimedep - spar->risetimedep_range;
 dmax1 = spar->risetimedep + spar->risetimedep_range;
@@ -989,6 +994,10 @@ rtfac1 = spar->risetimefac - 1.0;
 dmin2 = spar->deep_risetimedep - spar->deep_risetimedep_range;
 dmax2 = spar->deep_risetimedep + spar->deep_risetimedep_range;
 rtfac2 = spar->deep_risetimefac - 1.0;
+
+b_dmin = spar->beta_depth - spar->beta_depth_range;
+b_dmax = spar->beta_depth + spar->beta_depth_range;
+delta_b = spar->beta_deep - spar->beta_shal;
 
 apnts_ptr = &(srf->srf_apnts);
 apval_ptr = apnts_ptr->apntvals;
@@ -999,9 +1008,13 @@ prseg_ptr = srf[0].srf_prect.prectseg;
 /* version 2.0 stuff, just in case */
 
 srf[0].srf_hcmnt.nline = 0;
-srf[0].nseg = 1;
+
+/* 2018-04-02 updated for multiple segs */
+srf[0].nseg = srf[0].srf_prect.nseg;
 srf[0].np_seg = (int *)check_malloc((srf[0].nseg)*sizeof(int));
-srf[0].np_seg[0] = srf[0].srf_apnts.np;
+
+for(iseg=0;iseg<nseg;iseg++)
+   srf[0].np_seg[iseg] = prseg_ptr[iseg].nstk*prseg_ptr[0].ndip;
 
 /* end version 2.0 stuff, just in case */
 
@@ -1062,9 +1075,6 @@ for(iseg=0;iseg<nseg;iseg++)
             if(spar->rt_scalefac > 0.0)
                rtfac = rtfac*sqrt(rtime1_r[ip0])/spar->rt_scalefac;
 
-	    /*
-            rtfac = rtfac*exp(rtime2_r[ip0]);
-	    */
             rtfac = rtfac*(1.0+rtime2_r[ip0]);
 
             if(rtfac < rtfac_min)
@@ -1094,6 +1104,32 @@ for(iseg=0;iseg<nseg;iseg++)
                tzero = rtfac*spar->trise;
 
                apval_ptr[ip].nt1 = gen_Mliu_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"OliuP") == 0) /* original form */
+               {
+               if(ps[ip0].dep <= b_dmin)
+                  beta = spar->beta_shal;
+               else if(ps[ip0].dep < b_dmax && ps[ip0].dep > b_dmin)
+                  beta = spar->beta_shal + delta_b*(ps[ip0].dep - b_dmin)/(b_dmax-b_dmin);
+               else
+                  beta = spar->beta_deep;
+
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_OliuP_stf(&(ps[ip0].slip),&tzero,&beta,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"MliuP") == 0) /* modified form */
+               {
+               if(ps[ip0].dep <= b_dmin)
+                  beta = spar->beta_shal;
+               else if(ps[ip0].dep < b_dmax && ps[ip0].dep > b_dmin)
+                  beta = spar->beta_shal + delta_b*(ps[ip0].dep - b_dmin)/(b_dmax-b_dmin);
+               else
+                  beta = spar->beta_deep;
+
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_MliuP_stf(&(ps[ip0].slip),&tzero,&beta,stf,spar->nt,&spar->dt);
                }
             else if(strcmp(spar->stype,"tri") == 0)
                {

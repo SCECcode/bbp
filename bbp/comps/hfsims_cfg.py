@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2022, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ class HfsimsCfg(object):
         #
         # Name of executable
         #
-        self.HFSIM = "hb_high_v6.0.5"
+        self.HFSIM = "hb_high_v6.1.1"
 
         #
         # Seismic Parameters
