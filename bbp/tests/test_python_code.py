@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 BSD 3-Clause License
 
@@ -52,7 +52,7 @@ class TestPythonCode(unittest.TestCase):
         Run Broadband Plotform to make sure we can start it
         """
         self.install = InstallCfg()
-        cmd = ("python %s -v >/dev/null" %
+        cmd = ("python3 %s -v >/dev/null" %
                (os.path.join(self.install.A_COMP_DIR,
                              "run_bbp.py")))
         self.assertFalse(bband_utils.runprog(cmd, False) != 0,
@@ -63,7 +63,7 @@ class TestPythonCode(unittest.TestCase):
         Run Python with -tt flag to detect mix of tabs and spaces in the code
         """
         self.install = InstallCfg()
-        cmd = ("python -tt -m compileall -f -q -l %s" %
+        cmd = ("python3 -tt -m compileall -f -q -l %s" %
                (self.install.A_COMP_DIR))
         self.assertFalse(bband_utils.runprog(cmd, False) != 0,
                          "Python code in comps directory mixes tabs and spaces!")
