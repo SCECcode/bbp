@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
@@ -319,7 +319,7 @@ def add_extra_points(input_bbp_file, output_bbp_file, num_points):
 
     if bbp_dt is None:
         raise bband_utils.ParameterError("Cannot find DT in %s!" %
-                                         (bbp_file))
+                                         (input_bbp_file))
     for _ in range(0, num_points):
         cur_dt = cur_dt + bbp_dt
         output_file.write("%5.7f   %5.9e   %5.9e    %5.9e\n" %
@@ -574,8 +574,8 @@ def plot_fas(freqs, ns_data, ew_data, eas_smoothed_data,
     pylab.xlabel('Frequency (Hz)')
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
-    pylab.grid(b=True, which='minor', linewidth=0.5, color='gray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='minor', linewidth=0.5, color='gray')
 
     # Save plot
     pylab.savefig(fas_plot, format="png",
