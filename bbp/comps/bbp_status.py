@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
@@ -64,16 +64,16 @@ class BBPStatus(object):
                       ["GFORTRAN Version",
                        "cat $BBP_DIR/src/gfortran.version", False],
                       ["NumPy Version",
-                       "python -c 'from __future__ import print_function; import numpy; print(numpy.__version__);'",
+                       "python3 -c 'from __future__ import print_function; import numpy; print(numpy.__version__);'",
                        False],
                       ["SciPy Version",
-                       "python -c 'from __future__ import print_function; import scipy; print(scipy.__version__);'",
+                       "python3 -c 'from __future__ import print_function; import scipy; print(scipy.__version__);'",
                        False],
                       ["Matplotlib Version",
-                       "python -c 'from __future__ import print_function; import matplotlib; print(matplotlib.__version__);'",
+                       "python3 -c 'from __future__ import print_function; import matplotlib; print(matplotlib.__version__);'",
                        False],
                       ["PyProj Version",
-                       "python -c 'from __future__ import print_function; import pyproj; print(pyproj.__version__);'",
+                       "python3 -c 'from __future__ import print_function; import pyproj; print(pyproj.__version__);'",
                        False]]
 
     # Leave some envrionment variables out, to avoid capturing too much
