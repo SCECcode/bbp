@@ -394,7 +394,7 @@ def write_slurm(install, numsim, simdir, xmldir, email,
     slurmfile.write("\n")
     slurmfile.write("cd $HOME\n")
     slurmfile.write("\n")
-    slurmfile.write("python $BBP_DIR/utils/batch/run_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh %s $SLURM_NODES %d\n" %
+    slurmfile.write("python3 $BBP_DIR/utils/batch/run_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh %s $SLURM_NODES %d\n" %
                     (bfn, cores_per_node))
     slurmfile.write("\n")
     slurmfile.write('echo "Processing end"\n')
