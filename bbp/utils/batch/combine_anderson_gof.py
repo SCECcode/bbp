@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -107,9 +107,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c2cf[i][0] for i in arange(BMAX)]
     #stdev = [c2cf[i][1] for i in arange(BMAX)]
@@ -127,9 +127,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c3cf[i][0] for i in arange(BMAX)]
     #stdev = [c3cf[i][1] for i in arange(BMAX)]
@@ -147,9 +147,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c4cf[i][0] for i in arange(BMAX)]
     #stdev = [c4cf[i][1] for i in arange(BMAX)]
@@ -167,9 +167,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c5cf[i][0] for i in arange(BMAX)]
     #stdev = [c5cf[i][1] for i in arange(BMAX)]
@@ -187,9 +187,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c6cf[i][0] for i in arange(BMAX)]
     #stdev = [c6cf[i][1] for i in arange(BMAX)]
@@ -207,9 +207,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c7cf[i][0] for i in arange(BMAX)]
     #stdev = [c7cf[i][1] for i in arange(BMAX)]
@@ -227,9 +227,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c8cf[i][0] for i in arange(BMAX)]
     #stdev = [c8cf[i][1] for i in arange(BMAX)]
@@ -247,9 +247,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c9cf[i][0] for i in arange(BMAX)]
     #stdev = [c9cf[i][1] for i in arange(BMAX)]
@@ -268,9 +268,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.xlabel('Frequency Band', fontsize=12)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c10cf[i][0] for i in arange(BMAX)]
     #stdev = [c10cf[i][1] for i in arange(BMAX)]
@@ -289,9 +289,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.xlabel('Frequency Band', fontsize=12)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     #plt.show()
     plt.savefig(output_file, dpi=300)
