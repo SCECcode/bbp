@@ -95,7 +95,7 @@ c   Lat/Lon to UTM conversion
 	  f1=(1.d0-e2/4.d0-3.d0*e4/64.d0-5.d0*e6/256.d0)*rlat
 	  f2=3.d0*e2/8.d0+3.d0*e4/32.d0+45.d0*e6/1024.d0
 	  f2=f2*dsin(2.d0*rlat)
-	  f3=15.d0*e4/256.d0*45.d0*e6/1024.d0
+	  f3=15.d0*e4/256.d0+45.d0*e6/1024.d0
 	  f3=f3*dsin(4.d0*rlat)
 	  f4=35.d0*e6/3072.d0
 	  f4=f4*dsin(6.d0*rlat)
@@ -160,7 +160,7 @@ c   UTM to Lat/Lon conversion
 
 	    f1=rn1*dtan(rlat1)/r1
 	    f2=d**2/2.d0
-	    f3=5.d0*3.d0*t1+10.d0*c1-4.d0*c1**2-9.d0*ep2
+	    f3=5.d0+3.d0*t1+10.d0*c1-4.d0*c1**2-9.d0*ep2
 	    f3=f3*d**2*d**2/24.d0
 	    f4=61.d0+90.d0*t1+298.d0*c1+45.d0*t1**2-252.d0*ep2-3.d0*c1**2
 	    f4=f4*(d**2)**3.d0/720.d0
