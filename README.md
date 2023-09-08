@@ -137,7 +137,7 @@ You may then choose the method you would like to run:
 ## Support
 Support for BBP is provided by that Southern California Earthquake Center (SCEC) Research Computing Group. This group supports several research software distributions including BBP. Users can report issues and feature requests using BBP's github-based issue tracking link below. Developers will also respond to emails sent to the SCEC software contact listed below.
 1. [BBP Github Issue Tracker](https://github.com/SCECcode/bbp/issues)
-2. Email Contact: software@scec.usc.edu
+2. Email Contact: software@scec.org
 
 ## Citation
 References, citations, and acknowledgements help us obtain continued support for the development of the BBP software. If you use the BBP software in your research, please include the citation of the BBP paper in the references/bibliography section of your publication. This is more effective than you providing in-text acknowledgements.
