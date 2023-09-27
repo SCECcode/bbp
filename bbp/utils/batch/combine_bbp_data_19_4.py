@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -180,7 +180,7 @@ def create_resid_data_file(comp_label, input_indir, input_obsdir,
         raise bband_utils.ProcessingError("Cannot get station list!")
     a_statfile = a_statfile[0]
     slo = StationList(a_statfile)
-    site_list = slo.getStationList()
+    site_list = slo.get_station_list()
 
     # Get source file
     a_srcfile = glob.glob("%s%s*.src" % (basedir, os.sep))

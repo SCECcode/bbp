@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ def stationlist2filelist(slo):
     Input a stationlist object (slo). From this extract the station codes and
     create a list of file names that represent long period data files
     """
-    site_list = slo.getStationList()
+    site_list = slo.get_station_list()
     files = []
     for sta in site_list:
         fname = "%s" % (sta.scode)
@@ -65,7 +65,7 @@ def gp_subset(in_file1, in_format1, in_file2, outfile):
     """
     #Get a station list from in_file1
     if in_format1 == 'GP' or in_format1 == 'UCSB':
-        stat_list = StationList(in_file1).getStationList()
+        stat_list = StationList(in_file1).get_station_list()
         stat_names = [stat.scode for stat in stat_list]
     elif in_format1 == 'SDSU':
         stat_file_fp = open(in_file1, 'r')
@@ -86,7 +86,7 @@ def gp_subset(in_file1, in_format1, in_file2, outfile):
 
     # Use the station list to subset in_file2
     intersect_list = []
-    stat2_list = StationList(in_file2).getStationList()
+    stat2_list = StationList(in_file2).get_station_list()
     for stat2 in stat2_list:
         for stat1 in stat_names:
             if stat2.scode == stat1:
@@ -148,7 +148,7 @@ def sdsu_subset(working_dir, stat_list_obj, val_obj, sdsu_out_list,
         vs_synths[pieces[2]] = full_vssynth_data[j - i - 1]
 
     # Now select only the stations present also in the stat_list_obj
-    for stat in stat_list_obj.getStationList():
+    for stat in stat_list_obj.get_station_list():
         #print stat.scode
         if stat.scode in stat_line:
             stl_out.write(stat_line[stat.scode])
@@ -186,7 +186,7 @@ def bbp2sdsu_statlist(working_dir, slo, sdsu_stalist,
     coords_fp.close()
 
     # Write station file
-    stat_list = slo.getStationList()
+    stat_list = slo.get_station_list()
     stalist_fp = open(sdsu_stalist, 'w')
     for i in range(0, len(stat_list)):
         pieces = coords_data[i].split()
@@ -203,7 +203,7 @@ def bbp2sdsu_vsfiles(working_dir, slo, vsrealfile, vssynthfile):
     """
     Produces VSREAL from station list and VSSYNTH (always 865)
     """
-    stat_list = slo.getStationList()
+    stat_list = slo.get_station_list()
 
     # Write VSREAL and VSSYNTH files in working_dir
     if vsrealfile is not None:
@@ -229,7 +229,7 @@ def gp2uc_stalist(slo, uc_stalist, uc_vs30):
     Convert this into a UCSB format station list containing lat/lon values.
     Values in list are strings at this time.
     """
-    sl = slo.getStationList()
+    sl = slo.get_station_list()
     f = open(uc_stalist, "w")
     vs = open(uc_vs30, "w")
     num = len(sl)
@@ -263,7 +263,7 @@ def sdsu2uc_subset(sdsu_stat_file, uc_stalist_in, uc_vs30_in,
         stat_names.append(pieces[2])
 
     new_list = []
-    slo = StationList(uc_stalist_in).getStationList()
+    slo = StationList(uc_stalist_in).get_station_list()
     for stat in stat_names:
         for entry in slo:
             if stat == entry.scode:

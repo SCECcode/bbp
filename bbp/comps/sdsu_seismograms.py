@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ class SDSUSeismograms(object):
 
         # Create list of stations to save
         slo = StationList(a_stations)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
         save_stat_names = []
         for stat in site_list:
             save_stat_names.append(stat.scode)

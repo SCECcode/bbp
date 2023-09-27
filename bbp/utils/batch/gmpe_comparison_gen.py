@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -183,7 +183,7 @@ def create_gmpe_data_file(indata_dir, tmpdir,
     stl_file = stl_file[0]
     # Parse station list
     slo = StationList(stl_file)
-    site_list = slo.getStationList()
+    site_list = slo.get_station_list()
 
     # Write ri50 files
     rrups = []

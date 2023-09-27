@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -108,7 +108,7 @@ class PlotValueMap(object):
         # a_statfile = (self.install.A_IN_DATA_DIR +
         #               "/%d/%s"%(self.sim_id,self.station_file))
         slo = StationList(self.station_file)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
         w_lon = 0.0
         e_lon = 0.0
         n_lat = 0.0
@@ -197,7 +197,7 @@ class PlotValueMap(object):
         # a_statfile = (self.install.A_IN_DATA_DIR +
         #               "/%d/%s"%(self.sim_id,self.station_file))
         slo = StationList(self.station_file)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         for sites in site_list:
             slon = float(sites.lon)

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -285,7 +285,7 @@ class Hfsims(object):
         # list that is returned has one station per line in it.
         #
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
         nstat = len(site_list)
 
         # Create rayset param list

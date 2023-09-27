@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -109,7 +109,7 @@ def calculate_distance():
     else:
         # Process station list
         slo = StationList(args.station_list)
-        stations = slo.getStationList()
+        stations = slo.get_station_list()
         for station in stations:
             site_geom = [float(station.lon), float(station.lat), 0.0]
             (fault_trace1, up_seis_depth,

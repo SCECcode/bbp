@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -1128,7 +1128,7 @@ class SDSUMOGoF(object):
                   (a_statfile))
             sys.exit(-1)
 
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         print("Opening Station list %s." % (a_statfile))
 

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -881,7 +881,7 @@ class RZZ2015(object):
 
         # Get station list
         slo = StationList(sta_file)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         # Create output file, add header
         out_file = open(os.path.join(a_validation_outdir,

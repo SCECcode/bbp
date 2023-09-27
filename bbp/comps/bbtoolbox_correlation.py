@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -255,7 +255,7 @@ def generate_matrices(sdsu_data_dir, lf_seis_dir,
 
     # Figure out how long LF seismograms are
     slo = StationList(station_file)
-    station_list = slo.getStationList()
+    station_list = slo.get_station_list()
     station_id = station_list[0].scode
     lf_file = os.path.join(lf_seis_dir, "%d.%s-lf.bbp" % (sim_id, station_id))
     ts_dt = get_dt(lf_file)

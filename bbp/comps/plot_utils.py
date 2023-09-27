@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -129,7 +129,7 @@ def write_simple_stations(station_file, out_file):
     This function parses the station file and writes a simple
     version with just longitude, latitude, and station code
     """
-    stl = StationList(station_file).getStationList()
+    stl = StationList(station_file).get_station_list()
     fp_out = open(out_file, 'w')
     for stat in stl:
         fp_out.write("%f %f %s\n" % (stat.lon, stat.lat, stat.scode))
@@ -420,7 +420,7 @@ def set_boundaries_from_stations(station_file, a_input_file):
         bband_utils.ParameterError("Cannot determine input_file format!")
 
     # First we read the stations
-    stations = StationList(station_file).getStationList()
+    stations = StationList(station_file).get_station_list()
     # Now go through each one, keeping track of its locations
     for station in stations:
         # If this is the first station, use its location

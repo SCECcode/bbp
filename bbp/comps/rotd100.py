@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ class RotD100(object):
         install = install_cfg.InstallCfg.getInstance()
         sim_id = self.sim_id
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         for site in site_list:
             stat = site.scode
@@ -282,7 +282,7 @@ class RotD100(object):
         """
         sim_id = self.sim_id
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         # Inialize the CorrectPSA module
         if self.obs_corrections:
@@ -463,7 +463,7 @@ class RotD100(object):
         """
         sim_id = self.sim_id
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         # Loop through all stations
         for site in site_list:
@@ -487,7 +487,7 @@ class RotD100(object):
         install = install_cfg.InstallCfg.getInstance()
         sim_id = self.sim_id
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         print_header = 1
         rd100_resid_output = os.path.join(a_dstdir, "%s-%d-resid-rd100.txt" %
@@ -570,7 +570,7 @@ class RotD100(object):
         install = install_cfg.InstallCfg.getInstance()
         sim_id = self.sim_id
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         rd100_resid_output = os.path.join(a_dstdir, "%s-%d-resid-rd100.txt" %
                                           (self.comp_label, sim_id))

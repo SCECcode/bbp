@@ -1,8 +1,8 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ class TestRZZ2015(unittest.TestCase):
 
         # Read station list
         slo = StationList(os.path.join(a_indir, self.stations))
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         # Loop over stations
         for site in site_list:

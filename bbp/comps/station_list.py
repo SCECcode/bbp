@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -69,12 +69,15 @@ class StationList(object):
         # Open file
         try:
             station_file = open(self.a_station_filename, "r")
-        except IOError:
+        except OSError:
             print("Error opening station list file : ", a_station_list)
             sys.exit(-1)
 
         # Read lines one by one
         for line in station_file:
+            line = line.strip()
+            if not line:
+                continue
             if line.startswith("#"):
                 continue
             sta = line.split()
@@ -108,7 +111,7 @@ class StationList(object):
         # Remember to close the file
         try:
             station_file.close
-        except IOError:
+        except OSError:
             print("Error closing station list file :", a_station_list)
         # Error message if we weren't able to read any stations
         if len(self.site_list) == 0:
@@ -123,16 +126,18 @@ class StationList(object):
         fp = open(output_file, 'w')
         for stat in stat_list:
             if stat.vs30 is not None:
+                # Write file with all fields
                 fp.write("%f\t%f\t%s\t%d\t%f\t%f\n" %
                          (stat.lon, stat.lat, stat.scode,
                           stat.vs30, stat.low_freq_corner,
                           stat.high_freq_corner))
             else:
+                # Use short station list format
                 fp.write("%f\t%f\t%f\n" % (stat.lon, stat.lat, stat.scode))
         fp.flush()
         fp.close()
 
-    def getStationList(self):
+    def get_station_list(self):
         """
         Returns our station list
         """
@@ -140,8 +145,7 @@ class StationList(object):
 
 if __name__ == "__main__":
     print("Testing Module: %s" % (sys.argv[0]))
-    sl = StationList(sys.argv[1])
-    ME = sl.getStationList()
-    for x in ME:
-        print(x.priority)
-    sys.exit(0)
+    STATION_LIST = StationList(sys.argv[1])
+    ME = STATION_LIST.get_station_list()
+    for STATION in ME:
+        print(STATION.scode)

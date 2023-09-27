@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -164,7 +164,7 @@ class Syn1D(object):
 
         # Write VMname.list file
         vmname_file = open(os.path.join(a_tmpdir_stitch, "VMname.list"), 'w')
-        site_list = self.slo.getStationList()
+        site_list = self.slo.get_station_list()
         for _ in site_list:
             vmname_file.write("%s\n" % (r_velmodel))
         vmname_file.close()
@@ -266,7 +266,7 @@ class Syn1D(object):
         a_stations = os.path.join(self.a_indir, self.r_stations)
         print(a_stations)
         self.slo = StationList(a_stations)
-        site_list = self.slo.getStationList()
+        site_list = self.slo.get_station_list()
 
         # Make sure syn1D can handle our station list
         if len(site_list) > self.cfg.MAX_STATIONS:

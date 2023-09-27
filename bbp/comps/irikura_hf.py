@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -340,7 +340,7 @@ class IrikuraHF(object):
             out_file.write("%d %d %4.2f %d\n" %
                            (idx + 1, vs_m[idx], rho[idx], round(qs[idx])))
         out_file.write("# LAYER-DEPTH(GL-m)\n")
-        for idx, _ in enumerate(self.stat_list.getStationList(), 1):
+        for idx, _ in enumerate(self.stat_list.get_station_list(), 1):
             out_file.write("%d %d %d" % (idx, 0, 0))
             for item in depth:
                 out_file.write(" %.1f" % (item))
@@ -356,7 +356,7 @@ class IrikuraHF(object):
             out_file.write("%d %d %4.2f %d\n" %
                            (idx + 1, vp_m[idx], rho[idx], round(qs[idx])))
         out_file.write("# LAYER-DEPTH(GL-m)\n")
-        for idx, _ in enumerate(self.stat_list.getStationList(), 1):
+        for idx, _ in enumerate(self.stat_list.get_station_list(), 1):
             out_file.write("%d %d %d" % (idx, 0, 0))
             for item in depth:
                 out_file.write(" %.1f" % (item))
@@ -373,7 +373,7 @@ class IrikuraHF(object):
         This function creates the Irikura recipe station list
         """
         out_file = open(station_file, 'w')
-        for idx, station in enumerate(self.stat_list.getStationList(), 1):
+        for idx, station in enumerate(self.stat_list.get_station_list(), 1):
             out_file.write("%d\t%9.5f\t%9.5f\t0.0  \tSAS%s.dat\n" %
                            (idx, station.lat, station.lon, station.scode))
         out_file.close()
@@ -549,7 +549,7 @@ class IrikuraHF(object):
         acc_ver_dir = os.path.join(irikura_dir, "VER", "acc")
         tmp_dir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
 
-        for idx, station in enumerate(self.stat_list.getStationList()):
+        for idx, station in enumerate(self.stat_list.get_station_list()):
             in_hor_file = os.path.join(acc_hor_dir, "ac%06d.dat" % (idx + 1))
             in_ver_file = os.path.join(acc_ver_dir, "ac%06d.dat" % (idx + 1))
             out_acc_file = os.path.join(tmp_dir, "%d.%s-hf.acc.bbp" %

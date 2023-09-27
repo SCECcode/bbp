@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ class LFSeismograms(object):
         print(self.seis_dir)
 
         slo = StationList(a_stations)
-        stat_list = slo.getStationList()
+        stat_list = slo.get_station_list()
         for stat in stat_list:
             # Look for bbp seismogram, copy in
             print("%s/%s-lf.bbp" % (self.seis_dir, stat.scode))

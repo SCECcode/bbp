@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -107,7 +107,7 @@ class Match(object):
         # Read and parse the station list with this call
         #
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         # Get pointer to the velocity model object
         vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)

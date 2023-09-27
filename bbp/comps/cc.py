@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ def oll2xy(slo, ofile, mlon, mlat, x_azim):
     This will work as long at the station list has both lat/lon and XY in it.
     """
     # install = InstallCfg()
-    site_list = slo.getStationList()
+    site_list = slo.get_station_list()
     out_file = open(ofile, "w")
     out_file.write("% station coordinates in x,y system, "
                    "origin at fault center\n")

@@ -1,8 +1,8 @@
-#!/bin/env python
+#!/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ class CSM(object):
         cfgparams = self.config.cfgparams
 
         # Create a velocity model file for each station
-        for station in self.stat_list.getStationList():
+        for station in self.stat_list.get_station_list():
             vmodel_file = os.path.join(self.csm_dir,
                                        "%s.mod" % station.scode)
             outfile = open(vmodel_file, 'w')
@@ -135,7 +135,7 @@ class CSM(object):
                       (self.config.cfgparams["hypolat"],
                        self.config.cfgparams["hypolon"]))
         outfile.write("%5i\n" % (len(self.stat_list.site_list)))
-        for station in self.stat_list.getStationList():
+        for station in self.stat_list.get_station_list():
             outfile.write("%4s %12.5f %12.5f %20s\n" %
                           (station.scode,
                            station.lat,
@@ -150,7 +150,7 @@ class CSM(object):
         simula_stations = os.path.join(self.csm_dir,
                                        self.config.simula_stations)
         outfile = open(simula_stations, 'w')
-        for station in self.stat_list.getStationList():
+        for station in self.stat_list.get_station_list():
             outfile.write("%s\n" % (station.scode))
         outfile.write("ENDX00\n")
         outfile.close()
@@ -294,7 +294,7 @@ class CSM(object):
         generated the velocity and acceleration seismograms in the BBP
         format needed by the platform
         """
-        for station in self.stat_list.getStationList():
+        for station in self.stat_list.get_station_list():
             in_file = os.path.join(self.csm_dir,
                                    "%s.sim01" % (station.scode))
             out_vel_file = os.path.join(self.install.A_OUT_DATA_DIR,

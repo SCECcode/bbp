@@ -1,8 +1,8 @@
-#!/bin/env python
+#!/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -381,7 +381,7 @@ class ExSim(object):
         self.template_replace(["<END_OF_TEMPLATE_FILE>"], [""])
 
         # Almost done, now we need to add stations
-        site_list = self.stat_list.getStationList()
+        site_list = self.stat_list.get_station_list()
 
         # Check for maximum number of stations
         if len(site_list) > self.config.MAX_STATIONS:
@@ -466,7 +466,7 @@ class ExSim(object):
 
         # Need to copy and re-format output files
         output_stem = "exsim-output-%s" % (sta_base)
-        site_list = self.stat_list.getStationList()
+        site_list = self.stat_list.get_station_list()
 
         for site, idx in zip(site_list, range(1, self.num_stations + 1)):
             stat = site.scode

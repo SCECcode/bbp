@@ -376,7 +376,7 @@ def load_all_data(input_indir, input_outdir):
         raise bband_utils.ProcessingError("Cannot get station list!")
     a_statfile = a_statfile[0]
     slo = StationList(a_statfile)
-    site_list = slo.getStationList()
+    site_list = slo.get_station_list()
 
     # Go through all stations
     for site in site_list:
