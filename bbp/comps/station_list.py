@@ -143,6 +143,24 @@ class StationList(object):
         """
         return self.site_list
 
+    def find_station(self, station_name):
+        """
+        Returns station object for station matching station_name,
+        otherwise returns None
+        """
+        matching_list = [station for station in self.site_list if station.scode == station_name]
+
+        # Not found
+        if not len(matching_list):
+            return None
+
+        # Alert user that are multiple matches
+        if len(matching_list) > 1:
+            print("[WARNING]: multiple stations match station name %s!" % (station_name))
+
+        # Return match
+        return matching_list[0]
+
 if __name__ == "__main__":
     print("Testing Module: %s" % (sys.argv[0]))
     STATION_LIST = StationList(sys.argv[1])
