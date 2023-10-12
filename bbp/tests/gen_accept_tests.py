@@ -50,10 +50,10 @@ class Methods(object):
     """
     Defines available models on the platform
     """
-    gp, ucsb, sdsu, exsim, song, irikura1, irikura2, csm = range(8)
-    labels = ["GP", "UCSB", "SDSU", "EXSIM", "SONG",
+    gp, gp3d, ucsb, sdsu, exsim, song, irikura1, irikura2, csm = range(9)
+    labels = ["GP", "GP3D", "UCSB", "SDSU", "EXSIM", "SONG",
               "IRIKURA_RECIPE_M1", "IRIKURA_RECIPE_M2"]
-    options = ["gp", "ucsb", "sdsu", "exsim", "song", "irikura1", "irikura2"]
+    options = ["gp", "gp3d", "ucsb", "sdsu", "exsim", "song", "irikura1", "irikura2"]
     #labels = ["GP", "UCSB", "SDSU", "EXSIM", "SONG",
     #         "IRIKURA_RECIPE_M1", "IRIKURA_RECIPE_M2", "CSM"]
     #options = ["gp", "ucsb", "sdsu", "exsim", "song", "irikura1", "irikura2", "csm"]
@@ -147,7 +147,7 @@ class GenAcceptTests(object):
             opts.append('n')
             # For GP, UCSB, and SDSU, SONG, Irikura1, Irikura2
             # we want to run the rupture generator
-            if method in [Methods.gp, Methods.ucsb, Methods.sdsu, Methods.song, Methods.irikura1, Methods.irikura2]:
+            if method in [Methods.gp, Methods.gp3d, Methods.ucsb, Methods.sdsu, Methods.song, Methods.irikura1, Methods.irikura2]:
                 opts.append('y')
             opts.append('2')
             opts.append('1')
@@ -156,6 +156,10 @@ class GenAcceptTests(object):
             if method == Methods.exsim:
                 # No custom EXSIM template file
                 opts.append('n')
+            if method == Methods.gp3d:
+                # Need to provide LF seismogram path along with LF station list
+                opts.append(os.path.join(basedir, 'gp3d', 'validation'))
+                opts.append(os.path.join(basedir, 'gp3d', "northridge_3_stations-lf.stl"))
             if method != Methods.csm:
                 # Run site response (CSM does not ask this question)
                 opts.append('y')
@@ -205,6 +209,10 @@ class GenAcceptTests(object):
             if method == Methods.exsim:
                 # No custom template for ExSIM
                 opts.append('n')
+            if method == Methods.gp3d:
+                # Need to provide LF seismogram path along with LF station list
+                opts.append(os.path.join(basedir, 'gp3d', 'user'))
+                opts.append(os.path.join(basedir, 'gp3d', "northridge_3_stations-lf.stl"))
             if method != Methods.csm:
                 # Run site response (CSM doesn't ask this question)
                 opts.append('y')

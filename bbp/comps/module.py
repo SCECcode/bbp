@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -75,6 +75,7 @@ from anderson_gof import AndersonGOF
 from irikura_gen_srf import IrikuraGenSrf
 from irikura_hf import IrikuraHF
 from seismo_soil import SeismoSoil
+from lf_seismograms import LFSeismograms
 
 class Module(object):
     def __init__(self):

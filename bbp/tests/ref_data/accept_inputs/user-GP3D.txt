@@ -1,0 +1,14 @@
+n
+LABasin500
+gp3d
+1
+northridge_eq_gp.src
+y
+1
+1
+/project/scec_608/fsilva/git/BBP/bbp/tests/ref_data/accept_inputs/gp3d/user
+/project/scec_608/fsilva/git/BBP/bbp/tests/ref_data/accept_inputs/gp3d/northridge_3_stations-lf.stl
+y
+1
+n
+n
