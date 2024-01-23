@@ -172,20 +172,24 @@ class WccSiteamp(object):
                 # Pick the right model to use
                 site_amp_model = config.SITEAMP_MODEL
 
-                # Now, run site amplification
-                progstring = ("%s pga=%f vref=%d " %
-                              (os.path.join(install.A_GP_BIN_DIR,
-                                            "wcc_siteamp14"), pga, vref) +
-                              'vsite=%d model="%s" vpga=%d ' %
-                              (vs30, site_amp_model,
-                               config.HF_VREF) +
-                              'flowcap=%f infile=%s outfile=%s ' %
-                              (config.FLOWCAP, filein, fileout) +
-                              'fmax=%f fhightop=%f ' %
-                              (config.FMAX, config.FHIGHTOP) +
-                              "fmidbot=%s fmin=%s >> %s 2>&1" %
-                              (config.FMIDBOT, config.FMIN, self.log))
-                bband_utils.runprog(progstring, abort_on_error=True)
+                if vref == -1:
+                    # When Vref is -1, skip site response, just copy
+                    # input file to output file
+                    shutil.copy2(filein, fileout)
+                else:
+                    # Now, run site amplification
+                    progstring = ("%s pga=%f vref=%d " %
+                                  (os.path.join(install.A_GP_BIN_DIR,
+                                                "wcc_siteamp14"), pga, vref) +
+                                'vsite=%d model="%s" vpga=%d ' %
+                                (vs30, site_amp_model, config.HF_VREF) +
+                                'flowcap=%f infile=%s outfile=%s ' %
+                                (config.FLOWCAP, filein, fileout) +
+                                'fmax=%f fhightop=%f ' %
+                                (config.FMAX, config.FHIGHTOP) +
+                                "fmidbot=%s fmin=%s >> %s 2>&1" %
+                                (config.FMIDBOT, config.FMIN, self.log))
+                    bband_utils.runprog(progstring, abort_on_error=True)
 
                 # Output becomes input
                 filein = fileout
