@@ -37,8 +37,16 @@ Purpose: Translation of arias duration algorithm in matlab from
 from __future__ import division, print_function
 
 # G2CMSS = 980.665 # Convert g to cm/s/s
+import os
+import sys
 import math
 import scipy.integrate
+
+# Import Broadband modules
+import bband_utils
+import install_cfg
+import bbp_formatter
+from station_list import StationList
 
 # Converting to cm units. Use approximation to g
 G_TO_CMS = 981.0 # %(cm/s)
@@ -162,18 +170,30 @@ def ad_from_acc(a_in_peer_file, a_out_ad):
     else:
         ia_norm = [0.0 for i_acc in arias_intensity]
 
-    # Define the time for AI=5%, 75%, 95%
+    # Define the time for AI=5%, 20%, 75%, 80%, 95%
     time_ai5 = 0
     for i in range(pts):
         if ia_norm[i] >= 5:
             break
         time_ai5 = dt * i
 
+    time_ai20 = 0
+    for i in range(pts):
+        if ia_norm[i] >= 20:
+            break
+        time_ai20 = dt * i
+
     time_ai75 = 0
     for i in range(pts):
         if ia_norm[i] >= 75:
             break
         time_ai75 = dt * i
+
+    time_ai80 = 0
+    for i in range(pts):
+        if ia_norm[i] >= 80:
+            break
+        time_ai80 = dt * i
 
     time_ai95 = 0
     for i in range(pts):
@@ -184,6 +204,7 @@ def ad_from_acc(a_in_peer_file, a_out_ad):
     # Now, calculate the arias intervals 5% to 75% and 5% to 95%
     time_5_75 = time_ai75 - time_ai5
     time_5_95 = time_ai95 - time_ai5
+    time_20_80 = time_ai80 - time_ai20
 
     #print("Arias Intervals: 5 to 75 % 6f (secs), 5 to 95 % 6f (secs) " %
     #      (time_5_75, time_5_95))
@@ -213,8 +234,8 @@ def ad_from_acc(a_in_peer_file, a_out_ad):
     outfile.write("# Arias Intensities from input accel: %s\n" % a_in_peer_file)
     outfile.write("# Peak Arias Intensity (cm/sec): %f (secs): %f\n" %
                   (arias_intensity_max, (arias_intensity_index * dt)))
-    outfile.write("# Arias Intervals: T5-75 %f (s), T5-95 %f (secs)\n" %
-                  (time_5_75, time_5_95))
+    outfile.write("# Arias Intervals: T5-75 %f (s), T5-95 %f (s), T20-80 %f (s)\n" %
+                  (time_5_75, time_5_95, time_20_80))
     outfile.write("# Seconds Accel (g) "
                   "Arias Intensity (cm/s) "
                   "ADNormalized (%)\n")
@@ -223,4 +244,93 @@ def ad_from_acc(a_in_peer_file, a_out_ad):
         outfile.write("% 8f % 8f % 8f % 8f\n" %
                       (dt_vals[i], acc[i], arias_intensity[i], ia_norm[i]))
     outfile.close()
-    return 0
+    return arias_intensity_max, time_5_75, time_5_95, time_20_80;
+
+class AriasDuration(object):
+    """
+    BBP module implementation of arias duration
+    """
+
+    def __init__(self, i_r_stations, sim_id=0):
+        """
+        Initializes class variables
+        """
+        self.sim_id = sim_id
+        self.r_stations = i_r_stations
+
+    def run(self):
+        print("AriasDuration".center(80, '-'))
+        #
+        # convert input bbp acc files to peer format acc files
+        #
+
+        install = install_cfg.InstallCfg.getInstance()
+        sim_id = self.sim_id
+        sta_base = os.path.basename(os.path.splitext(self.r_stations)[0])
+        self.log = os.path.join(install.A_OUT_LOG_DIR, str(sim_id),
+                                "%d.araisduration_%s.log" % (sim_id, sta_base))
+        a_statfile = os.path.join(install.A_IN_DATA_DIR,
+                                  str(sim_id),
+                                  self.r_stations)
+        a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
+        a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
+
+        #
+        # Make sure the tmp and out directories exist
+        #
+        bband_utils.mkdirs([a_tmpdir, a_outdir], print_cmd=False)
+
+        slo = StationList(a_statfile)
+        site_list = slo.getStationList()
+
+        for site in site_list:
+            stat = site.scode
+            print("==> Processing station: %s" % (stat))
+            bbpfile = os.path.join(a_outdir,
+                                   "%d.%s.acc.bbp" % (sim_id, stat))
+
+            # Now we need to convert to peer format
+            out_n_acc = os.path.join(a_tmpdir,
+                                     "%d.%s.peer_n.acc" % (sim_id, stat))
+            out_e_acc = os.path.join(a_tmpdir,
+                                     "%d.%s.peer_e.acc" % (sim_id, stat))
+            out_z_acc = os.path.join(a_tmpdir,
+                                     "%d.%s.peer_z.acc" % (sim_id, stat))
+            bbp_formatter.bbp2peer(bbpfile, out_n_acc, out_e_acc, out_z_acc, accel=True)
+
+            # Duration output files
+            out_n_arias = os.path.join(a_outdir,
+                                     "%d.%s_N.arias" % (sim_id, stat))
+            out_e_arias = os.path.join(a_outdir,
+                                     "%d.%s_E.arias" % (sim_id, stat))
+            out_z_arias = os.path.join(a_outdir,
+                                     "%d.%s_Z.arias" % (sim_id, stat))
+
+            # compute each one
+            n_max, n_time_5_75, n_time_5_95, n_time_20_80 = ad_from_acc(out_n_acc, out_n_arias)
+            e_max, e_time_5_75, e_time_5_95, e_time_20_80 = ad_from_acc(out_e_acc, out_e_arias)
+            z_max, z_time_5_75, z_time_5_95, z_time_20_80 = ad_from_acc(out_z_acc, out_z_arias)
+            geo_max = math.sqrt(n_max*e_max)
+            geo_time_5_75 = math.sqrt(n_time_5_75*e_time_5_75)
+            geo_time_5_95 = math.sqrt(n_time_5_95*e_time_5_95)
+            geo_time_20_80 = math.sqrt(n_time_20_80*e_time_20_80)
+
+            # write summary file
+            out_duration = os.path.join(a_outdir,
+                                     "%d.%s.ard" % (sim_id, stat))
+            outfile = open(out_duration, "w")
+            outfile.write("# Component  Peak Arias (cm/s)  T5-75 (s)  T5-95 (s)  T20-80 (s)\n")
+            outfile.write("N %f %f %f %f\n" % (n_max, n_time_5_75, n_time_5_95, n_time_20_80))
+            outfile.write("E %f %f %f %f\n" % (e_max, e_time_5_75, e_time_5_95, e_time_20_80))
+            outfile.write("Z %f %f %f %f\n" % (z_max, z_time_5_75, z_time_5_95, z_time_20_80))
+            outfile.write("GEOM %f %f %f %f\n" % (geo_max, geo_time_5_75, geo_time_5_95, geo_time_20_80))
+            outfile.close()
+
+        # All done!
+        print("AriasDuration Completed".center(80, '-'))
+
+if __name__ == '__main__':
+    print("Testing Module: %s" % (os.path.basename(sys.argv[0])))
+    ME = AriasDuration(sys.argv[1], sim_id=int(sys.argv[2]))
+    ME.run()
+    sys.exit(0)
