@@ -1,0 +1,5 @@
+# BBP Station List for NR
+# Lon    Lat     StationId     Vs30(m/s) LP_Freq(Hz)   HP_Freq(Hz)
+-118.481 34.312  2001-SCE      500       0.2875        17.6001
+-118.444 34.326  2002-SYL      500       0.1500        18.3999
+-118.189 34.111  2028-FIG      500       0.3750        23.9998

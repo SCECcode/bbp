@@ -34,10 +34,40 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import sys
+import glob
+import shutil
 
 # Import Broadband modules
 from install_cfg import InstallCfg
 from station_list import StationList
+
+def find_bbp_file(input_dir, station_name, label=None):
+    """
+    Looks into input_dir for a seismogram for station station_name
+    """
+    # Find input file, try with label if specified
+    if label is not None:
+        input_list = glob.glob("%s%s*%s.%s*.bbp" %
+                               (input_dir, os.sep, label, station_name))
+    else:
+        input_list = []
+
+    if not len(input_list):
+        # Try to match filename without the label
+        input_list = glob.glob("%s%s*%s*.bbp" %
+                               (input_dir, os.sep, station_name))
+        if not len(input_list):
+            print("[ERROR]: Can't find input file for station %s" % (station_name))
+            sys.exit(1)
+    if len(input_list) > 1:
+        # Found more than one file
+        print("[ERROR]: Found multiple input files for station %s" % (station_name))
+        sys.exit(1)
+
+    input_file = os.path.basename(input_list[0])
+
+    return input_file
 
 class LFSeismograms(object):
     """
@@ -45,12 +75,14 @@ class LFSeismograms(object):
     tmpdir directory
     """
 
-    def __init__(self, i_seis_dir, i_r_stations, sim_id=0):
+    def __init__(self, i_seis_dir, i_r_stations,
+                 allow_negative_timestamps=False, sim_id=0):
         """
         Initialize class variables
         """
         self.seis_dir = i_seis_dir
         self.r_stations = i_r_stations
+        self.allow_negative_timestamps = allow_negative_timestamps
         self.sim_id = sim_id
 
     def run(self):
@@ -65,19 +97,26 @@ class LFSeismograms(object):
         a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
         a_stations = os.path.join(a_indir, self.r_stations)
 
-        print(self.seis_dir)
+        print("Looking for seismograms in: %s" % (self.seis_dir))
 
         slo = StationList(a_stations)
-        stat_list = slo.get_station_list()
-        for stat in stat_list:
-            # Look for bbp seismogram, copy in
-            print("%s/%s-lf.bbp" % (self.seis_dir, stat.scode))
-            if os.path.exists("%s/%s-lf.bbp" % (self.seis_dir, stat.scode)):
-                print("Copying for site %s" % (stat.scode))
-                # Need to eliminate negative times
-                fp_in = open("%s/%s-lf.bbp" % (self.seis_dir, stat.scode), 'r')
-                fp_out = open("%s/%d.%s-lf.bbp" %
-                              (a_tmpdir, sim_id, stat.scode), 'w')
+        station_list = slo.get_station_list()
+        for station in station_list:
+            station_name = station.scode
+            # Look for bbp seismogram, make a copy in the tmpdata folder
+            input_file = find_bbp_file(self.seis_dir, station_name)
+            a_input_file = os.path.join(self.seis_dir, input_file)
+            a_output_file = os.path.join(a_tmpdir,
+                                         "%d.%s-lf.bbp" % (int(self.sim_id),
+                                                               station_name))
+            print("Copying LF file for station %s..." % (station_name))
+
+            if self.allow_negative_timestamps:
+                shutil.copy2(a_input_file, a_output_file)
+            else:
+                # Copy LF seismograms but remove points with t<0
+                fp_in = open(a_input_file, 'r')
+                fp_out = open(a_output_file, 'w')
                 for line in fp_in:
                     pieces = line.split()
                     try:
@@ -96,6 +135,3 @@ class LFSeismograms(object):
                 fp_in.close()
                 fp_out.flush()
                 fp_out.close()
-            else:
-                print("Could not find LF seismogram for station %s!" %
-                      (stat.scode))

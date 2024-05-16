@@ -50,12 +50,15 @@ class WccSiteamp(object):
     Implement Rob Graves siteamp.csh as a python component
     """
 
-    def __init__(self, i_r_stations, method, i_vmodel_name, sim_id=0):
+    def __init__(self, i_r_stations, method, i_vmodel_name,
+                 lf_stations=None, sim_id=0):
         """
         Initialize WccSiteamp parameters
         """
         self.sim_id = sim_id
         self.r_stations = i_r_stations
+        self.lf_stations = lf_stations
+        self.lf_stations_obj = None
         self.method = method
         self.vmodel_name = i_vmodel_name
         self.config = None
@@ -133,12 +136,25 @@ class WccSiteamp(object):
                                pga_filename, self.log))
                 # wcc_getpeak returns 33 even when it succeeds
                 bband_utils.runprog(progstring, print_cmd=False)
+
                 pga_file = open(pga_filename, "r")
                 data = pga_file.readlines()
                 pga_file.close()
                 pga = float(data[0].split()[1]) / 981.0
+
                 if freq == 'lf':
-                    vref = config.LF_VREF
+                    if self.lf_stations_obj is None:
+                        vref = config.LF_VREF
+                    else:
+                        # Pick LF VRef from lf_station object
+                        lf_station = self.lf_stations_obj.find_station(site)
+
+                        if lf_station is not None:
+                            vref = lf_station.vs30
+                        else:
+                            # Couldn't find station!
+                            print("[ERROR]: Couldn't find station Vs30 in LF station list!")
+                            sys.exit(-1)
                 else:
                     vref = config.HF_VREF
 
@@ -156,20 +172,24 @@ class WccSiteamp(object):
                 # Pick the right model to use
                 site_amp_model = config.SITEAMP_MODEL
 
-                # Now, run site amplification
-                progstring = ("%s pga=%f vref=%d " %
-                              (os.path.join(install.A_GP_BIN_DIR,
-                                            "wcc_siteamp14"), pga, vref) +
-                              'vsite=%d model="%s" vpga=%d ' %
-                              (vs30, site_amp_model,
-                               config.HF_VREF) +
-                              'flowcap=%f infile=%s outfile=%s ' %
-                              (config.FLOWCAP, filein, fileout) +
-                              'fmax=%f fhightop=%f ' %
-                              (config.FMAX, config.FHIGHTOP) +
-                              "fmidbot=%s fmin=%s >> %s 2>&1" %
-                              (config.FMIDBOT, config.FMIN, self.log))
-                bband_utils.runprog(progstring, abort_on_error=True)
+                if vref == -1:
+                    # When Vref is -1, skip site response, just copy
+                    # input file to output file
+                    shutil.copy2(filein, fileout)
+                else:
+                    # Now, run site amplification
+                    progstring = ("%s pga=%f vref=%d " %
+                                  (os.path.join(install.A_GP_BIN_DIR,
+                                                "wcc_siteamp14"), pga, vref) +
+                                'vsite=%d model="%s" vpga=%d ' %
+                                (vs30, site_amp_model, config.HF_VREF) +
+                                'flowcap=%f infile=%s outfile=%s ' %
+                                (config.FLOWCAP, filein, fileout) +
+                                'fmax=%f fhightop=%f ' %
+                                (config.FMAX, config.FHIGHTOP) +
+                                "fmidbot=%s fmin=%s >> %s 2>&1" %
+                                (config.FMIDBOT, config.FMIN, self.log))
+                    bband_utils.runprog(progstring, abort_on_error=True)
 
                 # Output becomes input
                 filein = fileout
@@ -435,9 +455,9 @@ class WccSiteamp(object):
                                 str(sim_id),
                                 "%d.wcc_siteamp_%s.log" % (sim_id, sta_base))
 
-        a_statfile = os.path.join(install.A_IN_DATA_DIR,
-                                  str(sim_id),
-                                  self.r_stations)
+        a_station_file = os.path.join(install.A_IN_DATA_DIR,
+                                      str(sim_id),
+                                      self.r_stations)
 
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
@@ -448,22 +468,30 @@ class WccSiteamp(object):
         #
         # Read and parse the station list with this call
         #
-        slo = StationList(a_statfile)
-        site_list = slo.get_station_list()
+        station_list_obj = StationList(a_station_file)
+        site_list = station_list_obj.get_station_list()
+
+        # Initialize LF station list object for later use
+        if self.lf_stations is not None:
+            a_lf_station_file = os.path.join(install.A_IN_DATA_DIR,
+                                             str(sim_id),
+                                             self.lf_stations)
+            self.lf_stations_obj = StationList(a_lf_station_file)
 
         for sites in site_list:
-            site = sites.scode
-            vs30 = sites.vs30
-            if vs30 > config.VREF_MAX:
-                vs30 = config.VREF_MAX
+            station_name = sites.scode
+            station_vs30 = sites.vs30
+            if station_vs30 > config.VREF_MAX:
+                station_vs30 = config.VREF_MAX
 
-            print("*** WccSiteamp Processing station %s..." % (site))
+            print("*** WccSiteamp Processing station %s..." % (station_name))
 
             if self.method == "GP":
-                self.process_separate_seismograms(site, sta_base,
-                                                  vs30, a_tmpdir)
+                self.process_separate_seismograms(station_name, sta_base,
+                                                  station_vs30, a_tmpdir)
             elif self.method == "SDSU" or self.method == "EXSIM" or self.method == "UCSB":
-                self.process_hybrid_seismogram(site, sta_base, vs30,
+                self.process_hybrid_seismogram(station_name, sta_base,
+                                               station_vs30,
                                                a_tmpdir, a_outdir)
 
         print("GP Site Response Completed".center(80, '-'))

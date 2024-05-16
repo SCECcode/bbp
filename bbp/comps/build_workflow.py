@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,9 @@ class WorkflowBuilder(object):
         self.val_obj = None
         self.stations = None
         self.method = None
+        self.method_variation = None
+        self.lf_input_dir = None
+        self.lf_station_list = None
         self.gp_lf_vel_file = None
         self.gp_hf_vel_file = None
         self.multisegment_simulation = False
@@ -94,6 +97,8 @@ class WorkflowBuilder(object):
         """
         This function asks the user what method he/she wants to use
         """
+        self.method = None
+
         while True:
             if self.opt_obj is not None:
                 method = self.opt_obj.get_next_option()
@@ -108,37 +113,44 @@ class WorkflowBuilder(object):
                 method = input("Choose a Method to use in this "
                                "Broadband %s simulation:\n" % (sim_type) +
                                "(1) GP (Graves & Pitarka)\n"
-                               "(2) UCSB\n"
-                               "(3) SDSU\n"
-                               "(4) EXSIM\n"
-                               "(5) Song\n"
-                               "(6) Irikura Recipe Method 1 (Irikura1)\n"
-                               "(7) Irikura Recipe Method 2 (Irikura2)\n"
-                               # "(8) CSM (Composite Source Model)"
+                               "(2) GP 3D (Graves & Pitarka) with 3D LF seismograms\n"
+                               "(3) UCSB\n"
+                               "(4) SDSU\n"
+                               "(5) EXSIM\n"
+                               "(6) Song\n"
+                               "(7) Irikura Recipe Method 1 (Irikura1)\n"
+                               "(8) Irikura Recipe Method 2 (Irikura2)\n"
+                               # "(9) CSM (Composite Source Model)"
                                # " - Beta Version\n"
                                "? ")
             if (method == '1' or method.lower() == "graves & pitarka" or
                 method.lower() == "gp"):
-                return "GP"
-            elif method == '2' or method.lower() == "ucsb":
-                return "UCSB"
-            elif method == '3' or method.lower() == "sdsu":
-                return "SDSU"
-            elif method == '4' or method.lower() == "exsim":
-                return "EXSIM"
-            elif (method == "5" or method.lower() == "song" or
+                self.method = "GP"
+            elif (method == '2' or method.lower() == "gp3d" or
+                  method.lower() == "graves & pitarka 3d"):
+                self.method = "GP"
+                self.method_variation = "GP3D"
+            elif method == '3' or method.lower() == "ucsb":
+                self.method = "UCSB"
+            elif method == '4' or method.lower() == "sdsu":
+                self.method = "SDSU"
+            elif method == '5' or method.lower() == "exsim":
+                self.method = "EXSIM"
+            elif (method == "6" or method.lower() == "song" or
                   method.lower() == "rmg"):
-                return "SONG"
-            elif method == "6" or method.lower() == "irikura1":
-                return "IRIKURA1"
-            elif  method == "7" or method.lower() == "irikura2":
-                return "IRIKURA2"
-            elif method == '8' or method.lower() == "csm":
-                return "CSM"
+                self.method = "SONG"
+            elif method == "7" or method.lower() == "irikura1":
+                self.method = "IRIKURA1"
+            elif  method == "8" or method.lower() == "irikura2":
+                self.method = "IRIKURA2"
+            elif method == '9' or method.lower() == "csm":
+                self.method = "CSM"
             else:
                 print("%s is not a valid choice for method!\n" % (method))
                 if self.opt_obj is not None:
                     sys.exit(1)
+            if self.method is not None:
+                return
 
     def check_multi_segment_draping(self, src_files):
         """
@@ -412,6 +424,42 @@ class WorkflowBuilder(object):
                 if self.opt_obj is not None:
                     sys.exit(1)
 
+    def select_lf_parameters(self):
+        """
+        This function is used to collect an input folder for the lf seismograms,
+        it also asks the user for a LF station file that contains the Vs30 values
+        for each of the pre-computed LF seismograms
+        """
+        # Ask user for an input folder
+        if self.opt_obj is not None:
+            lf_dir = self.opt_obj.get_next_option()
+        else:
+            print("=" * 80)
+            print()
+            print("Low Frequency Seismograms")
+            print("=========================")
+            print()
+            lf_dir = self.get_input_directory("pre-calculated low-frequency"
+                                              " seismograms for this simulation")
+
+        # Ask for the LF station file
+        if self.opt_obj is not None:
+            lf_stations = self.opt_obj.get_next_option()
+        else:
+            print("=" * 80)
+            print()
+            print("Low Frequency Station File")
+            print("==========================")
+            print("In order to use the site response module, we need a station list")
+            print("containing the same stations as the main station file, but")
+            print("including the Vs30 values used in each low-frequency")
+            print("seismogram computation.")
+            print()
+            lf_stations = input("Please provide a station file for the LF seismograms: ")
+
+        self.lf_input_dir = lf_dir
+        self.lf_station_list = lf_stations
+
     def check_velocity_models(self):
         """
         This function is used to make sure the needed velocity model
@@ -476,29 +524,40 @@ class WorkflowBuilder(object):
                   "using GP_VELMODEL instead...")
             self.gp_hf_vel_file = self.vel_file
 
-        # Low Frequency GP module
-        lf_module = Module()
-        lf_module.setName("Jbsim")
-        if self.validation:
+        if self.method_variation is None:
+            # Low Frequency GP module
+            lf_module = Module()
+            lf_module.setName("Jbsim")
+            if self.validation:
+                if not gen_srf:
+                    self.srf_file = self.val_obj.get_input(self.method, "srf")
+                    if not self.srf_file:
+                        self.srf_file = self.get_input_file("SRF", "srf")
+            lf_module.addStageFile(self.gp_lf_vel_file)
+            lf_module.addArg(os.path.basename(self.gp_lf_vel_file))
+            if self.src_file is not None and self.src_file != "":
+                # we supplied a source file, so stage it
+                lf_module.addStageFile(self.src_file)
             if not gen_srf:
-                self.srf_file = self.val_obj.get_input(self.method, "srf")
-                if not self.srf_file:
-                    self.srf_file = self.get_input_file("SRF", "srf")
-        lf_module.addStageFile(self.gp_lf_vel_file)
-        lf_module.addArg(os.path.basename(self.gp_lf_vel_file))
-        if self.src_file is not None and self.src_file != "":
-            # we supplied a source file, so stage it
-            lf_module.addStageFile(self.src_file)
-        if not gen_srf:
-            # not generating an SRF, so we stage it
-            lf_module.addStageFile(self.srf_file)
-        lf_module.addArg(os.path.basename(self.src_file))
-        lf_module.addArg(os.path.basename(self.srf_file))
-        lf_module.addStageFile(self.stations)
-        lf_module.addArg(os.path.basename(self.stations))
-        lf_module.addArg(self.vmodel_name)
-        self.workflow.append(lf_module)
-
+                # not generating an SRF, so we stage it
+                lf_module.addStageFile(self.srf_file)
+            lf_module.addArg(os.path.basename(self.src_file))
+            lf_module.addArg(os.path.basename(self.srf_file))
+            lf_module.addStageFile(self.stations)
+            lf_module.addArg(os.path.basename(self.stations))
+            lf_module.addArg(self.vmodel_name)
+            self.workflow.append(lf_module)
+        elif self.method_variation == "GP3D":
+            lf_module = Module()
+            lf_module.setName("LFSeismograms")
+            lf_module.addArg(self.lf_input_dir)
+            lf_module.addArg(self.lf_station_list)
+            lf_module.addStageFile(os.path.join(self.lf_input_dir,
+                                                self.lf_station_list))
+            self.workflow.append(lf_module)
+        else:
+            raise ConfigurationError("Invalid method variation %s" %
+                                     (self.method_variation))
         # High Frequency GP module
         hf_module = Module()
         hf_module.setName("Hfsims")
@@ -538,6 +597,9 @@ class WorkflowBuilder(object):
                 site_module.addArg(os.path.basename(self.stations))
                 site_module.addArg("GP")
                 site_module.addArg(self.vmodel_name)
+                if self.method_variation == "GP3D":
+                    site_module.addKeywordArg('lf_stations',
+                                              self.lf_station_list)
                 self.workflow.append(site_module)
 
                 # And then, add the Match module
@@ -549,6 +611,10 @@ class WorkflowBuilder(object):
                 merge_module.addKeywordArg('acc', True)
                 self.workflow.append(merge_module)
             elif run_site_resp == "SEISMOSOIL":
+                if self.method_variation == "GP3D":
+                    print("[ERROR]: Seismosoil site response doesn't yet support"
+                          " GP3D method, please use GP site response!")
+                    sys.exit(-1)
                 # Run the Match module first
                 merge_module = Module()
                 merge_module.setName("Match")
@@ -1030,7 +1096,12 @@ class WorkflowBuilder(object):
         This function calls a method-specific function, then adds the
         common processing modules used in the Broadband Platform
         """
-        # Fist, call the method-specific function
+        # Check for any additional parameters we may need
+        if self.method_variation is not None:
+            if self.method_variation == "GP3D":
+                # Need input folder for LF seismograms and additional station list
+                self.select_lf_parameters()
+        # Then, call the method-specific function
         if self.method == "GP":
             self.run_gp_method(gen_srf)
         elif self.method == "UCSB":
@@ -2110,7 +2181,7 @@ class WorkflowBuilder(object):
         self.vmodel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
 
         # Select method
-        self.method = self.select_simulation_method("scenario")
+        self.select_simulation_method("scenario")
 
         # Check for the needed velocity model(s)
         self.check_velocity_models()
@@ -2229,7 +2300,7 @@ class WorkflowBuilder(object):
         self.vmodel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
 
         # Select method
-        self.method = self.select_simulation_method("validation")
+        self.select_simulation_method("validation")
 
         # Check for the needed velocity model(s)
         self.check_velocity_models()
