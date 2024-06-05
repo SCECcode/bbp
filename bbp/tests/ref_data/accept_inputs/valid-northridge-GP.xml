@@ -1,5 +1,5 @@
 	<BBP_Run_Specification>
-		<Validation_Run event="NR" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="19.4.0"/>
+		<Validation_Run event="NR" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="22.4.0"/>
 		<BBP_Modules>
 			<BBP_Module>
 				<name>Genslip</name>
