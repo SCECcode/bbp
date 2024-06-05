@@ -169,7 +169,7 @@ CFFF This replaces ntopq in even_dist1
       dimension astop(lv),dtop(lv),shyp(lv),dhyp(lv),nx(lv),nw(lv),dx(lv),dw(lv)
 
 
-      DIMENSION stdd(mmv,3),dfr(mm),fgrand(mmv),fgrands(mm)
+      DIMENSION stdd(mm,3),dfr(mm),fgrand(mmv),fgrands(mm)
       complex cs(mm,3),sgc
 
       dimension fn(nlaymax),an(nlaymax)
@@ -296,13 +296,21 @@ cRWG  apply default values if input is negative
       fcfac = fcfac_default
       fcfac = 0.0
 
+c RWG 20240220: initialization of zhyp_max, nstot, farea_in added
+      zhyp_max = 0.0
+      nstot = 0
+      farea_in = 0.0
+
       do 132 iv=1,nevnt
 	 nstot = nx(iv)*nw(iv) + nstot
 	 farea_in = nx(iv)*dx(iv)*nw(iv)*dw(iv) + farea_in
 	 astop(iv) = 0.5*nx(iv)*dx(iv)
 
-c RWG 201241219: '*' should have been '/' in below, fixed 21041219
-	 zhyp = dtop(iv) + dhyp(iv)/sin(dipq(iv)*pu)
+c##- c RWG 201241219: '*' should have been '/' in below, fixed 21041219
+c##-	 zhyp = dtop(iv) + dhyp(iv)/sin(dipq(iv)*pu)
+c RWG 20240220: '/' above should have been '*', below is correct
+c                I have no idea why above was done
+         zhyp = dtop(iv) + dhyp(iv)*sin(dipq(iv)*pu)
 	 if(zhyp.gt.zhyp_max) zhyp_max = zhyp
  132  continue
 
