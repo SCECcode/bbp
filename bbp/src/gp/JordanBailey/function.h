@@ -36,6 +36,8 @@ void sum_4gf_v2(float *,int,float *,struct gfheader *,int,int,float *,float *,fl
 void timeshift_gf_v2(float *,int,float *,struct gfheader *,int,float *,float *,int);
 void mech_4gf_v2(float *,float *,struct gfheader *,struct gfparam gfp,int,struct mechparam,float *,float *);
 
+void momten_4gf(struct standrupformat *,int,int,float *,float *,struct gfheader *,struct gfparam,int,float *);
+
 void read_beroza(struct beroza *,char *rfile,float *);
 void get_brmpars(struct beroza *,int,int,float *,float *,float *,float *);
 void beroza_stf(struct beroza *,int,int,float *,float *,float *,int,float *,float *);
@@ -57,6 +59,9 @@ void get_srfpars(struct standrupformat *,int,int,float *,float *,float *,float *
 void get_srfpars_v2(struct standrupformat *,int,int,float *,float *,struct mechparam *);
 void get_srfparsOLD(struct standrupformat *,int,int,float *,float *,float *,int,int,struct mechparam *);
 void srf_stf(struct standrupformat *,int,int,float *,float *,float *,int,float *,struct mechparam,float *);
+void srf_stf_v2(struct standrupformat *,int,int,float *,float *,float *,int,float *,struct mechparam,float *);
+
+void get_indx_pow(float *,float *,float *,struct sgtindex *,struct geoprojection *,int);
 
 char *skipval(int,char *);
 void do_cnvlv(float *,float *,int,float *,int);
