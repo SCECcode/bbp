@@ -38,6 +38,7 @@ void read_srf(struct standrupformat *,char *,int);
 void write_srf(struct standrupformat *,char *,int);
 void write_srf1(struct standrupformat *,char *,int);
 void write_srf2(struct standrupformat *,char *,int);
+void write_srf3(struct standrupformat *,char *,int);
 void copy_hcmnt(struct standrupformat *srf2,struct standrupformat *srf1);
 void load_command_srf(struct standrupformat *,int,char **);
 void load_seed_srf(struct standrupformat *srf,int,int);
@@ -64,3 +65,5 @@ void zapit(float *, int);
 void gcproj(float *,float *,float *,float *,float *,double *,double *,double *,double *,int);
 void gen_matrices(double *,double *,float *,float *,float *);
 void dump_sliprate(char *,struct standrupformat *,int,float *,float *,float *);
+
+void srf_to_mrf(struct standrupformat *,struct standrupformat *,struct velmodel *,int,int,int,char **);

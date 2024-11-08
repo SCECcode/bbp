@@ -83,7 +83,7 @@ struct srf_apointvalues20141109
    float *stf3;
    };
 
-struct srf_apointvalues
+struct srf_apointvalues20241010
    {
    float lon;
    float lat;
@@ -105,6 +105,39 @@ struct srf_apointvalues
    float *stf1;
    float *stf2;
    float *stf3;
+   };
+
+struct srf_apointvalues
+   {
+   float lon;
+   float lat;
+   float dep;
+   float stk;
+   float dip;
+   float area;
+   float tinit;
+   float dt;
+   float vp;                    /* added for V3.0 */
+   float vs;
+   float den;
+   float rake;
+   float slip1;
+   int nt1;
+   float slip2;
+   int nt2;
+   float slip3;
+   int nt3;
+   float *stf1;
+   float *stf2;
+   float *stf3;
+   double mnn;                  /* moment-rate stuff added for V3.0 */
+   double mee;
+   double mdd;
+   double mne;
+   double mnd;
+   double med;
+   int ntmr;
+   float *mrf;
    };
 
 struct srf_allpoints
@@ -150,13 +183,25 @@ struct standrupformat20141109
    struct srf_allpoints srf_apnts;
    };
 
-struct standrupformat
+struct standrupformat20241010
    {
    char version[32];
    char type[32];
    int nseg;			/* added for V2.0 */
    int *np_seg;			/* added for V2.0 */
    struct srf_headercomment srf_hcmnt;		/* added for V2.0 */
+   struct srf_planerectangle srf_prect;
+   struct srf_allpoints srf_apnts;
+   };
+
+struct standrupformat
+   {
+   char version[32];
+   char type[32];
+   char src_format[64];         /* added for V3.0, options are "SLIP" or "MOMENT", default is "SLIP" */
+   int nseg;
+   int *np_seg;
+   struct srf_headercomment srf_hcmnt;
    struct srf_planerectangle srf_prect;
    struct srf_allpoints srf_apnts;
    };
@@ -197,6 +242,8 @@ struct slippars
    float den;
    float rt_s;
    float rt_e;
+   float aseis;
+   float rvf;
    };
 
 struct segpars

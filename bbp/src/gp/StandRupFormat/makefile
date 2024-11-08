@@ -36,7 +36,7 @@ FFLAGS = ${UFLAGS} -ffixed-line-length-132
 
 ##### make options
 
-all: srf2stoch generic_slip2srf fault_seg2gsf srf2moment srf2xyz
+all: srf2stoch generic_slip2srf fault_seg2gsf srf2moment srf2xyz srf2mrf
 
 test_header : test_header.c ${OBJS} ${GEOPROJ_OBJS}
 	$(CC) $(CFLAGS) -o test_header test_header.c ${LDLIBS} ${GEOPROJ_OBJS}
@@ -66,7 +66,11 @@ srf2xyz : srf2xyz.c ${OBJS} ${GEOPROJ_OBJS}
 	${CC} -o srf2xyz srf2xyz.c ${LDLIBS} ${INCPAR} ${GEOPROJ_OBJS}
 	cp srf2xyz ../bin/
 
+srf2mrf : srf2mrf.c ${OBJS} ${GEOPROJ_OBJS}
+	${CC} -o srf2mrf srf2mrf.c ${LDLIBS} ${INCPAR} ${GEOPROJ_OBJS}
+	cp srf2mrf ../bin/
+
 ${OBJS} : ${HEADS}
 
 clean :
-	rm -f *.o ${GENRAND_OBJS} ${BAILEY_OBJS} ${GEOPROJ_OBJS} *.o srf2xyz fault_seg2gsf srf2moment generic_slip2srf srf2stoch test_header
+	rm -f *.o ${GENRAND_OBJS} ${BAILEY_OBJS} ${GEOPROJ_OBJS} *.o srf2xyz fault_seg2gsf srf2moment generic_slip2srf srf2stoch test_header srf2mrf
