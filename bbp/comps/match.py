@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2023, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -87,10 +87,24 @@ class Match(object):
         dirs = [a_tmpdir]
         bband_utils.mkdirs(dirs, print_cmd=False)
 
+        # Get pointer to the velocity model object
+        vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
+        if vel_obj is None:
+            raise bband_utils.ParameterError("Cannot find velocity model: %s" %
+                                             (self.vmodel_name))
+
+        # Check for velocity model-specific parameters
+        vmodel_params = vel_obj.get_codebase_params('gp')
+
         # Start with defaults
         self.phase = config.PHASE
         self.hf_fhi = config.HF_FHI
         self.lf_flo = config.LF_FLO
+
+        # Check if we have a different merging frequency
+        if 'MATCH_MERGING_FREQUENCY' in vmodel_params:
+            self.hf_fhi = float(vmodel_params['MATCH_MERGING_FREQUENCY'])
+            self.lf_flo = float(vmodel_params['MATCH_MERGING_FREQUENCY'])
 
         # Set match method
         if config.MATCH_METHOD == 1:
@@ -108,15 +122,6 @@ class Match(object):
         #
         slo = StationList(a_statfile)
         site_list = slo.get_station_list()
-
-        # Get pointer to the velocity model object
-        vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
-        if vel_obj is None:
-            raise bband_utils.ParameterError("Cannot find velocity model: %s" %
-                                             (self.vmodel_name))
-
-        # Check for velocity model-specific parameters
-        vmodel_params = vel_obj.get_codebase_params('gp')
 
         # Figure out what DT we should use when resampling
 
