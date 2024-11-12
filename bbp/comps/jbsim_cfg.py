@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -93,6 +93,11 @@ class JbsimCfg(object):
             self.NTOUT = int(vmodel_params['NTOUT'])
         else:
             self.NTOUT = 4096
+        # RWG 20241025: Added parameter GF_CGFFLAG
+        if 'GF_CGFFLAG' in vmodel_params:
+            self.GF_CGFFLAG = int(vmodel_params['GF_CGFFLAG'])
+        else:
+            self.GF_CGFFLAG = 0
 
         # Now, configure other paramteres
         self.GF_SWAP_BYTES = 0

@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2023, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -78,9 +78,18 @@ class Jbsim(object):
         a_statfile = os.path.join(install.A_IN_DATA_DIR,
                                   str(sim_id),
                                   self.r_stations)
-        a_srffile = os.path.join(install.A_IN_DATA_DIR,
-                                 str(sim_id),
-                                 self.r_srffile)
+        a_rupture_file = os.path.join(install.A_IN_DATA_DIR,
+                                      str(sim_id),
+                                      self.r_srffile)
+        # RWG 20241025: jbsim-v3.0.0 is backward compatible with jbsim-v2.0.0
+        # it can use rupture files in both SRF and MRF formats
+        if os.path.splitext(a_rupture_file)[-1].lower() == ".srf":
+            rupmod_type = "SRF"
+        elif os.path.splitext(a_rupture_file)[-1].lower() == ".mrf":
+            rupmod_type = "MRF"
+        else:
+            print("[ERROR]: Unknown rupture format in file %s" % (a_rupture_file))
+            sys.exit(-1)
 
         # Set directories, and make sure they exist
         a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
@@ -106,9 +115,11 @@ class Jbsim(object):
             #
             progstring = ("%s latloncoords=1 slon=%f slat=%f " %
                           (os.path.join(install.A_GP_BIN_DIR,
-                                        "jbsim-v2.0.0"), slon, slat) +
+                                        "jbsim-v3.0.0"), slon, slat) +
                           "tshift_timedomain=1 use_closest_gf=1 " +
-                          "rupmodtype=SRF rupmodfile=%s " % a_srffile +
+                          "cgf_flag=%d " % (config.GF_CGFFLAG) +
+                          "rupmodtype=%s " % (rupmod_type) +
+                          "rupmodfile=%s " % (a_rupture_file) +
                           "moment=-1 outdir=%s stat=%s " % (a_veldir, site) +
                           "min_taper_range=0.0 max_taper_range=0.0 " +
                           "gftype=fk gflocs=%s gftimes=%s gf_swap_bytes=%d " %
