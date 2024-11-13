@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2023, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,12 @@ from pylab import arange
 from scipy import integrate
 from scipy import signal, stats
 from scipy.signal import butter, filtfilt
+
+# Compatible with SciPy 1.4
+try:
+    cumulative_trapezoid = integrate.cumulative_trapezoid
+except AttributeError:
+    cumulative_trapezoid = integrate.cumtrapz
 
 # Import BBP modules
 import bband_utils
@@ -143,7 +149,7 @@ class AndersonGOF(object):
 
     @staticmethod
     def integ(array_in, idt):
-        return integrate.cumtrapz(array_in, dx=idt)
+        return cumulative_trapezoid(array_in, dx=idt)
 
     @staticmethod
     def shift_bit_length(x):
