@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2023, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,12 @@ import matplotlib as mpl
 if mpl.get_backend() != 'agg':
     mpl.use('Agg') # Disable use of Tk/X11
 import pylab
+
+# Compatible with SciPy 1.4
+try:
+    cumulative_trapezoid = integrate.cumulative_trapezoid
+except AttributeError:
+    cumulative_trapezoid = integrate.cumtrapz
 
 # Import BBP modules
 import bband_utils
@@ -106,7 +112,7 @@ class RZZ2015(object):
         n = len(F)
 
         a_i = [pow(value, 2) for value in F]
-        I = integrate.cumtrapz(a_i) * dt
+        I = cumulative_trapezoid(a_i) * dt
         # Arias Intensity
         Ia = (F[0]**2) * dt / 2.0 + I[n-2] + (F[n-1]**2) * dt / 2.0
         It = (percent / 100.0) * Ia

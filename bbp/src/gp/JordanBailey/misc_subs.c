@@ -103,6 +103,38 @@ indx->zsgt = (int)((double)((*dep))*invh + 1.5);
 indx->indx = (long long)(indx->xsgt)*(long long)(100000000) + (long long)(indx->ysgt)*(long long)(10000) + (long long)(indx->zsgt);
 }
 
+void get_indx_pow(float *lon,float *lat,float *dep,struct sgtindex *indx,struct geoprojection *gp,int ipow)
+{
+float xs, ys, xr, yr;
+double invh;
+long long indx_shft;
+
+indx_shft = 1;
+while(ipow > 0)
+   {
+   indx_shft = indx_shft*10;
+   ipow--;
+   }
+
+invh = 1.0/(double)(indx->h);
+
+if(gp->geoproj == 0)
+   {
+   xs = ((*lon) - gp->modellon)*gp->kmlon;
+   ys = (gp->modellat - (*lat))*gp->kmlat;
+
+   xr = xs*gp->cosR + ys*gp->sinR - gp->xshift;
+   yr = -xs*gp->sinR + ys*gp->cosR - gp->yshift;
+   }
+else if(gp->geoproj == 1)
+   gcproj(&xr,&yr,lon,lat,&gp->erad,&gp->g0,&gp->b0,gp->amat,gp->ainv,1);
+
+indx->xsgt = (int)((double)(xr)*invh + 0.5);
+indx->ysgt = (int)((double)(yr)*invh + 0.5);
+indx->zsgt = (int)((double)((*dep))*invh + 1.5);
+indx->indx = (long long)(indx->xsgt)*(long long)(indx_shft)*(long long)(indx_shft) + (long long)(indx->ysgt)*(long long)(indx_shft) + (long long)(indx->zsgt);
+}
+
 void get_ard_srf(struct standrupformat *srf,int off,int ip,float *az,float *rg,float *z0,float *de,float *dn,float *slon,float *slat,struct geoprojection *gp)
 {
 struct srf_planerectangle *prect_ptr;
@@ -133,9 +165,7 @@ else if(gp->geoproj == 1)
 *z0 = apval_ptr[ip].dep;
 }
 
-void resample(s,nt,dt,isamp,ntpad,ntrsmp,newdt,p)
-float *s, *p, *dt, *newdt;
-int nt, isamp, ntpad, ntrsmp;
+void resample(float *s,int nt,float *dt,int isamp,int ntpad,int ntrsmp,float *newdt,float *p)
 {
 float df, f, f0, fl, fl2, fac;
 int i, j;
@@ -210,9 +240,7 @@ while(n--)
    }
 }
 
-void taper_norm(g,dt,nt)
-float *g, *dt;
-int nt;
+void taper_norm(float *g,float *dt,int nt)
 {
 float fac, df, arg;
 int i;
@@ -232,9 +260,7 @@ for(i=nt-ntap;i<nt;i++)
    }
 }
 
-void norm(g,dt,nt)
-float *g, *dt;
-int nt;
+void norm(float *g,float *dt,int nt)
 {
 float fac;
 
@@ -271,9 +297,7 @@ float sin_table[] =
 	1.4980281e-06  /* sin(pi/2097152) */
    };
 
-void forfft(x,n,isign)
-register struct complex *x;
-int n, isign;
+void forfft(struct complex *x,int n,int isign)
    {
 	register struct complex *px, *rx;
 	float cn, sn, cd, sd, arg;
@@ -333,9 +357,7 @@ int n, isign;
 	   }
    }
 
-void invfft(x,n,isign)
-register struct complex *x;
-int n, isign;
+void invfft(struct complex *x,int n,int isign)
    {
 	register struct complex *px, *rx;
 	float cn, sn, cd, sd;
@@ -390,9 +412,7 @@ int n, isign;
 	cfft_r(x,n/2,isign);
    }
 
-void cfft_r(x,n,isign)
-struct complex *x;
-int n,isign;
+void cfft_r(struct complex *x,int n,int isign)
    {
 	register struct complex *px, *qx, *rx;
 	struct complex *limit, *qlimit, dtemp;

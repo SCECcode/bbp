@@ -19,6 +19,8 @@ int fdr;
 int ip, np_seg, npread, np_tot;
 long foff;
 
+int mrf_flag;
+
 if(bflag)
    {
    if(strcmp(file,"stdin") == 0)
@@ -88,6 +90,19 @@ else
 
    fgets(str,MAXLINE,fpr);
    sscanf(str,"%s",srf[0].version);
+
+   mrf_flag = 0;
+   sprintf(srf[0].src_format,"SLIP");
+   if(atof(srf[0].version) >= 3.0)
+      {
+      ip = sscanf(str,"%*s %s",srf[0].src_format);
+
+      if(ip != 1 || (strcmp(srf[0].src_format,"SLIP") != 0 && strcmp(srf[0].src_format,"MOMENT") != 0))
+         sprintf(srf[0].src_format,"SLIP");
+
+      if(strcmp(srf[0].src_format,"MOMENT") == 0)
+         mrf_flag = 1;
+      }
 
    /* reserve first 3 lines for writing out command that generated SRF */
    srf[0].srf_hcmnt.nline = 3;
@@ -219,10 +234,11 @@ else
                                            &(apval_ptr->tinit),
                                            &(apval_ptr->dt));
 
+                  apval_ptr->vp = -1;
                   apval_ptr->vs = -1;
                   apval_ptr->den = -1;
 	          }
-               else if(atof(srf->version) >= 2.0)
+               else if(atof(srf->version) < 3.0)
                   {
                   sscanf(str,"%f %f %f %f %f %f %f %f %f %f",&(apval_ptr->lon),
                                            &(apval_ptr->lat),
@@ -234,50 +250,96 @@ else
                                            &(apval_ptr->dt),
                                            &(apval_ptr->vs),
                                            &(apval_ptr->den));
+                  apval_ptr->vp = -1;
+	          }
+               else if(atof(srf->version) >= 2.0)
+                  {
+                  sscanf(str,"%f %f %f %f %f %f %f %f %f %f %f",&(apval_ptr->lon),
+                                           &(apval_ptr->lat),
+                                           &(apval_ptr->dep),
+                                           &(apval_ptr->stk),
+                                           &(apval_ptr->dip),
+                                           &(apval_ptr->area),
+                                           &(apval_ptr->tinit),
+                                           &(apval_ptr->dt),
+                                           &(apval_ptr->vp),
+                                           &(apval_ptr->vs),
+                                           &(apval_ptr->den));
 	          }
 
-               fgets(str,MAXLINE,fpr);
-               sscanf(str,"%f %f %d %f %d %f %d",&(apval_ptr->rake),
-                                        &(apval_ptr->slip1),
-                                        &(apval_ptr->nt1),
-                                        &(apval_ptr->slip2),
-                                        &(apval_ptr->nt2),
-                                        &(apval_ptr->slip3),
-                                        &(apval_ptr->nt3));
-
-	       if(apval_ptr->nt1)
-                  apval_ptr->stf1 = (float *)check_malloc((apval_ptr->nt1)*sizeof(float));
-	       else
-                  apval_ptr->stf1 = NULL;
-
-               stf = apval_ptr->stf1;
-
-               for(it=0;it<(apval_ptr->nt1);it++)
-                  fscanf(fpr,"%f",&stf[it]);
-
-	       if(apval_ptr->nt2)
-                  apval_ptr->stf2 = (float *)check_malloc((apval_ptr->nt2)*sizeof(float));
-	       else
-                  apval_ptr->stf2 = NULL;
-
-               stf = apval_ptr->stf2;
-
-               for(it=0;it<(apval_ptr->nt2);it++)
-                  fscanf(fpr,"%f",&stf[it]);
-
-	       if(apval_ptr->nt3)
-                  apval_ptr->stf3 = (float *)check_malloc((apval_ptr->nt3)*sizeof(float));
-	       else
-                  apval_ptr->stf3 = NULL;
-
-               stf = apval_ptr->stf3;
-
-               for(it=0;it<(apval_ptr->nt3);it++)
-                  fscanf(fpr,"%f",&stf[it]);
-
-               /* get rouge newline character */
-               if((apval_ptr->nt1) || (apval_ptr->nt2) || (apval_ptr->nt3))
+               if(mrf_flag != 1)              /* expecting slip */
+                  {
                   fgets(str,MAXLINE,fpr);
+                  sscanf(str,"%f %f %d %f %d %f %d",&(apval_ptr->rake),
+                                           &(apval_ptr->slip1),
+                                           &(apval_ptr->nt1),
+                                           &(apval_ptr->slip2),
+                                           &(apval_ptr->nt2),
+                                           &(apval_ptr->slip3),
+                                           &(apval_ptr->nt3));
+
+	          if(apval_ptr->nt1)
+                     apval_ptr->stf1 = (float *)check_malloc((apval_ptr->nt1)*sizeof(float));
+	          else
+                     apval_ptr->stf1 = NULL;
+
+                  stf = apval_ptr->stf1;
+
+                  for(it=0;it<(apval_ptr->nt1);it++)
+                     fscanf(fpr,"%f",&stf[it]);
+
+	          if(apval_ptr->nt2)
+                     apval_ptr->stf2 = (float *)check_malloc((apval_ptr->nt2)*sizeof(float));
+	          else
+                     apval_ptr->stf2 = NULL;
+
+                  stf = apval_ptr->stf2;
+
+                  for(it=0;it<(apval_ptr->nt2);it++)
+                     fscanf(fpr,"%f",&stf[it]);
+
+	          if(apval_ptr->nt3)
+                     apval_ptr->stf3 = (float *)check_malloc((apval_ptr->nt3)*sizeof(float));
+	          else
+                     apval_ptr->stf3 = NULL;
+
+                  stf = apval_ptr->stf3;
+
+                  for(it=0;it<(apval_ptr->nt3);it++)
+                     fscanf(fpr,"%f",&stf[it]);
+
+                  /* get rouge newline character */
+                  if((apval_ptr->nt1) || (apval_ptr->nt2) || (apval_ptr->nt3))
+                     fgets(str,MAXLINE,fpr);
+	          }
+
+               else if(mrf_flag == 1)         /* expecting moment */
+                  {
+                  fgets(str,MAXLINE,fpr);
+                  sscanf(str,"%lf %lf %lf %lf %lf %lf %d",
+                                           &(apval_ptr->mnn),
+                                           &(apval_ptr->mee),
+                                           &(apval_ptr->mdd),
+                                           &(apval_ptr->mne),
+                                           &(apval_ptr->mnd),
+                                           &(apval_ptr->med),
+                                           &(apval_ptr->ntmr));
+
+	          if(apval_ptr->ntmr)
+                     apval_ptr->mrf = (float *)check_malloc((apval_ptr->ntmr)*sizeof(float));
+	          else
+                     apval_ptr->mrf = NULL;
+
+                  stf = apval_ptr->mrf;
+
+                  for(it=0;it<(apval_ptr->ntmr);it++)
+                     fscanf(fpr,"%f",&stf[it]);
+
+                  /* get rouge newline character */
+                  if((apval_ptr->ntmr))
+                     fgets(str,MAXLINE,fpr);
+	          }
+
 	       }
             }
 
@@ -317,8 +379,10 @@ void write_srf(struct standrupformat *srf,char *file,int bflag)
 {
 if(atof(srf->version) < 2.0)
    write_srf1(srf,file,bflag);
-else if(atof(srf->version) >= 2.0)
+else if(atof(srf->version) < 3.0)
    write_srf2(srf,file,bflag);
+else if(atof(srf->version) >= 3.0)
+   write_srf3(srf,file,bflag);
 }
 
 void write_srf1(struct standrupformat *srf,char *file,int bflag)
@@ -685,6 +749,245 @@ else
 
             fprintf(fpw,"\n");
             }
+         }
+      nprite = nprite + srf->np_seg[ig];
+      }
+
+   fclose(fpw);
+   }
+}
+
+void write_srf3(struct standrupformat *srf,char *file,int bflag)
+{
+FILE *fpw, *fopfile();
+struct srf_planerectangle *prect_ptr;
+struct srf_prectsegments *prseg_ptr;
+struct srf_allpoints *apnts_ptr;
+struct srf_apointvalues *apval_ptr;
+
+float area;
+float *stf;
+int i, j, k, nt6, it, ig;
+
+char *sptr, pword[32];
+int fdw;
+
+int ip, nprite;
+
+int mrf_flag;
+
+prect_ptr = &(srf->srf_prect);
+prseg_ptr = prect_ptr->prectseg;
+apnts_ptr = &(srf->srf_apnts);
+apval_ptr = apnts_ptr->apntvals;
+
+if(bflag)
+   {
+   if(strcmp(file,"stdout") == 0)
+      fdw = STDOUT_FILENO;
+   else
+      fdw = croptrfile(file);
+
+   rite(fdw,srf->version,sizeof(srf->version));
+
+   if(strcmp(srf->type,"PLANE") == 0)
+      {
+      rite(fdw,srf->type,sizeof(srf->type));
+      rite(fdw,&(prect_ptr->nseg),sizeof(prect_ptr->nseg));
+      rite(fdw,prseg_ptr,(prect_ptr->nseg)*sizeof(struct srf_prectsegments));
+      }
+
+   sprintf(pword,"POINTS");
+   rite(fdw,pword,sizeof(pword));
+   rite(fdw,&(apnts_ptr->np),sizeof(apnts_ptr->np));
+   for(i=0;i<apnts_ptr->np;i++)
+      {
+      rite(fdw,&(apval_ptr[i].lon),sizeof(float));
+      rite(fdw,&(apval_ptr[i].lat),sizeof(float));
+      rite(fdw,&(apval_ptr[i].dep),sizeof(float));
+      rite(fdw,&(apval_ptr[i].stk),sizeof(float));
+      rite(fdw,&(apval_ptr[i].dip),sizeof(float));
+      rite(fdw,&(apval_ptr[i].area),sizeof(float));
+      rite(fdw,&(apval_ptr[i].tinit),sizeof(float));
+      rite(fdw,&(apval_ptr[i].dt),sizeof(float));
+      rite(fdw,&(apval_ptr[i].rake),sizeof(float));
+      rite(fdw,&(apval_ptr[i].slip1),sizeof(float));
+      rite(fdw,&(apval_ptr[i].nt1),sizeof(int));
+      rite(fdw,&(apval_ptr[i].slip2),sizeof(float));
+      rite(fdw,&(apval_ptr[i].nt2),sizeof(int));
+      rite(fdw,&(apval_ptr[i].slip3),sizeof(float));
+      rite(fdw,&(apval_ptr[i].nt3),sizeof(int));
+
+      rite(fdw,apval_ptr[i].stf1,(apval_ptr[i].nt1)*sizeof(float));
+      rite(fdw,apval_ptr[i].stf2,(apval_ptr[i].nt2)*sizeof(float));
+      rite(fdw,apval_ptr[i].stf3,(apval_ptr[i].nt3)*sizeof(float));
+      }
+   close(fdw);
+   }
+else
+   {
+   if(strcmp(file,"stdout") == 0)
+      fpw = stdout;
+   else
+      fpw = fopfile(file,"w");
+
+   fprintf(fpw,"%s %s\n",srf->version,srf->src_format);
+
+   for(i=0;i<srf->srf_hcmnt.nline;i++)
+      {
+      sptr = (srf->srf_hcmnt.cbuf) + i*MAXLINE;
+      if(sptr[0] != '\0')
+         fprintf(fpw,"%s\n",sptr);
+      }
+
+   if(strcmp(srf->type,"PLANE") == 0)
+      {
+      fprintf(fpw,"%s %d\n",srf->type,prect_ptr->nseg);
+      for(ig=0;ig<prect_ptr->nseg;ig++)
+         {
+         fprintf(fpw,"%12.6f %11.6f %5d %5d %10.4f %10.4f\n",prseg_ptr[ig].elon,
+                                                        prseg_ptr[ig].elat,
+                                                        prseg_ptr[ig].nstk,
+                                                        prseg_ptr[ig].ndip,
+                                                        prseg_ptr[ig].flen,
+                                                        prseg_ptr[ig].fwid);
+         fprintf(fpw,"%4.0f %4.0f %10.4f %10.4f %10.4f\n",prseg_ptr[ig].stk,
+                                                    prseg_ptr[ig].dip,
+                                                    prseg_ptr[ig].dtop,
+                                                    prseg_ptr[ig].shyp,
+                                                    prseg_ptr[ig].dhyp);
+         }
+      }
+
+   mrf_flag = 0;
+   if(strcmp(srf->src_format,"MOMENT") == 0)
+      mrf_flag = 1;
+
+   nprite = 0;
+   for(ig=0;ig<srf->nseg;ig++)
+      {
+      fprintf(fpw,"POINTS %d\n",srf->np_seg[ig]);
+      for(ip=0;ip<srf->np_seg[ig];ip++)
+         {
+         i = ip + nprite;
+
+         fprintf(fpw,"%12.6f %11.6f %12.5e %4.0f %4.0f %12.5e %13.6e %12.5e %13.5e %13.5e %13.5e\n",
+                                              apval_ptr[i].lon,
+                                              apval_ptr[i].lat,
+                                              apval_ptr[i].dep,
+                                              apval_ptr[i].stk,
+                                              apval_ptr[i].dip,
+                                              apval_ptr[i].area,
+                                              apval_ptr[i].tinit,
+                                              apval_ptr[i].dt,
+                                              apval_ptr[i].vp,
+                                              apval_ptr[i].vs,
+                                              apval_ptr[i].den);
+
+         if(mrf_flag != 1)		/* expecting slip */
+            {
+            fprintf(fpw,"%4.0f %10.4f %6d %10.4f %6d %10.4f %6d\n",
+                                                 apval_ptr[i].rake,
+                                                 apval_ptr[i].slip1,
+                                                 apval_ptr[i].nt1,
+                                                 apval_ptr[i].slip2,
+                                                 apval_ptr[i].nt2,
+                                                 apval_ptr[i].slip3,
+                                                 apval_ptr[i].nt3);
+
+            stf = apval_ptr[i].stf1;
+            nt6 = (apval_ptr[i].nt1)/6;
+            for(k=0;k<nt6;k++)
+               {
+               for(j=0;j<6;j++)
+                  {
+                  it = 6*k + j;
+                  fprintf(fpw,"%13.5e",stf[it]);
+                  }
+               fprintf(fpw,"\n");
+               }
+
+            if(6*nt6 != (apval_ptr[i].nt1))
+               {
+               for(j=6*nt6;j<(apval_ptr[i].nt1);j++)
+                  fprintf(fpw,"%13.5e",stf[j]);
+
+               fprintf(fpw,"\n");
+               }
+
+            stf = apval_ptr[i].stf2;
+            nt6 = (apval_ptr[i].nt2)/6;
+            for(k=0;k<nt6;k++)
+               {
+               for(j=0;j<6;j++)
+                  {
+                  it = 6*k + j;
+                  fprintf(fpw,"%13.5e",stf[it]);
+                  }
+               fprintf(fpw,"\n");
+               }
+
+            if(6*nt6 != (apval_ptr[i].nt2))
+               {
+               for(j=6*nt6;j<(apval_ptr[i].nt2);j++)
+                  fprintf(fpw,"%13.5e",stf[j]);
+
+               fprintf(fpw,"\n");
+               }
+
+            stf = apval_ptr[i].stf3;
+            nt6 = (apval_ptr[i].nt3)/6;
+            for(k=0;k<nt6;k++)
+               {
+               for(j=0;j<6;j++)
+                  {
+                  it = 6*k + j;
+                  fprintf(fpw,"%13.5e",stf[it]);
+                  }
+               fprintf(fpw,"\n");
+               }
+
+            if(6*nt6 != (apval_ptr[i].nt3))
+               {
+               for(j=6*nt6;j<(apval_ptr[i].nt3);j++)
+                  fprintf(fpw,"%13.5e",stf[j]);
+
+               fprintf(fpw,"\n");
+               }
+            }
+
+         else if(mrf_flag == 1)		/* expecting moment */
+            {
+            fprintf(fpw,"%13.5e %13.5e %13.5e %13.5e %13.5e %13.5e %6d\n",
+                                                 apval_ptr[i].mnn,
+                                                 apval_ptr[i].mee,
+                                                 apval_ptr[i].mdd,
+                                                 apval_ptr[i].mne,
+                                                 apval_ptr[i].mnd,
+                                                 apval_ptr[i].med,
+                                                 apval_ptr[i].ntmr);
+
+            stf = apval_ptr[i].mrf;
+            nt6 = (apval_ptr[i].ntmr)/6;
+            for(k=0;k<nt6;k++)
+               {
+               for(j=0;j<6;j++)
+                  {
+                  it = 6*k + j;
+                  fprintf(fpw,"%13.5e",stf[it]);
+                  }
+               fprintf(fpw,"\n");
+               }
+
+            if(6*nt6 != (apval_ptr[i].ntmr))
+               {
+               for(j=6*nt6;j<(apval_ptr[i].ntmr);j++)
+                  fprintf(fpw,"%13.5e",stf[j]);
+
+               fprintf(fpw,"\n");
+               }
+            }
+
          }
       nprite = nprite + srf->np_seg[ig];
       }
@@ -1647,4 +1950,216 @@ sptr1 = sptr1 + MAXLINE;
 nb = sprintf(sptr1,"# ending_seed= %lld",ending_seed);
 sptr1 = sptr1 + MAXLINE;
 sprintf(sptr1,"#");
+}
+
+void srf_to_mrf(struct standrupformat *srf,struct standrupformat *mrf,struct velmodel *vm,int use_srf_lame,int pflag,int ac,char **av)
+{
+struct srf_prectsegments *prseg_in, *prseg_out;
+struct srf_apointvalues *apval_in, *apval_out;
+float *stfin, *stfout;
+int i, j, k, it, ig;
+
+double s_mom, m_mom;
+
+float u1, u2, u3, sum;
+double lam, l2m, mu;
+double ux, uy, uz, vx, vy, vz;
+
+double arg;
+double cosS, sinS;
+double cosD, sinD;
+double cosL, sinL;
+
+double rperd = 0.017453292519943;
+
+if(atof(srf[0].version) < 2.0)
+   {
+   fprintf(stderr,"srf version= %s < 2.0, exiting ... \n",srf[0].version);
+   exit(-1);
+   }
+
+s_mom = 0.0;
+m_mom = 0.0;
+
+sprintf(mrf[0].version,"3.0");
+sprintf(mrf[0].src_format,"MOMENT");
+
+copy_hcmnt(mrf,srf);
+
+if(pflag && atof(mrf[0].version) >= 2.0)
+   load_command_srf(mrf,ac,av);
+
+mrf[0].type[0] = '\0';
+if(strncmp(srf[0].type,"PLANE",5) == 0)
+   {
+   strcpy(mrf[0].type,srf[0].type);
+
+   mrf[0].srf_prect.nseg = srf[0].srf_prect.nseg;
+   mrf[0].srf_prect.prectseg = (struct srf_prectsegments *)check_malloc(mrf[0].srf_prect.nseg*sizeof(struct srf_prectsegments));
+
+   prseg_in = srf[0].srf_prect.prectseg;
+   prseg_out = mrf[0].srf_prect.prectseg;
+   for(ig=0;ig<mrf[0].srf_prect.nseg;ig++)
+      {
+      prseg_out[ig].elon = prseg_in[k].elon;
+      prseg_out[ig].elat = prseg_in[k].elat;
+      prseg_out[ig].nstk = prseg_in[k].nstk;
+      prseg_out[ig].ndip = prseg_in[k].ndip;
+      prseg_out[ig].flen = prseg_in[k].flen;
+      prseg_out[ig].fwid = prseg_in[k].fwid;
+      prseg_out[ig].stk = prseg_in[k].stk;
+      prseg_out[ig].dip = prseg_in[k].dip;
+      prseg_out[ig].dtop = prseg_in[k].dtop;
+      prseg_out[ig].shyp = prseg_in[k].shyp;
+      prseg_out[ig].dhyp = prseg_in[k].dhyp;
+      }
+   }
+
+mrf[0].srf_apnts.np = srf[0].srf_apnts.np;
+mrf[0].srf_apnts.apntvals = (struct srf_apointvalues *)check_malloc((mrf[0].srf_apnts.np)*sizeof(struct srf_apointvalues));
+
+mrf[0].nseg = srf[0].nseg;
+mrf[0].np_seg = (int *)check_malloc((mrf[0].nseg)*sizeof(int));
+
+for(i=0;i<mrf[0].nseg;i++)
+   mrf[0].np_seg[i] = srf[0].np_seg[i];
+
+apval_in = srf[0].srf_apnts.apntvals;
+apval_out = mrf[0].srf_apnts.apntvals;
+
+for(i=0;i<mrf[0].srf_apnts.np;i++)
+   {
+   apval_out[i].lon = apval_in[i].lon;
+   apval_out[i].lat = apval_in[i].lat;
+   apval_out[i].dep = apval_in[i].dep;
+   apval_out[i].stk = apval_in[i].stk;
+   apval_out[i].dip = apval_in[i].dip;
+   apval_out[i].area = apval_in[i].area;
+   apval_out[i].tinit = apval_in[i].tinit;
+   apval_out[i].dt = apval_in[i].dt;
+   apval_out[i].vp = apval_in[i].vp;
+   apval_out[i].vs = apval_in[i].vs;
+
+   apval_out[i].stk = apval_in[i].stk;
+   apval_out[i].dip = apval_in[i].dip;
+   apval_out[i].rake = apval_in[i].rake;
+
+   apval_out[i].mrf = NULL;
+
+   apval_out[i].ntmr = apval_in[i].nt1;
+   if(apval_in[i].nt2 > apval_out[i].ntmr)
+      apval_out[i].ntmr = apval_in[i].nt2;
+   if(apval_in[i].nt3 > apval_out[i].ntmr)
+      apval_out[i].ntmr = apval_in[i].nt3;
+
+   apval_out[i].mrf = (float *)check_realloc(apval_out[i].mrf,(apval_out[i].ntmr)*sizeof(float));
+   stfout = apval_out[i].mrf;
+
+   if(apval_in[i].nt1)
+      {
+      stfin = apval_in[i].stf1;
+      for(it=0;it<(apval_in[i].nt1);it++)
+         stfout[it] = stfin[it]*stfin[it];
+      }
+
+   if(apval_in[i].nt2)
+      {
+      stfin = apval_in[i].stf2;
+      for(it=0;it<(apval_in[i].nt2);it++)
+         stfout[it] = stfout[it] + stfin[it]*stfin[it];
+      }
+
+   if(apval_in[i].nt3)
+      {
+      stfin = apval_in[i].stf3;
+      for(it=0;it<(apval_in[i].nt3);it++)
+         stfout[it] = stfout[it] + stfin[it]*stfin[it];
+      }
+
+   sum = 0.0;
+   for(it=0;it<(apval_out[i].ntmr);it++)
+      {
+      stfout[it] = sqrt(stfout[it]);
+      sum = sum + (apval_out[i].dt)*stfout[it];
+      }
+
+   sum = 1.0/sum;
+   for(it=0;it<(apval_out[i].ntmr);it++)
+      stfout[it] = sum*stfout[it];
+
+   if(use_srf_lame != 0 && apval_out[i].vp > 0.0 && apval_out[i].vs > 0.0 && apval_out[i].den > 0.0)
+      {
+      l2m = apval_out[i].vp*apval_out[i].vp*apval_out[i].den;
+      mu = apval_out[i].vs*apval_out[i].vs*apval_out[i].den;
+      }
+   else
+      {
+      j = 0;
+      while(vm->dep[j] < apval_out[i].dep)
+         j++;
+
+      l2m = 1.0e+10*vm->vp[j]*vm->vp[j]*vm->den[j];
+      mu = 1.0e+10*vm->vs[j]*vm->vs[j]*vm->den[j];
+
+      if(apval_out[i].vp < 0.0)
+         apval_out[i].vp = 1.0e+05*vm->vp[j];
+
+      if(apval_out[i].vs < 0.0)
+         apval_out[i].vs = 1.0e+05*vm->vs[j];
+
+      if(apval_out[i].den < 0.0)
+         apval_out[i].den = vm->den[j];
+      }
+   lam = l2m - 2.0*mu;
+
+   u1 = apval_in[i].slip1;
+   u2 = apval_in[i].slip2;
+   u3 = apval_in[i].slip3;
+
+   arg = apval_in[i].stk*rperd;
+   cosS = cos(arg);
+   sinS = sin(arg);
+
+   arg = apval_in[i].dip*rperd;
+   cosD = cos(arg);
+   sinD = sin(arg);
+
+   arg = apval_in[i].rake*rperd;
+   cosL = cos(arg);
+   sinL = sin(arg);
+
+   vx = -sinD*sinS;
+   vy =  sinD*cosS;
+   vz = -cosD;
+
+   ux = -(u3*sinD - cosD*(u1*sinL + u2*cosL))*sinS + (u1*cosL - u2*sinL)*cosS;
+   uy =  (u3*sinD - cosD*(u1*sinL + u2*cosL))*cosS + (u1*cosL - u2*sinL)*sinS;
+   uz = -u3*cosD - (u1*sinL + u2*cosL)*sinD;
+
+/* XXXXX
+fprintf(stderr,"vx= %.5e vy= %.5e vz= %.5e\n",vx,vy,vz);
+fprintf(stderr,"cosL= %.5e sinL= %.5e cosD= %.5e sinD= %.5e\n",cosL,sinL,cosD,sinD);
+fprintf(stderr,"u1= %.5e u2= %.5e u3= %.5e\n",u1,u2,u3);
+fprintf(stderr,"ux= %.5e uy= %.5e uz= %.5e\n",ux,uy,uz);
+*/
+
+   apval_out[i].mnn = (l2m*vx*ux + lam*(vy*uy + vz*uz))*apval_out[i].area;
+   apval_out[i].mee = (l2m*vy*uy + lam*(vx*ux + vz*uz))*apval_out[i].area;
+   apval_out[i].mdd = (l2m*vz*uz + lam*(vx*ux + vy*uy))*apval_out[i].area;
+
+   apval_out[i].mne = mu*(vx*uy + vy*ux)*apval_out[i].area;
+   apval_out[i].mnd = mu*(vx*uz + vz*ux)*apval_out[i].area;
+   apval_out[i].med = mu*(vy*uz + vz*uy)*apval_out[i].area;
+
+   s_mom = s_mom + sqrt(u1*u1 + u2*u2 + u3*u3)*mu*apval_in[i].area;
+   m_mom = m_mom + sqrt(0.5*apval_out[i].mnn*apval_out[i].mnn
+                      + 0.5*apval_out[i].mee*apval_out[i].mee
+		      + 0.5*apval_out[i].mdd*apval_out[i].mdd
+		      + apval_out[i].mne*apval_out[i].mne
+		      + apval_out[i].mnd*apval_out[i].mnd
+		      + apval_out[i].med*apval_out[i].med);
+
+   }
+fprintf(stderr,"slip moment= %.5e\n",s_mom);
+fprintf(stderr,"MT moment= %.5e\n",m_mom);
 }
