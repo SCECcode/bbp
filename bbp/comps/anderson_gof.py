@@ -56,6 +56,10 @@ try:
     cumulative_trapezoid = integrate.cumulative_trapezoid
 except AttributeError:
     cumulative_trapezoid = integrate.cumtrapz
+try:
+    simpson = integrate.simpson
+except AttributeError:
+    simpson = integrate.simps
 
 # Import BBP modules
 import bband_utils
@@ -141,11 +145,11 @@ class AndersonGOF(object):
 
     @staticmethod
     def integral(x, idt):
-        return integrate.simps(x, x=None, dx=idt)
+        return simpson(x, x=None, dx=idt)
 
     @staticmethod
     def integral2(x, idt):
-        return integrate.simps(x * x, x=None, dx=idt)
+        return simpson(x * x, x=None, dx=idt)
 
     @staticmethod
     def integ(array_in, idt):
