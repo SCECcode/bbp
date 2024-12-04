@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -130,16 +130,17 @@ def read_resid(resid_file, period, summary_output):
     # Return the data we found
     return sta_x_data, sta_y_data, sta_resid_data
 
-def plot_map_gof(r_srcfile, r_stations, resid_file, comp_label, sim_id):
+def plot_map_gof(source_file, r_stations, resid_file, comp_label, sim_id):
     """
     Reads data from resid_file and plots a map gof plot with a number
     of periods
     """
     # Make sure we have a src or srf file
-    if (r_srcfile is None or r_srcfile == "" or
-        (not r_srcfile.endswith(".srf") and
-         not r_srcfile.endswith(".src"))):
-        # We need a SRC or SRF file to get the fault geometry
+    if (source_file is None or source_file == "" or
+        (not source_file.endswith(".srf") and
+         (not source_file.endswith(".mrf")) and
+         not source_file.endswith(".src"))):
+        # We need a SRC/SRF/MRF file to get the fault geometry
         return
 
     # Get directory names
@@ -147,7 +148,7 @@ def plot_map_gof(r_srcfile, r_stations, resid_file, comp_label, sim_id):
     a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
     a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
 
-    a_input_file = os.path.join(a_indir, r_srcfile)
+    a_input_file = os.path.join(a_indir, source_file)
     a_station_file = os.path.join(a_indir, r_stations)
 
     # Define boundaries to plot using the stations in the station file
@@ -157,7 +158,7 @@ def plot_map_gof(r_srcfile, r_stations, resid_file, comp_label, sim_id):
     trace_file = "%s.trace" % (a_input_file)
     simple_station_file = "%s.simple" % (a_station_file)
 
-    if r_srcfile.endswith(".srf"):
+    if source_file.endswith(".srf") or source_file.endswith(".mrf"):
         plot_utils.write_fault_trace(a_input_file, trace_file)
     else:
         plot_utils.write_simple_trace(a_input_file, trace_file)

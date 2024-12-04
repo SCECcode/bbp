@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -71,8 +71,9 @@ class Plot_Map(object):
 
         if (self.input_file is None or self.input_file == "" or
             (not self.input_file.endswith(".srf") and
-            not self.input_file.endswith(".src"))):
-            # We need a SRC or SRF file to get the fault geometry
+             (not self.input_file.endswith(".mrf") and
+              not self.input_file.endswith(".src")))):
+            # We need a SRC/SRF/MRF file to get the fault geometry
             return
 
         install = InstallCfg.getInstance()
@@ -99,14 +100,14 @@ class Plot_Map(object):
                                 "%d.plot_map.log" % (self.sim_id))
         trace_file = "%s.trace" % (a_input_file)
         simple_station_file = "%s.simple" % (a_station_file)
-        if self.input_file.endswith(".srf"):
+        if self.input_file.endswith(".srf") or self.input_file.endswith(".mrf"):
             self.trace = plot_utils.write_fault_trace(a_input_file, trace_file)
         else:
             self.trace = plot_utils.write_simple_trace(a_input_file, trace_file)
         plot_utils.write_simple_stations(a_station_file, simple_station_file)
         map_prefix = os.path.join(a_outdir, "station_map")
 
-        # Get hypo_lon, hypo_lat from src/srf file
+        # Get hypo_lon, hypo_lat from src/srf/mrf file
         hypo_coord = {}
         hypo_lon, hypo_lat = fault_utils.calculate_epicenter(a_input_file)
         hypo_coord['lat'] = hypo_lat

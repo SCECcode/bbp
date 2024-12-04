@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -69,9 +69,9 @@ def get_magnitude(velfile, srffile, suffix="tmp"):
     bband_utils.runprog(cmd, False)
     return magnitude
 
-def get_hypocenter(srffile, suffix="tmp"):
+def get_hypocenter(input_file, suffix="tmp"):
     """
-    Looks up the hypocenter of an event in a srffile
+    Looks up the hypocenter of an event in a SRF/MRF input_file
     """
     hypfile = os.path.join(tempfile.gettempdir(),
                            "%s_%s" %
@@ -79,7 +79,7 @@ def get_hypocenter(srffile, suffix="tmp"):
     install = InstallCfg.getInstance()
     cmd = ("%s < %s > %s" %
            (os.path.join(install.A_GP_BIN_DIR, "srf_gethypo"),
-            srffile, hypfile))
+            input_file, hypfile))
     bband_utils.runprog(cmd)
     srf_hypo_fp = open(hypfile, 'r')
     srf_hypo_data = srf_hypo_fp.readline()
@@ -126,12 +126,12 @@ def calculate_hypo_depth(srcfile):
 def calculate_epicenter(input_file):
     """
     This function returns the epicenter of an event using either a SRC
-    file or a SRF file to look for the hypocenter location. It uses
+    file or a SRF/MRF file to look for the hypocenter location. It uses
     Rob Graves' xy2ll utility to convert the coordinates to lat/lon.
     """
     # If we have a SRF file, we already have a function that does this
-    if input_file.endswith(".srf"):
-        # Get information from srf file
+    if input_file.endswith(".srf") or input_file.endswith(".mrf"):
+        # Get information from srf/mrf file
         hypo_lon, hypo_lat, _ = get_hypocenter(input_file)
         return hypo_lon, hypo_lat
 

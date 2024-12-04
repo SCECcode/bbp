@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -537,7 +537,7 @@ def run(r_srffile, sim_id=0):
 
     # Get number of segments
     num_segments = get_srf_num_segments(r_srffile)
-    srfbase = r_srffile[0:r_srffile.find(".srf")]
+    srfbase = os.path.splitext(r_srffile)[0]
 
     # Write slip and tinit files for each segment
     for seg in range(num_segments):

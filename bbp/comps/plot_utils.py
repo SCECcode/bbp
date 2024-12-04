@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2023, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -50,77 +50,77 @@ from station_list import StationList
 BUFFER_LATITUDE = 0.25
 BUFFER_LONGITUDE = 0.25
 
-def get_srf_num_segments(srf_file):
+def get_srf_num_segments(input_file):
     """
-    Returns number of segments in a SRF file
+    Returns number of segments in a SRF/MRF file
     """
-    srf_segments = None
+    num_segments = None
 
-    srf = open(srf_file, 'r')
+    srf = open(input_file, 'r')
     for line in srf:
         if line.startswith("PLANE"):
             # Found the plane line, read number of segments
-            srf_segments = int(line.split()[1])
+            num_segments = int(line.split()[1])
             break
     srf.close()
 
-    if srf_segments is None:
+    if num_segments is None:
         print("ERROR: Could not read number of segments from "
-              "SRF file: %s" % (src_file))
+              "input file: %s" % (input_file))
         sys.exit(1)
 
     # Return number of segments
-    return srf_segments
+    return num_segments
 
-def get_srf_params(srf_file, segment=0):
+def get_srf_params(input_file, segment=0):
     """
-    Reads fault_len, width, dlen, dwid, and azimuth from the srf_file
+    Reads fault_len, width, dlen, dwid, and azimuth from the input_file
     Segment allows users to specify segment of interest (0-based)
     """
-    srf_params1 = None
-    srf_params2 = None
-    srf = open(srf_file, 'r')
+    param_line1 = None
+    param_line2 = None
+    srf = open(input_file, 'r')
     for line in srf:
         if line.startswith("PLANE"):
             # Found the plane line, read number of segments
-            srf_segments = int(line.split()[1])
-            if srf_segments < segment + 1:
+            num_segments = int(line.split()[1])
+            if num_segments < segment + 1:
                 print("ERROR: Requested parameters from segment %d, "
-                      "       SRF file only has %d segment(s)!" %
-                      (segment + 1, srf_segments))
+                      "       SRF/MRF file only has %d segment(s)!" %
+                      (segment + 1, num_segments))
                 sys.exit(1)
             for _ in range(segment):
                 # Skip lines to get to the segment we want
                 _ = next(srf)
                 _ = next(srf)
             # The next line should have what we need
-            srf_params1 = next(srf)
-            srf_params2 = next(srf)
+            param_line1 = next(srf)
+            param_line2 = next(srf)
             break
     srf.close()
-    if srf_params1 is None or srf_params2 is None:
-        print("ERROR: Cannot determine parameters from SRF file %s" %
-              (srf_file))
+    if param_line1 is None or param_line2 is None:
+        print("ERROR: Cannot determine parameters from SRF/MRF file %s" %
+              (input_file))
         sys.exit(1)
-    srf_params1 = srf_params1.strip()
-    srf_params1 = srf_params1.split()
-    srf_params2 = srf_params2.strip()
-    srf_params2 = srf_params2.split()
+    param_line1 = param_line1.strip()
+    param_line1 = param_line1.split()
+    param_line2 = param_line2.strip()
+    param_line2 = param_line2.split()
     # Make sure we have the correct number of pieces
-    if len(srf_params1) != 6 or len(srf_params2) != 5:
-        print("ERROR: Cannot parse params from SRF file %s" %
-              (srf_file))
+    if len(param_line1) != 6 or len(param_line2) != 5:
+        print("ERROR: Cannot parse params from SRF/MRF file %s" %
+              (input_file))
         sys.exit(1)
 
     # Pick the parameters that we need
     params = {}
-    params["lon"] = float(srf_params1[0])
-    params["lat"] = float(srf_params1[1])
-    params["dim_len"] = int(srf_params1[2])
-    params["dim_wid"] = int(srf_params1[3])
-    params["fault_len"] = float(srf_params1[4])
-    params["fault_width"] = float(srf_params1[5])
-    params["azimuth"] = int(float(srf_params2[0]))
+    params["lon"] = float(param_line1[0])
+    params["lat"] = float(param_line1[1])
+    params["dim_len"] = int(param_line1[2])
+    params["dim_wid"] = int(param_line1[3])
+    params["fault_len"] = float(param_line1[4])
+    params["fault_width"] = float(param_line1[5])
+    params["azimuth"] = int(float(param_line2[0]))
 
     return params
 
@@ -138,7 +138,7 @@ def write_simple_stations(station_file, out_file):
 
 def get_srf_info(srf_file):
     """
-    This function reads a SRF file and returns version,
+    This function reads a SRF/MRF file and returns version,
     number of segments, and a list with the nstk values
     for each segment
     """
@@ -146,14 +146,15 @@ def get_srf_info(srf_file):
     num_segments = None
     nstk = []
 
-    # Read SRF file
+    # Read SRF/MRF file
     input_file = open(srf_file, 'r')
     for line in input_file:
         line = line.strip()
         # Skip blank lines
         if not line:
             continue
-        version = int(float(line))
+        # First line should contain version number
+        version = int(float(line.split()[0]))
         break
 
     # Read number of segments
@@ -170,7 +171,7 @@ def get_srf_info(srf_file):
                 break
 
     if num_segments is None or version is None:
-        bband_utils.ParameterError("Cannot parse SRF file!")
+        bband_utils.ParameterError("Cannot parse SRF/MRF file!")
 
     # Read nstk for each segment
     for line in input_file:
@@ -188,13 +189,13 @@ def get_srf_info(srf_file):
 
     input_file.close()
     if len(nstk) != num_segments:
-        bband_utils.ParameterError("Cannot read nstk from SRF file!")
+        bband_utils.ParameterError("Cannot read nstk from SRF/MRF file!")
 
     return version, num_segments, nstk
 
 def read_srf_trace(srf_file, num_segment, nstk):
     """
-    This function reads an SRF file and returns the
+    This function reads an SRF/MRF file and returns the
     top layer trace for the segment specified
     """
     install = InstallCfg.getInstance()
@@ -230,12 +231,12 @@ def read_srf_trace(srf_file, num_segment, nstk):
 
 def write_fault_trace(srf_file, out_file):
     """
-    This function reads the srf file and outputs a trace file
+    This function reads the srf/mrf file and outputs a trace file
     """
     all_points = []
 
-    # Figure out SRF file version
-    version, num_segments , nstk = get_srf_info(srf_file)
+    # Figure out SRF/MRF file version
+    version, num_segments, nstk = get_srf_info(srf_file)
 
     # Reads the points for each segment
     for segment in range(0, num_segments):
@@ -413,8 +414,8 @@ def set_boundaries_from_stations(station_file, a_input_file):
     if a_input_file.endswith(".src"):
         # Read fault information from SRC file
         lat1, lon1, _, _, lat2, lon2 = calculate_fault_edges_from_src(a_input_file)
-    elif a_input_file.endswith(".srf"):
-        # Read fault information from SRF file
+    elif a_input_file.endswith(".srf") or a_input_file.endswith(".mrf"):
+        # Read fault information from SRF/MRF file
         lat1, lon1, lat2, lon2 = calculate_fault_edges_from_srf(a_input_file)
     else:
         bband_utils.ParameterError("Cannot determine input_file format!")
