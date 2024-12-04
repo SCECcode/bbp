@@ -21,6 +21,11 @@ int nx, ny, nxdiv, nydiv, nxsum, nysum;
 float shypo, dhypo, elon, elat, fac;
 char string[1024];
 
+struct srf_apointvalues *apval_ptr;
+double dmom, dmu, darea, dslip;
+float dd;
+int mrf_flag = 0;
+
 float target_dx = -1.0;
 float target_dy = -1.0;
 
@@ -49,6 +54,9 @@ if(avgstk > -1.0e+14)
       avgstk = avgstk + 360.0;
    }
 
+mrf_flag = 0;
+if(strcmp(srf->src_format,"MOMENT") == 0)
+   mrf_flag = 1;
 
 slip = NULL;
 trise = NULL;
@@ -150,6 +158,7 @@ for(i=0;i<srf->srf_prect.nseg;i++)
    tr = (float *) check_realloc (tr,nx*ny*sizeof(float));
    ti = (float *) check_realloc (ti,nx*ny*sizeof(float));
 
+   apval_ptr = srf->srf_apnts.apntvals;
    savg = 0.0;
    ravg = 0.0;
    for(id=0;id<ndip;id++)
@@ -163,34 +172,68 @@ fprintf(stderr,"id= %d is= %d kp= %d noff= %d\n",id,is,kp,noff);
 */
 
 	 tt = srf->srf_apnts.apntvals[kp].tinit;
-	 s1 = srf->srf_apnts.apntvals[kp].slip1;
-	 s2 = srf->srf_apnts.apntvals[kp].slip2;
 
-	 rake = srf->srf_apnts.apntvals[kp].rake;
-
-	 cosA = cos(rake*RPERD);
-	 sinA = sin(rake*RPERD);
-
-	 xx = -s2*sinA + s1*cosA;
-	 yy =  s2*cosA + s1*sinA;
-
-	 ss = sqrt(xx*xx + yy*yy);
-
-	 rr = 90;
-	 if(yy < 0.0)
-	    rr = 270;
-
-	 if(xx != 0.0)
+	 if(mrf_flag == 1)
 	    {
-	    rr = DPERR*atan(yy/xx);
-	    if(xx < 0.0)
-	       rr = rr + 180;
-	    }
+	    dmu = (apval_ptr[kp].vs)*(apval_ptr[kp].vs)*(apval_ptr[kp].den);
+	    darea = 1.0*((double)(apval_ptr[kp].area));
 
-	 while(rr < 0.0)
-	    rr = rr + 360.0;
-	 while(rr > 360.0)
-	    rr = rr - 360.0;
+            dmom = sqrt(0.5*apval_ptr[kp].mnn*apval_ptr[kp].mnn
+                      + 0.5*apval_ptr[kp].mee*apval_ptr[kp].mee
+                      + 0.5*apval_ptr[kp].mdd*apval_ptr[kp].mdd
+                      + apval_ptr[kp].mne*apval_ptr[kp].mne
+                      + apval_ptr[kp].mnd*apval_ptr[kp].mnd
+                      + apval_ptr[kp].med*apval_ptr[kp].med);
+
+	    dslip = dmom/(dmu*darea);
+	    ss = dslip;
+
+/* make a guess on rake based on fault dip */
+
+	    dd = apval_ptr[kp].dip;
+	    while(dd < 0.0)
+	       dd = dd + 180.0;
+	    while(dd > 90.0)
+	       dd = 180.0 - dd;
+
+	    if(dd <= 45.0)
+	       rr = 90.0;
+	    else
+	       rr = 2.0*(dd-45.0) + 90.0;
+
+	    tl = (srf->srf_apnts.apntvals[kp].dt)*(srf->srf_apnts.apntvals[kp].ntmr);
+	    }
+	 else
+	    {
+	    s1 = srf->srf_apnts.apntvals[kp].slip1;
+	    s2 = srf->srf_apnts.apntvals[kp].slip2;
+
+	    rake = srf->srf_apnts.apntvals[kp].rake;
+
+	    cosA = cos(rake*RPERD);
+	    sinA = sin(rake*RPERD);
+
+	    xx = -s2*sinA + s1*cosA;
+	    yy =  s2*cosA + s1*sinA;
+
+	    ss = sqrt(xx*xx + yy*yy);
+
+	    rr = 90;
+	    if(yy < 0.0)
+	      rr = 270;
+
+	    if(xx != 0.0)
+	      {
+		rr = DPERR*atan(yy/xx);
+		if(xx < 0.0)
+		  rr = rr + 180;
+	      }
+
+	    while(rr < 0.0)
+	      rr = rr + 360.0;
+	    while(rr > 360.0)
+	      rr = rr - 360.0;
+	    }
 
 	 tl = (srf->srf_apnts.apntvals[kp].dt)*(srf->srf_apnts.apntvals[kp].nt1);
 	 if(srf->srf_apnts.apntvals[kp].nt2 > srf->srf_apnts.apntvals[kp].nt1)

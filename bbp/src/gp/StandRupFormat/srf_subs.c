@@ -2039,6 +2039,7 @@ for(i=0;i<mrf[0].srf_apnts.np;i++)
    apval_out[i].dt = apval_in[i].dt;
    apval_out[i].vp = apval_in[i].vp;
    apval_out[i].vs = apval_in[i].vs;
+   apval_out[i].den = apval_in[i].den;
 
    apval_out[i].stk = apval_in[i].stk;
    apval_out[i].dip = apval_in[i].dip;
