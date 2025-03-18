@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2024, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,7 @@ class Match(object):
         self.phase = None
         self.hf_fhi = None
         self.lf_flo = None
+        self.hf_merge_flag = None
 
     def run(self):
         """
@@ -100,11 +101,14 @@ class Match(object):
         self.phase = config.PHASE
         self.hf_fhi = config.HF_FHI
         self.lf_flo = config.LF_FLO
+        self.hf_merge_flag = config.HF_MERGE_FLAG
 
         # Check if we have a different merging frequency
         if 'MATCH_MERGING_FREQUENCY' in vmodel_params:
             self.hf_fhi = float(vmodel_params['MATCH_MERGING_FREQUENCY'])
             self.lf_flo = float(vmodel_params['MATCH_MERGING_FREQUENCY'])
+        if 'HF_MERGE_FLAG' in vmodel_params:
+            self.hf_merge_flag = float(vmodel_params['HF_MERGE_FLAG'])
 
         # Set match method
         if config.MATCH_METHOD == 1:
@@ -579,8 +583,8 @@ class Match(object):
                               (os.path.join(install.A_GP_BIN_DIR, "wcc_add")) +
                               "f1=1.00 t1=%f inbin1=0 infile1=%s " %
                               (config.LF_TSTART, infile1) +
-                              "f2=1.00 t2=%f inbin2=0 infile2=%s " %
-                              (config.HF_TSTART, infile2) +
+                              "f2=%f t2=%f inbin2=0 infile2=%s " %
+                              (self.hf_merge_flag, config.HF_TSTART, infile2) +
                               "outbin=0 outfile=%s >> %s 2>&1" %
                               (outfile, self.log))
                 bband_utils.runprog(progstring, abort_on_error=True,

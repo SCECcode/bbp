@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2024, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,7 @@ class MatchCfg(object):
         self.HF_FLO = "1.0e+15"
         self.HF_ORD = 4
         self.HF_TSTART = 0.0
+        self.HF_MERGE_FLAG = 1.0
 
         self.LF_FHI = 0.0
         self.LF_FLO = self.DEFAULT_MERGING_FREQUENCY
