@@ -1107,9 +1107,9 @@ def linear_tf(vs_profile, show_fig=True, freq_resolution=.05, fmax=30.):
 
         x_limits = [0,fmax]
         x_limits_log = [1e-1,fmax]
-        ax = fig.add_subplot(3,4,1); plt.plot(freq_array,AF_ro,'k'); plt.ylabel('S to R.O.'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); plt.title('Amplitude'); plt.text(0.55,0.85,'$\mathregular{f_0}$ = %.2f Hz'%f0_ro,transform=ax.transAxes,fontweight='bold'); ax.set_axisbelow(True)
-        ax = fig.add_subplot(3,4,5); plt.plot(freq_array,AF_in,'k'); plt.ylabel('S to Inci.'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); plt.text(0.55,0.85,'$\mathregular{f_0}$ = %.2f Hz'%f0_in,transform=ax.transAxes,fontweight='bold'); ax.set_axisbelow(True)
-        ax = fig.add_subplot(3,4,9); plt.plot(freq_array,AF_bh,'k'); plt.ylabel('S to B.H.'); plt.xlabel('Frequency [Hz]'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); plt.text(0.55,0.85,'$\mathregular{f_0}$= %.2f Hz'%f0_bh,transform=ax.transAxes,fontweight='bold'); ax.set_axisbelow(True)
+        ax = fig.add_subplot(3,4,1); plt.plot(freq_array,AF_ro,'k'); plt.ylabel('S to R.O.'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); plt.title('Amplitude'); plt.text(0.55,0.85,r'$\mathregular{f_0}$ = %.2f Hz'%f0_ro,transform=ax.transAxes,fontweight='bold'); ax.set_axisbelow(True)
+        ax = fig.add_subplot(3,4,5); plt.plot(freq_array,AF_in,'k'); plt.ylabel('S to Inci.'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); plt.text(0.55,0.85,r'$\mathregular{f_0}$ = %.2f Hz'%f0_in,transform=ax.transAxes,fontweight='bold'); ax.set_axisbelow(True)
+        ax = fig.add_subplot(3,4,9); plt.plot(freq_array,AF_bh,'k'); plt.ylabel('S to B.H.'); plt.xlabel('Frequency [Hz]'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); plt.text(0.55,0.85,r'$\mathregular{f_0}$= %.2f Hz'%f0_bh,transform=ax.transAxes,fontweight='bold'); ax.set_axisbelow(True)
         ax = fig.add_subplot(3,4,2); plt.plot(freq_array,np.unwrap(np.angle(TF_ro)),'k'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); plt.title('Phase angle (rad)'); ax.set_axisbelow(True)
         ax = fig.add_subplot(3,4,6); plt.plot(freq_array,np.unwrap(np.angle(TF_in)),'k'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); ax.set_axisbelow(True)
         ax = fig.add_subplot(3,4,10); plt.plot(freq_array,np.unwrap(np.angle(TF_bh)),'k'); plt.xlim(x_limits); plt.grid(color=[0.5]*3,ls=':'); plt.xlabel('Frequency [Hz]'); ax.set_axisbelow(True)
