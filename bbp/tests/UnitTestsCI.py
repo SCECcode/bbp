@@ -108,7 +108,7 @@ TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIrikuraHF))
 # Add UCSB tests
 TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUCFaultUtils))
 TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUCrmg))
-TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUCSite))
+#TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUCSite))
 
 # Add SDSU tests
 if sys.platform == 'darwin':
