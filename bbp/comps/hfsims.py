@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2023, University of Southern California
+Copyright (c) 2024, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ class Hfsims(object):
     Implement Robert Graves hfsim.csh as a python component
     """
     def __init__(self, i_r_velmodel, i_r_srcfile, i_r_srffile, i_r_stations,
-                 i_vmodel_name, val_name=None, sim_id=0):
+                 i_vmodel_name, val_name=None, sim_id=0, use_mrf=False):
         self.sim_id = sim_id
         self.r_velmodel = i_r_velmodel
         self.r_srcfile = i_r_srcfile
@@ -80,6 +80,11 @@ class Hfsims(object):
         self.deep_rvfac = None
         self.rvsig = None
         self.c_zero = None
+        self.use_mrf = use_mrf
+
+        # Switch to MRF file if requested
+        if self.use_mrf:
+            self.r_srffile = "%s.mrf" % (os.path.splitext(self.r_srffile)[0])
 
     def run(self):
         """

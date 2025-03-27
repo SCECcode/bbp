@@ -66,4 +66,8 @@ void gcproj(float *,float *,float *,float *,float *,double *,double *,double *,d
 void gen_matrices(double *,double *,float *,float *,float *);
 void dump_sliprate(char *,struct standrupformat *,int,float *,float *,float *);
 
-void srf_to_mrf(struct standrupformat *,struct standrupformat *,struct velmodel *,int,int,int,char **);
+void srf_to_mrf1(struct standrupformat *,struct standrupformat *,struct velmodel *,int,int,int,char **);
+void srf_to_mrf6_dsampXXX(struct standrupformat *,struct standrupformat *,struct velmodel *,int,int,int,int,int,char **);
+void srf_to_mrf6_dsamp(struct standrupformat *,struct standrupformat *,struct velmodel *,int,int,int,int,int,int,int,char **);
+
+void srf_dwnsamp(struct standrupformat *,struct standrupformat *,int,int,int,int,int,int,char **);

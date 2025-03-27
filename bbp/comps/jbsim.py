@@ -52,13 +52,18 @@ class Jbsim(object):
     """
 
     def __init__(self, i_r_velmodel, i_r_srcfile, i_r_srffile,
-                 i_r_stations, i_vmodel_name, sim_id=0):
+                 i_r_stations, i_vmodel_name, sim_id=0, use_mrf=False):
         self.sim_id = sim_id
         self.r_velmodel = i_r_velmodel
         self.r_srcfile = i_r_srcfile
         self.r_srffile = i_r_srffile
         self.r_stations = i_r_stations
         self.vmodel_name = i_vmodel_name
+        self.use_mrf = use_mrf
+
+        # Switch to MRF file if requested
+        if self.use_mrf:
+            self.r_srffile = "%s.mrf" % (os.path.splitext(self.r_srffile)[0])
 
     def run(self):
         """

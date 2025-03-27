@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -99,6 +99,13 @@ class GenslipCfg(object):
         self.DEEP_RISETIMEDEP = 17.5
         self.DEEP_RISETIMEDEP_RANGE = 2.5
         self.DEEP_RISETIME_FAC = 2.0
+
+        # Default parameters for downsampling a SRF file
+        # NCOARSESTK and NCOARSEDIP default value is 1
+        # which disables any downsampling, can be changed
+        # in the SRC file
+        self.NCOARSESTK = 1
+        self.NCOARSEDIP = 1
 
         # Read src files
         self.CFGDICT = []

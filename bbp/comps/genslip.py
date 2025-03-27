@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ class Genslip(object):
 
     def __init__(self, i_r_velmodel, i_r_srcfile,
                  o_r_srffile, i_vmodel_name, sim_id=0,
-                 **kwargs):
+                 output_mrf=False, **kwargs):
         """
         Initialize class variables
         """
@@ -75,6 +75,9 @@ class Genslip(object):
         self.slip_sigma = None
         self.range_fwidth_frac = None
         self.r_srcfiles = []
+        self.output_mrf = output_mrf
+        self.ncoarsestk = None
+        self.ncoarsedip = None
 
         # Get all src files that were passed to us
         if kwargs is not None and len(kwargs) > 0:
@@ -260,7 +263,7 @@ class Genslip(object):
         a_fault_seg_in = os.path.join(a_tmpdir, "fault_seg.in")
         a_gsftmp = os.path.join(a_tmpdir, r_gsftmp)
 
-        r_outroot = "m%.2f-%.2fx%.2f_s%d-v5.4.1" % (cfg.CFGDICT[0]["magnitude"],
+        r_outroot = "m%.2f-%.2fx%.2f_s%d-v5.5.2" % (cfg.CFGDICT[0]["magnitude"],
                                                     cfg.CFGDICT[0]["dlen"],
                                                     cfg.CFGDICT[0]["dwid"],
                                                     cfg.CFGDICT[0]["seed"])
@@ -333,6 +336,37 @@ class Genslip(object):
                       "> %s 2>> %s" % (a_srffile, self.log))
         bband_utils.runprog(progstring)
 
+        # Start with default values
+        self.ncoarsestk = int(cfg.NCOARSESTK)
+        self.ncoarsedip = int(cfg.NCOARSEDIP)
+
+        # Check if user wants to use the srf_downsample feature
+        if 'ncoarsestk' in cfg.CFGDICT[0]:
+            self.ncoarsestk = int(cfg.CFGDICT[0]["ncoarsestk"])
+        if 'ncoarsedip' in cfg.CFGDICT[0]:
+            self.ncoarsedip = int(cfg.CFGDICT[0]["ncoarsedip"])
+
+        if self.ncoarsestk != 1 or self.ncoarsedip != 1:
+            # Run downsampler if ncoarsestk/ncoarsedip != 1
+            print("Downsampling the SRF file...")
+            print("ncoarsestk = %d, ncoarsedip = %d" %
+                  (self.ncoarsestk, self.ncoarsedip))
+            srf_downsample_bin = os.path.join(install.A_GP_BIN_DIR,
+                                              "srf_downsample")
+            b_srffile = os.path.join(a_indir, "%s_dsmp%dx%d.srf" %
+                                     (r_outroot, self.ncoarsestk,
+                                      self.ncoarsedip))
+            progstring = ("%s ncoarsestk=%d ncoarsedip=%d < %s > %s 2>> %s\n" %
+	                  (srf_downsample_bin, self.ncoarsestk,
+                           self.ncoarsedip, a_srffile, b_srffile,
+                           self.log))
+            bband_utils.runprog(progstring)
+            # From now on, switch to use our newly created b_srffile,
+            # note that both original srf file from genslip and the
+            # downsampled srf file from the downsampler are saved
+            # in the indata folder
+            a_srffile = b_srffile
+
         #
         # mv result to outputfile
         #
@@ -342,6 +376,25 @@ class Genslip(object):
         bband_utils.runprog(progstring)
         progstring = "cp %s %s" % (a_srffile, os.path.join(a_outdir, self.r_srffile))
         bband_utils.runprog(progstring)
+
+        # Generate MRF file if needed
+        if self.output_mrf:
+            src_base = os.path.basename(self.r_srcfile)
+            r_mrf_file = "%s.mrf" % (src_base[0:src_base.rfind('.')])
+            a_mrf_file = os.path.join(a_indir, r_mrf_file)
+            srf2mrf_bin = os.path.join(install.A_GP_BIN_DIR, "srf2mrf")
+            progstring = ("%s velfile=%s < %s > %s 2>> %s\n" %
+                          (srf2mrf_bin, a_velfile,
+                           a_srffile, a_mrf_file, self.log))
+            bband_utils.runprog(progstring)
+
+            # Copy MRF file to outdata and tmpdata
+            progstring = "cp %s %s" % (a_mrf_file,
+                                       os.path.join(a_tmpdir, r_mrf_file))
+            bband_utils.runprog(progstring)
+            progstring = "cp %s %s" % (a_mrf_file,
+                                       os.path.join(a_outdir, r_mrf_file))
+            bband_utils.runprog(progstring)
 
         # Plot SRF
         plot_srf.run(self.r_srffile, sim_id=self.sim_id)
