@@ -21,8 +21,8 @@ mkdir -p $BBP_DATA_DIR
 # Use right Python
 module load gcc/8.3.0
 module load python/3.7.6
-#module load openmpi/4.0.2
-#module load fftw/3.3.8-sp
 
 # Set stack size
 ulimit -s unlimited
+
+umask 0002
