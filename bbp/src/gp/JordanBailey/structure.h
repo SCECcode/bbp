@@ -146,8 +146,8 @@ struct gfparam
    int use_depdir;
    int nc;
    char gftype[16];
-   char gflocs[128];
-   char gftimes[128];
+   char gflocs[1024];
+   char gftimes[1024];
    float rtol;
    int ngfr;
    int ngfd;
