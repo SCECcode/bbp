@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -283,7 +283,13 @@ def parse_xml(xml_path):
                         else:
                             arg_val = arg.childNodes[0].data.strip()
                         #print arg_val
-                        arg_impl = objName(arg_val)
+                        if arg_type == "bool":
+                            if str(arg_val).lower() == "false":
+                                arg_impl = False
+                            else:
+                                arg_impl = True
+                        else:
+                            arg_impl = objName(arg_val)
                 if isinstance(arg_impl, str):
                     # Expand any variables that we have
                     arg_impl = expand_variables(arg_impl)
