@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2023, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -481,8 +481,6 @@ class WccSiteamp(object):
         for sites in site_list:
             station_name = sites.scode
             station_vs30 = sites.vs30
-            if station_vs30 > config.VREF_MAX:
-                station_vs30 = config.VREF_MAX
 
             print("*** WccSiteamp Processing station %s..." % (station_name))
 

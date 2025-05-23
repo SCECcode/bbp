@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,6 @@ class WccSiteampCfg(object):
         self.SITEAMP_MODEL = "bssa2014"
         self.FILTLIST = "filtmatchlist1"
         self.GEN_ROCK_VS = 865
-        self.VREF_MAX = 1100
         self.FMIN = 0.05
         self.FMIDBOT = 0.1
         self.FLOWCAP = 0.0
