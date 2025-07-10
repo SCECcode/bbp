@@ -104,6 +104,12 @@ class StationList(object):
                         station.high_freq_corner = 1.0e+15
                     else:
                         station.high_freq_corner = float(sta[5])
+                # Handle the optional Z1.0 information.
+                try:
+                    station.Z1pt0 = float(sta[6]) if len(sta)>=7 else None 
+                except ValueError:
+                    station.Z1pt0 = None
+ 
                 self.site_list.append(station)
         # Remember to close the file
         try:

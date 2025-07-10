@@ -48,6 +48,7 @@ class Station(object):
     vs30 = None
     low_freq_corner = 1.0e-15
     high_freq_corner = 1.0e+15
+    Z1pt0 = None
 
     # SDSU fields
     x = None
@@ -56,7 +57,7 @@ class Station(object):
     vs = None
     rho = None
     kappa = None
-
+    
 if __name__ == "__main__":
     print("Testing Module: %s" % (sys.argv[0]))
     ME = Station()
