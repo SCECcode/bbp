@@ -1,6 +1,8 @@
 name: bbp-ci
 
-on: push
+on:
+  push:
+  pull_request:
 
 jobs:
   bbp-build-linux:
