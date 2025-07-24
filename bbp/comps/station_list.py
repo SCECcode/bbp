@@ -38,7 +38,7 @@ from __future__ import division, print_function
 import sys
 
 # Import Broadband modules
-from station import Station
+from comps.station import Station
 
 # Sets maximum allowed len for station name, code limits are:
 # jbsim: 64 characters
@@ -82,6 +82,7 @@ class StationList(object):
                 continue
             sta = line.split()
 
+            #print(f"\nDEBUG STATION: {sta} len={len(sta)}") ## Temporary debug line (Delete Later)
             if len(sta) >= 3:
                 station = Station()
                 station.lon = float(sta[0])
@@ -91,26 +92,72 @@ class StationList(object):
                     print("Error: station name %s too long!" % (station.scode))
                     print("Maximum limit is %d!" % (MAX_STATION_NAME_LEN))
                     sys.exit(-1)
+
+                # 4th Column: Vs30
                 if len(sta) >= 4:
-                    station.vs30 = int(float(sta[3]))
-                if len(sta) >= 6:
-                    # We have lf and hf, make sure they are not zero!
-                    if float(sta[4]) <= 0:
-                        print("warning: station %s has lf<=0, using 1e-15" %
-                              (sta[2]))
+                    try:
+                        vs30_val = float(sta[3])
+                        station.vs30 = int(vs30_val) if vs30_val > 0 else None
+                        if vs30_val <= 0:
+                            print("warning: station %s has Vs30 <= 0, setting to None" % (sta[2]))
+                    except ValueError:
+                        station.vs30 = None
+
+                # Handle 5 or 7 columns (If 5 or 7 columns, 5th column is Z1.0)
+                if len(sta) == 5 or len(sta) == 7:
+                    try:
+                        z1_val = float(sta[4])
+                        station.Z1pt0 = z1_val if z1_val >= 0 else None
+                        if z1_val < 0:
+                            print("warning: station %s has Z1.0 < 0, setting to None" % (sta[2]))
+                    except ValueError:
+                        station.Z1pt0 = None
+
+                # Handle BBP v22.4.0 6-column format: Longitude Latitude Station_ID Vs30(m/s) LP_Freq(Hz)  HP_Freq(Hz)
+                if len(sta) == 6:
+                    # Skip Z1.0, parse LF and HF columns
+                    try:
+                        lf = float(sta[4])
+                        station.low_freq_corner = lf if lf > 0 else 1.0e-15
+                        if lf <= 0:
+                            print("warning: station %s has lf<=0, using 1e-15" % (sta[2]))
+                    except ValueError:
+                        print("warning: station %s has invalid lf value" % (sta[2]))
                         station.low_freq_corner = 1.0e-15
-                    else:
-                        station.low_freq_corner = float(sta[4])
-                    if float(sta[5]) <= 0:
-                        print("warning: station %s has hf<=0, using 1e+15" %
-                              (sta[2]))
+
+                    try:
+                        hf = float(sta[5])
+                        station.high_freq_corner = hf if hf > 0 else 1.0e+15
+                        if hf <= 0:
+                            print("warning: station %s has hf<=0, using 1e+15" % (sta[2]))
+                    except ValueError:
+                        print("warning: station %s has invalid hf value" % (sta[2]))
                         station.high_freq_corner = 1.0e+15
-                    else:
-                        station.high_freq_corner = float(sta[5])
+
+                # Handle 7-column format (Updated 7 column format: has Longitude Latitude Station_ID Vs30(m/s) Z1.0(m) LP_Freq(Hz)  HP_Freq(Hz))
+                if len(sta) == 7:
+                    try:
+                        lf = float(sta[5])
+                        station.low_freq_corner = lf if lf > 0 else 1.0e-15
+                        if lf <= 0:
+                            print("warning: station %s has lf<=0, using 1e-15" % (sta[2]))
+                    except ValueError:
+                        print("warning: station %s has invalid lf value" % (sta[2]))
+                        station.low_freq_corner = 1.0e-15
+
+                    try:
+                        hf = float(sta[6])
+                        station.high_freq_corner = hf if hf > 0 else 1.0e+15
+                        if hf <= 0:
+                            print("warning: station %s has hf<=0, using 1e+15" % (sta[2]))
+                    except ValueError:
+                        print("warning: station %s has invalid hf value" % (sta[2]))
+                        station.high_freq_corner = 1.0e+15
+
                 self.site_list.append(station)
         # Remember to close the file
         try:
-            station_file.close
+            station_file.close()
         except OSError:
             print("Error closing station list file :", a_station_list)
         # Error message if we weren't able to read any stations
