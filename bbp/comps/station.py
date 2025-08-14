@@ -46,8 +46,9 @@ class Station(object):
     lat = None
     scode = None
     vs30 = None
-    low_freq_corner = 1.0e-15
-    high_freq_corner = 1.0e+15
+    z1pt0 = None
+    low_freq_corner = None #1.0e-15
+    high_freq_corner = None #1.0e+15
 
     # SDSU fields
     x = None

@@ -67,6 +67,7 @@ from test_rzz2015 import TestRZZ2015
 from test_as16 import TestAS16
 from test_fas import TestFAS
 from test_fas_gof import TestFASGof
+from test_stl_file import TestStationListInputs
 
 class Logger(object):
     def __init__(self, filename):
@@ -93,6 +94,9 @@ TS.addTests(CoreTestSuite())
 TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestPyNGA))
 TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestVm2vm))
 TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestCC))
+
+# Test STL file format
+TS.addTests(unittest.makeSuite(TestStationListInputs))
 
 # Add Graves & Pitarka tests
 TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestGenslip))
