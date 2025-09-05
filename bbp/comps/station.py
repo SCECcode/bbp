@@ -48,6 +48,10 @@ class Station(object):
     vs30 = None
     low_freq_corner = 1.0e-15
     high_freq_corner = 1.0e+15
+    z1pt0 = None
+    z2pt5 = None
+    basin_id = None
+    basin_label = None
 
     # SDSU fields
     x = None
