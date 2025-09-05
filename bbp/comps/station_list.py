@@ -155,13 +155,13 @@ class StationList(object):
                 try:
                     vs30_val = float(sta[3])
                     if vs30_val <= 0:
-                        add_err(scode, "Vs30", sta[3], "Error: Vs30 must be > 0, setting it to None")
                         station.vs30 = None
-                    
+                        if vs30_val != -999:  # -999 is treated as a 'missing data' indicator which will not result into error or warning but sets the value to None. 
+                            add_err(scode, "Vs30", sta[3], "Error: Vs30 must be > 0 or -999 for 'missing data' indicator. Setting it to None")
                     else:
                         station.vs30 = vs30_val                                 
                 except ValueError:
-                    add_err(scode, "Vs30", sta[3], "Error: Vs30 must be numeric > 0, setting it to None")
+                    add_err(scode, "Vs30", sta[3], "Error: Vs30 must be numeric > 0 or -999 for 'missing data' indicator. Setting it to None")
                     station.vs30 = None
             else:
                 station.vs30 = None
@@ -173,24 +173,27 @@ class StationList(object):
                 try:
                     lf = float(sta[4])
                     if lf <= 0:
-                        add_err(scode, "low_freq_corner", sta[4], "Warning: LP_Freq must be > 0, using 1e-15")
                         station.low_freq_corner = 1.0e-15
+                        if lf != -999:
+                            add_err(scode, "low_freq_corner", sta[4], "Warning: LP_Freq must be > 0 or -999 for 'missing data' indicator, using 1e-15")
                     else:
                         station.low_freq_corner = lf
                 except ValueError:
-                    add_err(scode, "low_freq_corner", sta[4], "Warning: LP_Freq must be numeric > 0, using 1e-15")
+                    add_err(scode, "low_freq_corner", sta[4], "Warning: LP_Freq must be numeric > 0 or -999 for 'missing data' indicator, using 1e-15")
                     station.low_freq_corner = 1.0e-15
 
                 # Highpass corner frequency(HP_Freq(Hz))
                 try:
                     hf = float(sta[5])
                     if hf <= 0:
-                        add_err(scode, "high_freq_corner", sta[5], "Warning: HP_Freq must be > 0, using 1e+15")
                         station.high_freq_corner = 1.0e+15
+                        if hf != -999:
+                            add_err(scode, "high_freq_corner", sta[5], "Warning: HP_Freq must be > 0 or -999 for 'missing data' indicator, using 1e+15")
+                        
                     else:
                         station.high_freq_corner = hf
                 except ValueError:
-                    add_err(scode, "high_freq_corner", sta[5], "Warning: HP_Freq must be numeric > 0, using 1e+15")
+                    add_err(scode, "high_freq_corner", sta[5], "Warning: HP_Freq must be numeric > 0 or -999 for 'missing data' indicator, using 1e+15")
                     station.high_freq_corner = 1.0e+15
 
             # Extended .stl file column list: Longitude Latitude Station_ID Vs30(m/s) LP_Freq(Hz)  HP_Freq(Hz) z1pt0  z2pt5  basin_id  basin_label 
@@ -198,26 +201,28 @@ class StationList(object):
                 try:
                     z1_val = float(sta[6])
                     if z1_val < 0:
-                        add_err(scode, "z1pt0", sta[6], "Error: z1pt0 must be >= 0, setting it to None")
                         station.z1pt0 = None
+                        if z1_val != -999:
+                            add_err(scode, "z1pt0", sta[6], "Error: z1pt0 must be >= 0 or -999 for 'missing data' indicator, setting it to None")
                     else:
                         station.z1pt0 = z1_val
                     
                 except (TypeError, ValueError):
-                    add_err(scode, "z1pt0", sta[6], "Error: z1pt0 must be numeric >= 0, setting it to None")
+                    add_err(scode, "z1pt0", sta[6], "Error: z1pt0 must be numeric >= 0 or -999 for 'missing data' indicator, setting it to None")
                     station.z1pt0 = None
 
             if len(sta) > 7:
                 try:
                     z2pt5_val = float(sta[7])
                     if z2pt5_val < 0:
-                        add_err(scode, "z2pt5", sta[7], "Error: z2pt5 must be >= 0, setting it to None")
                         station.z2pt5 = None
+                        if z2pt5_val != -999:
+                            add_err(scode, "z2pt5", sta[7], "Error: z2pt5 must be >= 0 or -999 for 'missing data' indicator, setting it to None")
                     else:
                         station.z2pt5 = z2pt5_val
                 
                 except (TypeError, ValueError):
-                    add_err(scode, "z2pt5", sta[7], "Error: z2pt5 must be numeric >= 0, setting it to None")
+                    add_err(scode, "z2pt5", sta[7], "Error: z2pt5 must be numeric >= 0 or -999 for 'missing data' indicator, setting it to None")
                     station.z2pt5 = None
 
             if len(sta) > 8:
@@ -238,14 +243,16 @@ class StationList(object):
             if len(sta) > 9:
                 try: 
                     basin_label_value = str(sta[9])
-                    if basin_label_value not in ["LAB", "SFB", "SGB", "CB", "SBB", "CVB", "IVB"]:
-                        add_err(scode, "basin_label", sta[9], "Error: basin_label for SoCal should be either 'LAB', 'SFB', 'SGB', 'CB', 'SBB', 'CVB', 'IVB' or None/empty. Setting it to None")
+                    if basin_label_value == "-999":
+                        station.basin_label = None
+                    elif basin_label_value not in ["LAB", "SFB", "SGB", "CB", "SBB", "CVB", "IVB"]:
+                        add_err(scode, "basin_label", sta[9], "Error: basin_label for SoCal should be either 'LAB', 'SFB', 'SGB', 'CB', 'SBB', 'CVB', 'IVB' or '-999' for 'missing data' indicator. Setting it to None")
                         basin_label_value = None
                     else: 
                         station.basin_label = basin_label_value
 
                 except (TypeError, ValueError):
-                    add_err(scode, "basin_label", sta[9], "Error: basin_label for SoCal should be either 'LAB', 'SFB', 'SGB', 'CB', 'SBB', 'CVB', 'IVB' or None/empty. Setting it to None")
+                    add_err(scode, "basin_label", sta[9], "Error: basin_label for SoCal should be either 'LAB', 'SFB', 'SGB', 'CB', 'SBB', 'CVB', 'IVB' or '-999' for 'missing data' indicator. Setting it to None")
                     station.basin_label = None
             
             # Enforce LP <= HP

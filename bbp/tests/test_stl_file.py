@@ -119,7 +119,7 @@ class TestStationListInputs(unittest.TestCase):
         # STN1
         self.assertEqual(stations[0].vs30, 329.275)
         self.assertEqual(stations[0].low_freq_corner, 1e-15)
-        self.assertEqual(stations[0].high_freq_corner, 1e+15)
+        self.assertEqual(stations[0].high_freq_corner, 1e+15) 
         self.assertIsNone(stations[0].z1pt0)
         self.assertEqual(stations[0].z2pt5, 0)
         self.assertIsNone(stations[0].basin_id)

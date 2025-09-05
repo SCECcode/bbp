@@ -47,9 +47,9 @@ import bband_utils
 from station_list import StationList
 from install_cfg import InstallCfg
 from seismo_soil_cfg import SeismoSoilCfg
-from PySeismoSoil.class_ground_motion import Ground_Motion
-from PySeismoSoil.class_Vs_profile import Vs_Profile
-from PySeismoSoil.class_site_effect_adjustment import Site_Effect_Adjustment
+from class_ground_motion import Ground_Motion
+from .class_Vs_profile import Vs_Profile
+from .class_site_effect_adjustment import Site_Effect_Adjustment
 
 class SeismoSoil(object):
     """
@@ -302,8 +302,9 @@ class SeismoSoil(object):
         for site in site_list:
             station_name = site.scode
             station_vs30 = site.vs30
+            station_z1pt0 = site.z1pt0
 
-            print("Station: %s - Vs30: %f ..."  % (station_name, station_vs30))
+            print("Station: %s - Vs30: %f - Z1.0: %f..."  % (station_name, station_vs30, station_z1pt0))
             bbp_file = os.path.join(a_outdir,
                                     "%d.%s.acc.bbp" %
                                     (sim_id, station_name))
@@ -332,8 +333,8 @@ class SeismoSoil(object):
                 gm2 = gm2.amplify(self.vs_profile, show_fig=False)
 
             # Now apply the non linear site effects
-            sea_1 = Site_Effect_Adjustment(gm1, station_vs30, lenient=True)
-            sea_2 = Site_Effect_Adjustment(gm2, station_vs30, lenient=True)
+            sea_1 = Site_Effect_Adjustment(gm1, station_vs30, z1_in_m=station_z1pt0, lenient=True)
+            sea_2 = Site_Effect_Adjustment(gm2, station_vs30, z1_in_m=station_z1pt0, lenient=True)
             # REMOVE
             # gm1.save_accel(os.path.join(a_tmpdir, "test_acc.txt"), unit='cm/s/s')
             output_motion_1, fig1, _ = sea_1.run(show_fig=True, return_fig_obj=True)
