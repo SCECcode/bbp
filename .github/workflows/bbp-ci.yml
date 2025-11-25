@@ -1,0 +1,37 @@
+name: bbp-ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  bbp-build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+    steps:
+    - name: set BBP_DIR
+      run: echo "BBP_BASE_DIR=$RUNNER_WORKSPACE/bbp" >> $GITHUB_ENV
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: configure Python
+      run: |
+        sudo apt-get update
+        sudo apt-get install g++ -y
+        sudo apt-get install gfortran -y
+        pip install numpy
+        pip install scipy
+        pip install matplotlib
+        pip install pyproj
+        pip install numba
+    - name: checkout Broadband Platform
+      uses: actions/checkout@v3
+    - name: build bbp
+      run: ./.github/scripts/bbp-build-ci.sh
+      shell: bash
+    - name: test bbp
+      run: ./.github/scripts/bbp-test-ci.sh
+      shell: bash

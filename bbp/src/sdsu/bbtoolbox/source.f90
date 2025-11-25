@@ -514,6 +514,12 @@ use fault_area
    ! 
    ! Modified: January 2009 (v1.3)
    !
+   ! Updated: Dec 2021 [Ke Xu: kxu4143@sdsu.edu]
+   !   Add Tr_sca, moved the unused parameter here
+   !   formerly used in stf_new, now Tau=Tr*Tr_sca 
+   !
+
+   use stf_data, only: Tr_sca 
 
    implicit none
 
@@ -521,21 +527,21 @@ use fault_area
    real(kind=r_single),dimension(npts_stf)        :: t,s,ds,randm
    real(kind=r_single),allocatable,dimension(:)   :: heal
    real(kind=r_single),parameter                  :: ksi=0.1
-   real(kind=r_single)                            :: max_ss,dss,t1_heal,t2_heal,max_ran
+   real(kind=r_single)                            :: max_ss,dss,t1_heal,t2_heal,max_ran,Tau
    integer(kind=i_single)                         :: i,n_t1,n_t2
    integer(kind=i_single)                         :: seed,seed_size
    integer(kind=i_single),allocatable,dimension(:):: tmp_seed
 
    !-------------------------------------------------------------------------
 
-   Tr=Tr*0.3        ! reviewed
+   Tau=Tr*Tr_sca	! controlled by scattering.dat
 
    t(1)=0.0
    do i=1,npts_stf-1
       t(i+1)=t(i)+dt
    enddo
 
-   s=(t**ksi)*exp(-t/Tr)
+   s=(t**ksi)*exp(-t/Tau)
 
    !linear healing front between t1_heal and t2_heal
    t1_heal=3.0; t2_heal=3.2;

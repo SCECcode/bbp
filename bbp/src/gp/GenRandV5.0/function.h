@@ -53,6 +53,9 @@ double gaus_rand(float *,float *,long *);
 int gen_brune_stf(float *,float *,float *,int,float *);
 int gen_ucsb_stf(float *,float *,float *,int,float *);
 int gen_Mliu_stf(float *,float *,float *,int,float *);
+int gen_MliuP_stf(float *,float *,float *,float *,int,float *);
+int gen_Oliu_stf(float *,float *,float *,int,float *);
+int gen_OliuP_stf(float *,float *,float *,float *,int,float *);
 int gen_tri_stf(float *,float *,float *,int,float *);
 int gen_2tri_stf(float *,float *,float *,int,float *,float *);
 

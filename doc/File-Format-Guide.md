@@ -24,7 +24,9 @@ HYPO_DOWN_DIP =  14.75
 #
 DWID = 0.1
 DLEN = 0.1
-CORNER_FREQ = 0.15
+CORNER_FREQ = 0.04
+CORNER_FREQ_1 = 0.04
+CORNER_FREQ_2 = 1.0
 #
 # Alternative SEEDS create alternative .srf
 #
@@ -60,7 +62,7 @@ In the second part of the file, where model-specific parameters are located, DWI
 
 ##### UCSB parameters
 
-Finally, the CORNER_FREQ parameter is only used by the UCSB method. This parameters specifies the frequency at which the Fourier Amplitude Spectrum (FAS) of the moment rate spectrum decays at a rate of ~ -2 from the flat part of the spectrum, in log log domain. There is a relationship between the corner frequency and the average stress drop, e.g. (Brune 1970 and 1971). For specific regions, the stress drop is a parameter and can be measured from regional seismicity. In practice, look at the regional seismicity, calculate stress drops. From these calculations one can choose the appropriate stress drop and compute the corner frequency from the actual moment, rupture area and chosen stress drop.
+Finally, the CORNER_FREQ parameters are only used by the UCSB method. In Broadband 22.4, users will need to set up both CORNER_FREQ_1 and CORNER_FREQ_2. Additionally, for BBP 22.4, users should set up CORNER_FREQ to match CORNER_FREQ_1. We expect to revise the UCSB pipeline and remove the need to duplicate the first value in our next Broadband Platform release. Please refer to the UCSB method documentation for more details on how to set up the two corner frequency values.
 
 ### Station List (STL) file
 

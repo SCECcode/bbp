@@ -23,7 +23,7 @@ FC = gfortran
 
 ##### make options
 
-all : ray_stimes jbsim-v2.0.0
+all : ray_stimes jbsim-v2.0.0 jbsim-v3.0.0
 
 jbsim032906 : jbsim032906.o ${OBJS} ${SRF_OBJS}
 	${CC} ${CFLAGS} -o jbsim032906 jbsim032906.o ${OBJS} ${INCPAR} ${LDLIBS} ${SRF_OBJS}
@@ -43,6 +43,10 @@ jbsim-v2.0.0 : jbsim-v2.0.0.c ${OBJS} ${SRF_OBJS}
 	${CC} ${CFLAGS} -o jbsim-v2.0.0 jbsim-v2.0.0.c ${OBJS} ${INCPAR} ${LDLIBS} ${SRF_OBJS}
 	cp jbsim-v2.0.0 ../bin/
 
+jbsim-v3.0.0 : jbsim-v3.0.0.c ${OBJS} ${SRF_OBJS}
+	${CC} ${CFLAGS} -o jbsim-v3.0.0 jbsim-v3.0.0.c ${OBJS} ${INCPAR} ${LDLIBS} ${SRF_OBJS}
+	cp jbsim-v3.0.0 ../bin/
+
 gen_gflist : gen_gflist.o ${OBJS} ${SRF_OBJS}
 	${CC} ${CFLAGS} -o gen_gflist gen_gflist.o ${OBJS} ${INCPAR} ${LDLIBS} ${SRF_OBJS}
 
@@ -52,4 +56,4 @@ bailey2srf : bailey2srf.o ${OBJS}
 ${OBJS} : ${HEADS}
 
 clean :
-	-rm -f *.o jbsim jbsim3d ray_stimes jbsim-v2.0.0
+	-rm -f *.o jbsim jbsim3d ray_stimes jbsim-v2.0.0 jbsim-v3.0.0

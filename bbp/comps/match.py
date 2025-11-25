@@ -1,20 +1,36 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Copyright 2010-2021 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2025, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
 
-Broadband Platform Version of Rob Graves jbsim script
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Broadband Platform Program to merge low and high-frequency seismograms
 """
 from __future__ import division, print_function
 
@@ -44,6 +60,7 @@ class Match(object):
         self.phase = None
         self.hf_fhi = None
         self.lf_flo = None
+        self.hf_merge_flag = None
 
     def run(self):
         """
@@ -71,10 +88,27 @@ class Match(object):
         dirs = [a_tmpdir]
         bband_utils.mkdirs(dirs, print_cmd=False)
 
+        # Get pointer to the velocity model object
+        vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
+        if vel_obj is None:
+            raise bband_utils.ParameterError("Cannot find velocity model: %s" %
+                                             (self.vmodel_name))
+
+        # Check for velocity model-specific parameters
+        vmodel_params = vel_obj.get_codebase_params('gp')
+
         # Start with defaults
         self.phase = config.PHASE
         self.hf_fhi = config.HF_FHI
         self.lf_flo = config.LF_FLO
+        self.hf_merge_flag = config.HF_MERGE_FLAG
+
+        # Check if we have a different merging frequency
+        if 'MATCH_MERGING_FREQUENCY' in vmodel_params:
+            self.hf_fhi = float(vmodel_params['MATCH_MERGING_FREQUENCY'])
+            self.lf_flo = float(vmodel_params['MATCH_MERGING_FREQUENCY'])
+        if 'HF_MERGE_FLAG' in vmodel_params:
+            self.hf_merge_flag = float(vmodel_params['HF_MERGE_FLAG'])
 
         # Set match method
         if config.MATCH_METHOD == 1:
@@ -91,16 +125,7 @@ class Match(object):
         # Read and parse the station list with this call
         #
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
-
-        # Get pointer to the velocity model object
-        vel_obj = velocity_models.get_velocity_model_by_name(self.vmodel_name)
-        if vel_obj is None:
-            raise bband_utils.ParameterError("Cannot find velocity model: %s" %
-                                             (self.vmodel_name))
-
-        # Check for velocity model-specific parameters
-        vmodel_params = vel_obj.get_codebase_params('gp')
+        site_list = slo.get_station_list()
 
         # Figure out what DT we should use when resampling
 
@@ -558,8 +583,8 @@ class Match(object):
                               (os.path.join(install.A_GP_BIN_DIR, "wcc_add")) +
                               "f1=1.00 t1=%f inbin1=0 infile1=%s " %
                               (config.LF_TSTART, infile1) +
-                              "f2=1.00 t2=%f inbin2=0 infile2=%s " %
-                              (config.HF_TSTART, infile2) +
+                              "f2=%f t2=%f inbin2=0 infile2=%s " %
+                              (self.hf_merge_flag, config.HF_TSTART, infile2) +
                               "outbin=0 outfile=%s >> %s 2>&1" %
                               (outfile, self.log))
                 bband_utils.runprog(progstring, abort_on_error=True,

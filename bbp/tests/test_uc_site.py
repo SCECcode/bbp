@@ -1,8 +1,8 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import sys
 import shutil
 import unittest
 
@@ -84,7 +85,7 @@ class TestUCSite(unittest.TestCase):
 
         # Copy seismograms
         slo = StationList(os.path.join(a_indir, self.r_stations))
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
         for site in site_list:
             shutil.copy2(os.path.join(a_refdir, "%s.3comp" % (site.scode)),
                          a_tmpdir)
@@ -145,4 +146,5 @@ class TestUCSite(unittest.TestCase):
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestUCSite)
-    unittest.TextTestRunner(verbosity=2).run(SUITE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(SUITE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

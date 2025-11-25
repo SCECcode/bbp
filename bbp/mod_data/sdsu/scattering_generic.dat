@@ -15,7 +15,7 @@
 2       \* imerg - flag to determine style of combining LF and HF -> [0]:old merging, [1]:1 fault, [2]:many subfaults
 41.0    \* afac - qk factor 'a' from G&P (2010) eqn (15) -> [0.0]:default value (41.0), [real]:user-defined
 34.0    \* bfac - qk factor 'b' from G&P (2010) eqn (15) -> [0.0]:default value (34.0), [real]:user-defined
-0.0750  \* Tr_sca - scaling factor for Tr for a new stf  -> [0.0]:default value (0.1), [real]:user-defined
+0.0750  \* Tr_sca - scaling factor for Tr (skipped by new stf)  -> [0.0]:default value (0.1), [real]:user-defined
 4       \* time_step - decimation factor to be used in bbtoolbox -> [1]: no decimation, [int > 1]:user-defined
 1       \* gs_flag - determine type of tectonic region -> [1]:active, e.g. western CA, [2]:stable, e.g. eastern North America, [3]: Japanese events
 5.0e+07 \* str_fac - Brune stress parameter (50 bars) G&P (2010) eqn (12) -> [0.0]:default value (50.e6), [real]:user-defined

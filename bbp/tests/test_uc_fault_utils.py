@@ -34,6 +34,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import sys
 import shutil
 import filecmp
 import unittest
@@ -92,4 +93,5 @@ class TestUCFaultUtils(unittest.TestCase):
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestUCFaultUtils)
-    unittest.TextTestRunner(verbosity=2).run(SUITE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(SUITE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

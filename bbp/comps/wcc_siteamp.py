@@ -1,21 +1,36 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Copyright 2010-2018 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2025, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
 
-Broadband Platform Version of Rob Graves jbsim script
-Outputs acceleration (cm/s/s)
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+This program call the GP site response module
 """
 from __future__ import division, print_function
 
@@ -35,12 +50,15 @@ class WccSiteamp(object):
     Implement Rob Graves siteamp.csh as a python component
     """
 
-    def __init__(self, i_r_stations, method, i_vmodel_name, sim_id=0):
+    def __init__(self, i_r_stations, method, i_vmodel_name,
+                 lf_stations=None, sim_id=0):
         """
         Initialize WccSiteamp parameters
         """
         self.sim_id = sim_id
         self.r_stations = i_r_stations
+        self.lf_stations = lf_stations
+        self.lf_stations_obj = None
         self.method = method
         self.vmodel_name = i_vmodel_name
         self.config = None
@@ -118,12 +136,25 @@ class WccSiteamp(object):
                                pga_filename, self.log))
                 # wcc_getpeak returns 33 even when it succeeds
                 bband_utils.runprog(progstring, print_cmd=False)
+
                 pga_file = open(pga_filename, "r")
                 data = pga_file.readlines()
                 pga_file.close()
                 pga = float(data[0].split()[1]) / 981.0
+
                 if freq == 'lf':
-                    vref = config.LF_VREF
+                    if self.lf_stations_obj is None:
+                        vref = config.LF_VREF
+                    else:
+                        # Pick LF VRef from lf_station object
+                        lf_station = self.lf_stations_obj.find_station(site)
+
+                        if lf_station is not None:
+                            vref = lf_station.vs30
+                        else:
+                            # Couldn't find station!
+                            print("[ERROR]: Couldn't find station Vs30 in LF station list!")
+                            sys.exit(-1)
                 else:
                     vref = config.HF_VREF
 
@@ -141,20 +172,24 @@ class WccSiteamp(object):
                 # Pick the right model to use
                 site_amp_model = config.SITEAMP_MODEL
 
-                # Now, run site amplification
-                progstring = ("%s pga=%f vref=%d " %
-                              (os.path.join(install.A_GP_BIN_DIR,
-                                            "wcc_siteamp14"), pga, vref) +
-                              'vsite=%d model="%s" vpga=%d ' %
-                              (vs30, site_amp_model,
-                               config.HF_VREF) +
-                              'flowcap=%f infile=%s outfile=%s ' %
-                              (config.FLOWCAP, filein, fileout) +
-                              'fmax=%f fhightop=%f ' %
-                              (config.FMAX, config.FHIGHTOP) +
-                              "fmidbot=%s fmin=%s >> %s 2>&1" %
-                              (config.FMIDBOT, config.FMIN, self.log))
-                bband_utils.runprog(progstring, abort_on_error=True)
+                if vref == -1:
+                    # When Vref is -1, skip site response, just copy
+                    # input file to output file
+                    shutil.copy2(filein, fileout)
+                else:
+                    # Now, run site amplification
+                    progstring = ("%s pga=%f vref=%d " %
+                                  (os.path.join(install.A_GP_BIN_DIR,
+                                                "wcc_siteamp14"), pga, vref) +
+                                'vsite=%d model="%s" vpga=%d ' %
+                                (vs30, site_amp_model, config.HF_VREF) +
+                                'flowcap=%f infile=%s outfile=%s ' %
+                                (config.FLOWCAP, filein, fileout) +
+                                'fmax=%f fhightop=%f ' %
+                                (config.FMAX, config.FHIGHTOP) +
+                                "fmidbot=%s fmin=%s >> %s 2>&1" %
+                                (config.FMIDBOT, config.FMIN, self.log))
+                    bband_utils.runprog(progstring, abort_on_error=True)
 
                 # Output becomes input
                 filein = fileout
@@ -420,9 +455,9 @@ class WccSiteamp(object):
                                 str(sim_id),
                                 "%d.wcc_siteamp_%s.log" % (sim_id, sta_base))
 
-        a_statfile = os.path.join(install.A_IN_DATA_DIR,
-                                  str(sim_id),
-                                  self.r_stations)
+        a_station_file = os.path.join(install.A_IN_DATA_DIR,
+                                      str(sim_id),
+                                      self.r_stations)
 
         a_outdir = os.path.join(install.A_OUT_DATA_DIR, str(sim_id))
         a_tmpdir = os.path.join(install.A_TMP_DATA_DIR, str(sim_id))
@@ -433,22 +468,28 @@ class WccSiteamp(object):
         #
         # Read and parse the station list with this call
         #
-        slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        station_list_obj = StationList(a_station_file)
+        site_list = station_list_obj.get_station_list()
+
+        # Initialize LF station list object for later use
+        if self.lf_stations is not None:
+            a_lf_station_file = os.path.join(install.A_IN_DATA_DIR,
+                                             str(sim_id),
+                                             self.lf_stations)
+            self.lf_stations_obj = StationList(a_lf_station_file)
 
         for sites in site_list:
-            site = sites.scode
-            vs30 = sites.vs30
-            if vs30 > config.VREF_MAX:
-                vs30 = config.VREF_MAX
+            station_name = sites.scode
+            station_vs30 = sites.vs30
 
-            print("*** WccSiteamp Processing station %s..." % (site))
+            print("*** WccSiteamp Processing station %s..." % (station_name))
 
             if self.method == "GP":
-                self.process_separate_seismograms(site, sta_base,
-                                                  vs30, a_tmpdir)
+                self.process_separate_seismograms(station_name, sta_base,
+                                                  station_vs30, a_tmpdir)
             elif self.method == "SDSU" or self.method == "EXSIM" or self.method == "UCSB":
-                self.process_hybrid_seismogram(site, sta_base, vs30,
+                self.process_hybrid_seismogram(station_name, sta_base,
+                                               station_vs30,
                                                a_tmpdir, a_outdir)
 
         print("GP Site Response Completed".center(80, '-'))

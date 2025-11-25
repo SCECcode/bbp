@@ -5,7 +5,7 @@
 #define DEFAULT_SLIPS_TO_HYPOS   2     /* #slip models = 2 times #hypos */
 
 #define         DEFAULT_DT         0.1
-#define         NTMAX              10000
+#define         NTMAX              100000
 #define         SOMERVILLE_FLAG    1
 #define         MAI_FLAG           2
 #define         FRANKEL_FLAG           3
@@ -56,3 +56,5 @@
 #define CROPTR_FLAGS    O_CREAT | O_TRUNC | O_RDWR | O_LARGEFILE
 
 #endif
+
+#define MAXLINE 8192

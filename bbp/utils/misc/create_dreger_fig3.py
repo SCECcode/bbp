@@ -129,7 +129,8 @@ def summarize_and_plot_data(data, method, output_file):
         A = A.T
         W = np.diag(ww)
         b = np.linalg.lstsq(((A.T).dot(W)).dot(A),
-                            ((A.T).dot(W)).dot(np.array(y).T))[0]
+                            ((A.T).dot(W)).dot(np.array(y).T),
+                            rcond=-1)[0]
         intercept = b[0]
         slope = b[1]
 

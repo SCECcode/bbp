@@ -1,18 +1,34 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Copyright 2010-2017 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2024, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This file includes several utility funcions used by various BBP
 modules to get information about the rupture.
@@ -53,9 +69,9 @@ def get_magnitude(velfile, srffile, suffix="tmp"):
     bband_utils.runprog(cmd, False)
     return magnitude
 
-def get_hypocenter(srffile, suffix="tmp"):
+def get_hypocenter(input_file, suffix="tmp"):
     """
-    Looks up the hypocenter of an event in a srffile
+    Looks up the hypocenter of an event in a SRF/MRF input_file
     """
     hypfile = os.path.join(tempfile.gettempdir(),
                            "%s_%s" %
@@ -63,7 +79,7 @@ def get_hypocenter(srffile, suffix="tmp"):
     install = InstallCfg.getInstance()
     cmd = ("%s < %s > %s" %
            (os.path.join(install.A_GP_BIN_DIR, "srf_gethypo"),
-            srffile, hypfile))
+            input_file, hypfile))
     bband_utils.runprog(cmd)
     srf_hypo_fp = open(hypfile, 'r')
     srf_hypo_data = srf_hypo_fp.readline()
@@ -110,12 +126,12 @@ def calculate_hypo_depth(srcfile):
 def calculate_epicenter(input_file):
     """
     This function returns the epicenter of an event using either a SRC
-    file or a SRF file to look for the hypocenter location. It uses
+    file or a SRF/MRF file to look for the hypocenter location. It uses
     Rob Graves' xy2ll utility to convert the coordinates to lat/lon.
     """
     # If we have a SRF file, we already have a function that does this
-    if input_file.endswith(".srf"):
-        # Get information from srf file
+    if input_file.endswith(".srf") or input_file.endswith(".mrf"):
+        # Get information from srf/mrf file
         hypo_lon, hypo_lat, _ = get_hypocenter(input_file)
         return hypo_lon, hypo_lat
 

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 BSD 3-Clause License
 
@@ -36,6 +36,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import sys
 import unittest
 
 # Import Broadband modules
@@ -51,7 +52,7 @@ class TestPythonCode(unittest.TestCase):
         Run Broadband Plotform to make sure we can start it
         """
         self.install = InstallCfg()
-        cmd = ("python %s -v >/dev/null" %
+        cmd = ("python3 %s -v >/dev/null" %
                (os.path.join(self.install.A_COMP_DIR,
                              "run_bbp.py")))
         self.assertFalse(bband_utils.runprog(cmd, False) != 0,
@@ -62,7 +63,7 @@ class TestPythonCode(unittest.TestCase):
         Run Python with -tt flag to detect mix of tabs and spaces in the code
         """
         self.install = InstallCfg()
-        cmd = ("python -tt -m compileall -f -q -l %s" %
+        cmd = ("python3 -tt -m compileall -f -q -l %s" %
                (self.install.A_COMP_DIR))
         self.assertFalse(bband_utils.runprog(cmd, False) != 0,
                          "Python code in comps directory mixes tabs and spaces!")
@@ -79,4 +80,5 @@ class TestPythonCode(unittest.TestCase):
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestPythonCode)
-    unittest.TextTestRunner(verbosity=2).run(SUITE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(SUITE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

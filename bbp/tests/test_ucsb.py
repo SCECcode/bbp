@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 """
 BSD 3-Clause License
 
@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import division, print_function
 
 # Import Python modules
+import sys
 import unittest
 
 # Import Broadband modules
@@ -61,4 +62,5 @@ class UCSBTestSuite(unittest.TestSuite):
 
 if __name__ == '__main__':
     UTS = UCSBTestSuite()
-    unittest.TextTestRunner(verbosity=2).run(UTS)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(UTS)
+    sys.exit(not RETURN_CODE.wasSuccessful())

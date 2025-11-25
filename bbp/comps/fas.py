@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -319,7 +319,7 @@ def add_extra_points(input_bbp_file, output_bbp_file, num_points):
 
     if bbp_dt is None:
         raise bband_utils.ParameterError("Cannot find DT in %s!" %
-                                         (bbp_file))
+                                         (input_bbp_file))
     for _ in range(0, num_points):
         cur_dt = cur_dt + bbp_dt
         output_file.write("%5.7f   %5.9e   %5.9e    %5.9e\n" %
@@ -491,7 +491,7 @@ def plot_fas_comparison(station, sim_file, data_file, label1, label2,
     pylab.ylabel("Fourier Amplitude")
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
     #pylab.grid(b=True, which='minor', linewidth=0.5, color='gray')
     if lfreq is not None:
         pylab.vlines(lfreq, 0.001, 1000,
@@ -514,7 +514,7 @@ def plot_fas_comparison(station, sim_file, data_file, label1, label2,
     pylab.ylabel("Fourier Amplitude")
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
     if lfreq is not None:
         pylab.vlines(lfreq, 0.001, 1000,
                      color='violet', linestyles='--')
@@ -536,7 +536,7 @@ def plot_fas_comparison(station, sim_file, data_file, label1, label2,
     pylab.ylabel("Fourier Amplitude")
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
     if lfreq is not None:
         pylab.vlines(lfreq, 0.001, 1000,
                      color='violet', linestyles='--')
@@ -574,8 +574,8 @@ def plot_fas(freqs, ns_data, ew_data, eas_smoothed_data,
     pylab.xlabel('Frequency (Hz)')
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
-    pylab.grid(b=True, which='minor', linewidth=0.5, color='gray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='minor', linewidth=0.5, color='gray')
 
     # Save plot
     pylab.savefig(fas_plot, format="png",
@@ -839,7 +839,7 @@ class FAS(object):
         bband_utils.mkdirs([a_tmpdir, a_outdir, a_outdir_fas], print_cmd=False)
 
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         # Save current directory
         old_cwd = os.getcwd()
@@ -931,20 +931,6 @@ class FAS(object):
             t2 = time.time()
             print("%10.2f s" % (t2 - t1))
 
-            ## Create comparison plot
-            #max_syn_freq = 1.0 / (syn_dt * 2)
-            #hfreq = min(max_syn_freq, site.high_freq_corner)
-            #sim_file = os.path.join(a_outdir_fas,
-            #                        "%d.%s.smc8.smooth.fs.col" %
-            #                        (self.sim_id, site.scode))
-            #outfile = os.path.join(a_outdir_fas,
-            #                       "%d.%s.fas.plot.png" %
-            #                       (self.sim_id, site.scode))
-            #plot_fas_comparison(site.scode, sim_file,
-            #                    self.sim_id, outfile,
-            #                    lfreq=site.low_freq_corner,
-            #                    hfreq=hfreq)
-
         # All done, restore working directory
         os.chdir(old_cwd)
 
@@ -971,7 +957,7 @@ class FAS(object):
         bband_utils.mkdirs([a_tmpdir, a_outdir, a_outdir_fas], print_cmd=False)
 
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         # Save current directory
         old_cwd = os.getcwd()

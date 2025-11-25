@@ -1,18 +1,34 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Copyright 2010-2020 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2024, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Broadband Platform Version of Rob Graves jbsim script
 Outputs velocity (cm/s)
@@ -36,13 +52,18 @@ class Jbsim(object):
     """
 
     def __init__(self, i_r_velmodel, i_r_srcfile, i_r_srffile,
-                 i_r_stations, i_vmodel_name, sim_id=0):
+                 i_r_stations, i_vmodel_name, sim_id=0, use_mrf=False):
         self.sim_id = sim_id
         self.r_velmodel = i_r_velmodel
         self.r_srcfile = i_r_srcfile
         self.r_srffile = i_r_srffile
         self.r_stations = i_r_stations
         self.vmodel_name = i_vmodel_name
+        self.use_mrf = use_mrf
+
+        # Switch to MRF file if requested
+        if self.use_mrf:
+            self.r_srffile = "%s.mrf" % (os.path.splitext(self.r_srffile)[0])
 
     def run(self):
         """
@@ -62,9 +83,18 @@ class Jbsim(object):
         a_statfile = os.path.join(install.A_IN_DATA_DIR,
                                   str(sim_id),
                                   self.r_stations)
-        a_srffile = os.path.join(install.A_IN_DATA_DIR,
-                                 str(sim_id),
-                                 self.r_srffile)
+        a_rupture_file = os.path.join(install.A_IN_DATA_DIR,
+                                      str(sim_id),
+                                      self.r_srffile)
+        # RWG 20241025: jbsim-v3.0.0 is backward compatible with jbsim-v2.0.0
+        # it can use rupture files in both SRF and MRF formats
+        if os.path.splitext(a_rupture_file)[-1].lower() == ".srf":
+            rupmod_type = "SRF"
+        elif os.path.splitext(a_rupture_file)[-1].lower() == ".mrf":
+            rupmod_type = "MRF"
+        else:
+            print("[ERROR]: Unknown rupture format in file %s" % (a_rupture_file))
+            sys.exit(-1)
 
         # Set directories, and make sure they exist
         a_indir = os.path.join(install.A_IN_DATA_DIR, str(sim_id))
@@ -75,7 +105,7 @@ class Jbsim(object):
         # Read and parse the station list with this call
         #
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         for sits in site_list:
             slon = float(sits.lon)
@@ -90,9 +120,11 @@ class Jbsim(object):
             #
             progstring = ("%s latloncoords=1 slon=%f slat=%f " %
                           (os.path.join(install.A_GP_BIN_DIR,
-                                        "jbsim-v2.0.0"), slon, slat) +
+                                        "jbsim-v3.0.0"), slon, slat) +
                           "tshift_timedomain=1 use_closest_gf=1 " +
-                          "rupmodtype=SRF rupmodfile=%s " % a_srffile +
+                          "cgf_flag=%d " % (config.GF_CGFFLAG) +
+                          "rupmodtype=%s " % (rupmod_type) +
+                          "rupmodfile=%s " % (a_rupture_file) +
                           "moment=-1 outdir=%s stat=%s " % (a_veldir, site) +
                           "min_taper_range=0.0 max_taper_range=0.0 " +
                           "gftype=fk gflocs=%s gftimes=%s gf_swap_bytes=%d " %

@@ -1,19 +1,36 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Copyright 2010-2021 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2023, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+
 from __future__ import division, print_function
 
 # Import Python modules
@@ -241,7 +258,7 @@ class IrikuraHF(object):
         out_file.write("%.8f \t\t# HYPOCENTER-LATITUDE\n" % (hyp_lat))
         out_file.write("%.8f \t\t# HYPOCENTER-LONGITUDE\n" % (hyp_lon))
         out_file.write("%.4f \t\t# HYPOCENTER-DEPTH(GL-m)\n" % (hyp_dep))
-        out_file.write("120.0 \t\t# SAMPLING-FREQUENCY(Hz)\n")
+        out_file.write("100.0 \t\t# SAMPLING-FREQUENCY(Hz)\n")
         out_file.write("120.0 \t\t# SAMPLING-TIME(sec)\n")
         out_file.write("%.2f \t\t# ELEMENT-DENSITY(g/cm3)\n" % (density))
         out_file.write("%.2f \t\t# SEISMIC-BEDROCK-DENSITY(g/cm3)\n" %
@@ -323,7 +340,7 @@ class IrikuraHF(object):
             out_file.write("%d %d %4.2f %d\n" %
                            (idx + 1, vs_m[idx], rho[idx], round(qs[idx])))
         out_file.write("# LAYER-DEPTH(GL-m)\n")
-        for idx, _ in enumerate(self.stat_list.getStationList(), 1):
+        for idx, _ in enumerate(self.stat_list.get_station_list(), 1):
             out_file.write("%d %d %d" % (idx, 0, 0))
             for item in depth:
                 out_file.write(" %.1f" % (item))
@@ -339,7 +356,7 @@ class IrikuraHF(object):
             out_file.write("%d %d %4.2f %d\n" %
                            (idx + 1, vp_m[idx], rho[idx], round(qs[idx])))
         out_file.write("# LAYER-DEPTH(GL-m)\n")
-        for idx, _ in enumerate(self.stat_list.getStationList(), 1):
+        for idx, _ in enumerate(self.stat_list.get_station_list(), 1):
             out_file.write("%d %d %d" % (idx, 0, 0))
             for item in depth:
                 out_file.write(" %.1f" % (item))
@@ -356,7 +373,7 @@ class IrikuraHF(object):
         This function creates the Irikura recipe station list
         """
         out_file = open(station_file, 'w')
-        for idx, station in enumerate(self.stat_list.getStationList(), 1):
+        for idx, station in enumerate(self.stat_list.get_station_list(), 1):
             out_file.write("%d\t%9.5f\t%9.5f\t0.0  \tSAS%s.dat\n" %
                            (idx, station.lat, station.lon, station.scode))
         out_file.close()
@@ -532,7 +549,7 @@ class IrikuraHF(object):
         acc_ver_dir = os.path.join(irikura_dir, "VER", "acc")
         tmp_dir = os.path.join(self.install.A_TMP_DATA_DIR, str(self.sim_id))
 
-        for idx, station in enumerate(self.stat_list.getStationList()):
+        for idx, station in enumerate(self.stat_list.get_station_list()):
             in_hor_file = os.path.join(acc_hor_dir, "ac%06d.dat" % (idx + 1))
             in_ver_file = os.path.join(acc_ver_dir, "ac%06d.dat" % (idx + 1))
             out_acc_file = os.path.join(tmp_dir, "%d.%s-hf.acc.bbp" %

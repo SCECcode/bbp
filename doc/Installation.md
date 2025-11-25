@@ -4,15 +4,16 @@ Installing the Broadband Platform involves obtaining a copy of the code and buil
 
 The Broadband Platform has the following software dependencies in order to compile and run:
 
-* Python v2.7.10+ with
-  * Matplotlib 1.4.3+
-  * NumPy 1.14.2+
-  * SciPy 1.0.0+
-  * Pyproj 1.9.2+
-* GNU compilers (gcc, gfortran) 5.1.1+
-  * FFTW library 3.3.4+
+* Python v3.6.7+ with
+  * Matplotlib 3.3.0+
+  * NumPy 1.18.5+
+  * SciPy 1.4.1+
+  * Pyproj 2.6.1+
+  * Numba 0.55.2+
+* GNU compilers (gcc, gfortran) 8.3+
+  * FFTW library 3.3.8
 
-Please make sure they are installed in your computer before you continue with the BBP installation process. Depending on the specific NumPy, SciPy, and Matplotlib versions users installed in their systems, they may experience certain "Future Warning" messages while running the BBP. In this case, upgrading NumPy, SciPy, and/or Matplotlib will usually make the warning messages disappear. We used the package versions listed above to run the Unit and Acceptance tests. Please note that, at this time, the Broadband Platform is not compatible with Python 3. We expect to migrate the BBP to Python 3 in our next release.
+Please make sure they are installed in your computer before you continue with the BBP installation process. Depending on the specific NumPy, SciPy, and Matplotlib versions users installed in their systems, they may experience certain "Future Warning" messages while running the BBP. In this case, upgrading NumPy, SciPy, and/or Matplotlib will usually make the warning messages disappear. We used the package versions listed above to run the Unit and Acceptance tests.
 
 ### Easy Installation
 
@@ -38,7 +39,7 @@ As mentioned above, one option to obtain the Broadband Platform source distribut
 * Uncompress the downloaded file
 
 ```
-  $ tar -xzf bbp-19.4.0.tar.gz
+  $ tar -xzf bbp-22.4.0.tar.gz
 ```
 
 * Delete the tar.gz file as it will not be needed anymore (optional)
@@ -48,7 +49,7 @@ As mentioned above, one option to obtain the Broadband Platform source distribut
 Another option is for users to clone the Broadband repository from GitHub using the following command:
 
 ```
- $ git clone https://github.com/SCECcode/bbp.git bbp-19.4.0
+ $ git clone https://github.com/SCECcode/bbp.git bbp-22.4.0
 ```
 
 Either way, after one of the steps above users should have the Broadband Platform source distribution downloaded into their computers. Then, the next steps are:
@@ -56,8 +57,8 @@ Either way, after one of the steps above users should have the Broadband Platfor
 * Run the easy installation script located in the setup sub-directory.
 
 ```
-  $ cd bbp-19.4.0/setup
-  $ ./easy_install_bbp_19.4.0.sh
+  $ cd bbp-22.4.0/setup
+  $ ./easy_install_bbp_22.4.0.sh
 ```
 
 The easy installation script will create a number of other directories inside your top-level bbp directory (/home/sarah/bbp). It will compile the codes in the BBP source distribution, and it will then ask the user which BBP packages should be installed. Each package contains a region (e.g. LA Basin, Northern California, etc). The user should select 1 (Yes) to install the package, or 2 (No) to skip it. Please note that the LA Basin region is required for running the Unit and Acceptance tests provided with the Broadband Platform.
@@ -78,4 +79,24 @@ export PATH=/home/sarah/bbp/bbp-19.4.0/bbp/comps:/home/sarah/bbp/bbp-19.4.0/bbp/
 ulimit -s unlimited
 ```
 
-After installing the Broadband Platform on their systems, users should confirm the code is built correctly by [running Unit and Acceptance Tests](./Running-Tests.md) before starting to use the code for research purposes.
+After installing the Broadband Platform on their systems, users should confirm the code is built correctly by [running Unit and Acceptance Tests](./Running-Tests) before starting to use the code for research purposes.
+
+
+### Using a User Response File
+If you are performing repeated installations, you may want to put the required inputs into a file and run the installation as a script, something like the following:
+
+Create install_inputs.txt containing these lines:
+1
+1
+1
+1
+1
+1
+1
+
+
+Then, in bbp setup directory: (e.g. /home/scec-00/maechlin/bbp/bbp/setup)
+
+./easy_install_bbp_22.4.0.sh < install_all_inputs.txt &> install_results.log &
+
+This will run the installation in the background without any users interactions, and will write stdout and error messages to the install_results.log file.

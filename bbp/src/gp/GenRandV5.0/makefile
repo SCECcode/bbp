@@ -32,15 +32,15 @@ FFLAGS = ${UFLAGS} -ffixed-line-length-none
 
 ##### make options
 
-all : genslip-v5.4.1 srf_gethypo get_rvfrac
+all : genslip-v5.5.2 srf_gethypo get_rvfrac
 
-genslip-v5.4.1 : genslip-v5.4.1.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
-	${CC} ${CFLAGS} -o genslip-v5.4.1 genslip-v5.4.1.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
-	cp genslip-v5.4.1 ../bin/.
+genslip-v5.5.2 : genslip-v5.5.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
+	${CC} ${CFLAGS} -o genslip-v5.5.2 genslip-v5.5.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
+	cp genslip-v5.5.2 ../bin/.
 
-genslip-v5.2.2 : genslip-v5.2.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
-	${CC} ${CFLAGS} -o genslip-v5.2.2 genslip-v5.2.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
-	cp genslip-v5.2.2 ../bin/.
+#genslip-v5.2.2 : genslip-v5.2.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
+#	${CC} ${CFLAGS} -o genslip-v5.2.2 genslip-v5.2.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
+#	cp genslip-v5.2.2 ../bin/.
 
 srf_gethypo : srf_gethypo.c
 	${CC} ${CFLAGS} -o srf_gethypo srf_gethypo.c ${LDLIBS} ${INCPAR} ${SRF_OBJS}
@@ -52,4 +52,4 @@ get_rvfrac : get_rvfrac.c ${OBJS}
 ${OBJS} : ${HEADS}
 
 clean :
-	-rm -f *.o genslip-v5.4.1 srf_gethypo get_rvfrac
+	-rm -f *.o genslip-v5.5.2 srf_gethypo get_rvfrac

@@ -36,10 +36,12 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import sys
 import unittest
 
 # Import Broadband modules
 import bband_utils
+from install_cfg import InstallCfg
 
 class TestBBandUtils(unittest.TestCase):
     """
@@ -47,10 +49,11 @@ class TestBBandUtils(unittest.TestCase):
     """
 
     def setUp(self):
-        os.chdir('..')
+        self.install = InstallCfg()
+        os.chdir(self.install.A_COMP_DIR)
 
     def tearDown(self):
-        os.chdir('./tests')
+        os.chdir(self.install.A_TEST_DIR)
 
     def test_runprog(self):
         """
@@ -82,4 +85,5 @@ class TestBBandUtils(unittest.TestCase):
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestBBandUtils)
-    unittest.TextTestRunner(verbosity=2).run(SUITE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(SUITE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

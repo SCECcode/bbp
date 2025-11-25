@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2023, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -242,7 +242,7 @@ class MergeScenario(object):
         """
         # Load station list
         slo = StationList(self.station_list)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         # Merge each station
         for station in site_list:
@@ -318,7 +318,7 @@ class MergeScenario(object):
 
         # Load station list
         slo = StationList(self.station_list)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         for site in site_list:
             stat = site.scode

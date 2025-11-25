@@ -33,6 +33,7 @@ struct mechparam
 struct gfheader
    {
    int read_flag;
+   int nc;		/* no. compponents added for CGF compatibility */
    int nt;
    int id;
    int ir;
@@ -140,12 +141,13 @@ struct sgtheader    /* sgt header for v1.14 */
 struct gfparam
    {
    int flag3d;
+   int cgf_flag;
    int swap_flag;
    int use_depdir;
    int nc;
    char gftype[16];
-   char gflocs[128];
-   char gftimes[128];
+   char gflocs[1024];
+   char gftimes[1024];
    float rtol;
    int ngfr;
    int ngfd;

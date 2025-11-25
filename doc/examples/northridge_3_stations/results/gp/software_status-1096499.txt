@@ -1,0 +1,15 @@
+
+================================================================================
+Sun 21 Aug 2022 08:50:32 PDT
+================================================================================
+
+Broadband version: 22.4.0
+Python version: 3.7.6 (default, Jul 29 2020, 20:03:29) 
+[GCC 8.3.0]
+
+GCC Version: b'gcc (GCC) 8.3.0\nCopyright (C) 2018 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n'
+GFORTRAN Version: b'GNU Fortran (GCC) 8.3.0\nCopyright (C) 2018 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n'
+NumPy Version: b'1.18.5\n'
+SciPy Version: b'1.4.1\n'
+Matplotlib Version: b'3.3.0\n'
+PyProj Version: b'2.6.1.post1\n'

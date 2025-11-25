@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "fftw3.h"
 
+extern void fourg_(struct complex *, int *, int *, float *);
 void hermit(struct complex *s0,int nx0,int ny0);
 
 void init_slip_IO(struct complex *sc,int nx2,int ny2,int nx,int ny,float *dx,float *dy,int flip,char *file)

@@ -318,24 +318,32 @@ if(gfpar.flag3d == 0)
 
    fdr = opfile_ro(str);
 
+   if(gfpar.cgf_flag == 1)
+      reed(fdr,&gfh->nc,sizeof(int));
    reed(fdr,&gfh->nt,sizeof(int));
    reed(fdr,&gfh->dt,sizeof(float));
    reed(fdr,&gfh->dep,sizeof(float));
    reed(fdr,&gfh->rng,sizeof(float));
    reed(fdr,&gfh->tst,sizeof(float));
    reed(fdr,&gfh->mom,sizeof(float));
+   if(gfpar.cgf_flag == 1)
+      reed(fdr,&gfh->lam,sizeof(float));
    reed(fdr,&gfh->mu,sizeof(float));
 
    if(gfpar.swap_flag == 0)  /* byte-order is OK, no swapping needed */
       swap_flag = 0;
    else                        /* byte-order not OK, swapping needed */
       {
+      if(gfpar.cgf_flag == 1)
+         swap_in_place(1,(char *)(&gfh->nc));
       swap_in_place(1,(char *)(&gfh->nt));
       swap_in_place(1,(char *)(&gfh->dt));
       swap_in_place(1,(char *)(&gfh->dep));
       swap_in_place(1,(char *)(&gfh->rng));
       swap_in_place(1,(char *)(&gfh->tst));
       swap_in_place(1,(char *)(&gfh->mom));
+      if(gfpar.cgf_flag == 1)
+         swap_in_place(1,(char *)(&gfh->lam));
       swap_in_place(1,(char *)(&gfh->mu));
 
       swap_flag = 1;
@@ -1146,7 +1154,7 @@ for(kg=0;kg<4;kg++)
       /* resample if needed */
       if((*dtout)/gfh[kg].dt > pratio_tol || (*dtout)/gfh[kg].dt < mratio_tol)
          {
-         fprintf(stderr,"*** RESAMPLED diff= %13.5e ratio= %13.5e\n",(*dtout)-gfh[kg].dt,(*dtout)/gfh[kg].dt);
+         fprintf(stderr,"*** RESAMPLED dtout= %.5e gfdt= %.5e diff= %13.5e ratio= %13.5e\n",*dtout,gfh[kg].dt,(*dtout)-gfh[kg].dt,(*dtout)/gfh[kg].dt);
 
          ntpad = 2*gfh[kg].nt;
          fnt = ntpad*gfh[kg].dt/(*dtout);
@@ -1497,6 +1505,10 @@ else
    while(ntp2 < ntsum)
       ntp2 = ntp2*2;
 
+   maxnt = ntout;
+   if(ntp2 < maxnt)
+      maxnt = ntp2;
+
    nf2 = ntp2/2;
 
    for(ig=0;ig<4;ig++)
@@ -1561,53 +1573,22 @@ else
             gc2[i].im = gc2[i].re*sinA + gc2[i].im*cosA;
             gc2[i].re = tmpre;
             }
-         }
    
-   /* reset pointers to first group of 8 GFs */
-   
-      gf0 = gf;
-      gf1 = gf + ntsum;
-      gf2 = gf + 2*ntsum;
-   
-      gc0 = (struct complex *) gf0;
-      gc1 = (struct complex *) gf1;
-      gc2 = (struct complex *) gf2;
-   
-   /* sum over 4 GFs to interpolated response */
-   
-      nts3 = 3*nf2;
-      nts6 = 6*nf2;
-      nts9 = 9*nf2;
-      for(i=0;i<nf2;i++)
-         {
-         gc0[i].re = gc0[i].re + gc0[i+nts3].re + gc0[i+nts6].re + gc0[i+nts9].re;
-         gc0[i].im = gc0[i].im + gc0[i+nts3].im + gc0[i+nts6].im + gc0[i+nts9].im;
-   
-         gc1[i].re = gc1[i].re + gc1[i+nts3].re + gc1[i+nts6].re + gc1[i+nts9].re;
-         gc1[i].im = gc1[i].im + gc1[i+nts3].im + gc1[i+nts6].im + gc1[i+nts9].im;
-   
-         gc2[i].re = gc2[i].re + gc2[i+nts3].re + gc2[i+nts6].re + gc2[i+nts9].re;
-         gc2[i].im = gc2[i].im + gc2[i+nts3].im + gc2[i+nts6].im + gc2[i+nts9].im;
-         }
+         invfft(gc0,ntp2,1);
+         invfft(gc1,ntp2,1);
+         invfft(gc2,ntp2,1);
 
-      invfft(gc0,ntp2,1);
-      invfft(gc1,ntp2,1);
-      invfft(gc2,ntp2,1);
+         gfv = gf0;
+         gfn = gf1;
+         gfe = gf2;
 
-      maxnt = ntout;
-      if(ntp2 < maxnt)
-         maxnt = ntp2;
-
-      gfv = gf;
-      gfn = gf + ntsum;
-      gfe = gf + 2*ntsum;
-
-      scale = one/(float)(ntp2);
-      for(it=0;it<maxnt;it++)
-         {
-         sv[it] = sv[it] + scale*gfv[it];
-         sn[it] = sn[it] + scale*gfn[it];
-         se[it] = se[it] + scale*gfe[it];
+         scale = one/(float)(ntp2);
+         for(it=0;it<maxnt;it++)
+            {
+            sv[it] = sv[it] + scale*gfv[it];
+            sn[it] = sn[it] + scale*gfn[it];
+            se[it] = se[it] + scale*gfe[it];
+            }
          }
       }
    }
@@ -1792,6 +1773,160 @@ if(*rng >= *minr)
 
       for(ir=0;ir<4;ir++)
          gfh[ir].wt = gfh[ir].wt + del*(twt[ir] - gfh[ir].wt);
+      }
+   }
+}
+
+/* RWG 20241018: Added full moment tensor option using CGF and MRF input.
+
+The cgf's are used to convolve with moment tensor source representations. Conversion of cgf
+to full 18 component strain Green's tensor is outlined below.
+
+Using A&R convention for Green's Tensor:
+
+        n = positive North
+        e = positive East
+        d = positive Down
+
+        Gnn,Gee,Gdd,Gne,Gnd,Ged         for each component n,e,d
+
+Transformation from Lupei Zhu (fk2mt in radiat.c):
+
+Note that in Lupei's z,r,t system z=Up.  To explicitly reflect this below,
+I have replaced Lupei's "z" with "u" for the ground motion component. The "z"
+for the moment tensor is still "down", consistent with A&R.
+
+This means all of Lupei's .u components are the opposite polarity of my .d components,
+and thus my conversions for the .d comps are multiplied by -1 relative to Lupei's formulas.
+Additionally, I believe these formula also include a factor of 2 for the off-diagonal components,
+so that symmetry of the tensors can be used to reduce computations.
+
+In these relations: cosAz=cos(azi), cos2Az=cos(2*azi), sinAz=sin(azi), sin2Az=sin(2*azi).
+
+        Gnn_r = rex/3 - rdd/6 - rss*cos2Az/2
+        Gnn_t = -tss*sin2Az/2
+        Gnn_d = -(uex/3 - udd/6 - uss*cos2Az/2)
+
+        Gee_r = rex/3 - rdd/6 + rss*cos2Az/2
+        Gee_t = -Gnn_t
+        Gee_d = -(uex/3 - udd/6 + uss*cos2Az/2)
+
+        Gdd_r = rex/3 + rdd/3
+        Gdd_t = 0
+        Gdd_d = -(uex/3 + udd/3)
+
+        Gne_r = -rss*sin2Az
+        Gne_t = tss*cos2Az
+        Gne_d = uss*sin2Az
+
+        Gnd_r = -rds*cosAz
+        Gnd_t = -tds*sinAz
+        Gnd_d = uds*cosAz
+
+        Ged_r = -rds*sinAz
+        Ged_t = tds*cosAz
+        Ged_d = uds*sinAz
+
+*/
+
+void momten_4gf(struct standrupformat *srf,int off,int ip,float *gfmech,float *gf,struct gfheader *gfh,struct gfparam gfp,int nts,float *azi)
+{
+float *udd, *rdd, *uds, *rds, *tds, *uss, *rss, *tss, *uex, *rex;
+float *gfn, *gfe, *gfu;
+double Mnn, Mee, Mdd, Mne, Mnd, Med;
+double Gnn_r, Gee_r, Gdd_r, Gne_r, Gnd_r, Ged_r;
+double Gnn_t, Gee_t, Gdd_t, Gne_t, Gnd_t, Ged_t;
+double Gnn_d, Gee_d, Gdd_d, Gne_d, Gnd_d, Ged_d;
+double scale, cosAz, sinAz, cos2Az, sin2Az;
+double rad, tan;
+int it, ig;
+
+struct srf_planerectangle *prect_ptr;
+struct srf_prectsegments *prseg_ptr;
+struct srf_allpoints *apnts_ptr;
+struct srf_apointvalues *apval_ptr;
+
+float half, third, sixth;
+
+half = 1.0/2.0;
+third = 1.0/3.0;
+sixth = 1.0/6.0;
+
+prect_ptr = &(srf->srf_prect);
+prseg_ptr = prect_ptr->prectseg;
+apnts_ptr = &(srf->srf_apnts);
+apval_ptr = apnts_ptr->apntvals + off;
+
+Mnn = apval_ptr[ip].mnn;
+Mee = apval_ptr[ip].mee;
+Mdd = apval_ptr[ip].mdd;
+Mne = apval_ptr[ip].mne;
+Mnd = apval_ptr[ip].mnd;
+Med = apval_ptr[ip].med;
+
+zapit(gfmech,12*nts);
+
+cosAz = cos(*azi);
+sinAz = sin(*azi);
+
+cos2Az = cosAz*cosAz - sinAz*sinAz;
+sin2Az = 2.0*sinAz*cosAz;
+
+for(ig=0;ig<4;ig++)
+   {
+   if(gfh[ig].wt > (float)(0.0))
+      {
+      gfu = gfmech + 3*ig*nts;
+      gfn = gfmech + 3*ig*nts + nts;
+      gfe = gfmech + 3*ig*nts + 2*nts;
+
+      udd = gf + gfp.nc*ig*nts;
+      rdd = gf + gfp.nc*ig*nts + nts;
+      uds = gf + gfp.nc*ig*nts + 2*nts;
+      rds = gf + gfp.nc*ig*nts + 3*nts;
+      tds = gf + gfp.nc*ig*nts + 4*nts;
+      uss = gf + gfp.nc*ig*nts + 5*nts;
+      rss = gf + gfp.nc*ig*nts + 6*nts;
+      tss = gf + gfp.nc*ig*nts + 7*nts;
+      uex = gf + gfp.nc*ig*nts + 8*nts;
+      rex = gf + gfp.nc*ig*nts + 9*nts;
+
+      scale = (gfh[ig].wt)/(gfh[ig].mom);
+
+      for(it=0;it<gfh[ig].nt;it++)
+         {
+         Gnn_r = rex[it]*third - rdd[it]*sixth - rss[it]*cos2Az*half;
+         Gnn_t = -tss[it]*sin2Az*half;
+         Gnn_d = -(uex[it]*third - udd[it]*sixth - uss[it]*cos2Az*half);
+
+         Gee_r = rex[it]*third - rdd[it]*sixth + rss[it]*cos2Az*half;
+         Gee_t = -Gnn_t;
+         Gee_d = -(uex[it]*third - udd[it]*sixth + uss[it]*cos2Az*half);
+
+         Gdd_r = (rex[it] + rdd[it])*third;
+         Gdd_t = 0.0;
+         Gdd_d = -(uex[it] + udd[it])*third;
+
+         Gne_r = -rss[it]*sin2Az;
+         Gne_t = tss[it]*cos2Az;
+         Gne_d = uss[it]*sin2Az;
+
+         Gnd_r = -rds[it]*cosAz;
+         Gnd_t = -tds[it]*sinAz;
+         Gnd_d = uds[it]*cosAz;
+
+         Ged_r = -rds[it]*sinAz;
+         Ged_t = tds[it]*cosAz;
+         Ged_d = uds[it]*sinAz;
+
+         gfu[it] = -scale*(Gnn_d*Mnn + Gee_d*Mee + Gdd_d*Mdd + Gne_d*Mne + Gnd_d*Mnd + Ged_d*Med);
+
+         rad = scale*(Gnn_r*Mnn + Gee_r*Mee + Gdd_r*Mdd + Gne_r*Mne + Gnd_r*Mnd + Ged_r*Med);
+         tan = scale*(Gnn_t*Mnn + Gee_t*Mee + Gdd_t*Mdd + Gne_t*Mne + Gnd_t*Mnd + Ged_t*Med);
+
+	 gfn[it] = -tan*sinAz + rad*cosAz;
+	 gfe[it] = tan*cosAz + rad*sinAz;
+         }
       }
    }
 }

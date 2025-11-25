@@ -34,6 +34,7 @@ from __future__ import division, print_function
 
 # Import Python modules
 import os
+import sys
 import unittest
 
 # Import Broadband modules
@@ -54,7 +55,7 @@ class TestJbsim(unittest.TestCase):
         """
         self.velmodel = "nr02-vs500.fk1d"
         self.srffile = "m5.89-0.20x0.20_s2379646.srf"
-        self.stations = "one_stat.txt"
+        self.stations = "test_stat.txt"
         self.vmodel_name = "LABasin500"
         self.sim_id = int(seqnum.get_seq_num())
 
@@ -82,7 +83,7 @@ class TestJbsim(unittest.TestCase):
         jbsim_obj = Jbsim(self.velmodel, "", self.srffile, self.stations,
                           self.vmodel_name, sim_id=self.sim_id)
         jbsim_obj.run()
-        for i in range(1, 2):
+        for i in range(1, 6):
             ref_file = os.path.join(self.install.A_TEST_REF_DIR,
                                     "gp",
                                     "s%02d-lf.bbp" % (i))
@@ -96,4 +97,5 @@ class TestJbsim(unittest.TestCase):
 
 if __name__ == '__main__':
     SUITE = unittest.TestLoader().loadTestsFromTestCase(TestJbsim)
-    unittest.TextTestRunner(verbosity=2).run(SUITE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(SUITE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

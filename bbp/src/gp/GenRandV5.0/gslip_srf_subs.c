@@ -10,6 +10,8 @@ float avglon, avglat, dmin, dold, se, sn;
 int ig, ip_seg, nseg, i, ip;
 struct slippars *spar;
 
+float flen_tot, flen_back, shyp_end;
+
 double dbllon, dbllat, dbldlen, dbldwid, dblstk, dbldip;
 
 float rperd = 0.017453293;
@@ -33,6 +35,7 @@ if(gslip->np > 0)
 
    prseg_ptr = srf[0].srf_prect.prectseg;
 
+   flen_tot = 0.0;
    for(i=0;i<nseg;i++)
       {
       dbllon = 0.0; 
@@ -138,10 +141,22 @@ if(gslip->np > 0)
 
       set_ll(&avglon,&avglat,&prseg_ptr[i].elon,&prseg_ptr[i].elat,&sn,&se);
 
-      prseg_ptr[i].shyp = -999.9;
-      prseg_ptr[i].dhyp = -999.9;
-
       fprintf(stderr,"%3d: %11.5f %11.5f %2d %2d %10.4f %10.4f %.1f %.1f %10.4f\n",i,prseg_ptr[i].elon,prseg_ptr[i].elat,prseg_ptr[i].nstk,prseg_ptr[i].ndip,prseg_ptr[i].flen,prseg_ptr[i].fwid,prseg_ptr[i].stk,prseg_ptr[i].dip,prseg_ptr[i].dtop);
+
+      flen_tot = flen_tot + prseg_ptr[i].flen;
+      }
+
+   shyp_end = *sh + 0.5*flen_tot;
+   flen_back = 0.0;
+fprintf(stderr,"%10.4f %10.4f %10.4f\n",*sh,flen_tot,shyp_end);
+   for(i=0;i<nseg;i++)
+      {
+      prseg_ptr[i].shyp = shyp_end - flen_back - 0.5*prseg_ptr[i].flen;
+      prseg_ptr[i].dhyp = *dh;
+
+      flen_back = flen_back + prseg_ptr[i].flen;
+
+      fprintf(stderr,"%3d: %10.4f %10.4f\n",i,prseg_ptr[i].shyp,flen_back);
       }
    }
 else
@@ -474,6 +489,9 @@ struct srf_apointvalues *apval_ptr;
 struct srf_prectsegments *prseg_ptr;
 int i, j, ip, ip0, iseg, nseg, ioff, noff, ntot;
 
+/* load hypo here just to be sure it's in header
+   (may have already been done in init_plane_srf if read_gsf=1)
+*/
 (srf->srf_prect).prectseg[0].shyp = *sh;
 (srf->srf_prect).prectseg[0].dhyp = *dh;
 
@@ -963,7 +981,11 @@ float rtfac, tzero;
 float rtfac1, rtfac2, sabs, slip_max, slip_avg, slip_min;
 float rtfac_min = 0.05;
 
-rtfac_min = spar->dt/spar->trise;
+float beta, b_dmin, b_dmax, delta_b;
+
+rtfac_min = 5.0*spar->dt/spar->trise;    /* so minimum rise time >= 5*dt */
+rtfac_min = 10.0*spar->dt/spar->trise;    /* so minimum rise time >= 10*dt */
+rtfac_min = spar->dt/spar->trise;    /* so minimum rise time >= dt */
 
 dmin1 = spar->risetimedep - spar->risetimedep_range;
 dmax1 = spar->risetimedep + spar->risetimedep_range;
@@ -972,6 +994,10 @@ rtfac1 = spar->risetimefac - 1.0;
 dmin2 = spar->deep_risetimedep - spar->deep_risetimedep_range;
 dmax2 = spar->deep_risetimedep + spar->deep_risetimedep_range;
 rtfac2 = spar->deep_risetimefac - 1.0;
+
+b_dmin = spar->beta_depth - spar->beta_depth_range;
+b_dmax = spar->beta_depth + spar->beta_depth_range;
+delta_b = spar->beta_deep - spar->beta_shal;
 
 apnts_ptr = &(srf->srf_apnts);
 apval_ptr = apnts_ptr->apntvals;
@@ -982,185 +1008,6 @@ prseg_ptr = srf[0].srf_prect.prectseg;
 /* version 2.0 stuff, just in case */
 
 srf[0].srf_hcmnt.nline = 0;
-srf[0].nseg = 1;
-srf[0].np_seg = (int *)check_malloc((srf[0].nseg)*sizeof(int));
-srf[0].np_seg[0] = srf[0].srf_apnts.np;
-
-/* end version 2.0 stuff, just in case */
-
-ntot = 0;
-for(iseg=0;iseg<nseg;iseg++)
-   ntot = ntot + prseg_ptr[iseg].nstk;
-
-slip_max = -1.0e+15;
-slip_min = 1.0e+15;
-slip_avg = 0.0;
-for(ip0=0;ip0<ntot*prseg_ptr[0].ndip;ip0++)
-   {
-   sabs = sqrt(ps[ip0].slip*ps[ip0].slip);
-   slip_avg = slip_avg + sabs;
-   if(sabs > slip_max)
-      slip_max = sabs;
-   if(sabs < slip_min)
-      slip_min = sabs;
-   }
-slip_min = 1.001*slip_min;
-slip_avg = slip_avg/(ntot*prseg_ptr[0].ndip);
-fprintf(stderr,"SLIP_AVG= %f\n",slip_avg);
-
-ioff = 0;
-noff = 0;
-for(iseg=0;iseg<nseg;iseg++)
-   {
-   for(j=0;j<prseg_ptr[iseg].ndip;j++)
-      {
-      for(i=0;i<prseg_ptr[iseg].nstk;i++)
-         {
-	 ip = noff + i + j*prseg_ptr[iseg].nstk;
-	 ip0 = i + ioff + j*ntot;
-
-         apval_ptr[ip].stf1 = (float *)check_malloc(spar->nt*sizeof(float));
-         stf = apval_ptr[ip].stf1;
-
-         apval_ptr[ip].dt = spar->dt;
-
-	 sabs = sqrt(ps[ip0].slip*ps[ip0].slip);
-         if(sabs > MINSLIP)
-	    {
-            if(ps[ip0].dep <= dmin1)
-               rtfac = 1.0 + rtfac1;
-            else if(ps[ip0].dep < dmax1 && ps[ip0].dep > dmin1)
-               rtfac = 1.0 + rtfac1*(dmax1-(ps[ip0].dep))/(dmax1-dmin1);
-            else if(ps[ip0].dep >= dmax1 && ps[ip0].dep <= dmin2)
-               rtfac = 1.0;
-            else if(ps[ip0].dep < dmax2 && ps[ip0].dep > dmin2)
-               rtfac = 1.0 + rtfac2*((ps[ip0].dep)-dmin2)/(dmax2-dmin2);
-            else
-               rtfac = 1.0 + rtfac2;
-
-/* 20150324 RWG:
-    New way using array of gaussian values roughly correlated with slip
-    Note that rtime1_r is already normalized to have average of 1
-*/
-            if(spar->rt_scalefac > 0.0)
-               rtfac = rtfac*sqrt(rtime1_r[ip0])/spar->rt_scalefac;
-
-	    /*
-            rtfac = rtfac*exp(rtime2_r[ip0]);
-	    */
-            rtfac = rtfac*(1.0+rtime2_r[ip0]);
-
-            if(rtfac < rtfac_min)
-               rtfac = rtfac_min;
-
-            if(strcmp(spar->stype,"brune") == 0)
-               {
-               tzero = 0.1*exp(-1.0)*sqrt(ps[ip0].slip)/(1.2); /* assume slip in cm */     
-               tzero = tzero*rtfac;
-
-               apval_ptr[ip].nt1 = gen_brune_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
-               }
-	    else if(strcmp(spar->stype,"urs") == 0)
-               {
-	       tzero = rtfac*spar->trise;
-
-               apval_ptr[ip].nt1 = gen_2tri_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt,&ps[ip0].dep);
-               }
-            else if(strcmp(spar->stype,"ucsb") == 0)
-               {
-               tzero = rtfac*spar->trise;
-
-               apval_ptr[ip].nt1 = gen_ucsb_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
-               }
-            else if(strcmp(spar->stype,"Mliu") == 0)
-               {
-               tzero = rtfac*spar->trise;
-
-               apval_ptr[ip].nt1 = gen_Mliu_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
-               }
-            else if(strcmp(spar->stype,"tri") == 0)
-               {
-               tzero = rtfac*spar->trise;
-
-               apval_ptr[ip].nt1 = gen_tri_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
-               }
-	    }
-         else
-            apval_ptr[ip].nt1 = 0;
-
-         if(apval_ptr[ip].nt1)
-            apval_ptr[ip].stf1 = (float *)check_realloc(apval_ptr[ip].stf1,(apval_ptr[ip].nt1)*sizeof(float));
-         else
-            {
-            free(apval_ptr[ip].stf1);
-            apval_ptr[ip].stf1 = NULL;
-            }
-
-         apval_ptr[ip].lon = ps[ip0].lon;
-         apval_ptr[ip].lat = ps[ip0].lat;
-         apval_ptr[ip].dep = ps[ip0].dep;
-         apval_ptr[ip].stk = ps[ip0].stk;
-         apval_ptr[ip].dip = ps[ip0].dip;
-         apval_ptr[ip].area = ps[ip0].area;
-
-         apval_ptr[ip].vs = 1.0e+05*ps[ip0].vs;
-         apval_ptr[ip].den = ps[ip0].den;
-
-         apval_ptr[ip].rake = ps[ip0].rak;
-         apval_ptr[ip].slip1 = ps[ip0].slip;
-
-         apval_ptr[ip].slip2 = 0.0;
-         apval_ptr[ip].nt2 = 0;
-         apval_ptr[ip].stf2 = NULL;
-         apval_ptr[ip].slip3 = 0.0;
-         apval_ptr[ip].nt3 = 0;
-         apval_ptr[ip].stf3 = NULL;
-         }
-      }
-   ioff = ioff + prseg_ptr[iseg].nstk;
-   noff = noff + prseg_ptr[iseg].nstk*prseg_ptr[iseg].ndip;
-   }
-}
-
-void load_slip_srf_dd4(struct standrupformat *srf,struct stfpar2 *spar,struct pointsource *ps,float *rtime1_r,float *rtime2_r,struct velmodel *vmod)
-{
-struct srf_allpoints *apnts_ptr;
-struct srf_apointvalues *apval_ptr;
-struct srf_prectsegments *prseg_ptr;
-float area;
-float *stf;
-int i, j, ip, ip0, iseg, nseg, ioff, noff, ntot, k;
-
-float dmin1, dmax1;
-float dmin2, dmax2;
-float rtfac, tzero;
-float rtfac1, rtfac2, sabs, slip_max, slip_avg, slip_min;
-float rtfac_min = 0.05;
-
-rtfac_min = spar->dt/spar->trise;
-
-dmin1 = spar->risetimedep - spar->risetimedep_range;
-dmax1 = spar->risetimedep + spar->risetimedep_range;
-rtfac1 = spar->risetimefac - 1.0;
-
-dmin2 = spar->deep_risetimedep - spar->deep_risetimedep_range;
-dmax2 = spar->deep_risetimedep + spar->deep_risetimedep_range;
-rtfac2 = spar->deep_risetimefac - 1.0;
-
-apnts_ptr = &(srf->srf_apnts);
-apval_ptr = apnts_ptr->apntvals;
-
-nseg = srf[0].srf_prect.nseg;
-prseg_ptr = srf[0].srf_prect.prectseg;
-
-/* version 2.0 stuff, just in case */
-
-srf[0].srf_hcmnt.nline = 0;
-/*
-srf[0].nseg = 1;
-srf[0].np_seg = (int *)check_malloc((srf[0].nseg)*sizeof(int));
-srf[0].np_seg[0] = srf[0].srf_apnts.np;
-*/
 
 /* 2018-04-02 updated for multiple segs */
 srf[0].nseg = srf[0].srf_prect.nseg;
@@ -1228,9 +1075,6 @@ for(iseg=0;iseg<nseg;iseg++)
             if(spar->rt_scalefac > 0.0)
                rtfac = rtfac*sqrt(rtime1_r[ip0])/spar->rt_scalefac;
 
-	    /*
-            rtfac = rtfac*exp(rtime2_r[ip0]);
-	    */
             rtfac = rtfac*(1.0+rtime2_r[ip0]);
 
             if(rtfac < rtfac_min)
@@ -1260,6 +1104,241 @@ for(iseg=0;iseg<nseg;iseg++)
                tzero = rtfac*spar->trise;
 
                apval_ptr[ip].nt1 = gen_Mliu_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"OliuP") == 0) /* original form */
+               {
+               if(ps[ip0].dep <= b_dmin)
+                  beta = spar->beta_shal;
+               else if(ps[ip0].dep < b_dmax && ps[ip0].dep > b_dmin)
+                  beta = spar->beta_shal + delta_b*(ps[ip0].dep - b_dmin)/(b_dmax-b_dmin);
+               else
+                  beta = spar->beta_deep;
+
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_OliuP_stf(&(ps[ip0].slip),&tzero,&beta,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"MliuP") == 0) /* modified form */
+               {
+               if(ps[ip0].dep <= b_dmin)
+                  beta = spar->beta_shal;
+               else if(ps[ip0].dep < b_dmax && ps[ip0].dep > b_dmin)
+                  beta = spar->beta_shal + delta_b*(ps[ip0].dep - b_dmin)/(b_dmax-b_dmin);
+               else
+                  beta = spar->beta_deep;
+
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_MliuP_stf(&(ps[ip0].slip),&tzero,&beta,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"tri") == 0)
+               {
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_tri_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+	    }
+         else
+            apval_ptr[ip].nt1 = 0;
+
+         if(apval_ptr[ip].nt1)
+            apval_ptr[ip].stf1 = (float *)check_realloc(apval_ptr[ip].stf1,(apval_ptr[ip].nt1)*sizeof(float));
+         else
+            {
+            free(apval_ptr[ip].stf1);
+            apval_ptr[ip].stf1 = NULL;
+            }
+
+         apval_ptr[ip].lon = ps[ip0].lon;
+         apval_ptr[ip].lat = ps[ip0].lat;
+         apval_ptr[ip].dep = ps[ip0].dep;
+         apval_ptr[ip].stk = ps[ip0].stk;
+         apval_ptr[ip].dip = ps[ip0].dip;
+         apval_ptr[ip].area = ps[ip0].area;
+
+         apval_ptr[ip].vs = 1.0e+05*ps[ip0].vs;
+         apval_ptr[ip].den = ps[ip0].den;
+
+         apval_ptr[ip].rake = ps[ip0].rak;
+         apval_ptr[ip].slip1 = ps[ip0].slip;
+
+         apval_ptr[ip].slip2 = 0.0;
+         apval_ptr[ip].nt2 = 0;
+         apval_ptr[ip].stf2 = NULL;
+         apval_ptr[ip].slip3 = 0.0;
+         apval_ptr[ip].nt3 = 0;
+         apval_ptr[ip].stf3 = NULL;
+         }
+      }
+   ioff = ioff + prseg_ptr[iseg].nstk;
+   noff = noff + prseg_ptr[iseg].nstk*prseg_ptr[iseg].ndip;
+   }
+}
+
+void load_slip_srf_dd4(struct standrupformat *srf,struct stfpar2 *spar,struct pointsource *ps,float *rtime1_r,float *rtime2_r,struct velmodel *vmod)
+{
+struct srf_allpoints *apnts_ptr;
+struct srf_apointvalues *apval_ptr;
+struct srf_prectsegments *prseg_ptr;
+float area;
+float *stf;
+int i, j, ip, ip0, iseg, nseg, ioff, noff, ntot, k;
+
+float dmin1, dmax1;
+float dmin2, dmax2;
+float rtfac, tzero;
+float rtfac1, rtfac2, sabs, slip_max, slip_avg, slip_min;
+float rtfac_min = 0.05;
+
+float beta, b_dmin, b_dmax, delta_b;
+
+rtfac_min = 5.0*spar->dt/spar->trise;    /* so minimum rise time >= 5*dt */
+rtfac_min = 10.0*spar->dt/spar->trise;    /* so minimum rise time >= 10*dt */
+rtfac_min = spar->dt/spar->trise;    /* so minimum rise time >= dt */
+
+dmin1 = spar->risetimedep - spar->risetimedep_range;
+dmax1 = spar->risetimedep + spar->risetimedep_range;
+rtfac1 = spar->risetimefac - 1.0;
+
+dmin2 = spar->deep_risetimedep - spar->deep_risetimedep_range;
+dmax2 = spar->deep_risetimedep + spar->deep_risetimedep_range;
+rtfac2 = spar->deep_risetimefac - 1.0;
+
+b_dmin = spar->beta_depth - spar->beta_depth_range;
+b_dmax = spar->beta_depth + spar->beta_depth_range;
+delta_b = spar->beta_deep - spar->beta_shal;
+
+apnts_ptr = &(srf->srf_apnts);
+apval_ptr = apnts_ptr->apntvals;
+
+nseg = srf[0].srf_prect.nseg;
+prseg_ptr = srf[0].srf_prect.prectseg;
+
+/* version 2.0 stuff, just in case */
+
+srf[0].srf_hcmnt.nline = 0;
+
+/* 2018-04-02 updated for multiple segs */
+srf[0].nseg = srf[0].srf_prect.nseg;
+srf[0].np_seg = (int *)check_malloc((srf[0].nseg)*sizeof(int));
+
+for(iseg=0;iseg<nseg;iseg++)
+   srf[0].np_seg[iseg] = prseg_ptr[iseg].nstk*prseg_ptr[0].ndip;
+
+/* end version 2.0 stuff, just in case */
+
+ntot = 0;
+for(iseg=0;iseg<nseg;iseg++)
+   ntot = ntot + prseg_ptr[iseg].nstk;
+
+slip_max = -1.0e+15;
+slip_min = 1.0e+15;
+slip_avg = 0.0;
+for(ip0=0;ip0<ntot*prseg_ptr[0].ndip;ip0++)
+   {
+   sabs = sqrt(ps[ip0].slip*ps[ip0].slip);
+   slip_avg = slip_avg + sabs;
+   if(sabs > slip_max)
+      slip_max = sabs;
+   if(sabs < slip_min)
+      slip_min = sabs;
+   }
+slip_min = 1.001*slip_min;
+slip_avg = slip_avg/(ntot*prseg_ptr[0].ndip);
+fprintf(stderr,"SLIP_AVG= %f\n",slip_avg);
+
+ioff = 0;
+noff = 0;
+for(iseg=0;iseg<nseg;iseg++)
+   {
+   for(j=0;j<prseg_ptr[iseg].ndip;j++)
+      {
+      for(i=0;i<prseg_ptr[iseg].nstk;i++)
+         {
+	 ip = noff + i + j*prseg_ptr[iseg].nstk;
+	 ip0 = i + ioff + j*ntot;
+
+         apval_ptr[ip].stf1 = (float *)check_malloc(spar->nt*sizeof(float));
+         stf = apval_ptr[ip].stf1;
+
+         apval_ptr[ip].dt = spar->dt;
+
+	 sabs = sqrt(ps[ip0].slip*ps[ip0].slip);
+         if(sabs > MINSLIP)
+	    {
+            if(ps[ip0].dep <= dmin1)
+               rtfac = 1.0 + rtfac1;
+            else if(ps[ip0].dep < dmax1 && ps[ip0].dep > dmin1)
+               rtfac = 1.0 + rtfac1*(dmax1-(ps[ip0].dep))/(dmax1-dmin1);
+            else if(ps[ip0].dep >= dmax1 && ps[ip0].dep <= dmin2)
+               rtfac = 1.0;
+            else if(ps[ip0].dep < dmax2 && ps[ip0].dep > dmin2)
+               rtfac = 1.0 + rtfac2*((ps[ip0].dep)-dmin2)/(dmax2-dmin2);
+            else
+               rtfac = 1.0 + rtfac2;
+
+/* 20150324 RWG:
+    New way using array of gaussian values roughly correlated with slip
+    Note that rtime1_r is already normalized to have average of 1
+*/
+            if(spar->rt_scalefac > 0.0)
+               rtfac = rtfac*sqrt(rtime1_r[ip0])/spar->rt_scalefac;
+
+            rtfac = rtfac*(1.0+rtime2_r[ip0]);
+
+            if(rtfac < rtfac_min)
+               rtfac = rtfac_min;
+
+            if(strcmp(spar->stype,"brune") == 0)
+               {
+               tzero = 0.1*exp(-1.0)*sqrt(ps[ip0].slip)/(1.2); /* assume slip in cm */     
+               tzero = tzero*rtfac;
+
+               apval_ptr[ip].nt1 = gen_brune_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+	    else if(strcmp(spar->stype,"urs") == 0)
+               {
+	       tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_2tri_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt,&ps[ip0].dep);
+               }
+            else if(strcmp(spar->stype,"ucsb") == 0)
+               {
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_ucsb_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"Mliu") == 0)
+               {
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_Mliu_stf(&(ps[ip0].slip),&tzero,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"OliuP") == 0) /* original form */
+               {
+               if(ps[ip0].dep <= b_dmin)
+                  beta = spar->beta_shal;
+               else if(ps[ip0].dep < b_dmax && ps[ip0].dep > b_dmin)
+                  beta = spar->beta_shal + delta_b*(ps[ip0].dep - b_dmin)/(b_dmax-b_dmin);
+               else
+                  beta = spar->beta_deep;
+
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_OliuP_stf(&(ps[ip0].slip),&tzero,&beta,stf,spar->nt,&spar->dt);
+               }
+            else if(strcmp(spar->stype,"MliuP") == 0) /* modified form */
+               {
+               if(ps[ip0].dep <= b_dmin)
+                  beta = spar->beta_shal;
+               else if(ps[ip0].dep < b_dmax && ps[ip0].dep > b_dmin)
+                  beta = spar->beta_shal + delta_b*(ps[ip0].dep - b_dmin)/(b_dmax-b_dmin);
+               else
+                  beta = spar->beta_deep;
+
+               tzero = rtfac*spar->trise;
+
+               apval_ptr[ip].nt1 = gen_MliuP_stf(&(ps[ip0].slip),&tzero,&beta,stf,spar->nt,&spar->dt);
                }
             else if(strcmp(spar->stype,"tri") == 0)
                {

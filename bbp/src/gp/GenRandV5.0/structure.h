@@ -46,6 +46,10 @@ struct stfpar2
    float deep_risetimedep;
    float deep_risetimedep_range;
    float deep_risetimefac;
+   float beta_depth;
+   float beta_depth_range;
+   float beta_shal;
+   float beta_deep;
    float rt_scalefac;
    float rt_rand;
    char stype[32];

@@ -1,18 +1,35 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Copyright 2010-2019 University Of Southern California
+BSD 3-Clause License
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Copyright (c) 2023, University of Southern California
+All rights reserved.
 
- http://www.apache.org/licenses/LICENSE-2.0
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
 from __future__ import division, print_function
 
@@ -90,9 +107,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c2cf[i][0] for i in arange(BMAX)]
     #stdev = [c2cf[i][1] for i in arange(BMAX)]
@@ -110,9 +127,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c3cf[i][0] for i in arange(BMAX)]
     #stdev = [c3cf[i][1] for i in arange(BMAX)]
@@ -130,9 +147,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c4cf[i][0] for i in arange(BMAX)]
     #stdev = [c4cf[i][1] for i in arange(BMAX)]
@@ -150,9 +167,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c5cf[i][0] for i in arange(BMAX)]
     #stdev = [c5cf[i][1] for i in arange(BMAX)]
@@ -170,9 +187,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c6cf[i][0] for i in arange(BMAX)]
     #stdev = [c6cf[i][1] for i in arange(BMAX)]
@@ -190,9 +207,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c7cf[i][0] for i in arange(BMAX)]
     #stdev = [c7cf[i][1] for i in arange(BMAX)]
@@ -210,9 +227,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c8cf[i][0] for i in arange(BMAX)]
     #stdev = [c8cf[i][1] for i in arange(BMAX)]
@@ -230,9 +247,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'ko', ms=4)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c9cf[i][0] for i in arange(BMAX)]
     #stdev = [c9cf[i][1] for i in arange(BMAX)]
@@ -251,9 +268,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.xlabel('Frequency Band', fontsize=12)
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     mean = [c10cf[i][0] for i in arange(BMAX)]
     #stdev = [c10cf[i][1] for i in arange(BMAX)]
@@ -272,9 +289,9 @@ def fplots(eventname, method, S1, c1cf, c2cf, c3cf, c4cf, c5cf,
     plt.plot(x_vals, mean, 'k-', mew=4)
     plt.xlabel('Frequency Band', fontsize=12)
     plt.fill_between(x_vals, low_conf, upp_conf,
-                     color=(1, 0.3, 0.9), alpha='1.0')
+                     color=(1, 0.3, 0.9), alpha=1.0)
     plt.fill_between(x_vals, low_std, upp_std,
-                     color=(0.8, 0.8, 1), alpha='1.0')
+                     color=(0.8, 0.8, 1), alpha=1.0)
 
     #plt.show()
     plt.savefig(output_file, dpi=300)
@@ -359,7 +376,7 @@ def load_all_data(input_indir, input_outdir):
         raise bband_utils.ProcessingError("Cannot get station list!")
     a_statfile = a_statfile[0]
     slo = StationList(a_statfile)
-    site_list = slo.getStationList()
+    site_list = slo.get_station_list()
 
     # Go through all stations
     for site in site_list:

@@ -1,5 +1,5 @@
 	<BBP_Run_Specification>
-		<Validation_Run event="NR" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="19.4.0"/>
+		<Validation_Run event="NR" input_station_file="$BBP_DATA_DIR/run/northridge_3_sta.stl" version="22.4.0"/>
 		<BBP_Modules>
 			<BBP_Module>
 				<name>Genslip</name>
@@ -122,6 +122,7 @@
 					<argument type="str">nr_v14_02_1.src</argument>
 					<argument type="str">northridge_3_sta.stl</argument>
 					<argument type="str">NR</argument>
+					<argument type="str">SDSU</argument>
 					<argument type="int">120</argument>
 					<argument type="float">0.01</argument>
 				</arguments>

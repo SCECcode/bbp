@@ -1,0 +1,8 @@
+This directory contains helper scripts used to run the Broadband Platform
+on Quakeworx. These osp_run.sh script is called by the gateway application
+when the job starts. It will read the many environment variables set up
+in the tapisjob.env file (which is written by the gateway and includes
+all the options selected by the user).
+
+The run.sh and run_debug.sh scripts are used to manually queue the
+application on Expanse.

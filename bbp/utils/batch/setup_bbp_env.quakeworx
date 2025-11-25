@@ -1,0 +1,35 @@
+#!/bin/sh
+
+#
+# Configuration script to run Broadband validations on USC's Discovery cluster
+#
+
+# BBP_DIR should point to the top-level Broadband distribution directory
+BBP_DIR=/expanse/lustre/projects/usc143/qwxdev/apps/expanse/rocky8.8/bbp/bbp/bbp;export BBP_DIR
+# BBP_GF_DIR should point to the Green's Functions top-level directory
+BBP_GF_DIR=/expanse/lustre/projects/usc143/qwxdev/apps/expanse/rocky8.8/bbp/bbp_gf;export BBP_GF_DIR
+# BBP_VAL_DIR should point to the Validation packages' top-level directory
+BBP_VAL_DIR=/expanse/lustre/projects/usc143/qwxdev/apps/expanse/rocky8.8/bbp/bbp_val;export BBP_VAL_DIR
+BBP_DATA_DIR=/expanse/lustre/scratch/$USER/temp_project/temp/bbp_sims/$SLURM_JOB_ID; export BBP_DATA_DIR
+
+# Do not change anything below this line
+PYTHONPATH=$BBP_DIR/comps:$BBP_DIR/comps/PySeismoSoil:/expanse/lustre/projects/usc143/qwxdev/apps/expanse/rocky8.8/bbp/python3.8/site-packages;export PYTHONPATH
+
+# Create BBP_DATA_DIR
+mkdir -p $BBP_DATA_DIR
+
+# Use right Python
+module load cpu/0.17.3b anaconda3/2021.05
+module load gcc/10.2.0
+
+# Set stack size
+ulimit -s unlimited
+
+umask 0002
+
+# Needed to avoid conflicting Python version(s) installed in qwxdev's
+# account. This way we make sure the version we want comes up first in
+# the search path
+export PYTHONPATH=$PYTHONPATH:/cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/anaconda3-2021.05-q4munrgvh7qp4o7r3nzcdkbuph4z7375/lib/python38.zip:/cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/anaconda3-2021.05-q4munrgvh7qp4o7r3nzcdkbuph4z7375/lib/python3.8:/cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/anaconda3-2021.05-q4munrgvh7qp4o7r3nzcdkbuph4z7375/lib/python3.8/lib-dynload:/cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/anaconda3-2021.05-q4munrgvh7qp4o7r3nzcdkbuph4z7375/lib/python3.8/site-packages:/cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/anaconda3-2021.05-q4munrgvh7qp4o7r3nzcdkbuph4z7375/lib/python3.8/site-packages/locket-0.2.1-py3.8.egg
+#python3 -c "import sys; print(sys.path)"
+

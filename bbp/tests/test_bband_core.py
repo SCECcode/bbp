@@ -1,8 +1,8 @@
-#! /usr/bin/python
+#! /usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ These are unit tests for the broadband platform core
 from __future__ import division, print_function
 
 # Import Python modules
+import sys
 import unittest
 
 # Import Broadband modules
@@ -52,11 +53,12 @@ class CoreTestSuite(unittest.TestSuite):
         Add core Broadband functionality
         """
         unittest.TestSuite.__init__(self)
-        self.addTest(unittest.makeSuite(TestBBandUtils))
-        self.addTest(unittest.makeSuite(TestPythonCode))
-        self.addTest(unittest.makeSuite(TestArias))
-        self.addTest(unittest.makeSuite(TestBBPFormat))
+        self.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestBBandUtils))
+        self.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestPythonCode))
+        self.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestArias))
+        self.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestBBPFormat))
 
 if __name__ == '__main__':
     CORE = CoreTestSuite()
-    unittest.TextTestRunner(verbosity=2).run(CORE)
+    RETURN_CODE = unittest.TextTestRunner(verbosity=2).run(CORE)
+    sys.exit(not RETURN_CODE.wasSuccessful())

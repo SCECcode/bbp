@@ -25,6 +25,8 @@ float *xf, *yf, *z2, *s2, rjb, minjb, rr, minr, mind, avgdip;
 float kperd_n, kperd_e, xs, ys, xr, yr;
 float rotate, mlon, mlat, cosR, sinR;
 
+float minslip = -1.0;
+
 float rperd = RPERD;
 float erad = ERAD;
 float fc = FLAT_CONST;
@@ -61,6 +63,9 @@ int jbdist = 1;
 sprintf(infile,"stdin");
 sprintf(outfile,"stdout");
 
+mlon = -1.0e+15;
+mlat = -1.0e+15;
+
 setpar(ac,av);
 mstpar("srffile","s",srffile);
 getpar("outfile","s",outfile);
@@ -70,22 +75,30 @@ getpar("cdist","d",&cdist);
 getpar("dip","d",&dip);
 getpar("dtop","d",&dtop);
 getpar("jbdist","d",&jbdist);
+getpar("mlon","f",&mlon);
+getpar("mlat","f",&mlat);
+getpar("minslip","f",&minslip);
 endpar();
 
 read_srf(&srf,srffile,inbin);
 np = srf.srf_apnts.np;
 apval_ptr = srf.srf_apnts.apntvals;
 
-mlon = 0.0;
-mlat = 0.0;
-for(ip=0;ip<np;ip++)
+if(mlon < -1.0e+14 && mlat < -1.0e+14)
    {
-   mlon = mlon + apval_ptr[ip].lon;
-   mlat = mlat + apval_ptr[ip].lat;
-   }
+   dlon = 0.0;
+   dlat = 0.0;
+   for(ip=0;ip<np;ip++)
+      {
+      dlon = dlon + (double)(apval_ptr[ip].lon);
+      dlat = dlat + (double)(apval_ptr[ip].lat);
+      }
 
-mlon = mlon/(float)(np);
-mlat = mlat/(float)(np);
+   dlon = dlon/(double)(np);
+   dlat = dlat/(double)(np);
+   mlon = dlon;
+   mlat = dlat;
+   }
 rotate = -90.0;
 
 fprintf(stderr,"Approximate centroid: %12.5f %12.5f\n",mlon,mlat);
@@ -204,7 +217,7 @@ while(fgets(sbuf,1024,fpr) != NULL)
    minjb = 1.0e+15;
    for(ip=0;ip<np;ip++)
       {
-      if(s2[ip] > 0.01)
+      if(s2[ip] > minslip)
          {
          rjb = (xr-xf[ip])*(xr-xf[ip]) + (yr-yf[ip])*(yr-yf[ip]);
          rr = rjb + z2[ip];

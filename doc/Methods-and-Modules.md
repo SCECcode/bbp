@@ -8,33 +8,32 @@ All simulations must include some description of the source and a process by whi
 
 * Rupture generation (RG): GP, UCSB, EXSIM, SONG, Irikura Recipe
 * Low-frequency (LF): GP, UCSB, EXSIM
-* High-frequency (HF): GP, UCSB, SDSU, EXSIM, Irikura Recipe
-* Site response (SR): GP
+* High-frequency (HF): GP, UCSB, SDSU, EXSIM, Irikura Recipe Method 2
+* Site response (SR): GP, PySeismoSoil
 
 ### Methods
 
 The BBP was originally designed to provide users with a wide flexibility on possible module (section above) combinations. However, the BBP evolved into suites of preferred module combinations, which we refer to as "methods". Currently, BBP users can compute simulations from any of 7 distinct methods (listed below with their associated modules). A brief summary of each method is provided in the PDFs linked below, which includes references pointing to more detailed publications:
 
-* [Graves & Pitarka (GP): uses RG, LF, and HF from GP](pdfs/BBP-GP-2019-04-02.pdf)
-* [SDSU: uses RG and LF from GP and HF from SDSU](pdfs/BBP-SDSU_2019-04-02.pdf)
-* [UCSB: uses RG, LF, and HF from UCSB](pdfs/BBP-UCSB-2019-04-09.pdf)
-* [EXSIM: uses RG, LF, and HF form EXSIM](pdfs/BBP-ExSIM-2019-04-09.pdf)
-* [SONG: used RG from SONG; LF and HF from GP](pdfs/BBP-Song-2019-04-03.pdf)
-* [Irikura Recipe Method 1: uses the RG from the Irikura Recipe; LF and HF from GP](pdfs/BBP-Irikura_Recipe_Method_1-2019-04-03.pdf)
-* [Irikura Recipe Method 2: uses the RG and HF from the Irikura Recipe; LF from GP](pdfs/BBP-Irikura_Recipe_Method_2-2019-04-11.pdf)
+* [Graves & Pitarka (GP): uses RG, LF, and HF from GP](pdfs/GP_method-20220216.pdf)
+* [SDSU: uses RG and LF from GP and HF from SDSU](pdfs/SDSU_release_2022.pdf)
+* [UCSB: uses RG, LF, and HF from UCSB](pdfs/UCSB_21.3_c.pdf)
+* [EXSIM: uses RG, LF, and HF form EXSIM](pdfs/EXSIM_20220309_V2.pdf)
+* [SONG: used RG from SONG; LF and HF from GP](pdfs/BBB-Song-2022-03-02.pdf)
+* [Irikura Recipe Method 1: uses the RG from the Irikura Recipe; LF and HF from GP](pdfs/Irikura_Recipe_Method_1.2022.pdf)
+* [Irikura Recipe Method 2: uses the RG and HF from the Irikura Recipe; LF from GP](pdfs/Irikura2_2022v4.pdf)
 * Composite Source Model (CSM - Under development)
 
-There is currently one site response module (GP) and it is used for all the methods above, whenever site response is selected by the user.
+There are currently two site response modules, GP and PySeismoSoil, which can be used by any of the simulation methods above, whenever site response is selected by the user.
 
 #### Post-processing Modules
 
-A spectral response post-processing module is automatically run after the seismogram synthesis and the optional site response module are completed. For validation simulations, where simulated seismograms are compared against recorded data, users may select an optional goodness-of-fit (GoF) utility module to run at the conclusion of the simulation. The Broadband Platform currently supports both the GP and SDSU GoF modules and the users can select to run one, or both (or none) of these modules. Additionally, in validation simulations, users may also select to calculate the following optional metrics:
+A spectral response post-processing module is automatically run after the seismogram synthesis and the optional site response module are completed. For validation simulations, where simulated seismograms are compared against recorded data, users may select an optional goodness-of-fit (GoF) utility module to run at the conclusion of the simulation. The Broadband Platform currently supports the GP, FAS, and SDSU GoF modules and the users can select to run one, two, all (or none) of these modules. Additionally, in validation simulations, users may also select to calculate the following optional metrics:
 
 * RZZ2015 Metrics
-* Fourier Amplitude Spectrum (FAS)
 * Afshari and Stewart 2016 GMPE
 * RotD100
 * Anderson GoF 2004
 
 ### Software License
-The Broadband Platform is open-source software that is made available under the terms of the Apache License, Version 2.0. A copy of the License is provided by the Apache Software Foundation (http://www.apache.org/licenses/LICENSE-2.0) and can also be found with the software in the 'LICENSE' file.
+The SCEC-developed portions of the Broadband platform software is distributed under the terms of the BSD 3-Clause open-source license. Please see the LICENSE.txt file for more information. Individual models codes may be offered under their own open-source software licenses, please look for a LICENSE.txt file under specific sub folders in the 'src' directory for module-specific license information.

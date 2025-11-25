@@ -1,4 +1,4 @@
-#define         NTMAX              10000
+#define         NTMAX              100000
 #define         SOMERVILLE_FLAG    1
 #define         MAI_FLAG           2
 #define         MINSLIP            1.0e-02
@@ -32,4 +32,4 @@
 
 #endif
 
-#define MAXLINE 2048
+#define	MAXLINE	8192

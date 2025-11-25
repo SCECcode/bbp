@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
@@ -287,8 +287,8 @@ def generate_xml(install, numsim, srcdir, xmldir,
         else:
             optfile.write('y\n') # We want more metrics
             optfile.write('y\n') # RZZ2015
-            optfile.write('y\n') # FAS
             optfile.write('y\n') # AS2016
+            optfile.write('y\n') # RotD100
             optfile.write('y\n') # AndersonGOF
         optfile.flush()
         optfile.close()
@@ -319,6 +319,8 @@ def generate_xml(install, numsim, srcdir, xmldir,
                         end_module = " -e SongRMGSS "
                 else:
                     end_module = " -e SongRMGSS "
+            elif codebase == "irikura1"or codebase == "irikura2":
+                end_module = " -e IrikuraGenSrf "
             elif codebase == "ucsb":
                 end_module = " -e UCrmg "
         else:
@@ -392,7 +394,7 @@ def write_slurm(install, numsim, simdir, xmldir, email,
     slurmfile.write("\n")
     slurmfile.write("cd $HOME\n")
     slurmfile.write("\n")
-    slurmfile.write("python $BBP_DIR/utils/batch/run_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh %s $SLURM_NODES %d\n" %
+    slurmfile.write("python3 $BBP_DIR/utils/batch/run_parallel.py $BBP_DIR/utils/batch/setup_bbp_env.sh %s $SLURM_NODES %d\n" %
                     (bfn, cores_per_node))
     slurmfile.write("\n")
     slurmfile.write('echo "Processing end"\n')

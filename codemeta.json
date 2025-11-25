@@ -1,0 +1,66 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@type": "SoftwareSourceCode",
+    "license": "https://spdx.org/licenses/BSD-3-Clause",
+    "codeRepository": "https://github.com/sceccode/bbp",
+    "dateCreated": "2022-09-08",
+    "datePublished": "2022-09-08",
+    "dateModified": "2022-09-08",
+    "downloadUrl": "https://github.com/sceccode/bbp.git",
+    "issueTracker": "https://github.com/sceccode/bbp/issues",
+    "name": "The SCEC Broadband Platform",
+    "version": "v22.4.0",
+    "description": "The Southern California Earthquake Center (SCEC) Broadband Platform (BBP) is a software system that can generate 0-20+ Hz seismograms for historical and scenario earthquakes in California, Eastern North America, and Japan using several alternative computational methods.",
+    "applicationCategory": "seismology, civil engineering",
+    "releaseNotes": "This is an initial port of the BBP platform to Python3.",
+    "developmentStatus": "active",
+    "isPartOf": "https://github.com/sceccode/bbp/wiki",
+    "referencePublication": "https://doi.org/10.1785/0220140125",
+    "keywords": [
+        "ground motion simulation",
+        "earthquake",
+        "seismic hazard"
+    ],
+    "programmingLanguage": [
+        "Python3",
+        "C",
+        "FORTRAN"
+    ],
+    "operatingSystem": [
+        "Linux"
+    ],
+    "softwareRequirements": [
+        "Python v3.6.7",
+        "Matplotlib 3.3.0+",
+        "NumPy 1.18.5+",
+        "SciPy 1.4.1+",
+        "Pyproj 2.6.1+",
+        "Numba 0.55.2+"
+        "GNU compilers (gcc, gfortran) 8+",
+        "FFTW library 3.3.8+"
+    ],
+    "author": [
+        {
+            "@type": "Person",
+            "@id": " http://orcid.org/0000-0002-6543-5705",
+            "givenName": "Fabio",
+            "familyName": "Silva",
+            "email": "fsilva@usc.edu",
+            "affiliation": {
+                "@type": "Organization",
+                "name": "Southern California Earthquake Center/University of Southern California"
+            }
+        },
+        {
+            "@type": "Person",
+            "@id": " http://orcid.org/0000-0002-9221-7068",
+            "givenName": "Philip",
+            "familyName": "Maechling",
+            "email": "maechlin@usc.edu",
+            "affiliation": {
+                "@type": "Organization",
+                "name": "Southern California Earthquake Center/University of Southern California"
+            }
+        }
+    ]
+}

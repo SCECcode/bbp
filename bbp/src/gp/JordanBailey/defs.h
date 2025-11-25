@@ -11,6 +11,7 @@
 #define   U1FLAG   1
 #define   U2FLAG   2
 #define   U3FLAG   3
+#define   MOMTEN_FLAG   4
 
 #define RDONLY_FLAGS    O_RDONLY
 #define RDWR_FLAGS      O_RDWR

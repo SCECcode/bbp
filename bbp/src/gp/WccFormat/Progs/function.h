@@ -1,3 +1,12 @@
+//double pointer to handle realloc                                            
+void wcc_resamp_arbdt(int param_string_len, char** param_string,
+		      float** s1, struct statdata* head1);
+void wcc_siteamp14(int param_string_len, char** param_string, float** s1, struct statdata* head1);
+float wcc_getpeak(int param_string_len, char** param_string, float* seis, struct statdata* head1);
+void wcc_tfilter (int param_string_len, char** param_string, float* s1, struct statdata* shead1);
+void wcc_add(int param_string_len, char** param_string, float* s1, struct statdata* shead1, float* s2, struct statdata* shead2, float* p, struct statdata* shead3);
+void integ_diff(int param_string_len, char** param_string, float* seis, struct statdata* shead);
+
 void *check_malloc(size_t);
 void *check_realloc(void *, size_t);
 float *read_wccseis(char *, struct statdata *, float *, int);
