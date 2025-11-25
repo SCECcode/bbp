@@ -288,7 +288,7 @@ class AriasDuration(object):
         bband_utils.mkdirs([a_tmpdir, a_outdir], print_cmd=False)
 
         slo = StationList(a_statfile)
-        site_list = slo.getStationList()
+        site_list = slo.get_station_list()
 
         for site in site_list:
             stat = site.scode
