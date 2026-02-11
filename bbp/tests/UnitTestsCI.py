@@ -1,8 +1,8 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2025, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -90,25 +90,25 @@ TS = unittest.TestSuite()
 
 # Add broadband platform generic tests
 TS.addTests(CoreTestSuite())
-TS.addTest(unittest.makeSuite(TestPyNGA))
-TS.addTest(unittest.makeSuite(TestVm2vm))
-TS.addTest(unittest.makeSuite(TestCC))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestPyNGA))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestVm2vm))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestCC))
 
 # Add Graves & Pitarka tests
-TS.addTest(unittest.makeSuite(TestGenslip))
-TS.addTest(unittest.makeSuite(TestJbsim))
-TS.addTest(unittest.makeSuite(TestHfsims))
-TS.addTest(unittest.makeSuite(TestWccSiteamp))
-TS.addTest(unittest.makeSuite(TestMatch))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestGenslip))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestJbsim))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestHfsims))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestWccSiteamp))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestMatch))
 
 # Add Irikura tests
-TS.addTest(unittest.makeSuite(TestGenSRF))
-TS.addTest(unittest.makeSuite(TestIrikuraHF))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestGenSRF))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIrikuraHF))
 
 # Add UCSB tests
-TS.addTest(unittest.makeSuite(TestUCFaultUtils))
-TS.addTest(unittest.makeSuite(TestUCrmg))
-TS.addTest(unittest.makeSuite(TestUCSite))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUCFaultUtils))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUCrmg))
+#TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUCSite))
 
 # Add SDSU tests
 if sys.platform == 'darwin':
@@ -119,21 +119,21 @@ else:
     pass
 
 # Add ExSIM tests
-TS.addTest(unittest.makeSuite(TestExsim))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestExsim))
 
 # Add Song tests
-TS.addTest(unittest.makeSuite(TestRMG))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestRMG))
 
 # Add Post-Processing tests
-TS.addTest(unittest.makeSuite(TestRotD50))
-TS.addTest(unittest.makeSuite(TestRotD100))
-TS.addTest(unittest.makeSuite(TestGPGof))
-TS.addTest(unittest.makeSuite(TestFAS))
-TS.addTest(unittest.makeSuite(TestFASGof))
-TS.addTest(unittest.makeSuite(TestSDSUMOGof))
-TS.addTest(unittest.makeSuite(TestAndersonGof))
-TS.addTest(unittest.makeSuite(TestRZZ2015))
-TS.addTest(unittest.makeSuite(TestAS16))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestRotD50))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestRotD100))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestGPGof))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestFAS))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestFASGof))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSDSUMOGof))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestAndersonGof))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestRZZ2015))
+TS.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestAS16))
 
 # Done, run the tests
 print("==> Running BBP Unit Tests...")

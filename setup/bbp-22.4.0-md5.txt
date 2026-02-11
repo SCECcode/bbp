@@ -2,7 +2,7 @@
 7a25730f409277021dfe61853f8ecadf  centralcal500-velocity-model-22.4.0.tar.gz
 6b2619c900027e235691d91a6ca6cd0c  centraljapan500-velocity-model-22.4.0.tar.gz
 0c8f469e7698e8d255790f9d3c64d7f1  chino-hills-validation-22.4.0.tar.gz
-402bcd60c633ce1aee832a4a4d9449ca  chuetsu-validation-22.4.0.tar.gz
+55eb541f471372104cef9e1a24dda912  chuetsu-validation-22.4.0.tar.gz
 52fe2eb5d0814a6e8225625591b55a2d  gmpe-verification-22.4.0.tar.gz
 74388d4565f5646b1867ed8f25a9fbb0  hector-mine-validation-22.4.0.tar.gz
 a3b3630f1275d318b9ff53372713150c  iwate-validation-22.4.0.tar.gz

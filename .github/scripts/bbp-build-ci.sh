@@ -61,7 +61,7 @@ echo "===================FFTW=================="
 mkdir -p ${FFTW_BUILD_DIR}
 OLD_DIR=`pwd`
 cd ${FFTW_BUILD_DIR}
-download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/fftw-3.3.8.tar.gz
+download_untar https://g-3a9041.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/fftw-3.3.8.tar.gz
 cd fftw-3.3.8
 ./configure --prefix=${FFTW_INSTALL_DIR}
 make
@@ -92,14 +92,14 @@ echo
 # Install LABasin500 (CI) region and NR validation packages
 echo "==> Installing LA Basin CI region..."
 cd ${BASEDIR}/bbp_gf
-download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/labasin500ci-velocity-model-${VERSION}.tar.gz
+download_untar https://g-3a9041.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/labasin500ci-velocity-model-${VERSION}.tar.gz
 echo
 ls ${BASEDIR}/bbp_gf
 echo
 
 echo "==> Installing NR validation package..."
 cd ${BASEDIR}/bbp_val
-download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/nr-validation-${VERSION}.tar.gz
+download_untar https://g-3a9041.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/nr-validation-${VERSION}.tar.gz
 echo
 ls ${BASEDIR}/bbp_val
 echo

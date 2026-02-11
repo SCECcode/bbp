@@ -3,7 +3,7 @@
 import os
 import itertools
 import numpy as np
-import pkg_resources
+import importlib.resources
 from scipy.interpolate import griddata
 
 from .class_frequency_spectrum import Frequency_Spectrum
@@ -41,11 +41,9 @@ class Site_Factors():
     #%%------------------------------------------------------------------------
     def __init__(self, Vs30_in_meter_per_sec, z1_in_m, PGA_in_g,
                  lenient=False):
-        self.dir_amplif = pkg_resources.resource_filename('PySeismoSoil',
-                                                          'data/amplification/')
-        self.dir_phase = pkg_resources.resource_filename('PySeismoSoil',
-                                                         'data/phase/')
-
+        base_pkg_dir = importlib.resources.files("PySeismoSoil")
+        self.dir_amplif = os.path.join(base_pkg_dir, 'data', 'amplification')
+        self.dir_phase = os.path.join(base_pkg_dir, 'data', 'phase')
         status = Site_Factors._range_check(Vs30_in_meter_per_sec, z1_in_m,
                                            PGA_in_g)
         if 'Vs30 out of range' in status:

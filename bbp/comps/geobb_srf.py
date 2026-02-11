@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -376,7 +376,7 @@ class GeoBBSRF(object):
             lon = float(tokens[0])
             lat = float(tokens[1])
             [x_cart, y_cart] = self.geo2cart(lon, lat, self.min_lon, self.min_lat)
-            tmp = T3M * np.mat([x_cart, y_cart, 0, 1]).transpose()
+            tmp = T3M * np.asmatrix([x_cart, y_cart, 0, 1]).transpose()
             tokens[0] = str(float(tmp[0]))
             tokens[1] = str(float(tmp[1]))
             outfile.write(" %s\n" % "   ".join(tokens))
@@ -411,7 +411,7 @@ class GeoBBSRF(object):
                 lat = float(tokens[1])
                 [x_cart, y_cart] = self.geo2cart(lon, lat,
                                                  self.min_lon, self.min_lat)
-                tmp = T3M * np.mat([x_cart, y_cart, 0, 1]).transpose()
+                tmp = T3M * np.asmatrix([x_cart, y_cart, 0, 1]).transpose()
                 tokens[0] = str(float(tmp[0]))
                 tokens[1] = str(float(tmp[1]))
                 outfile.write(" %s\n" % "   ".join(tokens))
@@ -540,9 +540,9 @@ class GeoBBSRF(object):
 
         # % matrix to translate to new minimum values (minimum is [0 0])
         T3 = self.translation_matrix([-x_min, -y_min, 0])
-        T3M = np.mat(T3)
+        T3M = np.asmatrix(T3)
         # % shift opposite corner in x-y
-        tmp = T3M * np.mat([x_max, y_max, 0, 1]).transpose()
+        tmp = T3M * np.asmatrix([x_max, y_max, 0, 1]).transpose()
         bbextent = [float(tmp[0]), float(tmp[1])]
 
         # Write station coord_out file
@@ -551,13 +551,13 @@ class GeoBBSRF(object):
 
         sfile = open(coord_out_file, 'w')
         for i in range(0, n_stat):
-            tmp = T3M * np.mat([x_stat[i], y_stat[i], 0, 1]).transpose()
+            tmp = T3M * np.asmatrix([x_stat[i], y_stat[i], 0, 1]).transpose()
             BBx_stat.append(float(tmp[0]))
             BBy_stat.append(float(tmp[1]))
             sfile.write("%8.4f\t%8.4f\n" % (BBx_stat[i], BBy_stat[i]))
         sfile.close()
 
-        tmp = T3M * np.mat([hypo_x_cart, hypo_y_cart, 0, 1]).transpose()
+        tmp = T3M * np.asmatrix([hypo_x_cart, hypo_y_cart, 0, 1]).transpose()
         BBx_hypo = float(tmp[0])
         BBy_hypo = float(tmp[1])
 
@@ -574,14 +574,14 @@ class GeoBBSRF(object):
 
             # < put the 'where' point at the axis origin >
             T1 = self.translation_matrix([-corn_x, -corn_y, 0])
-            T1M = np.mat(T1)
+            T1M = np.asmatrix(T1)
 
             # < align the fault plane to the north axis >
             c = np.cos(np.pi / 180 * self.f_strike[0])
             s = np.sin(np.pi / 180 * self.f_strike[0])
             T2 = np.array([[c, -s, 0, 0], [s, c, 0, 0],
                            [0, 0, 1, 0], [0, 0, 0, 1]])
-            T2M = np.mat(T2)
+            T2M = np.asmatrix(T2)
 
             # inverse matrixes for inverse transform
             T1M_inv = np.linalg.inv(T1M)
@@ -608,7 +608,7 @@ class GeoBBSRF(object):
                                   math.sin(math.radians(self.f_dip[plane])) +
                                   j * math.sin(math.radians(self.f_dip[plane])))
                         tmp = (T1M_inv * T2M_inv *
-                               np.mat([x_term, y_term, 0, 1]).transpose())
+                               np.asmatrix([x_term, y_term, 0, 1]).transpose())
                         sub_coord[j].append([float(tmp[0]),
                                              float(tmp[1]),
                                              z_term])

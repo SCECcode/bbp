@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,6 +40,12 @@ from __future__ import division, print_function
 # G2CMSS = 980.665 # Convert g to cm/s/s
 import math
 import scipy.integrate
+
+# Compatible with SciPy 1.4
+try:
+    cumulative_trapezoid = scipy.integrate.cumulative_trapezoid
+except AttributeError:
+    cumulative_trapezoid = scipy.integrate.cumtrapz
 
 # Converting to cm units. Use approximation to g
 G_TO_CMS = 981.0 # %(cm/s)
@@ -97,9 +104,9 @@ def ad_from_acc(a_in_peer_file, a_out_ad):
     # Integrate and calculate vel and disp arrays
     #
     acc_cms = [value * G_TO_CMS for value in acc]
-    velo = list(dt * scipy.integrate.cumtrapz(acc_cms))
+    velo = list(dt * cumulative_trapezoid(acc_cms))
     velo.insert(0, 0)
-    disp = list(dt * scipy.integrate.cumtrapz(velo))
+    disp = list(dt * cumulative_trapezoid(velo))
     disp.insert(0, 0)
 
     #
@@ -138,7 +145,7 @@ def ad_from_acc(a_in_peer_file, a_out_ad):
     # Arias Intensities
     # Using the trapezoidal integration
     arias_intensity = [pow((value * G_TO_CMS), 2) for value in acc]
-    tsum = list(scipy.integrate.cumtrapz(arias_intensity) * dt)
+    tsum = list(cumulative_trapezoid(arias_intensity) * dt)
     tsum.insert(0, 0)
 
     arias_intensity = [num * math.pi / (2 * G_TO_CMS) for num in tsum]

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -479,7 +479,7 @@ class SDSUMOGoF(object):
                                  self.config.cfggof["file"]["pga"])
             PGA_val = np.array(self.get_gof_metric(fname, start_col=0))
             self.site_fit = (self.site_fit +
-                             (PGA_val * np.float(self.config.cfggof["weights"]["pga"])))
+                             (PGA_val * float(self.config.cfggof["weights"]["pga"])))
             self.metric_count += 1
             if self.format == 'A':
                 self.plotOverlays(self.input_set_1, self.input_set_2, PGA_val)

@@ -1,5 +1,5 @@
-F90     = gfortran -O3
-F77     = gfortran -O3
+F90     = gfortran -O3 -fallow-argument-mismatch
+F77     = gfortran -O3 -fallow-argument-mismatch
 
 OBJ	      = ffsp_tool.o \
 		ffsp_comm.o \
