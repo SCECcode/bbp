@@ -4,7 +4,7 @@
 #
 # BSD 3-Clause License
 #
-# Copyright (c) 2021, University of Southern California
+# Copyright (c) 2026, University of Southern California
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 VERSION=22.4.0
 
 # Set base URL for downloads
-BASEURL=https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}
+BASEURL=https://g-3a9041.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}
 
 die () {
     echo >&2 "$@"
@@ -164,7 +164,7 @@ echo
 OLD_DIR=`pwd`
 cd ${FFTW_BUILD_DIR}
 FFTW_BUILD_LOG="${FFTW_BUILD_DIR}/fftw-build.log"
-download_untar https://g-c662a6.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/fftw-3.3.8.tar.gz ${MD5FILE}
+download_untar https://g-3a9041.a78b8.36fe.data.globus.org/bbp/releases/${VERSION}/fftw-3.3.8.tar.gz ${MD5FILE}
 cd fftw-3.3.8
 echo "===> Building single-precision library..."
 ./configure --prefix=${FFTW_INSTALL_DIR} > ${FFTW_BUILD_LOG} 2>&1
