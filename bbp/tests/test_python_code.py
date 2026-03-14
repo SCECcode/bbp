@@ -52,29 +52,29 @@ class TestPythonCode(unittest.TestCase):
         Run Broadband Plotform to make sure we can start it
         """
         self.install = InstallCfg()
-        cmd = ("python3 %s -v >/dev/null" %
-               (os.path.join(self.install.A_COMP_DIR,
-                             "run_bbp.py")))
+        cmd = ("%s %s -v >/dev/null" %
+               (sys.executable, os.path.join(self.install.A_COMP_DIR,
+                                             "run_bbp.py")))
         self.assertFalse(bband_utils.runprog(cmd, False) != 0,
                          "Cannot start Broadband plotform!")
 
     def test_python_code_comps(self):
         """
-        Run Python with -tt flag to detect mix of tabs and spaces in the code
+        Run Python compileall to detect mix of tabs and spaces in the code
         """
         self.install = InstallCfg()
-        cmd = ("python3 -tt -m compileall -f -q -l %s" %
-               (self.install.A_COMP_DIR))
+        cmd = ("%s -m compileall -f -q -l %s" %
+               (sys.executable, self.install.A_COMP_DIR))
         self.assertFalse(bband_utils.runprog(cmd, False) != 0,
                          "Python code in comps directory mixes tabs and spaces!")
 
     def test_python_code_tests(self):
         """
-        Run Python with -tt flag to detect mix of tabs and spaces in the code
+        Run Python compileall to detect mix of tabs and spaces in the code
         """
         self.install = InstallCfg()
-        cmd = ("python -tt -m compileall -f -q -l %s" %
-               (self.install.A_TEST_DIR))
+        cmd = ("%s -m compileall -f -q -l %s" %
+               (sys.executable, self.install.A_TEST_DIR))
         self.assertFalse(bband_utils.runprog(cmd, False) != 0,
                          "Python code in test directory mixes tabs and spaces!")
 
