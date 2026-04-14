@@ -89,6 +89,8 @@ if I don't answer the e-mail (our computers are in a state of flux).   */
 #include    <math.h>
 #include    <fcntl.h>
 #include    <string.h>
+#include    <stdlib.h>
+#include    <unistd.h>
 
 #define PI 3.141592654
 #define SQR2 1.414213562
@@ -202,8 +204,8 @@ void raytracing_(hypo,grid,step,PS_flag)
 		/*timefile[80],	 file in which travel times appear at the end */
                 wallfile[80];   /* file containing input wall values of traveltimes */
 
-        char  *velfile=malloc(11);
-        char  *timefile=malloc(12);
+        char  *velfile=malloc(80);
+        char  *timefile=malloc(80);
         FILE  *vfint, *tfint;
 
 	/* ARRAY TO ORDER SIDE FOR SOLUTION IN THE RIGHT ORDER */
@@ -1701,7 +1703,7 @@ void raytracing_(hypo,grid,step,PS_flag)
 
 /* -------------------------------------------------------------------------- */
 
-compar(a,b)
+int compar(a,b)
 struct sorted *a, *b;
 {
 	if(a->time > b->time) return(1);
