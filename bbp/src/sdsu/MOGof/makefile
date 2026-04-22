@@ -1,8 +1,8 @@
 FC=gfortran
 #FC=ifort
 
-PCOMP = ${FC} -O3 -o
-OCOMP = ${FC} -O3 -c -o
+PCOMP = ${FC} -O3 -fallow-argument-mismatch -o
+OCOMP = ${FC} -O3 -fallow-argument-mismatch -c -o
 
 OBJECTS = FileRead.o IntDiffFFT.o SpecResp.o InElastic.o BWfilt.o
 
