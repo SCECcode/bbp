@@ -4,7 +4,7 @@ on: push
 
 jobs:
   bbp-build-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [ "3.7", "3.8", "3.9", "3.10" ]
@@ -18,8 +18,8 @@ jobs:
     - name: configure Python
       run: |
         sudo apt-get update
-        sudo apt-get install g++-8 -y
-        sudo apt-get install gfortran-8 -y
+        sudo apt-get install g++ -y
+        sudo apt-get install gfortran -y
         pip install numpy
         pip install scipy
         pip install matplotlib
