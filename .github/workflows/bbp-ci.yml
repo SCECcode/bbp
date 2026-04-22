@@ -12,7 +12,7 @@ jobs:
     - name: set BBP_DIR
       run: echo "BBP_BASE_DIR=$RUNNER_WORKSPACE/bbp" >> $GITHUB_ENV
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: configure Python
@@ -26,7 +26,7 @@ jobs:
         pip install pyproj
         pip install numba
     - name: checkout Broadband Platform
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: build bbp
       run: ./.github/scripts/bbp-build-ci.sh
       shell: bash
