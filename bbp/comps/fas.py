@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -491,7 +491,7 @@ def plot_fas_comparison(station, sim_file, data_file, label1, label2,
     pylab.ylabel("Fourier Amplitude")
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
     #pylab.grid(b=True, which='minor', linewidth=0.5, color='gray')
     if lfreq is not None:
         pylab.vlines(lfreq, 0.001, 1000,
@@ -514,7 +514,7 @@ def plot_fas_comparison(station, sim_file, data_file, label1, label2,
     pylab.ylabel("Fourier Amplitude")
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
     if lfreq is not None:
         pylab.vlines(lfreq, 0.001, 1000,
                      color='violet', linestyles='--')
@@ -536,7 +536,7 @@ def plot_fas_comparison(station, sim_file, data_file, label1, label2,
     pylab.ylabel("Fourier Amplitude")
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
     if lfreq is not None:
         pylab.vlines(lfreq, 0.001, 1000,
                      color='violet', linestyles='--')
@@ -574,8 +574,8 @@ def plot_fas(freqs, ns_data, ew_data, eas_smoothed_data,
     pylab.xlabel('Frequency (Hz)')
     pylab.axis([0.01, 100, 0.001, 1000])
     pylab.grid(True)
-    pylab.grid(b=True, which='major', linestyle='-', color='lightgray')
-    pylab.grid(b=True, which='minor', linewidth=0.5, color='gray')
+    pylab.grid(which='major', linestyle='-', color='lightgray')
+    pylab.grid(which='minor', linewidth=0.5, color='gray')
 
     # Save plot
     pylab.savefig(fas_plot, format="png",

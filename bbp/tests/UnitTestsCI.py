@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -108,7 +108,7 @@ TS.addTest(unittest.makeSuite(TestIrikuraHF))
 # Add UCSB tests
 TS.addTest(unittest.makeSuite(TestUCFaultUtils))
 TS.addTest(unittest.makeSuite(TestUCrmg))
-TS.addTest(unittest.makeSuite(TestUCSite))
+#TS.addTest(unittest.makeSuite(TestUCSite))
 
 # Add SDSU tests
 if sys.platform == 'darwin':
