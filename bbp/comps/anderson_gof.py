@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,16 @@ from pylab import arange
 from scipy import integrate
 from scipy import signal, stats
 from scipy.signal import butter, filtfilt
+
+# Compatible with SciPy 1.4
+try:
+    cumulative_trapezoid = integrate.cumulative_trapezoid
+except AttributeError:
+    cumulative_trapezoid = integrate.cumtrapz
+try:
+    simpson = integrate.simpson
+except AttributeError:
+    simpson = integrate.simps
 
 # Import BBP modules
 import bband_utils
@@ -135,15 +145,15 @@ class AndersonGOF(object):
 
     @staticmethod
     def integral(x, idt):
-        return integrate.simps(x, x=None, dx=idt)
+        return simpson(x, x=None, dx=idt)
 
     @staticmethod
     def integral2(x, idt):
-        return integrate.simps(x * x, x=None, dx=idt)
+        return simpson(x * x, x=None, dx=idt)
 
     @staticmethod
     def integ(array_in, idt):
-        return integrate.cumtrapz(array_in, dx=idt)
+        return cumulative_trapezoid(array_in, dx=idt)
 
     @staticmethod
     def shift_bit_length(x):
