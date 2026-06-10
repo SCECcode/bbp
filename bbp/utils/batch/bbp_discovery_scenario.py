@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2021, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -681,7 +681,7 @@ def main():
     # Make sure station list exists and is readable
     if (not os.path.isfile(station_list) or
         not os.access(station_list, os.R_OK)):
-        print("Station list foes not seem to be accessible!")
+        print("Station list does not seem to be accessible!")
         sys.exit(1)
 
     # Check for the simulation directory
