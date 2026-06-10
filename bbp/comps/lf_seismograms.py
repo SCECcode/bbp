@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2023, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -118,10 +118,14 @@ class LFSeismograms(object):
                 fp_in = open(a_input_file, 'r')
                 fp_out = open(a_output_file, 'w')
                 for line in fp_in:
+                    line = line.strip()
+                    # Skip empty lines
+                    if not line:
+                        continue
                     pieces = line.split()
                     try:
                         if pieces[0] == '#' or pieces[0] == '%':
-                            fp_out.write(line)
+                            fp_out.write("%s\n" % (line))
                         elif float(pieces[0]) < -0.0001:
                             continue
                         elif float(pieces[0]) < 0.0001:
@@ -129,9 +133,9 @@ class LFSeismograms(object):
                                                                 pieces[2],
                                                                 pieces[3]))
                         else:
-                            fp_out.write(line)
+                            fp_out.write("%s\n" % (line))
                     except ValueError:
-                        fp_out.write(line)
+                        fp_out.write("%s\n" % (line))
                 fp_in.close()
                 fp_out.flush()
                 fp_out.close()
