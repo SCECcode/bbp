@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2025, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -200,7 +200,7 @@ def generate_xml(install, numsim, srcdir, xmldir,
                  skip_rupgen, srf_prefix, only_rup,
                  gmpe_group_name, allmetrics,
                  site_response, multiseg, segment,
-                 source_file, fasgof):
+                 source_file, fasgof, station_list=None):
     """
     Generates xml files in the xmldir for numsim simulations whose
     source files are in the srcdir using the validation event and
@@ -252,7 +252,13 @@ def generate_xml(install, numsim, srcdir, xmldir,
                 optfile.write('n\n') # Skip rupture generator
             else:
                 optfile.write('y\n') # Run rupture generator
-        optfile.write('1\n') # All validation stations
+        if station_list is None:
+            optfile.write('1\n') # All validation stations
+        else:
+            # Use provided station list instead
+            optfile.write('2\n') # Custom list
+            optfile.write('2\n') # Enter path to station file
+            optfile.write('%s\n' % (station_list)) # STL file
         if skip_rupgen:
             # We should provide SRF file
             optfile.write('2\n') # Enter path to src/srf file
@@ -390,6 +396,14 @@ def main():
                       help="Use a site response module: %s" % (SITE_MODULES))
     parser.add_option("--fas", action="store_true", dest="fasgof",
                       help="Run both FAS and PSA validations")
+    parser.add_option("--src", "--source", type="string", action="store",
+                      dest="source",
+                      help="Use this source description file instead of the one "
+                      "provided in the validation package")
+    parser.add_option("--stl", "--station-list", type="string", action="store",
+                      dest="station_list",
+                      help="Use this station list file instead of the one "
+                      "provided in the validation package")
 
     (options, args) = parser.parse_args()
 
@@ -499,12 +513,27 @@ def main():
     else:
         hypo_rand = False
 
-    try:
-        source_file = val_obj.get_input(codebase, "source")
-    except KeyError:
-        print("Unable to get source file for event %s, codebase %s!" %
-              (event, codebase))
-        sys.exit(1)
+    # Check if user provided a custom SRC file for this run
+    source_file = options.source
+    if source_file is not None:
+        # Got a file from the user, parse the input
+
+        # First, we make a list
+        pieces = source_file.split(",")
+        pieces = [piece.strip() for piece in pieces]
+
+        # Check if single file or list of files
+        if len(pieces) == 1:
+            source_file = pieces[0]
+        else:
+            source_file = pieces
+    else:
+        try:
+            source_file = val_obj.get_input(codebase, "source")
+        except KeyError:
+            print("Unable to get source file for event %s, codebase %s!" %
+                  (event, codebase))
+            sys.exit(1)
     if not source_file:
         print("Source file for event %s, codebase %s not specified!" %
               (event, codebase))
@@ -587,6 +616,18 @@ def main():
         gmpe_group_index = gmpe_groups_available_lc.index(gmpe_group_name.lower())
         gmpe_group_name = gmpe_groups_available[gmpe_group_index]
 
+    # Check for user-provided station list
+    station_list = options.station_list
+    if station_list is not None:
+        # Custom station list provided by the user
+        # Make it a full path
+        station_list = os.path.realpath(station_list)
+        # Make sure station list exists and is readable
+        if (not os.path.isfile(station_list) or
+            not os.access(station_list, os.R_OK)):
+            print("Station list does not seem to be accessible!")
+            sys.exit(1)
+
     # Make sure user has configured the setup_bbp_env.sh script
     setup_bbp_env = os.path.join(bbp_install.A_INSTALL_ROOT,
                                  "utils/batch/setup_bbp_env.sh")
@@ -622,7 +663,8 @@ def main():
                  logsdir, event, codebase, prefix,
                  skip_rupgen, srf_prefix, only_rup,
                  gmpe_group_name, allmetrics, site_response,
-                 multiseg, segment, source_file, fasgof)
+                 multiseg, segment, source_file, fasgof,
+                 station_list)
 
     # Write .info file
     info_file = open(os.path.join(simdir, "%s.info" % (prefix)), 'w')
