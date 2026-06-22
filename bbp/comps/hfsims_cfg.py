@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 BSD 3-Clause License
 
-Copyright (c) 2022, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -130,6 +130,9 @@ class HfsimsCfg(object):
 
         # Extra parameter used by hfsims V6.0.5
         self.SPAR_EXP = 0.5
+
+        # Extra parameter used by srf2stoch from 2025-12-11
+        self.TINIT_SLIP_WEIGHT = 1
 
 if __name__ == "__main__":
     print("Test Config Class: %s" % (__file__))

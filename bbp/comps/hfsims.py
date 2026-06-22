@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2024, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,7 @@ class Hfsims(object):
         self.rvsig = None
         self.c_zero = None
         self.use_mrf = use_mrf
+        self.tinit_slip_weight = None
 
         # Switch to MRF file if requested
         if self.use_mrf:
@@ -213,6 +214,9 @@ class Hfsims(object):
         else:
             self.c_zero = config.C_ZERO
 
+        # Set up tinit_slip_weight
+        self.tinit_slip_weight = config.TINIT_SLIP_WEIGHT
+
         # Calculate rvfac
         if "common_seed" in config.CFGDICT:
             rvfac = calculate_rvfac(self.mean_rvfac, self.range_rvfac,
@@ -245,6 +249,8 @@ class Hfsims(object):
 
         progstring = ("%s " %
                       (os.path.join(install.A_GP_BIN_DIR, "srf2stoch")) +
+                      "tinit_slip_weight=%d " %
+                      (self.tinit_slip_weight) +
                       "infile=%s outfile=%s " %
                       (a_srffile, a_slipfile) +
                       "target_dx=%f target_dy=%f " %

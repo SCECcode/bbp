@@ -55,7 +55,7 @@ void get_moment_rate(struct standrupformat *,struct velmodel *,int);
 void read_velmodel(char *,struct velmodel *); 
 
 void sum_srf(struct standrupformat *,struct standrupformat *,struct standrupformat *,float *);
-void join_srf(struct standrupformat *,struct standrupformat *,struct standrupformat *);
+void join_srf(struct standrupformat *srf0,struct standrupformat *srf1,struct standrupformat *srf2,int pflag,int ac,char **av);
 void select_depths_srf(struct standrupformat *,struct standrupformat *,float *,float *);
 void scale_srf(struct standrupformat *,struct standrupformat *,float *);
 

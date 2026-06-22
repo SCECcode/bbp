@@ -1424,7 +1424,7 @@ for(i=0;i<srf2[0].srf_apnts.np;i++)
    }
 }
 
-void join_srf(struct standrupformat *srf0,struct standrupformat *srf1,struct standrupformat *srf2)
+void join_srf(struct standrupformat *srf0,struct standrupformat *srf1,struct standrupformat *srf2,int pflag,int ac,char **av)
 {
 struct standrupformat *srfp_in;
 struct srf_prectsegments *prseg_in, *prseg_out;
@@ -1576,6 +1576,9 @@ else if(atof(srf2->version) >= 2.0)
       sptr_out = srf2[0].srf_hcmnt.cbuf + i*MAXLINE;
       strcpy(sptr_out,sptr_in);
       }
+
+if(pflag)
+   load_command_srf(srf2,ac,av);
 
    srf2[0].type[0] = '\0';
    if(strncmp(srf0[0].type,"PLANE",5) == 0 && strncmp(srf1[0].type,"PLANE",5) == 0)
@@ -3809,4 +3812,470 @@ free(s_stfD);
 fprintf(stderr,"slip moment= %.5e\n",s_mom);
 fprintf(stderr,"MT moment (fine grid)= %.5e\n",m_mom_f);
 fprintf(stderr,"MT moment (coarse grid)= %.5e\n",m_mom_c);
+}
+
+void srf_XXXdwnsamp(struct standrupformat *srf_in,struct standrupformat *srf_out,int ncrs_stk,int ncrs_dip,int stk_off,int dip_off,int pflag,int ac,char **av)
+{
+struct srf_prectsegments *prseg_in, *prseg_out;
+struct srf_apointvalues *apval_in, *apval_out;
+
+int it, ig, ip_in, ip_out, ix, iy, ixp, iyp;
+int ntot_in, ntot_out, *nstk_out, *ndip_out, *nstk_in, *ndip_in;
+int ix0, ixend, ixs, iy0, iyend, iys, nts, ips, nf;
+int id, it0, it_out;
+
+float *stfp_i, *stfp_o;
+float tmin, tmax1, tmax2, tmax3, tend, sfac;
+float vp_avg, vs_avg, den_avg, stk_avg, dip_avg, rak_avg, slip1_avg, slip2_avg, slip3_avg;
+float xx, yy;
+
+double dperr, stk1, stk2, dip1, dip2, rak1, rak2;
+double rperd = 0.017453292519943;
+
+double u1, u2, u3, mu, s_mom_f, s_mom_c;
+
+if(atof(srf_in[0].version) < 2.0)
+   {
+   fprintf(stderr,"srf version= %s < 2.0, exiting ... \n",srf_in[0].version);
+   exit(-1);
+   }
+
+dperr = 1.0/rperd;
+
+s_mom_f = 0.0;
+s_mom_c = 0.0;
+
+strcpy(srf_out[0].version,srf_in[0].version);
+sprintf(srf_out[0].src_format,"SLIP");
+
+copy_hcmnt(srf_out,srf_in);
+
+if(pflag && atof(srf_out[0].version) >= 2.0)
+   load_command_srf(srf_out,ac,av);
+
+srf_out[0].type[0] = '\0';
+if(strncmp(srf_in[0].type,"PLANE",5) == 0)
+   {
+   strcpy(srf_out[0].type,srf_in[0].type);
+
+   srf_out[0].srf_prect.nseg = srf_in[0].srf_prect.nseg;
+   srf_out[0].srf_prect.prectseg = (struct srf_prectsegments *)check_malloc(srf_out[0].srf_prect.nseg*sizeof(struct srf_prectsegments));
+
+   prseg_in = srf_in[0].srf_prect.prectseg;
+   prseg_out = srf_out[0].srf_prect.prectseg;
+
+   nstk_in = (int *)check_malloc((srf_in[0].srf_prect.nseg)*sizeof(int));
+   ndip_in = (int *)check_malloc((srf_in[0].srf_prect.nseg)*sizeof(int));
+   nstk_out = (int *)check_malloc((srf_out[0].srf_prect.nseg)*sizeof(int));
+   ndip_out = (int *)check_malloc((srf_out[0].srf_prect.nseg)*sizeof(int));
+
+   for(ig=0;ig<srf_out[0].srf_prect.nseg;ig++)
+      {
+      prseg_out[ig].elon = prseg_in[ig].elon;
+      prseg_out[ig].elat = prseg_in[ig].elat;
+
+      prseg_out[ig].nstk = (int)(1.0*prseg_in[ig].nstk/ncrs_stk + 0.5);
+      while(prseg_out[ig].nstk*ncrs_stk > prseg_in[ig].nstk)
+         prseg_out[ig].nstk--;
+
+      prseg_out[ig].ndip = (int)(1.0*prseg_in[ig].ndip/ncrs_dip + 0.5);
+      while(prseg_out[ig].ndip*ncrs_dip > prseg_in[ig].ndip)
+         prseg_out[ig].ndip--;
+
+      prseg_out[ig].flen = prseg_out[ig].nstk*ncrs_stk*(prseg_in[ig].flen/prseg_in[ig].nstk);;
+      prseg_out[ig].fwid = prseg_out[ig].ndip*ncrs_dip*(prseg_in[ig].fwid/prseg_in[ig].ndip);;
+
+      prseg_out[ig].stk = prseg_in[ig].stk;
+      prseg_out[ig].dip = prseg_in[ig].dip;
+      prseg_out[ig].dtop = prseg_in[ig].dtop;
+      prseg_out[ig].shyp = prseg_in[ig].shyp;
+      prseg_out[ig].dhyp = prseg_in[ig].dhyp;
+
+      nstk_in[ig] = prseg_in[ig].nstk;
+      ndip_in[ig] = prseg_in[ig].ndip;
+      nstk_out[ig] = prseg_out[ig].nstk;
+      ndip_out[ig] = prseg_out[ig].ndip;
+      }
+   }
+
+srf_out[0].nseg = srf_in[0].nseg;
+srf_out[0].np_seg = (int *)check_malloc((srf_out[0].nseg)*sizeof(int));
+
+srf_out[0].srf_apnts.np = 0;
+for(ig=0;ig<srf_out[0].nseg;ig++)
+   {
+   srf_out[0].np_seg[ig] = nstk_out[ig]*ndip_out[ig];
+   srf_out[0].srf_apnts.np = srf_out[0].srf_apnts.np + srf_out[0].np_seg[ig];
+   }
+
+srf_out[0].srf_apnts.apntvals = (struct srf_apointvalues *)check_malloc((srf_out[0].srf_apnts.np)*sizeof(struct srf_apointvalues));
+
+apval_in = srf_in[0].srf_apnts.apntvals;
+apval_out = srf_out[0].srf_apnts.apntvals;
+
+ntot_in = 0;
+ntot_out = 0;
+for(ig=0;ig<srf_out[0].nseg;ig++)
+   {
+   for(iy=0;iy<ndip_out[ig];iy++)
+      {
+      iyp = iy*ncrs_dip + dip_off;
+      for(ix=0;ix<nstk_out[ig];ix++)
+         {
+         ixp = ix*ncrs_stk + stk_off;
+
+         ip_in = ixp + iyp*nstk_in[ig] + ntot_in;
+         ip_out = ix + iy*nstk_out[ig] + ntot_out;
+
+/* use center point values for following parameters */
+
+         apval_out[ip_out].lon = apval_in[ip_in].lon;
+         apval_out[ip_out].lat = apval_in[ip_in].lat;
+         apval_out[ip_out].dep = apval_in[ip_in].dep;
+         apval_out[ip_out].area = apval_in[ip_in].area*(ncrs_stk*ncrs_dip);
+         apval_out[ip_out].dt = apval_in[ip_in].dt;
+
+/* determine starting indicies of input points */
+
+         ix0 = ixp - (ncrs_stk-1)/2;
+	 ixend = ix0 + ncrs_stk;
+	 if(ix0 < 0)
+	    ix0 = 0;
+
+         iy0 = iyp - (ncrs_dip-1)/2;
+	 iyend = iy0 + ncrs_dip;
+	 if(iy0 < 0)
+	    iy0 = 0;
+
+/* determine avg. values, minimum tinit and total nt needed for this group of input points */
+
+/*
+fprintf(stderr,"ix0= %d ixend= %d iy0= %d iyend= %d\n",ix0,ixend,iy0,iyend);
+*/
+
+	 nf = 0;
+	 vp_avg = 0.0;
+	 vs_avg = 0.0;
+	 den_avg = 0.0;
+
+	 stk_avg = 0.0;
+	 dip_avg = 0.0;
+	 rak_avg = 0.0;
+
+	 stk1 = 0.0;
+	 stk2 = 0.0;
+	 dip1 = 0.0;
+	 dip2 = 0.0;
+	 rak1 = 0.0;
+	 rak2 = 0.0;
+
+	 slip1_avg = 0.0;
+	 slip2_avg = 0.0;
+	 slip3_avg = 0.0;
+
+	 tmin = 1.0e+15;
+	 tmax1 = -1.0e+15;
+	 tmax2 = -1.0e+15;
+	 tmax3 = -1.0e+15;
+         for(iys=iy0;iys<iyend;iys++)
+            {
+            for(ixs=ix0;ixs<ixend;ixs++)
+               {
+               ips = ixs + iys*nstk_in[ig] + ntot_in;
+
+	       nf++;
+         
+	       vp_avg = vp_avg + apval_in[ips].vp;
+	       vs_avg = vs_avg + apval_in[ips].vs;
+	       den_avg = den_avg + apval_in[ips].den;
+
+	       stk_avg = stk_avg + apval_in[ips].stk;
+	       dip_avg = dip_avg + apval_in[ips].dip;
+	       rak_avg = rak_avg + apval_in[ips].rake;
+
+	       stk1 = stk1 + cos(rperd*apval_in[ips].stk);
+	       stk2 = stk2 + sin(rperd*apval_in[ips].stk);
+	       dip1 = dip1 + cos(rperd*apval_in[ips].dip);
+	       dip2 = dip2 + sin(rperd*apval_in[ips].dip);
+	       rak1 = rak1 + cos(rperd*apval_in[ips].rake);
+	       rak2 = rak2 + sin(rperd*apval_in[ips].rake);
+
+	       slip1_avg = slip1_avg + apval_in[ips].slip1;
+	       slip2_avg = slip2_avg + apval_in[ips].slip2;
+	       slip3_avg = slip3_avg + apval_in[ips].slip3;
+
+	       if(apval_in[ips].tinit < tmin)
+	          tmin = apval_in[ips].tinit;
+         
+               if(apval_in[ips].nt1 > 0)
+	          {
+	          tend = apval_in[ips].tinit + apval_in[ips].nt1*apval_in[ips].dt;
+	          if(tend > tmax1)
+	             tmax1 = tend;
+		  }
+         
+               if(apval_in[ips].nt2 > 0)
+	          {
+	          tend = apval_in[ips].tinit + apval_in[ips].nt2*apval_in[ips].dt;
+	          if(tend > tmax2)
+	             tmax2 = tend;
+		  }
+         
+               if(apval_in[ips].nt3 > 0)
+	          {
+	          tend = apval_in[ips].tinit + apval_in[ips].nt3*apval_in[ips].dt;
+	          if(tend > tmax3)
+	             tmax3 = tend;
+		  }
+   /*
+if(ip_out == 100452)
+   fprintf(stderr,"%10.4f",apval_in[ips].tinit);
+   fprintf(stderr,"%10.4f",apval_in[ips].dt*apval_in[ips].nt1);
+   fprintf(stderr,"%10.4f",apval_in[ips].slip1);
+   */
+	       }
+/*
+if(ip_out == 100452)
+   fprintf(stderr,"\n");
+   */
+            }
+
+         sfac = 1.0/(1.0*nf);
+
+         apval_out[ip_out].vp = vp_avg*sfac;
+         apval_out[ip_out].vs = vs_avg*sfac;
+         apval_out[ip_out].den = den_avg*sfac;
+
+/* XXXX problem with unwrapping angles 
+         apval_out[ip_out].stk = stk_avg*sfac;
+         apval_out[ip_out].dip = dip_avg*sfac;
+         apval_out[ip_out].rake = rak_avg*sfac;
+*/
+/* just use center point values
+         apval_out[ip_out].stk = apval_in[ip_in].stk;
+         apval_out[ip_out].dip = apval_in[ip_in].dip;
+         apval_out[ip_out].rake = apval_in[ip_in].rake;
+*/
+/* use vector component values
+*/
+         apval_out[ip_out].stk = dperr*atan2(stk2,stk1);
+	 while(apval_out[ip_out].stk > 360.0)
+	    apval_out[ip_out].stk = apval_out[ip_out].stk - 360.0;
+	 while(apval_out[ip_out].stk < 0.0)
+	    apval_out[ip_out].stk = apval_out[ip_out].stk + 360.0;
+
+         apval_out[ip_out].dip = dperr*atan2(dip2,dip1);
+	 while(apval_out[ip_out].dip < 0.0)
+	    apval_out[ip_out].dip = apval_out[ip_out].dip + 180.0;
+
+         apval_out[ip_out].rake = dperr*atan2(rak2,rak1);
+	 while(apval_out[ip_out].rake > 180.0)
+	    apval_out[ip_out].rake = apval_out[ip_out].rake - 360.0;
+	 while(apval_out[ip_out].rake < -180.0)
+	    apval_out[ip_out].rake = apval_out[ip_out].rake + 360.0;
+
+         apval_out[ip_out].tinit = tmin;
+
+         apval_out[ip_out].stf1 = NULL;
+         if(tmax1 > 0.0)
+	    {
+            apval_out[ip_out].slip1 = slip1_avg*sfac;
+            apval_out[ip_out].nt1 = (int)((tmax1-tmin)/apval_out[ip_out].dt + 0.5);
+	    }
+	 else
+	    {
+            apval_out[ip_out].slip1 = 0.0;
+            apval_out[ip_out].nt1 = 0;
+	    }
+
+         apval_out[ip_out].stf2 = NULL;
+         if(tmax2 > 0.0)
+	    {
+            apval_out[ip_out].slip2 = slip2_avg*sfac;
+            apval_out[ip_out].nt2 = (int)((tmax2-tmin)/apval_out[ip_out].dt + 0.5);
+	    }
+	 else
+	    {
+            apval_out[ip_out].slip2 = 0.0;
+            apval_out[ip_out].nt2 = 0;
+	    }
+
+         apval_out[ip_out].stf3 = NULL;
+         if(tmax3 > 0.0)
+	    {
+            apval_out[ip_out].slip3 = slip3_avg*sfac;
+            apval_out[ip_out].nt3 = (int)((tmax3-tmin)/apval_out[ip_out].dt + 0.5);
+	    }
+	 else
+	    {
+            apval_out[ip_out].slip3 = 0.0;
+            apval_out[ip_out].nt3 = 0;
+	    }
+
+/*
+if(ip_out == 100452)
+   {
+   xx = ((ix+0.5)/(1.0*prseg_out[ig].nstk) - 0.5)*prseg_out[ig].flen - prseg_out[ig].shyp;
+   yy = (iy+0.5)*prseg_out[ig].fwid/(1.0*prseg_out[ig].ndip) - prseg_out[ig].dhyp;
+   fprintf(stderr,"tmin= %10.4f nt1_new= %d nt1_orig= %d rhyp= %10.4f\n",tmin,apval_out[ip_out].nt1,apval_in[ip_in].nt1,sqrt(xx*xx + yy*yy));
+   }
+*/
+
+/*
+fprintf(stderr,"ip_o= %d ip_i= %d nt1= %d tmin= %.4f tmax1= %.4f\n",ip_out,ip_in,apval_out[ip_out].nt1,tmin,tmax1);
+*/
+
+	 if(apval_out[ip_out].nt1 > 0 || apval_out[ip_out].nt2 > 0 || apval_out[ip_out].nt3 > 0)
+	    {
+	    if(apval_out[ip_out].nt1 > 0)
+	       {
+               apval_out[ip_out].stf1 = (float *)check_realloc(apval_out[ip_out].stf1,(apval_out[ip_out].nt1)*sizeof(float));
+
+               stfp_o = apval_out[ip_out].stf1;
+	       for(it=0;it<apval_out[ip_out].nt1;it++)
+	          stfp_o[it] = 0.0;
+	       }
+
+	    if(apval_out[ip_out].nt2 > 0)
+	       {
+               apval_out[ip_out].stf2 = (float *)check_realloc(apval_out[ip_out].stf2,(apval_out[ip_out].nt2)*sizeof(float));
+
+               stfp_o = apval_out[ip_out].stf2;
+	       for(it=0;it<apval_out[ip_out].nt2;it++)
+	          stfp_o[it] = 0.0;
+	       }
+
+	    if(apval_out[ip_out].nt3 > 0)
+	       {
+               apval_out[ip_out].stf3 = (float *)check_realloc(apval_out[ip_out].stf3,(apval_out[ip_out].nt3)*sizeof(float));
+
+               stfp_o = apval_out[ip_out].stf3;
+	       for(it=0;it<apval_out[ip_out].nt1;it++)
+	          stfp_o[it] = 0.0;
+	       }
+
+/* compute slip-rate functions for each input point and sum across group */
+
+            for(iys=iy0;iys<iyend;iys++)
+               {
+               for(ixs=ix0;ixs<ixend;ixs++)
+                  {
+                  ips = ixs + iys*nstk_in[ig] + ntot_in;
+         
+	          it0 = (int)((apval_in[ips].tinit - apval_out[ip_out].tinit)/apval_in[ips].dt + 0.5);
+	          if(it0 < 0)		/* shouldn't happen but ... */
+	             it0 = 0;
+
+                  if(apval_in[ips].nt1)
+                     {
+		     nts = apval_in[ips].nt1;
+	             while((it0+nts) > apval_out[ip_out].nt1)	/* shouldn't happen but ... */
+	                nts--;
+
+                     stfp_i = apval_in[ips].stf1;
+                     stfp_o = apval_out[ip_out].stf1;
+	             for(it=0;it<nts;it++)
+	                {
+		        it_out = it + it0;
+                        stfp_o[it_out] = stfp_o[it_out] + stfp_i[it];
+                        }
+                     }
+
+                  if(apval_in[ips].nt2)
+                     {
+		     nts = apval_in[ips].nt2;
+	             while((it0+nts) > apval_out[ip_out].nt2)	/* shouldn't happen but ... */
+	                nts--;
+
+                     stfp_i = apval_in[ips].stf2;
+                     stfp_o = apval_out[ip_out].stf2;
+	             for(it=0;it<nts;it++)
+	                {
+		        it_out = it + it0;
+                        stfp_o[it_out] = stfp_o[it_out] + stfp_i[it];
+                        }
+                     }
+
+                  if(apval_in[ips].nt3)
+                     {
+		     nts = apval_in[ips].nt3;
+	             while((it0+nts) > apval_out[ip_out].nt3)	/* shouldn't happen but ... */
+	                nts--;
+
+                     stfp_i = apval_in[ips].stf3;
+                     stfp_o = apval_out[ip_out].stf3;
+	             for(it=0;it<nts;it++)
+	                {
+		        it_out = it + it0;
+                        stfp_o[it_out] = stfp_o[it_out] + stfp_i[it];
+                        }
+                     }
+
+                  u1 = apval_in[ips].slip1;
+                  u2 = apval_in[ips].slip2;
+                  u3 = apval_in[ips].slip3;
+                  mu = apval_in[ips].vs*apval_in[ips].vs*apval_in[ips].den;
+
+                  s_mom_f = s_mom_f + sqrt(u1*u1 + u2*u2 + u3*u3)*mu*apval_in[ips].area;
+	          }
+               }
+
+/* ensure coarse slip-rates integrate to target slip */
+
+	    if(apval_out[ip_out].nt1)
+	       {
+               stfp_o = apval_out[ip_out].stf1;
+
+	       sfac = 0.0;
+               for(it=0;it<apval_out[ip_out].nt1;it++)
+                  sfac = sfac + (apval_out[ip_out].dt)*stfp_o[it];
+
+	       sfac = apval_out[ip_out].slip1/sfac;
+               for(it=0;it<apval_out[ip_out].nt1;it++)
+                  stfp_o[it] = sfac*stfp_o[it];
+	       }
+
+	    if(apval_out[ip_out].nt2)
+	       {
+               stfp_o = apval_out[ip_out].stf2;
+
+	       sfac = 0.0;
+               for(it=0;it<apval_out[ip_out].nt2;it++)
+                  sfac = sfac + (apval_out[ip_out].dt)*stfp_o[it];
+
+	       sfac = apval_out[ip_out].slip2/sfac;
+               for(it=0;it<apval_out[ip_out].nt2;it++)
+                  stfp_o[it] = sfac*stfp_o[it];
+	       }
+
+	    if(apval_out[ip_out].nt3)
+	       {
+               stfp_o = apval_out[ip_out].stf3;
+
+	       sfac = 0.0;
+               for(it=0;it<apval_out[ip_out].nt3;it++)
+                  sfac = sfac + (apval_out[ip_out].dt)*stfp_o[it];
+
+	       sfac = apval_out[ip_out].slip3/sfac;
+               for(it=0;it<apval_out[ip_out].nt3;it++)
+                  stfp_o[it] = sfac*stfp_o[it];
+	       }
+
+
+            u1 = apval_out[ip_out].slip1;
+            u2 = apval_out[ip_out].slip2;
+            u3 = apval_out[ip_out].slip3;
+            mu = apval_out[ip_out].vs*apval_out[ip_out].vs*apval_out[ip_out].den;
+
+            s_mom_c = s_mom_c + sqrt(u1*u1 + u2*u2 + u3*u3)*mu*apval_out[ip_out].area;
+	    }
+         }
+      }
+
+   ntot_in = ntot_in + srf_in[0].np_seg[ig];
+   ntot_out = ntot_out + srf_out[0].np_seg[ig];
+   }
+
+fprintf(stderr,"slip moment (fine grid)= %.5e\n",s_mom_f);
+fprintf(stderr,"slip moment (coarse grid)= %.5e\n",s_mom_c);
 }

@@ -36,7 +36,7 @@ FFLAGS = ${UFLAGS} -ffixed-line-length-132
 
 ##### make options
 
-all: srf2stoch generic_slip2srf fault_seg2gsf srf2moment srf2xyz srf2mrf srf_downsample
+all: srf2stoch generic_slip2srf fault_seg2gsf srf2moment srf2xyz srf2mrf srf_downsample srf_join
 
 test_header : test_header.c ${OBJS} ${GEOPROJ_OBJS}
 	$(CC) $(CFLAGS) -o test_header test_header.c ${LDLIBS} ${GEOPROJ_OBJS}
@@ -73,6 +73,10 @@ srf2mrf : srf2mrf.c ${OBJS} ${GEOPROJ_OBJS}
 srf_downsample : srf_downsample.c ${OBJS} ${GEOPROJ_OBJS}
 	${CC} -o srf_downsample srf_downsample.c ${LDLIBS} ${INCPAR} ${GEOPROJ_OBJS}
 	cp srf_downsample ../bin/
+
+srf_join : srf_join.c ${OBJS} ${GEOPROJ_OBJS}
+	${CC} ${CFLAGS} -o srf_join srf_join.c ${LDLIBS} ${INCPAR} ${GEOPROJ_OBJS}
+	cp srf_join ../bin/.
 
 ${OBJS} : ${HEADS}
 

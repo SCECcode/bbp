@@ -32,6 +32,19 @@ float target_dy = -1.0;
 float avgstk = -1.0e+15;
 int revstk;
 
+/* 2025-12-11
+   Added options to check slip-rate function to determine/modify rupture initation time and
+   to slip-weight the averaging of tinit. Parameters below are used for these options.
+   Default is now to use both options, but can be skipped by setting "check_tinit=0" and/or
+   "tinit_slip_weight=0".
+*/
+int tinit_slip_weight = 1;
+int check_tinit = 1;
+float *stfp;
+int it, nt, itmax, it_chk_tt;
+double tmp_d, max_sliprate_d, min_sliprate_d;
+double tol_d = 1.0e-20;
+
 debug = 1;
 
 setpar(param_string_len, param_string);
@@ -44,6 +57,10 @@ if(target_dy < 0.0)
    mstpar("dy","f",&dy);
 
 getpar("avgstk","f",&avgstk);
+
+getpar("check_tinit","d",&check_tinit);
+getpar("tinit_slip_weight","d",&tinit_slip_weight);
+
 endpar();
 
 if(avgstk > -1.0e+14)
@@ -173,6 +190,47 @@ fprintf(stderr,"id= %d is= %d kp= %d noff= %d\n",id,is,kp,noff);
 
 	 tt = srf->srf_apnts.apntvals[kp].tinit;
 
+/* 2025-12-11
+   Added option to check slip-rate function to determine/modify rupture initation
+   time. This is only important if the slip-rate is given with some number of leading zeros.
+   Default is now to use this option, but can be skipped by setting "check_tinit=0".
+*/
+         if(check_tinit && (apval_ptr[kp].nt1 > 0 || apval_ptr[kp].nt2 > 0))
+            {
+            if(apval_ptr[kp].slip1*apval_ptr[kp].slip1 >= apval_ptr[kp].slip2*apval_ptr[kp].slip2)
+               {
+               stfp = apval_ptr[kp].stf1;
+               nt = apval_ptr[kp].nt1;
+               }
+            else
+               {
+               stfp = apval_ptr[kp].stf2;
+               nt = apval_ptr[kp].nt2;
+               }
+
+            max_sliprate_d = -1.0;
+            for(it=0;it<nt;it++)
+               {
+               tmp_d = (double)(stfp[it])*(double)(stfp[it]);
+               if(tmp_d > max_sliprate_d)
+                  {
+                  max_sliprate_d = tmp_d;
+                  itmax = it;
+                  }
+               }
+
+            min_sliprate_d = tol_d*max_sliprate_d;
+
+            it_chk_tt = 1;
+            tmp_d = (double)(stfp[it_chk_tt])*(double)(stfp[it_chk_tt]);
+            while(tmp_d < min_sliprate_d && it_chk_tt < itmax)
+               it_chk_tt++;
+
+            if(tt < (it_chk_tt-1)*apval_ptr[kp].dt)
+               tt = tt + (it_chk_tt-1)*apval_ptr[kp].dt;
+            }
+/* end "check_tinit" */
+
 	 if(mrf_flag == 1)
 	    {
 	    dmu = (apval_ptr[kp].vs)*(apval_ptr[kp].vs)*(apval_ptr[kp].den);
@@ -278,19 +336,38 @@ fprintf(stderr,"id= %d is= %d kp= %d noff= %d\n",id,is,kp,noff);
 	       m = (long long)ix*nxsum + j + (iy*nysum + k)*(long long)nx*nxsum;
 
 	       sp[ip] = sp[ip] + slip[m];
-	       ti[ip] = ti[ip] + tinit[m];
+
+/* 2025-12-11
+   Added option to slip-weight the averaging of tinit (similar to that done for trise).
+   Default is now to use this option, but can be skipped by setting "tinit_slip_weight=0".
+*/
+               if(tinit_slip_weight)
+                  ti[ip] = ti[ip] + tinit[m]*slip[m];
+               else
+                  ti[ip] = ti[ip] + tinit[m];
+
 	       tr[ip] = tr[ip] + trise[m]*slip[m];
 	       sum = sum + slip[m];
 	       }
 	    }
 
          sp[ip] = sp[ip]*fac;
-         ti[ip] = ti[ip]*fac;
+
+         if(tinit_slip_weight == 0)
+            ti[ip] = ti[ip]*fac;
 
 	 if(sum > 0.0)
+            {
             tr[ip] = tr[ip]/sum;
+            if(tinit_slip_weight)
+               ti[ip] = ti[ip]/sum;
+            }
 	 else
+            {
             tr[ip] = 1.0e-05;
+            if(tinit_slip_weight)
+               ti[ip] = 1.0e-05;
+            }
          }
       }
 
