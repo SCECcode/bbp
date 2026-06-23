@@ -377,8 +377,8 @@ class GeoBBSRF(object):
             lat = float(tokens[1])
             [x_cart, y_cart] = self.geo2cart(lon, lat, self.min_lon, self.min_lat)
             tmp = T3M * np.asmatrix([x_cart, y_cart, 0, 1]).transpose()
-            tokens[0] = str(float(tmp[0]))
-            tokens[1] = str(float(tmp[1]))
+            tokens[0] = str(float(tmp[0,0]))
+            tokens[1] = str(float(tmp[1,0]))
             outfile.write(" %s\n" % "   ".join(tokens))
 
             # Copy next line without any changes
@@ -402,18 +402,18 @@ class GeoBBSRF(object):
                 if version == 1.0 and len(tokens) != 8:
                     raise bband_utils.ProcessingError("Invalid SRF version 1 "
                                                       "file (%s)!" %
-                                                      (srffile))
+                                                      (srf_file))
                 if version == 2.0 and len(tokens) != 10:
                     raise bband_utils.ProcessingError("Invalid SRF version 2 "
                                                       "file (%s)!" %
-                                                      (srffile))
+                                                      (srf_file))
                 lon = float(tokens[0])
                 lat = float(tokens[1])
                 [x_cart, y_cart] = self.geo2cart(lon, lat,
                                                  self.min_lon, self.min_lat)
                 tmp = T3M * np.asmatrix([x_cart, y_cart, 0, 1]).transpose()
-                tokens[0] = str(float(tmp[0]))
-                tokens[1] = str(float(tmp[1]))
+                tokens[0] = str(float(tmp[0,0]))
+                tokens[1] = str(float(tmp[1,0]))
                 outfile.write(" %s\n" % "   ".join(tokens))
                 line = self.read_srf_line(infile)
                 tokens = line.strip().split()
@@ -543,7 +543,7 @@ class GeoBBSRF(object):
         T3M = np.asmatrix(T3)
         # % shift opposite corner in x-y
         tmp = T3M * np.asmatrix([x_max, y_max, 0, 1]).transpose()
-        bbextent = [float(tmp[0]), float(tmp[1])]
+        bbextent = [float(tmp[0,0]), float(tmp[1,0])]
 
         # Write station coord_out file
         BBx_stat = []
@@ -552,14 +552,14 @@ class GeoBBSRF(object):
         sfile = open(coord_out_file, 'w')
         for i in range(0, n_stat):
             tmp = T3M * np.asmatrix([x_stat[i], y_stat[i], 0, 1]).transpose()
-            BBx_stat.append(float(tmp[0]))
-            BBy_stat.append(float(tmp[1]))
+            BBx_stat.append(float(tmp[0,0]))
+            BBy_stat.append(float(tmp[1,0]))
             sfile.write("%8.4f\t%8.4f\n" % (BBx_stat[i], BBy_stat[i]))
         sfile.close()
 
         tmp = T3M * np.asmatrix([hypo_x_cart, hypo_y_cart, 0, 1]).transpose()
-        BBx_hypo = float(tmp[0])
-        BBy_hypo = float(tmp[1])
+        BBx_hypo = float(tmp[0,0])
+        BBy_hypo = float(tmp[1,0])
 
         # Write a XYZ SRF file
         self.write_xyz_srf(srf_file, xyz_srf_file, T3M)
@@ -609,8 +609,8 @@ class GeoBBSRF(object):
                                   j * math.sin(math.radians(self.f_dip[plane])))
                         tmp = (T1M_inv * T2M_inv *
                                np.asmatrix([x_term, y_term, 0, 1]).transpose())
-                        sub_coord[j].append([float(tmp[0]),
-                                             float(tmp[1]),
+                        sub_coord[j].append([float(tmp[0,0]),
+                                             float(tmp[1,0]),
                                              z_term])
 
                 # Now let's make this into a 1km grid
