@@ -410,38 +410,50 @@ if(nstf == 0)
    return(0);
 
 if(nstf == 1)
-   stf[0] = 1.0;
+   {
+   nstf = 3;
+   stf[0] = 0.0;
+   stf[1] = 1.0;
+   stf[2] = 0.0;
+   }
 else
+   {
    stf[0] = 0.0;
 
-/*
-stf[0] = 0.0;
-*/
-
-for(it=1;it<nstf;it++)
-   {
-   t = it*(*dt);
-
-   alpha = 0.0;
-   if(t < tau1)
+   for(it=1;it<nstf;it++)
       {
-      arg1 = pi*t/tau1;
-      arg2 = 0.5*arg1;
-      alpha = 0.7 - 0.7*cos(arg1) + 0.6*sin(arg2);
-      }
-   else if(t < tau1x2)
-      {
-      arg1 = pi*t/tau1;
-      arg2 = pi*(t - tau1)/tau2;
-      alpha = 1.0 - 0.7*cos(arg1) + 0.3*cos(arg2);
-      }
-   else if(t < tau) 
-      {
-      arg1 = pi*(t - tau1)/tau2;
-      alpha = 0.3 + 0.3*cos(arg1);
+      t = it*(*dt);
+
+      alpha = 0.0;
+
+      if(t < tau1)
+         {
+         arg1 = pi*t/tau1;
+         arg2 = 0.5*arg1;
+         alpha = 0.7 - 0.7*cos(arg1) + 0.6*sin(arg2);
+         }
+      else if(t < tau1x2)
+         {
+         arg1 = pi*t/tau1;
+         arg2 = pi*(t - tau1)/tau2;
+         alpha = 1.0 - 0.7*cos(arg1) + 0.3*cos(arg2);
+         }
+      else if(t < tau) 
+         {
+         arg1 = pi*(t - tau1)/tau2;
+         alpha = 0.3 + 0.3*cos(arg1);
+         }
+
+      stf[it] = alpha;
       }
 
-   stf[it] = alpha;
+/* make sure last point is 0.0 */
+
+   nstf++;
+   if(nstf > nt)
+      nstf = nt;
+
+   stf[nstf-1] = 0.0;
    }
 
 sum = 0.0;

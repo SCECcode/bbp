@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2025, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,8 @@ class Genslip(object):
         self.r_srffile = o_r_srffile
         self.vmodel_name = i_vmodel_name
         self.risetime_coef = None
+        self.risetime_coef_mom = None
+        self.risetime_coef_savg = None
         self.shal_vrup = None
         self.mean_rvfac = None
         self.range_rvfac = None
@@ -78,6 +80,10 @@ class Genslip(object):
         self.output_mrf = output_mrf
         self.ncoarsestk = None
         self.ncoarsedip = None
+        # Added for genslip 5.6.3
+        self.tsfac1_scor = None
+        self.rtime1_scor = None
+        self.rtime2slip_exp = None
 
         # Get all src files that were passed to us
         if kwargs is not None and len(kwargs) > 0:
@@ -110,7 +116,7 @@ class Genslip(object):
 
         # Now, file paths
         fault_seg2gsf_bin = os.path.join(install.A_GP_BIN_DIR, "fault_seg2gsf")
-        genslip_bin = os.path.join(install.A_GP_BIN_DIR, "genslip-v5.5.2")
+        genslip_bin = os.path.join(install.A_GP_BIN_DIR, "genslip-v5.6.3")
         self.log = os.path.join(a_logdir, "%d.genslip.log" % (sim_id))
         a_velfile = os.path.join(a_indir, self.r_velmodel)
         a_srcfiles = [os.path.join(a_indir,
@@ -136,6 +142,16 @@ class Genslip(object):
             self.risetime_coef = float(vmodel_params['RISETIME_COEF'])
         else:
             self.risetime_coef = cfg.RISETIME_COEF
+        # Look for RISETIME_COEF_MOM
+        if 'RISETIME_COEF_MOM' in vmodel_params:
+            self.risetime_coef_mom = float(vmodel_params['RISETIME_COEF_MOM'])
+        else:
+            self.risetime_coef_mom = cfg.RISETIME_COEF_MOM
+        # Look for RISETIME_COEF_SAVG
+        if 'RISETIME_COEF_SAVG' in vmodel_params:
+            self.risetime_coef_savg = float(vmodel_params['RISETIME_COEF_SAVG'])
+        else:
+            self.risetime_coef_savg = cfg.RISETIME_COEF_SAVG
         # Look for SHAL_VRUP
         if 'SHAL_VRUP' in vmodel_params:
             self.shal_vrup = float(vmodel_params['SHAL_VRUP'])
@@ -166,6 +182,21 @@ class Genslip(object):
             self.slip_sigma = float(vmodel_params['SLIP_SIGMA'])
         else:
             self.slip_sigma = cfg.SLIP_SIGMA
+        # Look for TSFAC1_SCOR
+        if 'TSFAC1_SCOR' in vmodel_params:
+            self.tsfac1_scor = float(vmodel_params['TSFAC1_SCOR'])
+        else:
+            self.tsfac1_scor = cfg.TSFAC1_SCOR
+        # Look for RTIME1_SCOR
+        if 'RTIME1_SCOR' in vmodel_params:
+            self.rtime1_scor = float(vmodel_params['RTIME1_SCOR'])
+        else:
+            self.rtime1_scor = cfg.RTIME1_SCOR
+        # Look for RTIME2SLIP_EXP
+        if 'RTIME2SLIP_EXP' in vmodel_params:
+            self.rtime2slip_exp = float(vmodel_params['RTIME2SLIP_EXP'])
+        else:
+            self.rtime2slip_exp = cfg.RTIME2SLIP_EXP
 
         # Look for DT
         if 'GF_DT' in vmodel_params:
@@ -315,8 +346,10 @@ class Genslip(object):
                       "shal_vrup_dep=%f shal_vrup_deprange=%f shal_vrup=%f " %
                       (cfg.RTDEP, cfg.RTDEP_RANGE, self.shal_vrup) +
                       "side_taper=0.02 bot_taper=0.0 top_taper=0.0 " +
-                      "dt=%f risetime_coef=%f plane_header=1 " %
+                      "plane_header=1 dt=%f risetime_coef=%f " %
                       (gf_dt, self.risetime_coef) +
+                      "risetime_coef_mom=%f risetime_coef_savg=%f " %
+                      (self.risetime_coef_mom, self.risetime_coef_savg) +
                       "risetimefac=%f risetimedep=%f risetimedep_range=%f " %
                       (self.risetime_fac, cfg.RTDEP, cfg.RTDEP_RANGE) +
                       "rt_scalefac=%f slip_water_level=%f " %
@@ -328,10 +361,13 @@ class Genslip(object):
                       "flen_max=%f rupture_delay=%f moment_fraction=%f " %
                       (flen_max, rupture_delay, moment_fraction) +
                       "srf_version=2.0 rake_sigma=15.0 fdrup_time=1 " +
-                      "deep_vrup=0.6 use_gaus=1 alpha_rough=0.01 " +
-                      "lambda_min=0.08 tsfac_coef=1.1 tsfac1_sigma=1.0 " +
-                      "tsfac1_scor=0.8 rtime1_sigma=%f rtime1_scor=0.5 " %
-                      (self.slip_sigma) +
+                      "hyb_corlen_flag=%d hyb_corlen_kmodel=%d hyb_corlen_side_taper=%f " %
+                      (cfg.HYB_CORLEN_FLAG, cfg.HYB_CORLEN_KMODEL, cfg.HYB_CORLEN_SIDE_TAPER) +
+                      "deep_vrup=0.6 use_gaus=1 alpha_rough=0.005 " +
+                      "lambda_min=0.08 lambda_max=25.0 " +
+                      "tsfac_coef=1.1 tsfac1_sigma=1.0 " +
+                      "tsfac1_scor=%f rtime1_sigma=%f rtime1_scor=%f " %
+                      (self.tsfac1_scor, self.slip_sigma, self.rtime1_scor) +
                       "tsfac_bzero=-0.1 tsfac_slope=-0.5 " +
                       "> %s 2>> %s" % (a_srffile, self.log))
         bband_utils.runprog(progstring)

@@ -66,6 +66,8 @@ struct pointsource
    int subevt_mask;
    float aseis;
    float rvf;
+   float trise_fac;
+   float rvf_fac;
    };
 
 struct srf_apointvalues20141109

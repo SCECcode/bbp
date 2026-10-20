@@ -237,6 +237,58 @@ for(iy=yt;iy<ny-yb;iy++)
    }
 }
 
+void taper_slip_all_r_hc(float *sr,int nx,int ny,float *st,float *bt,float *tt,struct hybrid_correlation_length *hc,struct pointsource *ps)
+{
+float xdamp, ydamp, dmin1, dmax1;
+int ix, iy, ixp, ixdeep, ixshal, iyt, iyb;
+
+dmin1 = hc->dep - hc->dep_range;
+dmax1 = hc->dep + hc->dep_range;
+
+ixshal = (int)((hc->side_taper)*nx + 0.5);
+if(ixshal < 0)
+   ixshal = 0;
+
+ixdeep = (int)((*st)*nx + 0.5);
+if(ixdeep < 0)
+   ixdeep = 0;
+
+iyt = (int)((*tt)*ny + 0.5);
+if(iyt < 0)
+   iyt = 0;
+
+iyb = (int)((*bt)*ny + 0.5);
+if(iyb < 0)
+   iyb = 0;
+
+for(iy=0;iy<ny;iy++)
+   {
+   ydamp = 1.0;
+   if(iy < iyt)
+      ydamp = (float)(iy+1)/(float)(iyt);
+   if(iy > ny-iyb)
+      ydamp = (float)(ny-iy)/(float)(iyb);
+
+   if(ps[iy*nx].dep <= dmin1)
+      ixp = ixshal;
+   else if(ps[iy*nx].dep < dmax1 && ps[iy*nx].dep > dmin1)
+      ixp = ixdeep - (int)((ixdeep-ixshal)*(dmax1-(ps[iy*nx].dep))/(dmax1-dmin1) + 0.5);
+   else
+      ixp = ixdeep;
+
+   for(ix=0;ix<nx;ix++)
+      {
+      xdamp = 1.0;
+      if(ix < ixp)
+         xdamp = (float)(ix+1)/(float)(ixp);
+      if(ix > nx-ixp)
+         xdamp = (float)(nx-ix)/(float)(ixp);
+
+      sr[ix+iy*nx] = xdamp*ydamp*sr[ix+iy*nx];
+      }
+   }
+}
+
 void taper_slip(struct complex *sc,int nx,int ny,float *st,float *bt)
 {
 float xdamp, ydamp;
@@ -820,7 +872,7 @@ free(space);
 
 void fft2d_fftw(struct complex *xc,int n1,int n2,int isgn,float *d1,float *d2)
 {
-int i, j, ip;
+off_t i, j, ip;
 float *space;
 struct complex *xtc;
 float normf;
@@ -1433,6 +1485,8 @@ int i, j, ip;
 float kx, ky, amp, fre, fim, beta2;
 float fac, lmax2, lmin2, k2;
 
+float amp0;
+
 float fnorm;
 float fzero = 0.0;
 float fone = 1.0;
@@ -1444,6 +1498,8 @@ beta2 = *hcoef + 1.0;
 
 lmax2 = (*lambda_max)*(*lambda_max);
 lmin2 = (*lambda_min)*(*lambda_min);
+
+amp0 = exp(0.5*beta2*log(lmax2));	/* amplitude when k2=1/lmax2 */
 
 for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
    {
@@ -1470,7 +1526,6 @@ for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
          fac = 1.0/((1.0 + exp(ord*log(k2*lmin2)))*(1.0 + exp(-ord*log(k2*lmax2))));
          amp = fac*exp(-0.5*beta2*log(k2));
 	 }
-
 
       ip = i + j*nx0;
 
@@ -1520,6 +1575,75 @@ for(j=1;j<=ny0/2;j++)
 */
 
 hermit(s0,nx0,ny0);
+}
+
+void kfilt_beta2_ll(struct complex *s0,off_t nx0,off_t ny0,float *dkx,float *dky,float *hcoef,float *lambda_max,float *lambda_min,long *seed)
+{
+off_t i, j, ip;
+float kx, ky, amp, fre, fim, beta2;
+float fac, lmax2, lmin2, k2;
+
+float amp0;
+
+float fnorm;
+float fzero = 0.0;
+float fone = 1.0;
+
+int ord = 4;
+
+fnorm = 1.0/sqrt(2.0);
+beta2 = *hcoef + 1.0;
+
+lmax2 = (*lambda_max)*(*lambda_max);
+lmin2 = (*lambda_min)*(*lambda_min);
+
+amp0 = exp(0.5*beta2*log(lmax2));	/* amplitude when k2=1/lmax2 */
+
+for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
+   {
+   ky = j*(*dky);
+
+   for(i=0;i<nx0;i++)
+      {
+      if(i <= nx0/2)
+         kx = i*(*dkx);
+      else
+         kx = (i - nx0)*(*dkx);
+
+      fre = fnorm*gaus_rand(&fone,&fzero,seed);
+      fim = fnorm*gaus_rand(&fone,&fzero,seed);
+
+      if(i == 0 && j == 0)
+         amp = 0.0;
+      else
+         {
+         k2 = kx*kx + ky*ky;
+         fac = 1.0/((1.0 + exp(ord*log(k2*lmin2)))*(1.0 + exp(-ord*log(k2*lmax2))));
+         amp = fac*exp(-0.5*beta2*log(k2));
+	 }
+
+      ip = i + j*nx0;
+
+      s0[ip].re = amp*fre;
+      s0[ip].im = amp*fim;
+      }
+   }
+
+/* 
+   Enforce DC & Nyquists to be real
+*/
+
+s0[0].re = 0.0;
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+/* 
+   Enforce Hermitian symmetry to make slip real valued
+*/
+
+hermit_ll(s0,nx0,ny0);
 }
 
 /* 2016-10-21 RWG
@@ -1582,7 +1706,8 @@ for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
       /* default is somerville scaling */
       fac = amp0/sqrt(1.0 + amp*amp);
 
-      if(kflag == MAI_FLAG) /* mai scaling */
+      /* von Karman */
+      if(kflag == MAI_FLAG || kflag == SUZUKI_FLAG || kflag == MAI_SOMERVILLE_HYBRID_FLAG)
          {
          fac = exp((hcoef)*log(1.0+amp));
          fac = amp0/sqrt(fac);
@@ -1612,9 +1737,227 @@ for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
    }
 
 /* 
-   Enforce DC & Nyquists to be real
+   Enforce DC & Nyquists to be real and apply normalization (liu et al., 2006)
 */
 
+/* following lines are what was used for v5.5.2 and earlier
+s0[0].re = amp0;
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+*/
+
+/* more correct form: following lines are what was used for v5.6.0 and later */
+s0[0].re = s0[0].re/fnorm;
+s0[0].im = 0.0;
+
+s0[nx0/2].re = s0[nx0/2].re/fnorm;
+s0[nx0/2].im = 0.0;
+
+s0[nx0*ny0/2].re = s0[nx0*ny0/2].re/fnorm;
+s0[nx0*ny0/2].im = 0.0;
+
+s0[nx0/2+nx0*ny0/2].re = s0[nx0/2+nx0*ny0/2].re/fnorm;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+/* 
+   Enforce Hermitian symmetry to make slip real valued
+*/
+
+hermit(s0,nx0,ny0);
+}
+
+void kfilt_gaus2_v552(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,long *seed,int kflag,float *lambda_max,float *lambda_min)
+{
+int i, j, ip;
+float kx, ky, fac, amp, amp0, phs, xl2, yl2;
+float phs1, fac1, wtS, wtD;
+float xp, k2, invkc2;
+float fre, fim;
+float lmax2, lmin2;
+int ndkc;
+
+int ord = 4;
+
+float hcoef, beta2;
+
+float fnorm;
+float fzero = 0.0;
+float fone = 1.0;
+
+fnorm = 1.0/sqrt(2.0);
+
+hcoef = 2.00; /* H=1.00, hcoef = H + 1 */
+hcoef = 1.80; /* H=0.80, hcoef = H + 1 */
+hcoef = 1.75; /* H=0.75, hcoef = H + 1 */
+
+beta2 = hcoef;
+beta2 = 2.0; /* strictly self-similar */
+
+amp0 = sqrt(s0[0].re*s0[0].re + s0[0].im*s0[0].im);
+
+xl2 = (*xl)*(*xl);
+yl2 = (*yl)*(*yl);
+
+lmax2 = (*lambda_max)*(*lambda_max);
+lmin2 = (*lambda_min)*(*lambda_min);
+
+for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
+   {
+   if(j <= ny0/2)
+      ky = j*(*dky);
+   else
+      ky = (j - ny0)*(*dky);
+
+   for(i=0;i<nx0;i++)
+      {
+      if(i <= nx0/2)
+         kx = i*(*dkx);
+      else
+         kx = (i - nx0)*(*dkx);
+      
+      ip = i + j*nx0;
+      
+      amp = kx*kx*xl2 + ky*ky*yl2;
+      
+      /* default is somerville scaling */
+      fac = amp0/sqrt(1.0 + amp*amp);
+      
+      if(kflag == MAI_FLAG) /* mai scaling */
+         {
+         fac = exp((hcoef)*log(1.0+amp));
+         fac = amp0/sqrt(fac);
+         }
+      
+      if(kflag == SOMERVILLE_FLAG)      /* somerville scaling */
+         fac = amp0/sqrt(1.0 + amp*amp);
+      
+      if(kflag == FRANKEL_FLAG) /* frankel(2009) scaling */
+         {
+         if(amp < 1.0)
+            fac = amp0;
+         else
+            fac = amp0*exp(-0.5*beta2*log(amp));
+         }
+      
+      k2 = kx*kx + ky*ky;
+      if(k2 > 0.0)
+         fac = fac/((1.0 + exp(ord*log(k2*lmin2)))*(1.0 + exp(-ord*log(k2*lmax2))));
+      
+      fre = fnorm*gaus_rand(&fone,&fzero,seed);
+      fim = fnorm*gaus_rand(&fone,&fzero,seed);
+      
+      s0[ip].re = fac*fre;
+      s0[ip].im = fac*fim;
+      }
+   }
+   
+/*    
+ *       Enforce DC & Nyquists to be real
+ *       */
+
+s0[0].re = amp0;
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+hermit(s0,nx0,ny0);
+}
+
+void kfilt_gaus2_v552x(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,long *seed,int kflag,float *lambda_max,float *lambda_min)
+{
+int i, j, ip;
+float kx, ky, fac, amp, amp0, phs, xl2, yl2;
+float phs1, fac1, wtS, wtD;
+float xp, k2, invkc2;
+float fre, fim;
+float lmax2, lmin2;
+int ndkc;
+
+int ord = 4;
+
+float hcoef, beta2;
+
+float fnorm;
+float fzero = 0.0;
+float fone = 1.0;
+
+fnorm = 1.0/sqrt(2.0);
+
+hcoef = 2.00; /* H=1.00, hcoef = H + 1 */
+hcoef = 1.80; /* H=0.80, hcoef = H + 1 */
+hcoef = 1.75; /* H=0.75, hcoef = H + 1 */
+
+beta2 = hcoef;
+beta2 = 2.0; /* strictly self-similar */
+
+amp0 = sqrt(s0[0].re*s0[0].re + s0[0].im*s0[0].im);
+
+xl2 = (*xl)*(*xl);
+yl2 = (*yl)*(*yl);
+
+lmax2 = (*lambda_max)*(*lambda_max);
+lmin2 = (*lambda_min)*(*lambda_min);
+
+for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
+   {
+   if(j <= ny0/2)
+      ky = j*(*dky);
+   else
+      ky = (j - ny0)*(*dky);
+
+   for(i=0;i<nx0;i++)
+      {
+      if(i <= nx0/2)
+         kx = i*(*dkx);
+      else
+         kx = (i - nx0)*(*dkx);
+
+      ip = i + j*nx0;
+
+      amp = kx*kx*xl2 + ky*ky*yl2;
+
+      /* default is somerville scaling */
+      fac = amp0/sqrt(1.0 + amp*amp);
+
+      /* von Karman */
+      if(kflag == MAI_FLAG || kflag == SUZUKI_FLAG || kflag == MAI_SOMERVILLE_HYBRID_FLAG)
+         {
+         fac = exp((hcoef)*log(1.0+amp));
+         fac = amp0/sqrt(fac);
+	 }
+
+      if(kflag == SOMERVILLE_FLAG)      /* somerville scaling */
+         fac = amp0/sqrt(1.0 + amp*amp);
+
+      if(kflag == FRANKEL_FLAG) /* frankel(2009) scaling */
+         {
+	 if(amp < 1.0)
+	    fac = amp0;
+         else
+            fac = amp0*exp(-0.5*beta2*log(amp));
+	 }
+
+      k2 = kx*kx + ky*ky;
+      if(k2 > 0.0)
+         fac = fac/((1.0 + exp(ord*log(k2*lmin2)))*(1.0 + exp(-ord*log(k2*lmax2))));
+
+      fre = fnorm*gaus_rand(&fone,&fzero,seed);
+      fim = fnorm*gaus_rand(&fone,&fzero,seed);
+
+      s0[ip].re = fac*fre;
+      s0[ip].im = fac*fim;
+      }
+   }
+
+/* 
+   Enforce DC & Nyquists to be real and apply normalization (liu et al., 2006)
+*/
+
+/* following lines are what was used for v5.5.2 and earlier
+*/
 s0[0].re = amp0;
 s0[0].im = 0.0;
 s0[nx0/2].im = 0.0;
@@ -1625,45 +1968,6 @@ s0[nx0/2+nx0*ny0/2].im = 0.0;
    Enforce Hermitian symmetry to make slip real valued
 */
 
-/*
-for(j=1;j<=(ny0-1)/2;j++)
-   {
-   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
-   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
-   }
-
-for(i=1;i<=(nx0-1)/2;i++)
-   {
-   s0[nx0-i].re = s0[i].re;
-   s0[nx0-i].im = -s0[i].im;
-   }
-*/
-/*
-for(j=1;j<=(ny0/2)-1;j++)
-   {
-   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
-   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
-   }
-
-for(i=1;i<=(nx0/2)-1;i++)
-   {
-   s0[nx0-i].re = s0[i].re;
-   s0[nx0-i].im = -s0[i].im;
-   }
-
-for(j=1;j<=ny0/2;j++)
-   {
-   for(i=1;i<=nx0/2;i++)
-      {
-      s0[(nx0-i)+(ny0-j)*nx0].re = s0[i+j*nx0].re;
-      s0[(nx0-i)+(ny0-j)*nx0].im = -s0[i+j*nx0].im;
-
-      s0[i+(ny0-j)*nx0].re = s0[(nx0-i)+j*nx0].re;
-      s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
-      }
-   }
-*/
-
 hermit(s0,nx0,ny0);
 }
 
@@ -1671,9 +1975,9 @@ hermit(s0,nx0,ny0);
    added option to allow detreminstic specification of low wavenumbers/asperities
 */
 
-void kfilter(struct complex *s0,int nx0,int ny0,float *dkx,float *dky,int ord,float *lambda_max,float *lambda_min)
+void kfilter(struct complex *s0,off_t nx0,off_t ny0,float *dkx,float *dky,int ord,float *lambda_max,float *lambda_min)
 {
-int i, j, ip;
+off_t i, j, ip;
 float kx, ky, fac, k2;
 float lmax2, lmin2;
 
@@ -1743,7 +2047,7 @@ for(j=1;j<=ny0/2;j++)
    }
 */
 
-hermit(s0,nx0,ny0);
+hermit_ll(s0,nx0,ny0);
 }
 
 /* 2017-xx-xx RWG
@@ -2007,6 +2311,542 @@ for(j=1;j<ny0/2;j++)
 
       s0[i+(ny0-j)*nx0].re = s0[(nx0-i)+j*nx0].re;
       s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
+      }
+   }
+}
+
+void hermit_ll(struct complex *s0,off_t nx0,off_t ny0)
+{
+off_t i, j;
+
+for(i=1;i<(nx0/2);i++)
+   {
+   s0[nx0-i].re = s0[i].re;
+   s0[nx0-i].im = -s0[i].im;
+
+   s0[(nx0-i)+nx0*(ny0/2)].re = s0[i+nx0*(ny0/2)].re;
+   s0[(nx0-i)+nx0*(ny0/2)].im = -s0[i+nx0*(ny0/2)].im;
+   }
+
+for(j=1;j<(ny0/2);j++)
+   {
+   s0[(ny0-j)*nx0].re = s0[j*nx0].re;
+   s0[(ny0-j)*nx0].im = -s0[j*nx0].im;
+
+   s0[(nx0/2)+(ny0-j)*nx0].re = s0[(nx0/2)+j*nx0].re;
+   s0[(nx0/2)+(ny0-j)*nx0].im = -s0[(nx0/2)+j*nx0].im;
+   }
+
+for(j=1;j<ny0/2;j++)
+   {
+   for(i=1;i<nx0/2;i++)
+      {
+      s0[(nx0-i)+(ny0-j)*nx0].re = s0[i+j*nx0].re;
+      s0[(nx0-i)+(ny0-j)*nx0].im = -s0[i+j*nx0].im;
+
+      s0[i+(ny0-j)*nx0].re = s0[(nx0-i)+j*nx0].re;
+      s0[i+(ny0-j)*nx0].im = -s0[(nx0-i)+j*nx0].im;
+      }
+   }
+}
+
+void init_asperity_IO(struct pointsource *ps,int nx2,int ny2,int nx,int ny,float *dx,float *dy,char *file,float *savg_old,float *tap_fac)
+{
+FILE *fpr;
+char str[1024], *str_p, word[256], val[256];
+float *slip_fac, x0, y0, x1, y1;
+float *trise_fac, *rvf_fac;
+int *ix0, *iy0, *ix1, *iy1;
+int ix, iy, ip, ip1;
+int j, k, nr;
+
+float savg_new, area_asp, savg_asp, sum_num, sum_den;
+int goflag, ia, nasp, nalloc, ntot;
+int nblock = 100;
+
+int ixt, iyt;
+float xdamp, ydamp;
+
+nalloc = nblock;
+slip_fac = (float *)check_malloc(nalloc*sizeof(float));
+trise_fac = (float *)check_malloc(nalloc*sizeof(float));
+rvf_fac = (float *)check_malloc(nalloc*sizeof(float));
+ix0 = (int *)check_malloc(nalloc*sizeof(int));
+ix1 = (int *)check_malloc(nalloc*sizeof(int));
+iy0 = (int *)check_malloc(nalloc*sizeof(int));
+iy1 = (int *)check_malloc(nalloc*sizeof(int));
+
+fprintf(stderr,"asperity params:\n\n");
+
+fpr = fopfile(file,"r");
+
+sum_num = 1.0;
+sum_den = 1.0;
+savg_asp = 0.0;
+area_asp = 0.0;
+ntot = 0;
+nasp = 0;
+while(fgets(str,1024,fpr) != NULL)
+   {
+   nr = sscanf(str,"%f %f %f %f %f",&slip_fac[nasp],&x0,&y0,&x1,&y1);
+   ntot++;
+
+/* initialize */
+   trise_fac[nasp] = 1.0;
+   rvf_fac[nasp] = 1.0;
+
+   k = 0;
+   str_p = str;
+   while(str_p[k] != '\n' && str_p[k] != '\0')
+      k++;
+
+   k--;
+   while(k > 0)
+      {
+      j = 0;
+      while(strncmp(&str_p[k],"=",1) != 0 && k > 0)
+         {
+         j++;
+         k--;
+         }
+
+      if(k == 0)
+         break;
+
+      strncpy(val,&str_p[k+1],j);
+      val[j] = '\0';
+
+      j = 0;
+      k--;
+      while(isblank(str_p[k]) == 0 && k > 0)
+         {
+         j++;
+         k--;
+         }
+
+      if(k == 0)
+         break;
+
+      strncpy(word,&str_p[k+1],j);
+      word[j] = '\0';
+
+      if(strncmp(word,"trise_fac",9) == 0)
+         trise_fac[nasp] = atof(val);
+      if(strncmp(word,"rvf_fac",7) == 0)
+         rvf_fac[nasp] = atof(val);
+      }
+
+   ix0[nasp] = (int)((0.5*nx*(*dx) + x0)/(*dx) + 0.5);
+   if(ix0[nasp] < 0)
+      ix0[nasp] = 0;
+   if(ix0[nasp] > nx2)
+      ix0[nasp] = nx2;
+
+   iy0[nasp] = (int)(y0/(*dy) + 0.5);
+   if(iy0[nasp] < 0)
+      iy0[nasp] = 0;
+   if(iy0[nasp] > ny2)
+      iy0[nasp] = ny2;
+
+   ix1[nasp] = (int)((0.5*nx*(*dx) + x1)/(*dx) + 0.5);
+   if(ix1[nasp] < 0)
+      ix1[nasp] = 0;
+   if(ix1[nasp] > nx2)
+      ix1[nasp] = nx2;
+
+   iy1[nasp] = (int)(y1/(*dy) + 0.5) + 1;
+   if(iy1[nasp] < 0)
+      iy1[nasp] = 0;
+   if(iy1[nasp] > ny2)
+      iy1[nasp] = ny2;
+
+   fprintf(stderr,"\tslip_fac= %.2f trise_fac= %.2f rvf_fac= %.2f\n",slip_fac[nasp],trise_fac[nasp],rvf_fac[nasp]);
+   fprintf(stderr,"\tix0= %d ix1= %d iy0= %d iy1= %d a= %.2f km*km\n",ix0[nasp],ix1[nasp],iy0[nasp],iy1[nasp],(ix1[nasp]-ix0[nasp])*(iy1[nasp]-iy0[nasp])*(*dx)*(*dy));
+
+   goflag = 1;
+   for(iy=iy0[nasp];iy<iy1[nasp];iy++)
+      {
+      for(ix=ix0[nasp];ix<ix1[nasp];ix++)
+         {
+         ip = ix+iy*nx2;
+
+	 if(ps[ip].asp_mask == 1)
+	    {
+	    goflag = 0;
+	    fprintf(stderr,"\tERROR: asperity= %d overlaps with previous asperity, skipping\n",ntot);
+	    break;
+	    }
+         }
+
+      if(goflag == 0)
+         break;
+      }
+
+   if(goflag)
+      {
+      for(iy=iy0[nasp];iy<iy1[nasp];iy++)
+         {
+         for(ix=ix0[nasp];ix<ix1[nasp];ix++)
+            {
+            ip = ix+iy*nx2;
+	    ps[ip].asp_mask = 1;
+            }
+         }
+
+      sum_num = sum_num - (ix1[nasp]-ix0[nasp])*(iy1[nasp]-iy0[nasp])/(nx2*ny2);
+      sum_den = sum_den - slip_fac[nasp]*(ix1[nasp]-ix0[nasp])*(iy1[nasp]-iy0[nasp])/(nx2*ny2);
+
+      savg_asp = savg_asp + slip_fac[nasp]*(ix1[nasp]-ix0[nasp])*(iy1[nasp]-iy0[nasp]);
+      area_asp = area_asp + (ix1[nasp]-ix0[nasp])*(iy1[nasp]-iy0[nasp]);
+
+      if(sum_den <= 0.0)
+         {
+         fprintf(stderr,"\tERROR: asperity scaling too strong, sum_den= %.5e, exiting ...\n",sum_den);
+         exit(-1);
+         }
+
+      nasp++;
+      if(nasp == nalloc)
+         {
+         nalloc = nalloc + nblock;
+         slip_fac = (float *)check_realloc(slip_fac,nalloc*sizeof(float));
+         trise_fac = (float *)check_realloc(trise_fac,nalloc*sizeof(float));
+         rvf_fac = (float *)check_realloc(rvf_fac,nalloc*sizeof(float));
+         ix0 = (int *)check_realloc(ix0,nalloc*sizeof(int));
+         ix1 = (int *)check_realloc(ix1,nalloc*sizeof(int));
+         iy0 = (int *)check_realloc(iy0,nalloc*sizeof(int));
+         iy1 = (int *)check_realloc(iy1,nalloc*sizeof(int));
+         }
+      }
+   }
+
+fclose(fpr);
+
+slip_fac = (float *)check_realloc(slip_fac,nasp*sizeof(float));
+trise_fac = (float *)check_realloc(trise_fac,nasp*sizeof(float));
+rvf_fac = (float *)check_realloc(rvf_fac,nasp*sizeof(float));
+ix0 = (int *)check_realloc(ix0,nasp*sizeof(int));
+ix1 = (int *)check_realloc(ix1,nasp*sizeof(int));
+iy0 = (int *)check_realloc(iy0,nasp*sizeof(int));
+iy1 = (int *)check_realloc(iy1,nasp*sizeof(int));
+
+savg_new = (*savg_old)*sum_num/sum_den;
+
+fprintf(stderr,"\tsavg_old= %13.5e savg_new= %13.5e\n",(*savg_old),savg_new);
+fprintf(stderr,"\tnasp= %d\n",nasp);
+fprintf(stderr,"\tsavg_asp/savg_new= %.4f\n",savg_asp/area_asp);
+fprintf(stderr,"\tarea_asp/area_tot= %.4f\n",area_asp/(nx2*ny2));
+fprintf(stderr,"\n");
+
+for(ia=0;ia<nasp;ia++)
+   {
+   ixt = (int)((*tap_fac)*(ix1[ia]-ix0[ia]) + 0.5);
+   if(ixt < 0)
+      ixt = 0;
+
+   iyt = (int)((*tap_fac)*(iy1[ia]-iy0[ia]) + 0.5);
+   if(iyt < 0)
+      iyt = 0;
+
+   /*
+   fprintf(stderr,"ixt= %d iyt= %d\n",ixt,iyt);
+   */
+
+   for(iy=iy0[ia];iy<iy1[ia];iy++)
+      {
+      ydamp = 1.0;
+
+      if(iy < iy0[ia]+iyt && iy0[ia] > 1)
+         ydamp = (float)(iy+1-iy0[ia])/(float)(iyt);
+      else if(iy > iy1[ia]-iyt)
+         ydamp = (float)(iy1[ia]-iy)/(float)(iyt);
+
+      if(ydamp < 0.0)
+         ydamp = 0.0;
+      if(ydamp > 1.0)
+         ydamp = 1.0;
+
+      for(ix=ix0[ia];ix<ix1[ia];ix++)
+         {
+         xdamp = 1.0;
+
+         if(ix < ix0[ia]+ixt)
+            xdamp = (float)(ix+1-ix0[ia])/(float)(ixt);
+         else if(ix > ix1[ia]-ixt)
+            xdamp = (float)(ix1[ia]-ix)/(float)(ixt);
+
+         if(xdamp < 0.0)
+            xdamp = 0.0;
+         if(xdamp > 1.0)
+            xdamp = 1.0;
+
+         ip = ix+iy*nx2;
+
+         ps[ip].asp = xdamp*ydamp*(slip_fac[ia]*savg_new - *savg_old);
+         ps[ip].trise_fac = 1.0 + xdamp*ydamp*(trise_fac[ia] - 1.0);
+         ps[ip].rvf_fac = 1.0 + xdamp*ydamp*(rvf_fac[ia] - 1.0);
+         }
+      }
+   }
+}
+
+void gen_base_c(struct complex *s0,int nx0,int ny0,long *seed)
+{
+int i, j, ip;
+float fzero = 0.0;
+float fone = 1.0;
+
+/*
+   only do positive half, then use symmetry
+*/
+
+for(j=0;j<=ny0/2;j++)
+   {
+   for(i=0;i<nx0;i++)
+      {
+      ip = i + j*nx0;
+
+      s0[ip].re = gaus_rand(&fone,&fzero,seed);
+      s0[ip].im = gaus_rand(&fone,&fzero,seed);
+      }
+   }
+
+/* 
+   Enforce DC & Nyquists to be real
+*/
+
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+/* 
+   Enforce Hermitian symmetry to make slip real valued
+*/
+
+hermit(s0,nx0,ny0);
+}
+
+void kfilt_base(struct complex *s0,struct complex *b0,int nx0,int ny0,float *dkx,float *dky,float *xl,float *yl,int kflag,float *lambda_max,float *lambda_min)
+{
+int i, j, ip;
+float kx, ky, fac, amp, amp0, phs, xl2, yl2;
+float phs1, fac1, wtS, wtD;
+float xp, k2, invkc2;
+float fre, fim;
+float lmax2, lmin2;
+int ndkc;
+float fnorm, hcoef, beta2;
+
+int ord = 4;
+
+fnorm = 1.0/sqrt(2.0);
+
+hcoef = 2.00; /* H=1.00, hcoef = H + 1 */
+hcoef = 1.80; /* H=0.80, hcoef = H + 1 */
+hcoef = 1.75; /* H=0.75, hcoef = H + 1 */
+
+beta2 = hcoef;
+beta2 = 2.0; /* strictly self-similar */
+
+amp0 = b0[0].re;
+
+xl2 = (*xl)*(*xl);
+yl2 = (*yl)*(*yl);
+
+lmax2 = (*lambda_max)*(*lambda_max);
+lmin2 = (*lambda_min)*(*lambda_min);
+
+for(j=0;j<=ny0/2;j++)  /* only do positive half, then use symmetry */
+   {
+   if(j <= ny0/2)
+      ky = j*(*dky);
+   else
+      ky = (j - ny0)*(*dky);
+
+   for(i=0;i<nx0;i++)
+      {
+      if(i <= nx0/2)
+         kx = i*(*dkx);
+      else
+         kx = (i - nx0)*(*dkx);
+
+      ip = i + j*nx0;
+
+      amp = kx*kx*xl2 + ky*ky*yl2;
+
+      /* default is somerville scaling */
+      fac = amp0/sqrt(1.0 + amp*amp);
+
+      /* von Karman */
+      if(kflag == MAI_FLAG || kflag == SUZUKI_FLAG || kflag == MAI_SOMERVILLE_HYBRID_FLAG)
+         {
+         fac = exp((hcoef)*log(1.0+amp));
+         fac = amp0/sqrt(fac);
+	 }
+
+      if(kflag == SOMERVILLE_FLAG)      /* somerville scaling */
+         fac = amp0/sqrt(1.0 + amp*amp);
+
+      if(kflag == FRANKEL_FLAG) /* frankel(2009) scaling */
+         {
+	 if(amp < 1.0)
+	    fac = amp0;
+         else
+            fac = amp0*exp(-0.5*beta2*log(amp));
+	 }
+
+      k2 = kx*kx + ky*ky;
+      if(k2 > 0.0)
+         fac = fac/((1.0 + exp(ord*log(k2*lmin2)))*(1.0 + exp(-ord*log(k2*lmax2))));
+
+      s0[ip].re = fnorm*fac*b0[ip].re;
+      s0[ip].im = fnorm*fac*b0[ip].im;
+      }
+   }
+
+/* 
+   Enforce DC & Nyquists to be real
+*/
+
+s0[0].re = amp0;
+s0[0].im = 0.0;
+s0[nx0/2].im = 0.0;
+s0[nx0*ny0/2].im = 0.0;
+s0[nx0/2+nx0*ny0/2].im = 0.0;
+
+/* 
+   Enforce Hermitian symmetry to make slip real valued
+*/
+
+hermit(s0,nx0,ny0);
+}
+
+void init_rvf_IO(struct pointsource *ps,float *rvfrac0,int nx,int ny,float *dx,float *dy,char *file,float *tap_fac)
+{
+FILE *fpr;
+char str[1024];
+float *rvf_fac, x0, y0, x1, y1;
+int *ix0, *iy0, *ix1, *iy1;
+int ix, iy, ip, ip1;
+int nr;
+
+int goflag, ia, nasp, nalloc, ntot;
+int nblock = 100;
+
+int ixt, iyt;
+float xdamp, ydamp;
+
+nalloc = nblock;
+rvf_fac = (float *)check_malloc(nalloc*sizeof(float));
+ix0 = (int *)check_malloc(nalloc*sizeof(int));
+ix1 = (int *)check_malloc(nalloc*sizeof(int));
+iy0 = (int *)check_malloc(nalloc*sizeof(int));
+iy1 = (int *)check_malloc(nalloc*sizeof(int));
+
+fprintf(stderr,"rvf params:\n\n");
+
+fpr = fopfile(file,"r");
+
+ntot = 0;
+nasp = 0;
+while(fgets(str,1024,fpr) != NULL)
+   {
+   nr = sscanf(str,"%f %f %f %f %f",&rvf_fac[nasp],&x0,&y0,&x1,&y1);
+   ntot++;
+
+   ix0[nasp] = (int)((0.5*nx*(*dx) + x0)/(*dx) + 0.5);
+   if(ix0[nasp] < 0)
+      ix0[nasp] = 0;
+   if(ix0[nasp] > nx)
+      ix0[nasp] = nx;
+
+   iy0[nasp] = (int)(y0/(*dy) + 0.5);
+   if(iy0[nasp] < 0)
+      iy0[nasp] = 0;
+   if(iy0[nasp] > ny)
+      iy0[nasp] = ny;
+
+   ix1[nasp] = (int)((0.5*nx*(*dx) + x1)/(*dx) + 0.5);
+   if(ix1[nasp] < 0)
+      ix1[nasp] = 0;
+   if(ix1[nasp] > nx)
+      ix1[nasp] = nx;
+
+   iy1[nasp] = (int)(y1/(*dy) + 0.5) + 1;
+   if(iy1[nasp] < 0)
+      iy1[nasp] = 0;
+   if(iy1[nasp] > ny)
+      iy1[nasp] = ny;
+
+   fprintf(stderr,"\tix0= %d ix1= %d iy0= %d iy1= %d rvf= %.6f\n",ix0[nasp],ix1[nasp],iy0[nasp],iy1[nasp],rvf_fac[nasp]);
+
+   nasp++;
+   if(nasp == nalloc)
+      {
+      nalloc = nalloc + nblock;
+      rvf_fac = (float *)check_realloc(rvf_fac,nalloc*sizeof(float));
+      ix0 = (int *)check_realloc(ix0,nalloc*sizeof(int));
+      ix1 = (int *)check_realloc(ix1,nalloc*sizeof(int));
+      iy0 = (int *)check_realloc(iy0,nalloc*sizeof(int));
+      iy1 = (int *)check_realloc(iy1,nalloc*sizeof(int));
+      }
+   }
+
+fclose(fpr);
+
+rvf_fac = (float *)check_realloc(rvf_fac,nasp*sizeof(float));
+ix0 = (int *)check_realloc(ix0,nasp*sizeof(int));
+ix1 = (int *)check_realloc(ix1,nasp*sizeof(int));
+iy0 = (int *)check_realloc(iy0,nasp*sizeof(int));
+iy1 = (int *)check_realloc(iy1,nasp*sizeof(int));
+
+for(ia=0;ia<nasp;ia++)
+   {
+   ixt = (int)((*tap_fac)*(ix1[ia]-ix0[ia]) + 0.5);
+   if(ixt < 0)
+      ixt = 0;
+
+   iyt = (int)((*tap_fac)*(iy1[ia]-iy0[ia]) + 0.5);
+   if(iyt < 0)
+      iyt = 0;
+
+   /*
+   fprintf(stderr,"ixt= %d iyt= %d\n",ixt,iyt);
+   */
+
+   for(iy=iy0[ia];iy<iy1[ia];iy++)
+      {
+      ydamp = 1.0;
+
+      if(iy < iy0[ia]+iyt && iy0[ia] > 1)
+         ydamp = (float)(iy+1-iy0[ia])/(float)(iyt);
+      else if(iy > iy1[ia]-iyt)
+         ydamp = (float)(iy1[ia]-iy)/(float)(iyt);
+
+      if(ydamp < 0.0)
+         ydamp = 0.0;
+      if(ydamp > 1.0)
+         ydamp = 1.0;
+
+      for(ix=ix0[ia];ix<ix1[ia];ix++)
+         {
+         xdamp = 1.0;
+
+         if(ix < ix0[ia]+ixt)
+            xdamp = (float)(ix+1-ix0[ia])/(float)(ixt);
+         else if(ix > ix1[ia]-ixt)
+            xdamp = (float)(ix1[ia]-ix)/(float)(ixt);
+
+         if(xdamp < 0.0)
+            xdamp = 0.0;
+         if(xdamp > 1.0)
+            xdamp = 1.0;
+
+         ip = ix+iy*nx;
+
+         ps[ip].rvf = (*rvfrac0)*(1.0 - xdamp*ydamp*(1.0-rvf_fac[ia]));
+         }
       }
    }
 }

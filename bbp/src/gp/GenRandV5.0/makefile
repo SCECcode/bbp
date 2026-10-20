@@ -32,11 +32,15 @@ FFLAGS = ${UFLAGS} -ffixed-line-length-none
 
 ##### make options
 
-all : genslip-v5.5.2 srf_gethypo get_rvfrac
+all : genslip-v5.6.3 srf_gethypo get_rvfrac
 
-genslip-v5.5.2 : genslip-v5.5.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
-	${CC} ${CFLAGS} -o genslip-v5.5.2 genslip-v5.5.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
-	cp genslip-v5.5.2 ../bin/.
+genslip-v5.6.3 : genslip-v5.6.3.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
+	${CC} ${CFLAGS} -o genslip-v5.6.3 genslip-v5.6.3.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
+	cp genslip-v5.6.3 ../bin/.
+
+#genslip-v5.5.2 : genslip-v5.5.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
+#	${CC} ${CFLAGS} -o genslip-v5.5.2 genslip-v5.5.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}
+#	cp genslip-v5.5.2 ../bin/.
 
 #genslip-v5.2.2 : genslip-v5.2.2.c ${OBJS} ${SRF_OBJS} ${FDRT_OBJS}
 #	${CC} ${CFLAGS} -o genslip-v5.2.2 genslip-v5.2.2.c ${LDLIBS} ${INCPAR} ${SRF_OBJS} ${FDRT_OBJS}

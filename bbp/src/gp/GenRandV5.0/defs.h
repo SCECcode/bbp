@@ -9,6 +9,8 @@
 #define         SOMERVILLE_FLAG    1
 #define         MAI_FLAG           2
 #define         FRANKEL_FLAG           3
+#define         MAI_SOMERVILLE_HYBRID_FLAG           4
+#define         SUZUKI_FLAG           5
 #define         INPUT_CORNERS_FLAG           -1
 #define         MINSLIP            1.0e-02
 

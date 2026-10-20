@@ -19,16 +19,25 @@ void kfilt_gaus(struct complex *,int,int,float *,float *,float *,float *,long *,
 void kfilt_rphs(struct complex *,int,int,float *,float *,float *,float *,long *,int);
 void kfilt_beta2(struct complex *,int,int,float *,float *,float *,float *,float *,long *);
 
+void kfilt_beta2_ll(struct complex *,off_t,off_t,float *,float *,float *,float *,float *,long *);
+void hermit_ll(struct complex *s0,off_t,off_t);
+
 void kfilt_gaus2(struct complex *,int,int,float *,float *,float *,float *,long *,int,float *,float *);
 void kfilt_gaus2_asp(struct complex *,int,int,float *,float *,float *,float *,long *,int,float *,float *);
-void kfilter(struct complex *,int,int,float *,float *,int,float *,float *);
+void kfilter(struct complex *,off_t,off_t,float *,float *,int,float *,float *);
+
+void gen_base_c(struct complex *,int,int,long *);
+void kfilt_base(struct complex *,struct complex *,int,int,float *,float *,float *,float *,int,float *,float *);
 
 void init_slip(struct complex *,int,int,float *,float *);
 void init_slip_IO(struct complex *,int,int,int,int,float *,float *,int,char *);
+void init_asperity_IO(struct pointsource *,int,int,int,int,float *,float *,char *,float *,float *);
+void init_rvf_IO(struct pointsource *,float *,int,int,float *,float *,char *,float *);
 
 void taper_slip(struct complex *,int,int,float *,float *);
 void taper_slip_all(struct complex *,int,int,float *,float *,float *);
 void taper_slip_all_r(float *,int,int,float *,float *,float *);
+void taper_slip_all_r_hc(float *,int,int,float *,float *,float *,struct hybrid_correlation_length *,struct pointsource *);
 
 void scale_slip(struct pointsource *,struct complex *,int,int,int,float *,float *,float *,float *,float *,struct velmodel *,float *,float *);
 void scale_slip_r(struct pointsource *ps,float *sr,int nx,int ny,int nys,float *dx,float *dy,float *dtop,float *dip,float *mom,struct velmodel *vm,float *savg,float *smax);
@@ -65,6 +74,8 @@ void swap_in_place(int,char *);
 struct pointsource *read_ruppars(char *,struct pointsource *,float *,int *,int *,float *,float *,float *,float *,float *,float *,float *);
 struct pointsource *read_gsfpars(char *,struct pointsource *,struct generic_slip *,float *,float *,float *,float *);
 struct pointsource *read_gsfpars_vsden(char *,struct pointsource *,struct generic_slip *,float *,float *,float *,float *,int);
+struct pointsource *read_gsfpars_vsden_as(char *,struct pointsource *,struct generic_slip *,float *,float *,float *,float *,int,int);
+struct pointsource *read_gsfpars_gsf2(char *,struct pointsource *,struct generic_slip *,float *,float *,float *,float *,float *);
 struct pointsource *set_ruppars(struct pointsource *,float *,int *,int *,float *,float *,float *,float *,float *,float *,float *,float *);
 
 void init_plane_srf(struct standrupformat *,struct generic_slip *,float *,float *,int,int,float *,float *,float *,float *,float *,float *,float *,float *,float *);
@@ -73,6 +84,7 @@ void load_slip_srf_dd2(struct standrupformat *,struct stfpar2 *,struct pointsour
 void load_slip_srf_dd3(struct standrupformat *,struct stfpar2 *,struct pointsource *,float *,struct velmodel *);
 void load_slip_srf_dd4(struct standrupformat *,struct stfpar2 *,struct pointsource *,float *,float *,struct velmodel *);
 void load_slip_srf_dd4_vsden(struct standrupformat *,struct stfpar2 *,struct pointsource *,float *,float *);
+void load_slip_srf_dd5_vsden(struct standrupformat *,struct stfpar2 *,struct pointsource *,float *,float *);
 void load_vsden_srf(struct standrupformat *srf,struct velmodel *vmod);
 void load_rupt_srf(struct standrupformat *,struct pointsource *,float *,float *);
 void write_srf(struct standrupformat *,char *,int);
@@ -87,6 +99,7 @@ float rhypo1_lintaper(long *seed,struct hypo_distr_params *hpar);
 
 void get_rspeed(struct velmodel *,float *,struct pointsource *,int,int,float *,float *,float *,float *,float *,float *,float *,float *,float *,float *,float *,int);
 void get_rspeed_vsden(float *,struct pointsource *,int,int,float *,float *,float *,float *,float *,float *,float *,float *,float *,float *,float *,int);
+void get_rspeed_vsden2(float *,struct pointsource *,int,int,float *,float *,float *,float *,float *,float *,float *,float *,float *,float *,int);
 void get_rspeed_rvfslip(struct velmodel *,float *,struct pointsource *,float *,int,int,float *,float *,float *,float *,float *,float *,float *,float *,float *,float *);
 void get_rslow(float *rspd,double *rslw,int nx,int ny,float *,long *seed);
 void get_rslow_stretch(float *rspd,int ns,int nd,double *rslw,int nsfd,int ndfd,int isoff,int idoff,float *tsf,long *seed);
@@ -108,3 +121,14 @@ extern void fourg_(struct complex *, int *, int *, float *);
 void copy_psrc(struct pointsource *,struct pointsource *,int,int);
 
 void shift_phase(struct complex *,int,int,float *,float *,double *,double *);
+
+void get_mean_sigma_c(struct complex *,int,int,float *,float *);
+void hyb_depth_sum(struct complex *,struct complex *,int,int,struct pointsource *,int,int,struct hybrid_correlation_length *);
+
+void cor_c(struct complex *,struct complex *,int,int,float *);
+void check_cor_r(float *,char *,float *,char *,int,int,float *);
+
+void srf_hfadj(struct standrupformat *,int,int,struct vruppars *,float *,float *);
+
+void spline_natural(int,float *,float *,float *, float *);
+void splint_vector(int,float *,float *,float *,int,float *, float *);

@@ -2,7 +2,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2025, University of Southern California
+Copyright (c) 2026, University of Southern California
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,7 @@ class GenslipCfg(object):
         # This is now the default inside genslip-3.3, so don't need to use it
         # self.RAND_RAKE_RANGE = 60
 
+        # Used for randomizing these parameters
         self.RTDEP = 6.5
         self.RTDEP_RANGE = 1.5
         self.MEAN_RVFAC = 0.775
@@ -78,18 +79,32 @@ class GenslipCfg(object):
         # Default RANGE_FWIDTH_FRAC value (randomization disabled)
         self.RANGE_FWIDTH_FRAC = 0.0
 
+        # “tsfac_scor” specifies correlation of rupture speed
+        # perturbations with slip field
+        self.TSFAC1_SCOR = 0.5
+
+        # “rtime1_scor” specifies correlation of risetime perturbations with slip field
+        self.RTIME1_SCOR = 0.9
+
         # Default RISETIME_COEF set for western US simulations,
         # override in velocity model config file. This parameter used
         # to be set to 1.6, but was modified by RWG in November 2013
         # when the Rupture Generator was updated to version 3.3. The
         # value was reset to 1.6 for Genslip 5.0.1, and then set to
         # 2.3 for genslip-5.5.2
-        self.RISETIME_COEF = 2.3
+        # self.RISETIME_COEF = 2.3
+        #
+        # For genslip-5.6.3, we use the following
+        #
+        # Change default determination of average risetime to be based
+        # on average slip instead of Mo^(1/3):
+        self.RISETIME_COEF = -1.0
+        self.RISETIME_COEF_MOM = -1.0
+        self.RISETIME_COEF_SAVG = 1.1
 
         # self.EXTRA_RTFAC = 0.0
         self.RISETIME_FAC = 2
         self.RT_SCALEFAC = 1
-        self.RT_RAND = 0
 
         # As in genslip-3.3, we are using 'Mliu' stype, which is the default
         # self.STYPE = "ucsb"
@@ -99,6 +114,21 @@ class GenslipCfg(object):
         self.DEEP_RISETIMEDEP = 17.5
         self.DEEP_RISETIMEDEP_RANGE = 2.5
         self.DEEP_RISETIME_FAC = 2.0
+
+        # Extra parameters for genslip-5.6.3
+        # rtime2slip_exp = 0.5 -> used for v5.5.x and earlier, risetime scales with sqrt(slip),
+        #                         e.g., Aagaard et al, GP2010
+        # rtime2slip_exp = 1.0 -> [default] risetime scales with slip, gives constant slip-rate, which implies
+        #                         constant dynamic stress-drop, e.g., Frankel (2009)
+        self.RTIME2SLIP_EXP = 1.0
+
+        # Use hybrid slip-correlation lengths; Suzuki et al (2022)
+        # above 5 km and Mai and Beroza (2002) for deeper fault
+        # v5.5.x and earlier used Mai and Beroza (2002) for entire fault
+        # (setting “hyb_corlen.flag=0” reverts to this)
+        self.HYB_CORLEN_FLAG = 1
+        self.HYB_CORLEN_KMODEL = 5
+        self.HYB_CORLEN_SIDE_TAPER = 0.08
 
         # Default parameters for downsampling a SRF file
         # NCOARSESTK and NCOARSEDIP default value is 1

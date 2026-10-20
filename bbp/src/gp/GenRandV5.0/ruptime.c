@@ -772,6 +772,48 @@ for(iy=0;iy<ny;iy++)
    }
 }
 
+void get_rspeed_vsden2(float *rspd,struct pointsource *ps,int nx,int ny,float *smax,float *savg,float *shal_vr,float *dmin1,float *dmax1,float *deep_vr,float *dmin2,float *dmax2,float *rvfmn,float *rvfmx,int scl_slip)
+{
+int ix, iy, k, ip;
+float rfdep, rfslip, dep;
+
+float rfmin, rfmax;
+
+rfmin = (*rvfmn);
+rfmax = (*rvfmx);
+
+for(iy=0;iy<ny;iy++)
+   {
+   if(ps[iy*nx].dep <= (*dmin1))
+      rfdep = (*shal_vr);
+   else if(ps[iy*nx].dep < (*dmax1) && ps[iy*nx].dep > (*dmin1))
+      rfdep = (1.0 - (1.0 - (*shal_vr))*((*dmax1)-ps[iy*nx].dep)/((*dmax1)-(*dmin1)));
+   else if(ps[iy*nx].dep >= (*dmax1) && ps[iy*nx].dep <= (*dmin2))
+      rfdep = 1.0;
+   else if(ps[iy*nx].dep < (*dmax2) && ps[iy*nx].dep > (*dmin2))
+      rfdep = (1.0 - (1.0 - (*deep_vr))*(ps[iy*nx].dep-(*dmin2))/((*dmax2)-(*dmin2)));
+   else
+      rfdep = (*deep_vr);
+
+   for(ix=0;ix<nx;ix++)
+      {
+      ip = ix + iy*nx;
+
+      if(scl_slip)
+         {
+         if(ps[ip].slip < *savg)
+            rfslip = rfmin + (ps[ip].rvf-rfmin)*ps[ip].slip/(*savg);
+         else
+            rfslip = ps[ip].rvf + (rfmax-ps[ip].rvf)*(ps[ip].slip-(*savg))/((*smax)-(*savg));
+	 }
+      else
+         rfslip = ps[ip].rvf;
+
+      rspd[ip] = rfslip*rfdep*ps[ip].vs;
+      }
+   }
+}
+
 void get_rspeed_rvfslip(struct velmodel *vm,float *rspd,struct pointsource *ps,float *slip_r,int nx,int ny,float *rvfav,float *shal_vr,float *dmin1,float *dmax1,float *deep_vr,float *dmin2,float *dmax2,float *rvfmn,float *rvfmx,float *rvf_sig)
 {
 int ix, iy, k, ip;

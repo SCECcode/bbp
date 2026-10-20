@@ -50,8 +50,8 @@ void write_maxsvf(char *,struct standrupformat *,char *,int,float *,int);
 void get_vmax2slip(char *,struct standrupformat *,char *,int);
 int write_lld(char *,struct standrupformat *,int,float *,float *,char *,int);
 
-void get_moment(struct standrupformat *,struct velmodel *,int);
-void get_moment_rate(struct standrupformat *,struct velmodel *,int);
+void get_moment(struct standrupformat *,struct velmodel *,int,float *);
+void get_moment_rate(struct standrupformat *,struct velmodel *,int,float *);
 void read_velmodel(char *,struct velmodel *); 
 
 void sum_srf(struct standrupformat *,struct standrupformat *,struct standrupformat *,float *);
@@ -64,7 +64,7 @@ void read_Fvelmodel(char *, struct velmodel *);
 void zapit(float *, int);
 void gcproj(float *,float *,float *,float *,float *,double *,double *,double *,double *,int);
 void gen_matrices(double *,double *,float *,float *,float *);
-void dump_sliprate(char *,struct standrupformat *,int,float *,float *,float *);
+void dump_sliprate(char *,struct standrupformat *,int,float *,float *,float *,int,int *);
 
 void srf_to_mrf1(struct standrupformat *,struct standrupformat *,struct velmodel *,int,int,int,char **);
 void srf_to_mrf6_dsampXXX(struct standrupformat *,struct standrupformat *,struct velmodel *,int,int,int,int,int,char **);

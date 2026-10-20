@@ -319,6 +319,7 @@ return(psrc);
 struct pointsource *read_gsfpars(char *file,struct pointsource *psrc,struct generic_slip *gslip,float *dx,float *dy,float *dtop,float *dip)
 {
 FILE *fpr, *fopfile();
+size_t blen;
 int i, nn;
 char str[1024];
 struct slippars *spar;
@@ -344,8 +345,11 @@ while(strncmp(str,"#",1) == 0)
 
 sscanf(str,"%d",&gslip->np);
 
-psrc = (struct pointsource *)check_realloc(psrc,gslip->np*sizeof(struct pointsource));
-gslip->spar = (struct slippars *)check_realloc(gslip->spar,gslip->np*sizeof(struct slippars));
+blen = (size_t)(gslip->np)*(size_t)(sizeof(struct pointsource));
+psrc = (struct pointsource *)check_realloc(psrc,blen);
+
+blen = (size_t)(gslip->np)*(size_t)(sizeof(struct slippars));
+gslip->spar = (struct slippars *)check_realloc(gslip->spar,blen);
 spar = gslip->spar;
 
 i = 0;
@@ -407,6 +411,7 @@ return(psrc);
 struct pointsource *read_gsfpars_vsden(char *file,struct pointsource *psrc,struct generic_slip *gslip,float *dx,float *dy,float *dtop,float *dip,int read_vsden)
 {
 FILE *fpr, *fopfile();
+size_t blen;
 int i, nn;
 char str[1024];
 struct slippars *spar;
@@ -432,8 +437,11 @@ while(strncmp(str,"#",1) == 0)
 
 sscanf(str,"%d",&gslip->np);
 
-psrc = (struct pointsource *)check_realloc(psrc,gslip->np*sizeof(struct pointsource));
-gslip->spar = (struct slippars *)check_realloc(gslip->spar,gslip->np*sizeof(struct slippars));
+blen = (size_t)(gslip->np)*(size_t)(sizeof(struct pointsource));
+psrc = (struct pointsource *)check_realloc(psrc,blen);
+
+blen = (size_t)(gslip->np)*(size_t)(sizeof(struct slippars));
+gslip->spar = (struct slippars *)check_realloc(gslip->spar,blen);
 spar = gslip->spar;
 
 i = 0;
@@ -506,6 +514,310 @@ fclose(fpr);
 *dx = *dx/(gslip->np);
 *dy = *dy/(gslip->np);
 */
+
+*dx = dbldx/(gslip->np);
+*dy = dbldy/(gslip->np);
+
+/* adjust for half subfault width */
+*dtop = (*dtop) - 0.5*(*dy)*sin((*dip)*rperd);
+if(*dtop < 0.0)
+   *dtop = 0.0;
+
+return(psrc);
+}
+
+struct pointsource *read_gsfpars_vsden_as(char *file,struct pointsource *psrc,struct generic_slip *gslip,float *dx,float *dy,float *dtop,float *dip,int read_vsden,int read_aseis)
+{
+FILE *fpr, *fopfile();
+size_t blen;
+int i, nn;
+char str[1024];
+struct slippars *spar;
+
+double dbldx = 0.0;
+double dbldy = 0.0;
+
+double rperd = 0.017453293;
+
+*dtop = 1.0e+15;
+*dx = 0.0;
+*dy = 0.0;
+*dip = 0.0;
+
+if(strcmp(file,"stdin") == 0)
+   fpr = stdin;
+else
+   fpr = fopfile(file,"r");
+
+fgets(str,1024,fpr);
+while(strncmp(str,"#",1) == 0)
+   fgets(str,1024,fpr);
+
+sscanf(str,"%d",&gslip->np);
+
+blen = (size_t)(gslip->np)*(size_t)(sizeof(struct pointsource));
+psrc = (struct pointsource *)check_realloc(psrc,blen);
+
+blen = (size_t)(gslip->np)*(size_t)(sizeof(struct slippars));
+gslip->spar = (struct slippars *)check_realloc(gslip->spar,blen);
+spar = gslip->spar;
+
+i = 0;
+while(fgets(str,1024,fpr) != NULL)
+   {
+   if(read_vsden == 0 && read_aseis == 0)
+      {
+      sscanf(str,"%f %f %f %f %f %f %f %f %f %f %d",&spar[i].lon,
+                                     &spar[i].lat,
+                                     &spar[i].dep,
+                                     &spar[i].ds,
+                                     &spar[i].dw,
+                                     &spar[i].stk,
+                                     &spar[i].dip,
+                                     &spar[i].rake,
+                                     &spar[i].slip,
+                                     &spar[i].tinit,
+                                     &spar[i].segno);
+
+      psrc[i].vs = spar[i].vs = -1.0;
+      psrc[i].den = spar[i].den = -1.0;
+      psrc[i].mu = -1.0;
+      psrc[i].aseis = spar[i].aseis = -1.0;
+      }
+   else if(read_vsden == 1 && read_aseis == 0)
+      {
+      sscanf(str,"%f %f %f %f %f %f %f %f %f %f %d %f %f",&spar[i].lon,
+                                     &spar[i].lat,
+                                     &spar[i].dep,
+                                     &spar[i].ds,
+                                     &spar[i].dw,
+                                     &spar[i].stk,
+                                     &spar[i].dip,
+                                     &spar[i].rake,
+                                     &spar[i].slip,
+                                     &spar[i].tinit,
+                                     &spar[i].segno,
+                                     &spar[i].vs,
+                                     &spar[i].den);
+
+      psrc[i].vs = spar[i].vs;
+      psrc[i].den = spar[i].den;
+      psrc[i].mu = psrc[i].vs*psrc[i].vs*psrc[i].den*1.0e+10;   /* in CMS units */
+      psrc[i].aseis = spar[i].aseis = -1.0;
+      }
+   else if(read_vsden == 0 && read_aseis == 1)
+      {
+      sscanf(str,"%f %f %f %f %f %f %f %f %f %f %d %f",&spar[i].lon,
+                                     &spar[i].lat,
+                                     &spar[i].dep,
+                                     &spar[i].ds,
+                                     &spar[i].dw,
+                                     &spar[i].stk,
+                                     &spar[i].dip,
+                                     &spar[i].rake,
+                                     &spar[i].slip,
+                                     &spar[i].tinit,
+                                     &spar[i].segno,
+                                     &spar[i].aseis);
+
+      psrc[i].vs = spar[i].vs = -1.0;
+      psrc[i].den = spar[i].den = -1.0;
+      psrc[i].mu = -1.0;
+
+      if(spar[i].aseis > 0.5)		/* maximum allowed with linear taper */
+         spar[i].aseis = 0.5;
+      psrc[i].aseis = spar[i].aseis;
+      }
+   else
+      {
+      sscanf(str,"%f %f %f %f %f %f %f %f %f %f %d %f %f %f",&spar[i].lon,
+                                     &spar[i].lat,
+                                     &spar[i].dep,
+                                     &spar[i].ds,
+                                     &spar[i].dw,
+                                     &spar[i].stk,
+                                     &spar[i].dip,
+                                     &spar[i].rake,
+                                     &spar[i].slip,
+                                     &spar[i].tinit,
+                                     &spar[i].segno,
+                                     &spar[i].vs,
+                                     &spar[i].den,
+                                     &spar[i].aseis);
+
+      psrc[i].vs = spar[i].vs;
+      psrc[i].den = spar[i].den;
+      psrc[i].mu = psrc[i].vs*psrc[i].vs*psrc[i].den*1.0e+10;   /* in CMS units */
+
+      if(spar[i].aseis > 0.5)		/* maximum allowed with linear taper */
+         spar[i].aseis = 0.5;
+      psrc[i].aseis = spar[i].aseis;
+      }
+
+   psrc[i].lon = spar[i].lon;
+   psrc[i].lat = spar[i].lat;
+   psrc[i].dep = spar[i].dep;
+   psrc[i].stk = spar[i].stk;
+   psrc[i].dip = spar[i].dip;
+   psrc[i].rak = spar[i].rake;
+   psrc[i].area = spar[i].ds*spar[i].dw*1.0e+10;
+
+   if(psrc[i].dep < *dtop)
+      *dtop = psrc[i].dep;
+
+   *dip = *dip + psrc[i].dip;
+
+   dbldx = dbldx + spar[i].ds;
+   dbldy = dbldy + spar[i].dw;
+
+   i++;
+   }
+fclose(fpr);
+
+*dip = *dip/(gslip->np);
+
+*dx = dbldx/(gslip->np);
+*dy = dbldy/(gslip->np);
+
+/* adjust for half subfault width */
+*dtop = (*dtop) - 0.5*(*dy)*sin((*dip)*rperd);
+if(*dtop < 0.0)
+   *dtop = 0.0;
+
+return(psrc);
+}
+
+struct pointsource *read_gsfpars_gsf2(char *file,struct pointsource *psrc,struct generic_slip *gslip,float *dx,float *dy,float *dtop,float *dip,float *rvfrac)
+{
+FILE *fpr, *fopfile();
+size_t blen;
+int i, j, k, nv;
+char str[1024], *str_p, word[256], val[256];
+struct slippars *spar;
+
+double dbldx = 0.0;
+double dbldy = 0.0;
+
+double rperd = 0.017453293;
+
+*dtop = 1.0e+15;
+*dx = 0.0;
+*dy = 0.0;
+*dip = 0.0;
+
+if(strcmp(file,"stdin") == 0)
+   fpr = stdin;
+else
+   fpr = fopfile(file,"r");
+
+fgets(str,1024,fpr);
+while(strncmp(str,"#",1) == 0)
+   fgets(str,1024,fpr);
+
+sscanf(str,"%d",&gslip->np);
+
+blen = (size_t)(gslip->np)*(size_t)(sizeof(struct pointsource));
+psrc = (struct pointsource *)check_realloc(psrc,blen);
+
+blen = (size_t)(gslip->np)*(size_t)(sizeof(struct slippars));
+gslip->spar = (struct slippars *)check_realloc(gslip->spar,blen);
+spar = gslip->spar;
+
+i = 0;
+while(fgets(str,1024,fpr) != NULL)
+   {
+   nv = sscanf(str,"%f %f %f %f %f %f %f %f %f %f %d",&spar[i].lon,
+                                     &spar[i].lat,
+                                     &spar[i].dep,
+                                     &spar[i].ds,
+                                     &spar[i].dw,
+                                     &spar[i].stk,
+                                     &spar[i].dip,
+                                     &spar[i].rake,
+                                     &spar[i].slip,
+                                     &spar[i].tinit,
+                                     &spar[i].segno);
+
+   psrc[i].lon = spar[i].lon;
+   psrc[i].lat = spar[i].lat;
+   psrc[i].dep = spar[i].dep;
+   psrc[i].stk = spar[i].stk;
+   psrc[i].dip = spar[i].dip;
+   psrc[i].rak = spar[i].rake;
+   psrc[i].area = spar[i].ds*spar[i].dw*1.0e+10;
+
+   psrc[i].vs = spar[i].vs = -1.0;
+   psrc[i].den = spar[i].den = -1.0;
+   psrc[i].mu = -1.0;
+   psrc[i].aseis = spar[i].aseis = 0.0;
+   psrc[i].rvf = spar[i].rvf = *rvfrac;
+
+   k = 0;
+   str_p = str;
+   while(str_p[k] != '\n' && str_p[k] != '\0')
+      k++;
+
+   k--;
+   while(k > 0)
+      {
+      j = 0;
+      while(strncmp(&str_p[k],"=",1) != 0 && k > 0)
+         {
+         j++;
+         k--;
+         }
+
+      if(k == 0)
+         break;
+
+      strncpy(val,&str_p[k+1],j);
+      val[j] = '\0';
+
+      j = 0;
+      k--;
+      while(isblank(str_p[k]) == 0 && k > 0)
+         {
+         j++;
+         k--;
+         }
+
+      if(k == 0)
+         break;
+
+      strncpy(word,&str_p[k+1],j);
+      word[j] = '\0';
+
+      if(strncmp(word,"vs",2) == 0)
+         psrc[i].vs = spar[i].vs = atof(val);
+      if(strncmp(word,"den",3) == 0)
+         psrc[i].den = spar[i].den = atof(val);
+      if(strncmp(word,"aseis",5) == 0)
+         psrc[i].aseis = spar[i].aseis = atof(val);
+      if(strncmp(word,"rvf",3) == 0)
+         psrc[i].rvf = spar[i].rvf = atof(val);
+      }
+
+   if(spar[i].vs < 0.0 && spar[i].den < 0.0)
+      psrc[i].mu = -1.0;
+   else
+      psrc[i].mu = psrc[i].vs*psrc[i].vs*psrc[i].den*1.0e+10;   /* in CMS units */
+
+   if(spar[i].aseis > 0.5)           /* maximum allowed with linear taper */
+      psrc[i].aseis = spar[i].aseis = 0.5;
+
+   if(psrc[i].dep < *dtop)
+      *dtop = psrc[i].dep;
+
+   *dip = *dip + psrc[i].dip;
+
+   dbldx = dbldx + spar[i].ds;
+   dbldy = dbldy + spar[i].dw;
+
+   i++;
+   }
+fclose(fpr);
+
+*dip = *dip/(gslip->np);
 
 *dx = dbldx/(gslip->np);
 *dy = dbldy/(gslip->np);

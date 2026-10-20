@@ -60,6 +60,11 @@ int dip = 1;
 int dtop = 1;
 int jbdist = 1;
 
+float slip_rrup, minslip2, dmin2, dmax2;
+int dump_slip = 1;
+float depmin = 0.0;
+float depmax = 1.0e+08;
+
 sprintf(infile,"stdin");
 sprintf(outfile,"stdout");
 
@@ -78,6 +83,11 @@ getpar("jbdist","d",&jbdist);
 getpar("mlon","f",&mlon);
 getpar("mlat","f",&mlat);
 getpar("minslip","f",&minslip);
+
+getpar("depmin","f",&depmin);
+getpar("depmax","f",&depmax);
+getpar("dump_slip","d",&dump_slip);
+
 endpar();
 
 read_srf(&srf,srffile,inbin);
@@ -171,6 +181,8 @@ for(ip=0;ip<np;ip++)
    }
 avgdip = avgdip/(float)(np);
 
+minslip2 = minslip*minslip;
+
 fprintf(stderr,"Processing stations ... ");
 
 if(strcmp(infile,"stdin") == 0)
@@ -212,19 +224,24 @@ while(fgets(sbuf,1024,fpr) != NULL)
       yr = -xs*sinR + ys*cosR - yshift;
       }
 
+   dmin2 = depmin*depmin;
+   dmax2 = depmax*depmax;
    mind = 1.0e+15;
    minr = 1.0e+15;
    minjb = 1.0e+15;
    for(ip=0;ip<np;ip++)
       {
-      if(s2[ip] > minslip)
+      if(s2[ip] > minslip2 && z2[ip] >= dmin2 && z2[ip] <= dmax2)
          {
          rjb = (xr-xf[ip])*(xr-xf[ip]) + (yr-yf[ip])*(yr-yf[ip]);
          rr = rjb + z2[ip];
          if(rjb < minjb)
             minjb = rjb;
          if(rr < minr)
+	    {
             minr = rr;
+	    slip_rrup = s2[ip];
+	    }
          if(z2[ip] < mind)
             mind = z2[ip];
 	 }
@@ -246,6 +263,8 @@ while(fgets(sbuf,1024,fpr) != NULL)
       fprintf(fpw,"\t%.0f",avgdip);
    if(jbdist)
       fprintf(fpw,"\t%.2f",sqrt(minjb));
+   if(dump_slip)
+      fprintf(fpw,"\t%.4e",sqrt(slip_rrup));
 
    fprintf(fpw,"\n");
    }

@@ -383,7 +383,7 @@ fprintf(stderr,"flo= %.5e fhi= %.5e ord= %d phs= %d\n",flo,fhi,ord,phs);
                }
             }
 
-	 itsh = 1.0/(mindt*flo);
+	 itsh = (int)(5.0/(mindt*flo) + 0.5);
 	 maxnt = maxnt + 2*itsh;
 
 	 space = (float *) check_realloc (space,4*maxnt*sizeof(float));
@@ -1270,7 +1270,7 @@ else
    }
 }
 
-void get_moment(struct standrupformat *srf,struct velmodel *vm,int use_srf_mu)
+void get_moment(struct standrupformat *srf,struct velmodel *vm,int use_srf_mu,float *sv_avg_fac)
 {
 struct srf_prectsegments *prseg_ptr;
 struct srf_apointvalues *apval_ptr;
@@ -1280,6 +1280,9 @@ float amax, amin, xmu;
 float surf_sigma, surf_aslip, surf_mslip;
 int np, surf_np;
 int j, k;
+
+int maxnt, kavg, it;
+float sv_avg, slip_cum, *stf1, *stf2;
 
 float conv = 1.0e-11;
 float pi = 3.141592654;
@@ -1300,6 +1303,8 @@ apval_ptr = srf[0].srf_apnts.apntvals;
 
 fprintf(stderr,"np= %d\n",np);
 
+kavg = 0;
+sv_avg = 0.0;
 for(k=0;k<np;k++)
    {
    slip = sqrt(apval_ptr[k].slip1*apval_ptr[k].slip1 +
@@ -1338,7 +1343,84 @@ for(k=0;k<np;k++)
       amin = apval_ptr[k].area;
    if(apval_ptr[k].area > amax)
       amax = apval_ptr[k].area;
+
+   if(slip > MINSLIP)
+      {
+/*
+      maxnt = apval_ptr[k].nt1;
+      if(apval_ptr[k].nt2 > maxnt)
+         maxnt = apval_ptr[k].nt2;
+      if(apval_ptr[k].nt3 > maxnt)
+         maxnt = apval_ptr[k].nt3;
+
+      if(maxnt > 0)
+         {
+	 kavg++;
+         sv_avg = sv_avg + slip/(maxnt*apval_ptr[k].dt);
+	 }
+*/
+
+      slip_cum = 0.0;
+      maxnt = -1;
+
+      if(apval_ptr[k].nt1 > 0 && (apval_ptr[k].nt1 == apval_ptr[k].nt2))
+	 {
+         stf1 = apval_ptr[k].stf1;
+         stf2 = apval_ptr[k].stf2;
+
+         for(it=0;it<apval_ptr[k].nt1;it++)
+	    {
+            slip_cum = slip_cum + apval_ptr[k].dt*sqrt(stf1[it]*stf1[it] + stf2[it]*stf2[it]);
+
+	    if(slip_cum > (*sv_avg_fac)*slip)
+	       {
+	       maxnt = it;
+	       break;
+	       }
+            }
+         }
+      else if(apval_ptr[k].nt1 > 0)
+	 {
+         stf1 = apval_ptr[k].stf1;
+
+         for(it=0;it<apval_ptr[k].nt1;it++)
+	    {
+            slip_cum = slip_cum + apval_ptr[k].dt*stf1[it];
+
+	    if(slip_cum > (*sv_avg_fac)*slip)
+	       {
+	       maxnt = it;
+	       break;
+	       }
+            }
+         }
+      else if(apval_ptr[k].nt2 > 0)
+	 {
+         stf2 = apval_ptr[k].stf2;
+
+         for(it=0;it<apval_ptr[k].nt2;it++)
+	    {
+            slip_cum = slip_cum + apval_ptr[k].dt*stf2[it];
+
+	    if(slip_cum > (*sv_avg_fac)*slip)
+	       {
+	       maxnt = it;
+	       break;
+	       }
+            }
+         }
+
+      maxnt++;
+      if(maxnt > 0)
+         {
+	 kavg++;
+         sv_avg = sv_avg + slip/(maxnt*apval_ptr[k].dt);
+	 }
+      }
    }
+
+if(kavg > 0)
+   sv_avg = sv_avg/kavg;
 
 amu = amu/aslip;
 aslip = aslip/(float)(np);
@@ -1391,13 +1473,15 @@ fprintf(stderr,"Average area= %13.5e km*km\n",tarea/(float)(np));
 fprintf(stderr,"Min. area= %13.5e km*km\n",amin*1.0e-10);
 fprintf(stderr,"Max. area= %13.5e km*km\n",amax*1.0e-10);
 fprintf(stderr,"Average slip= %10.2f cm (sigma/aslip= %.3f)\n",aslip,sqrt(sigma/(np-1))/aslip);
+fprintf(stderr,"Average mu= %10.2e dyne/(cm*cm)\n",(tmom*1.0e-10)/(aslip*tarea));
 fprintf(stderr,"Maximum slip= %10.2f cm\n",mslip);
+fprintf(stderr,"Average slip velocity= %10.2f cm/s\n",sv_avg);
 if(surf_np > 3)
    {
    fprintf(stderr,"SURFACE: Average slip= %10.2f cm (sigma/aslip= %.3f)\n",surf_aslip,sqrt(surf_sigma/(surf_np-1))/surf_aslip);
    fprintf(stderr,"SURFACE: Maximum slip= %10.2f cm\n",surf_mslip);
    }
-fprintf(stderr,"Total moment= %13.5e dyne-cm (Mw= %.3f)\n",tmom,0.66667*(log(tmom)/log(10))-10.7);
+fprintf(stderr,"Total moment= %13.5e dyne-cm (Mw= %.3f)\n",tmom,0.66667*(log(tmom)/log(10))-10.73);
 fprintf(stderr,"Static stress drop= %.3f bar (dip-slip: length= %.2f width= %.2f km)\n",ssd/c3,len,wid);
 fprintf(stderr,"Static stress drop= %.3f bar (strike-slip: length= %.2f width= %.2f km)\n",ssd/c2,len,wid);
 fprintf(stderr,"Static stress drop= %.3f bar (circular crack: area= %13.5e km*km)\n",ssd/c1,tarea);
@@ -1416,6 +1500,9 @@ int i, j, k, npskip;
 int igst, ignd, igp;
 char str[512], frmt[32];
 
+float flo, fhi, mindt, *space, *sf1, *sf2, *sf3;
+int itsh, ord, phs;
+
 float ss, dd;
 float rperd = 0.017453293;
 
@@ -1433,6 +1520,14 @@ if(strcmp(srf[0].type,"PLANE") == 0)
       igst = ig;
       ignd = igst + 1;
       }
+   }
+
+if(strncmp(type,"filter_velocity",15) == 0)
+   {
+   space = NULL;
+   sf1 = NULL;
+   sf2 = NULL;
+   sf3 = NULL;
    }
 
 if(strcmp(file,"stdout") == 0)
@@ -1460,6 +1555,44 @@ for(igp=igst;igp<ignd;igp++)
 
    apval_ptr = srf[0].srf_apnts.apntvals + npskip;
 
+      if(strncmp(type,"filter_velocity",15) == 0)
+         {
+         flo = 1.0e+15;
+         fhi = 0.0;
+         ord = 4;
+         phs = 0;
+
+         get_filtvals(type+15,&flo,&fhi,&ord,&phs);
+
+         maxnt = 0;
+         mindt = 1.0e+15;
+         for(j=0;j<ny;j++)
+            {
+            for(i=0;i<nx;i++)
+               {
+               k = i + j*nx;
+
+               if(apval_ptr[k].nt1 > maxnt)
+                  maxnt = apval_ptr[k].nt1;
+               if(apval_ptr[k].nt2 > maxnt)
+                  maxnt = apval_ptr[k].nt2;
+               if(apval_ptr[k].nt3 > maxnt)
+                  maxnt = apval_ptr[k].nt3;
+
+               if(apval_ptr[k].dt < mindt)
+                  mindt = apval_ptr[k].dt;
+               }
+            }
+
+         itsh = (int)(5.0/(mindt*flo) + 0.5);
+         maxnt = maxnt + 2*itsh;
+
+         space = (float *) check_realloc (space,4*maxnt*sizeof(float));
+         sf1 = (float *) check_realloc (sf1,maxnt*sizeof(float));
+         sf2 = (float *) check_realloc (sf2,maxnt*sizeof(float));
+         sf3 = (float *) check_realloc (sf3,maxnt*sizeof(float));
+         }
+
    for(j=0;j<ny;j++)
       {
       for(i=0;i<nx;i++)
@@ -1477,7 +1610,7 @@ for(igp=igst;igp<ignd;igp++)
 	       slipval = outval;
 	       }
 
-            else if(strcmp(type,"velocity") == 0)
+            if(strcmp(type,"velocity") == 0)
                {
                stf1 = apval_ptr[k].stf1;
                stf2 = apval_ptr[k].stf2;
@@ -1508,6 +1641,49 @@ for(igp=igst;igp<ignd;igp++)
                outval = svmax;
                }
 
+            if(strncmp(type,"filter_velocity",15) == 0)
+               {
+               maxnt = apval_ptr[k].nt1;
+               if(apval_ptr[k].nt2 > maxnt)
+                  maxnt = apval_ptr[k].nt2;
+               if(apval_ptr[k].nt3 > maxnt)
+                  maxnt = apval_ptr[k].nt3;
+
+               maxnt = maxnt + 2*itsh;
+               for(it=0;it<maxnt;it++)
+                  {
+                  sf1[it] = 0.0;
+                  sf2[it] = 0.0;
+                  sf3[it] = 0.0;
+                  }
+
+               stf1 = apval_ptr[k].stf1;
+               for(it=0;it<apval_ptr[k].nt1;it++)
+                  sf1[it+itsh] = stf1[it];
+               tfilter(sf1,&(apval_ptr[k].dt),maxnt,ord,&fhi,&flo,phs,space);
+
+               stf2 = apval_ptr[k].stf2;
+               for(it=0;it<apval_ptr[k].nt2;it++)
+                  sf2[it+itsh] = stf2[it];
+               tfilter(sf2,&(apval_ptr[k].dt),maxnt,ord,&fhi,&flo,phs,space);
+
+               stf3 = apval_ptr[k].stf3;
+               for(it=0;it<apval_ptr[k].nt3;it++)
+                  sf3[it+itsh] = stf3[it];
+               tfilter(sf3,&(apval_ptr[k].dt),maxnt,ord,&fhi,&flo,phs,space);
+
+               svmax = 0.0;
+               for(it=0;it<maxnt;it++)
+                  {
+                  sv = sf1[it]*sf1[it] + sf2[it]*sf2[it] + sf3[it]*sf3[it];
+
+                  if(sv > svmax)
+                     svmax = sv;
+                  }
+
+               outval = sqrt(svmax);
+               }
+
             if(strcmp(type,"tinit") == 0)
                outval = apval_ptr[k].tinit;
 
@@ -1520,13 +1696,13 @@ for(igp=igst;igp<ignd;igp++)
                   outval = apval_ptr[k].nt3*apval_ptr[k].dt;
                }
 
-            else if(strcmp(type,"strike") == 0)
+            if(strcmp(type,"strike") == 0)
                outval = apval_ptr[k].stk;
 
-            else if(strcmp(type,"dip") == 0)
+            if(strcmp(type,"dip") == 0)
                outval = apval_ptr[k].dip;
 
-            else if(strcmp(type,"rake") == 0)
+            if(strcmp(type,"rake") == 0)
 	       {
 	       ss = cos(rperd*apval_ptr[k].rake)*apval_ptr[k].slip1 - sin(rperd*apval_ptr[k].rake)*apval_ptr[k].slip2;
 	       dd = sin(rperd*apval_ptr[k].rake)*apval_ptr[k].slip1 + cos(rperd*apval_ptr[k].rake)*apval_ptr[k].slip2;
@@ -1556,14 +1732,22 @@ for(igp=igst;igp<ignd;igp++)
    }
 
 fclose(fpw);
+
+if(strncmp(type,"filter_velocity",15) == 0)
+   {
+   free(space);
+   free(sf1);
+   free(sf2);
+   free(sf3);
+   }
 }
 
-void get_moment_rate(struct standrupformat *srf,struct velmodel *vm,int use_srf_mu)
+void get_moment_rate(struct standrupformat *srf,struct velmodel *vm,int use_srf_mu,float *dt_faux)
 {
 struct srf_prectsegments *prseg_ptr;
 struct srf_apointvalues *apval_ptr;
 float amu, *stf;
-float dt, *mr, *xmr;
+float dt, ampfac, *mr, *xmr;
 int nt, nalloc, nalloc2, np, its, maxnt, it, j, k;
 
 int nblock = 10000;
@@ -1584,7 +1768,17 @@ nalloc2 = nblock;
 xmr = (float *) check_realloc(xmr,nalloc2*sizeof(float));
 
 nt = 0;
-dt = apval_ptr[0].dt;
+if(*dt_faux > 0.0)
+   {
+   dt = *dt_faux;
+   ampfac = apval_ptr[0].dt/(*dt_faux);
+   }
+else
+   {
+   dt = apval_ptr[0].dt;
+   ampfac = 1.0;
+   }
+
 for(k=0;k<np;k++)
    {
    if(use_srf_mu != 0 && apval_ptr[k].vs > 0.0 && apval_ptr[k].den > 0.0)
@@ -1604,7 +1798,7 @@ for(k=0;k<np;k++)
    if(apval_ptr[k].nt3 > maxnt)
       maxnt = apval_ptr[k].nt3;
 
-   its = (int)(apval_ptr[k].tinit/apval_ptr[k].dt + 0.5);
+   its = (int)(apval_ptr[k].tinit/dt + 0.5);
 
    if((its + maxnt + 1) > nt)
       nt = its + maxnt + 1;
@@ -1640,7 +1834,7 @@ for(k=0;k<np;k++)
       xmr[it] = xmr[it] + stf[it]*stf[it];
 
    for(it=0;it<maxnt;it++)
-      mr[it+its] = mr[it+its] + amu*sqrt(xmr[it]);
+      mr[it+its] = mr[it+its] + ampfac*amu*sqrt(xmr[it]);
    }
 
 fprintf(stdout,"mr mr\n");
@@ -1930,7 +2124,7 @@ while(cbuf[0] != '\0')
    }
 }
 
-void dump_sliprate(char *fileroot,struct standrupformat *srf,int ig,float *dmin,float *dmax,float *smin)
+void dump_sliprate(char *fileroot,struct standrupformat *srf,int ig,float *dmin,float *dmax,float *smin,int npv,int *ipvals)
 {
 FILE *fpw, *fopfile();
 struct srf_prectsegments *prseg_ptr;
@@ -1984,79 +2178,150 @@ for(igp=igst;igp<ignd;igp++)
 
    apval_ptr = srf[0].srf_apnts.apntvals + npskip;
 
-   for(j=0;j<ny;j++)
+   if(npv > 0)
       {
-      for(i=0;i<nx;i++)
-         {
-         k = i + j*nx;
+      for(i=0;i<npv;i++)
+	 {
+	 k = ipvals[i];
 
-	 slipval = sqrt(apval_ptr[k].slip1*apval_ptr[k].slip1 +
-	                  apval_ptr[k].slip2*apval_ptr[k].slip2 +
-			  apval_ptr[k].slip3*apval_ptr[k].slip3);
+         stf1 = apval_ptr[k].stf1;
+         stf2 = apval_ptr[k].stf2;
+         stf3 = apval_ptr[k].stf3;
 
-         if(apval_ptr[k].dep >= *dmin && apval_ptr[k].dep <= *dmax && slipval >= *smin)
-	    {
-            stf1 = apval_ptr[k].stf1;
-            stf2 = apval_ptr[k].stf2;
-            stf3 = apval_ptr[k].stf3;
+         maxnt = apval_ptr[k].nt1;
+         if(apval_ptr[k].nt2 > maxnt)
+            maxnt = apval_ptr[k].nt2;
+         if(apval_ptr[k].nt3 > maxnt)
+            maxnt = apval_ptr[k].nt3;
 
-            maxnt = apval_ptr[k].nt1;
-            if(apval_ptr[k].nt2 > maxnt)
-               maxnt = apval_ptr[k].nt2;
-            if(apval_ptr[k].nt3 > maxnt)
-               maxnt = apval_ptr[k].nt3;
+         if(maxnt > nt_default)
+            {
+            nt_default = maxnt;
+            sv = (float *)check_realloc(sv,nt_default*sizeof(float));
+            }
 
-            if(maxnt > nt_default)
-               {
-               nt_default = maxnt;
-               sv = (float *)check_realloc(sv,nt_default*sizeof(float));
-               }
+         for(it=0;it<maxnt;it++)
+            {
+            sv[it] = 0.0;
+            if(it < apval_ptr[k].nt1)
+               sv[it] = sv[it] + stf1[it]*stf1[it];
+            if(it < apval_ptr[k].nt2)
+               sv[it] = sv[it] + stf2[it]*stf2[it];
+            if(it < apval_ptr[k].nt3)
+               sv[it] = sv[it] + stf3[it]*stf3[it];
 
-            for(it=0;it<maxnt;it++)
-               {
-               sv[it] = 0.0;
-               if(it < apval_ptr[k].nt1)
-                  sv[it] = sv[it] + stf1[it]*stf1[it];
-               if(it < apval_ptr[k].nt2)
-                  sv[it] = sv[it] + stf2[it]*stf2[it];
-               if(it < apval_ptr[k].nt3)
-                  sv[it] = sv[it] + stf3[it]*stf3[it];
+            sv[it] = sqrt(sv[it]);
+            }
 
-               sv[it] = sqrt(sv[it]);
-               }
+         sprintf(outfile,"%s-%.6d.stf",fileroot,npskip+k);
 
-            sprintf(outfile,"%s-%.6d.stf",fileroot,npskip+k);
+         fpw = fopfile(outfile,"w");
 
-            fpw = fopfile(outfile,"w");
-
-            fprintf(fpw,"%-10s %3s %s\n","stf","stf","stitle");
-            fprintf(fpw,"%d %12.5e %d %d %12.5e %12.5e %12.5e %12.5e\n",maxnt,
+         fprintf(fpw,"%-10s %3s %s\n","stf","stf","stitle");
+         fprintf(fpw,"%d %12.5e %d %d %12.5e %12.5e %12.5e %12.5e\n",maxnt,
                                            apval_ptr[k].dt,
                                            0,
                                            0,
-                                           0.0,
+                                           apval_ptr[k].tinit,
                                            1.0,
                                            0.0,
                                            0.0);
 
-            nt6 = maxnt/6;
-            for(it=0;it<nt6;it++)
-               {
-               for(jt=0;jt<6;jt++)
-                  fprintf(fpw,"%13.5e",sv[6*it + jt]);
+         nt6 = maxnt/6;
+         for(it=0;it<nt6;it++)
+            {
+            for(jt=0;jt<6;jt++)
+               fprintf(fpw,"%13.5e",sv[6*it + jt]);
 
-               fprintf(fpw,"\n");
-               }
+            fprintf(fpw,"\n");
+            }
 
-            if(6*nt6 != maxnt)
-               {
-               for(it=6*nt6;it<maxnt;it++)
-                  fprintf(fpw,"%13.5e",sv[it]);
+         if(6*nt6 != maxnt)
+            {
+            for(it=6*nt6;it<maxnt;it++)
+               fprintf(fpw,"%13.5e",sv[it]);
 
-               fprintf(fpw,"\n");
-               }
-            fclose(fpw);
-	    }
+            fprintf(fpw,"\n");
+            }
+         fclose(fpw);
+	 }
+      }
+   else
+      {
+      for(j=0;j<ny;j++)
+         {
+         for(i=0;i<nx;i++)
+            {
+            k = i + j*nx;
+
+            slipval = sqrt(apval_ptr[k].slip1*apval_ptr[k].slip1 +
+	                  apval_ptr[k].slip2*apval_ptr[k].slip2 +
+			  apval_ptr[k].slip3*apval_ptr[k].slip3);
+
+            if(apval_ptr[k].dep >= *dmin && apval_ptr[k].dep <= *dmax && slipval >= *smin)
+   	       {
+               stf1 = apval_ptr[k].stf1;
+               stf2 = apval_ptr[k].stf2;
+               stf3 = apval_ptr[k].stf3;
+
+               maxnt = apval_ptr[k].nt1;
+               if(apval_ptr[k].nt2 > maxnt)
+                  maxnt = apval_ptr[k].nt2;
+               if(apval_ptr[k].nt3 > maxnt)
+                  maxnt = apval_ptr[k].nt3;
+
+               if(maxnt > nt_default)
+                  {
+                  nt_default = maxnt;
+                  sv = (float *)check_realloc(sv,nt_default*sizeof(float));
+                  }
+
+               for(it=0;it<maxnt;it++)
+                  {
+                  sv[it] = 0.0;
+                  if(it < apval_ptr[k].nt1)
+                     sv[it] = sv[it] + stf1[it]*stf1[it];
+                  if(it < apval_ptr[k].nt2)
+                     sv[it] = sv[it] + stf2[it]*stf2[it];
+                  if(it < apval_ptr[k].nt3)
+                     sv[it] = sv[it] + stf3[it]*stf3[it];
+
+                  sv[it] = sqrt(sv[it]);
+                  }
+
+               sprintf(outfile,"%s-%.6d.stf",fileroot,npskip+k);
+
+               fpw = fopfile(outfile,"w");
+
+               fprintf(fpw,"%-10s %3s %s\n","stf","stf","stitle");
+               fprintf(fpw,"%d %12.5e %d %d %12.5e %12.5e %12.5e %12.5e\n",maxnt,
+                                           apval_ptr[k].dt,
+                                           0,
+                                           0,
+                                           apval_ptr[k].tinit,
+                                           1.0,
+                                           0.0,
+                                           0.0);
+
+               nt6 = maxnt/6;
+               for(it=0;it<nt6;it++)
+                  {
+                  for(jt=0;jt<6;jt++)
+                     fprintf(fpw,"%13.5e",sv[6*it + jt]);
+
+                  fprintf(fpw,"\n");
+                  }
+
+               if(6*nt6 != maxnt)
+                  {
+                  for(it=6*nt6;it<maxnt;it++)
+                     fprintf(fpw,"%13.5e",sv[it]);
+
+                  fprintf(fpw,"\n");
+                  }
+               fclose(fpw);
+	       }
+            }
          }
       }
    }
