@@ -726,8 +726,8 @@ def create_plot(codebase, mag, vel, dist, mech, sim_data, output_file):
     plt.axis([0.01, 20, ymin, ymax])
     plt.xticks([0.01, 0.1, 1, 10], ["0.01", "0.1", "1", "10"])
     plt.grid(True)
-    plt.grid(b=True, which='major', linestyle='-', color='lightgray')
-    plt.grid(b=True, which='minor', linewidth=0.5, color='gray')
+    plt.grid(which='major', linestyle='-', color='lightgray')
+    plt.grid(which='minor', linewidth=0.5, color='gray')
     plt.minorticks_on()
 
     # All done! Save plot!
